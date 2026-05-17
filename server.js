@@ -69,6 +69,6 @@ app.post('/api/humanize', async (req, res) => {
 
 // ─── Start ─────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
-  console.log(`Bipass AI running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Bipass AI running on port ${PORT}`);
 });

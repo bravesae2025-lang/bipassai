@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Result</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Loading overlay for "Edit with AI" -->
+  <div class="loading-overlay" id="loading-overlay" aria-live="polite">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">Editing with AI…</div>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="index.html#pricing">Pricing</a>
+        <a class="nav-link" href="index.html#faq">FAQ</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <main class="editor-main">
+    <div class="editor-wrap">
+
+      <div class="editor-topbar">
+        <div class="editor-meta">
+          <span class="editor-badge" id="editor-badge">Result</span>
+          <span class="editor-wc" id="editor-wc">0 words</span>
+        </div>
+        <button class="editor-copy-btn" id="copy-btn">Copy</button>
+      </div>
+
+      <textarea
+        class="editor-textarea"
+        id="editor-textarea"
+        spellcheck="false"
+        placeholder="Your result will appear here…"
+      ></textarea>
+
+      <div class="editor-actions">
+        <a href="app.html" class="editor-btn editor-btn-back">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Regenerate
+        </a>
+        <button class="editor-btn editor-btn-ai" id="edit-ai-btn">
+          Edit with AI
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

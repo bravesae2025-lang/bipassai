@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Loading overlay — shown while API call is in progress -->
+  <div class="loading-overlay" id="loading-overlay" aria-live="polite">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">Generating your text…</div>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="index.html#how-it-works">How It Works</a>
+        <a class="nav-link" href="index.html#pricing">Pricing</a>
+        <a class="nav-link" href="index.html#faq">FAQ</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <!-- Slim app stats bar -->
+  <div class="app-statsbar">
+    <div class="stat-item">
+      <span class="stat-val" id="word-count">0</span>
+      <span class="stat-lbl">words</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-val" id="char-count">0</span>
+      <span class="stat-lbl">chars</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-lbl">level</span>
+      <span class="stat-val" id="level-label">Easy</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-val status-val" id="status-label">Ready</span>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <div class="workspace" id="workspace">
+
+      <!-- ── 01 GENERATE / 02 HUMANIZE ────────────────────── -->
+      <section class="col col-main" data-reveal>
+
+        <div id="generate-section">
+          <div class="col-label">
+            <span class="col-num">01</span>
+            <span class="col-name">Generate</span>
+            <span class="box-wc" id="prompt-wc">0 words</span>
+          </div>
+
+          <div class="textarea-wrap">
+            <textarea
+              id="prompt-text"
+              placeholder="What do you want written? e.g. 'Write a 300 word essay about climate change'"
+              spellcheck="false"
+            ></textarea>
+            <div class="textarea-corner tl"></div>
+            <div class="textarea-corner tr"></div>
+            <div class="textarea-corner bl"></div>
+            <div class="textarea-corner br"></div>
+          </div>
+
+          <button id="generate-btn" class="btn-generate" aria-label="Generate text">
+            <span class="btn-content">
+              <span id="generate-label">Generate</span>
+              <span id="generate-loader" class="spinner hidden"></span>
+            </span>
+            <span class="btn-arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
+            <span class="btn-sweep" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="input-divider" id="divider" aria-hidden="true">
+          <span>or paste existing AI text</span>
+        </div>
+
+        <div id="humanize-section">
+          <div class="col-label">
+            <span class="col-num">02</span>
+            <span class="col-name">Humanize</span>
+            <span class="box-wc" id="humanize-wc">0 words</span>
+          </div>
+
+          <div class="textarea-wrap">
+            <textarea
+              id="input-text"
+              placeholder="Paste your AI-generated text here…"
+              spellcheck="false"
+            ></textarea>
+            <div class="textarea-corner tl"></div>
+            <div class="textarea-corner tr"></div>
+            <div class="textarea-corner bl"></div>
+            <div class="textarea-corner br"></div>
+          </div>
+
+          <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Humanize text">
+            <span class="btn-content">
+              <span id="humanize-label">Humanize</span>
+              <span id="humanize-loader" class="spinner hidden"></span>
+            </span>
+            <span class="btn-arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
+            <span class="btn-sweep" aria-hidden="true"></span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ── CUSTOMIZE ──────────────────────────────────────── -->
+      <section class="col col-customize" data-reveal data-reveal-delay="1">
+
+        <div class="col-label">
+          <span class="col-num">04</span>
+          <span class="col-name">Customize</span>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head">Humanization Level</div>
+          <div class="level-track" role="group" aria-label="Level">
+            <div class="level-glider" id="level-glider"></div>
+            <button class="level-btn active" data-level="easy">Easy</button>
+            <button class="level-btn" data-level="medium">Medium</button>
+            <button class="level-btn" data-level="hard">Hard</button>
+          </div>
+          <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head">Options</div>
+
+          <label class="toggle-row" for="grammar-toggle">
+            <div class="toggle-text">
+              <span class="toggle-title">Grammar mistakes</span>
+              <span class="toggle-sub">Subtle errors a human makes</span>
+            </div>
+            <div class="toggle-shell">
+              <input type="checkbox" id="grammar-toggle">
+              <div class="toggle-track">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </label>
+
+          <label class="toggle-row" for="punct-toggle">
+            <div class="toggle-text">
+              <span class="toggle-title">Punctuation mistakes</span>
+              <span class="toggle-sub">Inconsistent stops and dashes</span>
+            </div>
+            <div class="toggle-shell">
+              <input type="checkbox" id="punct-toggle">
+              <div class="toggle-track">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="control-block tips-block">
+          <div class="control-head">Quick Tips</div>
+          <div class="tips">
+            <div class="tip">Use <em>Hard</em> for essays or formal writing</div>
+            <div class="tip">Enable grammar for a more handwritten feel</div>
+            <div class="tip">Feed output directly into Auto Typer</div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

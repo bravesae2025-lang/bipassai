@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Make Your Text Sound Human</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="#">Home</a>
+        <a class="nav-link" href="#how-it-works">How It Works</a>
+        <a class="nav-link" href="#">Auto Typer</a>
+        <a class="nav-link" href="#pricing">Pricing</a>
+        <a class="nav-link" href="#faq">FAQ</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <header class="header-black">
+    <div class="header-inner">
+      <h1 class="wordmark">Bipass AI</h1>
+      <div class="header-meta">
+        <div class="header-tagline">Make your text<br>sound human</div>
+        <div class="powered-badge">
+          <span class="badge-dot"></span>
+          Gemini 2.5 Flash
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker-wrap" aria-hidden="true">
+    <div class="ticker-track">
+      <span>BYPASS AI DETECTION</span><span class="tick-dot">·</span>
+      <span>SOUND HUMAN</span><span class="tick-dot">·</span>
+      <span>BIPASS AI</span><span class="tick-dot">·</span>
+      <span>UNDETECTABLE</span><span class="tick-dot">·</span>
+      <span>HUMANIZE YOUR TEXT</span><span class="tick-dot">·</span>
+      <span>POWERED BY GEMINI</span><span class="tick-dot">·</span>
+      <span>BYPASS AI DETECTION</span><span class="tick-dot">·</span>
+      <span>SOUND HUMAN</span><span class="tick-dot">·</span>
+      <span>BIPASS AI</span><span class="tick-dot">·</span>
+      <span>UNDETECTABLE</span><span class="tick-dot">·</span>
+      <span>HUMANIZE YOUR TEXT</span><span class="tick-dot">·</span>
+      <span>POWERED BY GEMINI</span><span class="tick-dot">·</span>
+    </div>
+  </div>
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <section class="hero-section">
+
+    <!-- Headline + sub -->
+    <div class="hero-head">
+      <h2 class="hero-title">Your AI text,<br>made undetectable.</h2>
+      <p class="hero-desc">Paste it in. Pick a level. Get human-sounding text in seconds — no detector can catch it.</p>
+    </div>
+
+    <!-- Typing showcase -->
+    <div class="typeshow" data-anim="slide-up">
+      <div class="typeshow-header">
+        <span class="typeshow-badge" id="typeshow-badge">DISCUSSION · EASY</span>
+        <div class="typeshow-dots" id="typeshow-dots"></div>
+      </div>
+      <div class="typeshow-body" id="typeshow-body"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats" data-anim="slide-up" data-anim-delay="1">
+      <div class="hero-stat">
+        <span class="hero-stat-val">10k+</span>
+        <span class="hero-stat-lbl">texts humanized</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">&lt;10s</span>
+        <span class="hero-stat-lbl">average result time</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">3</span>
+        <span class="hero-stat-lbl">writing levels</span>
+      </div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">100%</span>
+        <span class="hero-stat-lbl">undetectable output</span>
+      </div>
+    </div>
+
+    <!-- Action -->
+    <div class="hero-cta" data-anim="slide-up" data-anim-delay="2">
+      <button id="hero-humanize-btn" class="hero-cta-btn">
+        <span class="hero-cta-label">Try Bipass AI Now</span>
+        <span class="hero-cta-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </span>
+        <span class="hero-cta-sweep" aria-hidden="true"></span>
+      </button>
+      <p class="hero-cta-sub">Paste your text in the app &mdash; results in under 10 seconds</p>
+    </div>
+
+  </section>
+
+  <!-- ── HOW IT WORKS ──────────────────────────────────────── -->
+  <section id="how-it-works" class="hiw-section">
+    <div class="hiw-header">
+      <div class="hiw-label" data-anim="slide-up">HOW IT WORKS</div>
+      <h2 class="hiw-title" data-anim="slide-up" data-anim-delay="1">Four steps to undetectable text</h2>
+      <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">From AI-generated to human-sounding in under a minute.</p>
+    </div>
+
+    <div class="hiw-steps">
+
+      <div class="hiw-step" data-anim="slide-up">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+          </svg>
+        </div>
+        <h3 class="step-title">Customize the level</h3>
+        <p class="step-desc">Pick your level — Easy sounds like a beginner English speaker, Medium like an average student, Hard like a confident writer.</p>
+      </div>
+
+      <div class="hiw-connector" aria-hidden="true">→</div>
+
+      <div class="hiw-step hiw-step-dark" data-anim="slide-up" data-anim-delay="2">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
+        <h3 class="step-title">Generate</h3>
+        <p class="step-desc">Gemini rewrites your text to sound natural and human — no AI patterns, no robotic phrasing, no "certainly".</p>
+      </div>
+
+      <div class="hiw-connector" aria-hidden="true">→</div>
+
+      <div class="hiw-step" data-anim="slide-up" data-anim-delay="4">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <h3 class="step-title">Auto type it in</h3>
+        <p class="step-desc">Paste the output into the Auto Typer extension. It types into Google Docs character by character — building a real revision history.</p>
+      </div>
+
+    </div>
+
+    <div class="hiw-footer">
+      <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="1">
+        <span class="hiw-footer-icon">🔒</span>
+        <span>Your API key never leaves your browser</span>
+      </div>
+      <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="2">
+        <span class="hiw-footer-icon">⚡</span>
+        <span>Results in under 10 seconds</span>
+      </div>
+      <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="3">
+        <span class="hiw-footer-icon">🎓</span>
+        <span>Works on any essay or assignment</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRICING ─────────────────────────────────────────────── -->
+  <section id="pricing" class="pricing-section">
+    <div class="pricing-header">
+      <div class="pricing-label" data-anim="slide-up">PRICING</div>
+      <h2 class="pricing-title" data-anim="slide-up" data-anim-delay="1">Pick your pass</h2>
+      <p class="pricing-sub" data-anim="slide-up" data-anim-delay="2">No subscription traps. Pay for what you need, when you need it.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <div class="pricing-card" data-anim="scale-up">
+        <div class="pricing-card-top">
+          <div class="pricing-plan">Day Pass</div>
+          <div class="pricing-price">
+            <span class="pricing-currency">$</span>4<span class="pricing-cents">.99</span>
+          </div>
+          <div class="pricing-period">one time</div>
+        </div>
+        <ul class="pricing-features">
+          <li>Unlimited generations for 24 hours</li>
+          <li>All humanization levels</li>
+          <li>Grammar &amp; punctuation options</li>
+          <li>Good for a single assignment</li>
+        </ul>
+        <button class="pricing-btn" onclick="alert('Coming soon!')">Get Day Pass</button>
+      </div>
+
+      <div class="pricing-card" data-anim="scale-up" data-anim-delay="1">
+        <div class="pricing-card-top">
+          <div class="pricing-plan">Weekly Pass</div>
+          <div class="pricing-price">
+            <span class="pricing-currency">$</span>12<span class="pricing-cents">.99</span>
+          </div>
+          <div class="pricing-period">per week</div>
+        </div>
+        <ul class="pricing-features">
+          <li>Unlimited generations for 7 days</li>
+          <li>All humanization levels</li>
+          <li>Grammar &amp; punctuation options</li>
+          <li>Great for exam week</li>
+        </ul>
+        <button class="pricing-btn" onclick="alert('Coming soon!')">Get Weekly</button>
+      </div>
+
+      <div class="pricing-card pricing-card-featured" data-anim="scale-up" data-anim-delay="2">
+        <div class="pricing-badge-top">Best Value</div>
+        <div class="pricing-card-top">
+          <div class="pricing-plan">Monthly Pass</div>
+          <div class="pricing-price">
+            <span class="pricing-currency">$</span>24<span class="pricing-cents">.99</span>
+          </div>
+          <div class="pricing-period">per month</div>
+        </div>
+        <ul class="pricing-features">
+          <li>Unlimited generations for 30 days</li>
+          <li>All humanization levels</li>
+          <li>Grammar &amp; punctuation options</li>
+          <li>Priority access to new features</li>
+        </ul>
+        <button class="pricing-btn pricing-btn-featured" onclick="alert('Coming soon!')">Get Monthly</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────────── -->
+  <section id="faq" class="faq-section">
+    <div class="faq-header">
+      <div class="faq-label" data-anim="slide-up">FAQ</div>
+      <h2 class="faq-title" data-anim="slide-up" data-anim-delay="1">Common questions</h2>
+    </div>
+
+    <div class="faq-list" data-anim="slide-up" data-anim-delay="2">
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>Will this bypass Turnitin or AI detectors?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>Bipass AI rewrites your text so it reads naturally and avoids AI-pattern phrases. Most AI detectors look for statistical patterns in word choice — our Hard mode is designed to break those patterns. No tool can guarantee 100% bypass, but results are consistently strong, especially combined with the Auto Typer extension.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>What is the Gemini API key and where do I get one?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>The Gemini API key lets Bipass AI connect to Google's Gemini 2.0 Flash model. Get yours for free at <strong>aistudio.google.com</strong> — click "Get API key", create a new key, and paste it in the key field. It's stored only in your browser and never sent anywhere else.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>Is my text saved or seen by anyone?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>No. Your text goes directly from your browser to Google's Gemini API — Bipass AI never touches it. Your API key is stored locally in your browser (localStorage) and is never sent to our servers. We have no servers.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>How does the Auto Typer extension work?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>The Auto Typer Chrome extension types your humanized text into Google Docs character by character, at a natural human speed with slight timing variation. This builds a real revision history inside Google Docs — so it looks like you typed it yourself over time, not pasted it in one shot.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>Does it work for any subject or assignment type?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>Yes — essays, discussion posts, short answers, lab reports, anything text-based. Use <strong>Easy</strong> for technical writing where structure matters, and <strong>Hard</strong> for humanities essays where tone and voice are scrutinized more closely.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    // ── Nav user ───────────────────────────────────────────────
+    (async function () {
+      const navUser = document.getElementById('nav-user');
+      if (!navUser) return;
+      const session = await window.bipassAuth.getSession();
+      if (session) {
+        navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+        document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
+      } else {
+        navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
+      }
+    })();
+
+    // ── Typing showcase ───────────────────────────────────────
+    (function () {
+      const SLIDES = [
+        {
+          badge: 'DISCUSSION · EASY',
+          text: 'I think climate change is really bad and I feel like not enough people actually care about it. Last summer was so hot my grandma couldn\'t even go outside, which was kind of scary.\n\nThe main problem I think is people not realizing how serious it already is. A lot of my friends think it\'s something that happens in the future, but it\'s kind of happening now. The wildfires and floods are pretty obvious if you pay attention.\n\nI\'m not sure what the best solution is. Maybe if more people talked about it in school it would help. Doing nothing definitely seems like the worst option though.',
+        },
+        {
+          badge: 'ESSAY · MEDIUM',
+          text: 'Social media has kind of become the default way people communicate, which has some real benefits but also some stuff that genuinely bothers me. You can keep up with people you\'d otherwise lose touch with completely, which is nice. But a lot of those connections feel pretty surface level.\n\nI\'ve noticed that people mostly post highlights, which makes everyone else feel like they\'re falling behind somehow. I\'m not totally sure if that\'s a social media thing or just a human thing, but it definitely feels amplified online.\n\nTo be fair, I\'ve also seen communities form around really niche stuff that probably couldn\'t exist in real life. Chronic illness groups, obscure hobbies, that kind of thing. So it\'s more complicated than just saying it\'s bad.',
+        },
+        {
+          badge: 'ANALYSIS · HARD',
+          text: 'Fitzgerald\'s green light is interesting because the more you explain it, the less it works. Sure, it represents what Gatsby can\'t have. But the detail that actually matters is that he just stands there looking at it. He\'s not planning. He\'s not moving. He\'s just reaching.\n\nI think that\'s deliberate. Gatsby doesn\'t actually want Daisy — he wants to want her. The longing is the whole point. The moment he\'d actually get what he\'s after, the thing he\'s built his life around disappears. Fitzgerald seems to understand that better than Gatsby does.\n\nThat\'s what makes the ending feel less like a tragedy about love and more about a guy who got exactly what he wanted, then died before he had to figure out what it meant.',
+        },
+        {
+          badge: 'ASSIGNMENT · EASY',
+          text: 'Cells are the basic building block of every living thing. Some organisms are just one cell, like bacteria. Humans have trillions of them and each one has a specific job to do.\n\nThe cell membrane is kind of like a wall that controls what goes in and out. Inside the cell is the nucleus, which is the control center. That\'s where the DNA lives, and the DNA tells the cell what to do and how to work.\n\nThe mitochondria makes energy for the cell. My teacher keeps saying it\'s the powerhouse of the cell. I used to think that was just a meme but apparently it\'s actually true and pretty important.',
+        },
+        {
+          badge: 'ESSAY · MEDIUM',
+          text: 'The French Revolution didn\'t really start because people cared about liberty. It started because bread was too expensive and the government had no money. Most revolutions are basically like that — the idealism comes after people are already desperate enough to act.\n\nLouis XVI wasn\'t even that bad compared to other kings of his time, but he was indecisive and completely out of touch, which is honestly the worst combination when your country is about to fall apart. He kept waiting for situations to resolve themselves.\n\nThe Declaration of the Rights of Man sounds incredible on paper, but the revolution ended up executing a lot of the people who helped write it. Revolutions are apparently really good at tearing things down and pretty bad at figuring out what to build next.',
+        },
+      ];
+
+      const badge   = document.getElementById('typeshow-badge');
+      const body    = document.getElementById('typeshow-body');
+      const dotsEl  = document.getElementById('typeshow-dots');
+
+      // Build dots
+      SLIDES.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'typeshow-dot' + (i === 0 ? ' active' : '');
+        dotsEl.appendChild(d);
+      });
+
+      let slideIdx = 0;
+      let charIdx  = 0;
+      let timer    = null;
+
+      function dots() {
+        dotsEl.querySelectorAll('.typeshow-dot').forEach((d, i) => {
+          d.classList.toggle('active', i === slideIdx);
+        });
+      }
+
+      function typeNext() {
+        const text = SLIDES[slideIdx].text;
+        if (charIdx < text.length) {
+          body.textContent = text.slice(0, ++charIdx);
+          body.scrollTop = body.scrollHeight;
+          timer = setTimeout(typeNext, 16);
+        } else {
+          timer = setTimeout(transition, 2400);
+        }
+      }
+
+      function goTo(newIdx, dir) {
+        clearTimeout(timer);
+        const exitClass  = dir === 1 ? 'typeshow-exit' : 'typeshow-exit-right';
+        const enterClass = dir === 1 ? 'typeshow-enter' : 'typeshow-enter-left';
+        body.classList.add(exitClass);
+        timer = setTimeout(() => {
+          slideIdx = (newIdx + SLIDES.length) % SLIDES.length;
+          charIdx  = 0;
+          badge.textContent = SLIDES[slideIdx].badge;
+          body.textContent  = '';
+          body.classList.remove(exitClass);
+          body.classList.add(enterClass);
+          body.offsetHeight;
+          body.classList.remove(enterClass);
+          dots();
+          timer = setTimeout(typeNext, 60);
+        }, 380);
+      }
+
+      function transition() { goTo(slideIdx + 1, 1); }
+
+      // ── Swipe / drag support ─────────────────────────────────
+      const card = document.querySelector('.typeshow');
+      let dragX = null;
+      const THRESHOLD = 50;
+
+      function onStart(x) { dragX = x; }
+      function onEnd(x) {
+        if (dragX === null) return;
+        const delta = dragX - x;
+        if (Math.abs(delta) >= THRESHOLD) goTo(slideIdx + (delta > 0 ? 1 : -1), delta > 0 ? 1 : -1);
+        dragX = null;
+      }
+
+      card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+      card.addEventListener('touchend',   e => onEnd(e.changedTouches[0].clientX), { passive: true });
+      card.addEventListener('mousedown',  e => onStart(e.clientX));
+      card.addEventListener('mouseup',    e => onEnd(e.clientX));
+      card.addEventListener('mouseleave', ()  => { dragX = null; });
+      card.style.cursor = 'grab';
+      card.addEventListener('mousedown', () => { card.style.cursor = 'grabbing'; });
+      card.addEventListener('mouseup',   () => { card.style.cursor = 'grab'; });
+
+      // Dot clicks
+      dotsEl.addEventListener('click', e => {
+        const dot = e.target.closest('.typeshow-dot');
+        if (!dot) return;
+        const idx = [...dotsEl.children].indexOf(dot);
+        if (idx !== slideIdx) goTo(idx, idx > slideIdx ? 1 : -1);
+      });
+
+      // Start after a short delay so page load animations settle
+      timer = setTimeout(typeNext, 900);
+    })();
+
+    // ── Navbar hide on scroll ──────────────────────────────────
+    (function () {
+      const navbar = document.querySelector('.navbar');
+      let lastY = window.scrollY;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY, diff = y - lastY;
+        if (diff > 6 && y > 80) navbar.classList.add('hidden');
+        else if (diff < -6) navbar.classList.remove('hidden');
+        lastY = y;
+      }, { passive: true });
+    })();
+
+    // ── Hero title — word stagger reveal ──────────────────────
+    (function () {
+      const title = document.querySelector('.hero-title');
+      if (!title) return;
+      const html = title.innerHTML;
+      const parts = html.split(/(<br\s*\/?>)/gi);
+      let wordIdx = 0;
+      const rebuilt = parts.map(part => {
+        if (/^<br/i.test(part)) return part;
+        return part.split(' ').filter(w => w).map(word => {
+          const delay = 180 + (wordIdx++ * 75);
+          return `<span class="title-word"><span class="title-word-inner" style="animation-delay:${delay}ms">${word}</span></span>`;
+        }).join(' ');
+      }).join('');
+      title.innerHTML = rebuilt;
+    })();
+
+    // ── Scroll reveal — Intersection Observer ─────────────────
+    (function () {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            observer.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+      document.querySelectorAll('[data-anim]').forEach(el => observer.observe(el));
+    })();
+
+    // ── Stats count-up ────────────────────────────────────────
+    (function () {
+      const statsEl = document.querySelector('.hero-stats');
+      if (!statsEl) return;
+
+      const stats = [
+        { el: statsEl.querySelectorAll('.hero-stat-val')[0], target: 10000, format: v => Math.round(v).toLocaleString() + '+' },
+        { el: statsEl.querySelectorAll('.hero-stat-val')[1], target: 10,    format: v => '<' + Math.round(v) + 's' },
+        { el: statsEl.querySelectorAll('.hero-stat-val')[2], target: 3,     format: v => Math.round(v).toString() },
+        { el: statsEl.querySelectorAll('.hero-stat-val')[3], target: 100,   format: v => Math.round(v) + '%' },
+      ].filter(s => s.el);
+
+      let fired = false;
+
+      function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+      function runCount() {
+        if (fired) return;
+        fired = true;
+        const duration = 1400;
+        const start = performance.now();
+
+        function tick(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const ease = easeOut(t);
+          stats.forEach(s => {
+            s.el.textContent = s.format(s.target * ease);
+          });
+          if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { runCount(); obs.disconnect(); }
+      }, { threshold: 0.5 });
+      obs.observe(statsEl);
+    })();
+
+    // ── Hero CTA button ────────────────────────────────────────
+    document.getElementById('hero-humanize-btn').addEventListener('click', () => {
+      window.location.href = 'app.html';
+    });
+
+    // ── FAQ accordion ─────────────────────────────────────────
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(el => {
+          el.classList.remove('open');
+          el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) { item.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+      });
+    });
+  </script>
+</body>
+</html>

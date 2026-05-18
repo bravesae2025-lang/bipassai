@@ -46,6 +46,18 @@ async function init() {
   editorTextarea.addEventListener('input', updateWc);
   copyBtn.addEventListener('click', copyText);
   editAiBtn.addEventListener('click', editWithAI);
+
+  saveResult(result, mode, session);
+}
+
+async function saveResult(text, mode, session) {
+  const level = sessionStorage.getItem('bipass_level') || 'easy';
+  await window.bipassAuth.client.from('results').insert({
+    user_id: session.user.id,
+    text,
+    mode: mode || 'humanize',
+    level,
+  });
 }
 
 // ─── Word count ───────────────────────────────────────────────

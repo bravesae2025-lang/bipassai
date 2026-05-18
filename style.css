@@ -2819,6 +2819,17 @@ body.login-page {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+.login-switching {
+  animation: login-switch 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes login-switch {
+  0%   { opacity: 1; transform: translateY(0); }
+  30%  { opacity: 0; transform: translateY(-8px); }
+  60%  { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .login-head {
   display: flex;
   flex-direction: column;

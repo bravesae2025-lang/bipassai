@@ -68,4 +68,5 @@ app.post('/api/humanize', async (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Bipass AI running on port ${PORT}`);
+  console.log(`GEMINI_API_KEY present: ${!!process.env.GEMINI_API_KEY}`);
 });

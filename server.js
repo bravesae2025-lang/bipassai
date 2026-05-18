@@ -1,6 +1,4 @@
-import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -14,7 +12,6 @@ const GEMINI_ENDPOINT =
 
 // ─── Middleware ────────────────────────────────────────────────
 
-app.use(cors());
 app.use(express.json());
 
 // ─── Serve frontend ────────────────────────────────────────────

@@ -3489,3 +3489,82 @@ body.drawer-lock { overflow: hidden; }
   .nav-links { display: none; }
   .drawer { width: 85vw; max-width: 320px; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Drawer — username / avatar
+───────────────────────────────────────────────────────────── */
+
+.drawer-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-family: var(--ff-ui);
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.drawer-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.drawer-username-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.drawer-username {
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-username-edit-btn {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.drawer-username-edit-btn:hover { color: rgba(255,255,255,0.8); }
+
+.drawer-username-input {
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  outline: none;
+  width: 130px;
+  transition: border-color 0.15s;
+}
+.drawer-username-input:focus { border-color: rgba(255,255,255,0.5); }

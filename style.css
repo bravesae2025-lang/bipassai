@@ -443,6 +443,9 @@ main {
   grid-template-columns: 1fr 296px;
   gap: 14px;
   background: transparent;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
 }
 
 /* ─── Columns ──────────────────────────────────────────────── */
@@ -452,6 +455,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  min-height: 0;
   border: 1px solid rgba(0,0,0,0.13);
   border-radius: 16px;
   background: rgba(255,255,255,0.94);
@@ -540,7 +544,7 @@ main {
 textarea {
   width: 100%;
   height: 100%;
-  min-height: 215px;
+  min-height: 120px;
   background: var(--g050);
   border: 1px solid var(--g150);
   border-radius: var(--r);
@@ -781,9 +785,14 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 .app-main {
-  padding: 32px 24px 64px;
+  padding: 20px 20px 20px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 110px);
 }
 
 #workspace {
@@ -2669,7 +2678,9 @@ body.editor-page { background: var(--bg); }
 #humanize-section {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
@@ -2770,7 +2781,13 @@ body.editor-page { background: var(--bg); }
 ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 1100px) {
-  .workspace { grid-template-columns: 1fr 280px; }
+  .workspace { grid-template-columns: 1fr 260px; }
+}
+
+@media (max-width: 860px) {
+  .workspace { grid-template-columns: 1fr; gap: 12px; }
+  .app-main { min-height: unset; padding: 16px 16px 32px; }
+  textarea { min-height: 180px; }
 }
 
 @media (max-width: 740px) {
@@ -2785,13 +2802,17 @@ body.editor-page { background: var(--bg); }
   .stat-item { padding: 0 10px; }
   .ticker-track { padding-left: 20px; }
 
-  .workspace { grid-template-columns: 1fr; gap: 12px; }
-
   .col-extension { flex-direction: column; }
   .ext-card { flex-direction: column; align-items: center; text-align: center; }
   .ext-ring-1, .ext-ring-2 { display: block; }
   .btn-ext { width: 100%; margin-top: 8px; }
   .ext-meta { width: auto; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .app-main { padding: 12px 12px 24px; }
+  .col { padding: 18px 16px 20px; }
+  textarea { min-height: 150px; }
 }
 
 /* ─────────────────────────────────────────────────────────────

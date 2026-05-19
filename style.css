@@ -1510,6 +1510,110 @@ body.editor-page { background: var(--bg); }
     0 2px 8px rgba(0,0,0,0.04);
 }
 
+/* Feature badges */
+.editor-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.editor-feature-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--g150);
+  color: var(--g400);
+  background: var(--g050);
+  user-select: none;
+}
+
+.editor-feature-badge.active {
+  border-color: var(--black);
+  color: var(--black);
+  background: #fff;
+}
+
+.editor-feature-tick {
+  font-size: 10px;
+}
+
+/* AI prompt box */
+.ai-prompt-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 12px;
+  padding: 14px;
+  animation: fade-up-in 0.2s var(--ease-out) both;
+}
+
+.ai-prompt-input {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid var(--g150);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  color: var(--black);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+.ai-prompt-input:focus { border-color: var(--black); }
+.ai-prompt-input::placeholder { color: var(--g300); }
+
+.ai-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ai-prompt-cancel {
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g400);
+  background: transparent;
+  border: 1px solid var(--g150);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.ai-prompt-cancel:hover { color: var(--black); border-color: var(--g400); }
+
+.ai-prompt-apply {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--black);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ai-prompt-apply:hover { opacity: 0.8; }
+
 .editor-actions {
   display: flex;
   align-items: center;

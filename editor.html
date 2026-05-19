@@ -50,6 +50,27 @@
         placeholder="Your result will appear here…"
       ></textarea>
 
+      <!-- Feature badges -->
+      <div class="editor-badges" id="editor-badges"></div>
+
+      <!-- AI edit prompt box (hidden by default) -->
+      <div class="ai-prompt-box hidden" id="ai-prompt-box">
+        <textarea
+          class="ai-prompt-input"
+          id="ai-prompt-input"
+          placeholder="Tell the AI what to change… e.g. 'make it sound more casual' or 'shorten it by half'"
+          spellcheck="false"
+          rows="2"
+        ></textarea>
+        <div class="ai-prompt-actions">
+          <button class="ai-prompt-cancel" id="ai-prompt-cancel">Cancel</button>
+          <button class="ai-prompt-apply" id="ai-prompt-apply">
+            Apply
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </button>
+        </div>
+      </div>
+
       <div class="editor-actions">
         <a href="app.html" class="editor-btn editor-btn-back">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>

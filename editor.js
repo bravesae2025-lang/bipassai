@@ -14,14 +14,19 @@ async function setupNavUser() {
 
 // ─── Elements ─────────────────────────────────────────────────
 
-const editorTextarea = document.getElementById('editor-textarea');
-const editorBadge    = document.getElementById('editor-badge');
-const editorWc       = document.getElementById('editor-wc');
-const copyBtn        = document.getElementById('copy-btn');
-const editAiBtn      = document.getElementById('edit-ai-btn');
-const loadingOverlay = document.getElementById('loading-overlay');
-const loadingText    = document.getElementById('loading-text');
-const toast          = document.getElementById('toast');
+const editorTextarea  = document.getElementById('editor-textarea');
+const editorBadge     = document.getElementById('editor-badge');
+const editorWc        = document.getElementById('editor-wc');
+const copyBtn         = document.getElementById('copy-btn');
+const editAiBtn       = document.getElementById('edit-ai-btn');
+const loadingOverlay  = document.getElementById('loading-overlay');
+const loadingText     = document.getElementById('loading-text');
+const toast           = document.getElementById('toast');
+const aiPromptBox     = document.getElementById('ai-prompt-box');
+const aiPromptInput   = document.getElementById('ai-prompt-input');
+const aiPromptApply   = document.getElementById('ai-prompt-apply');
+const aiPromptCancel  = document.getElementById('ai-prompt-cancel');
+const editorBadgesEl  = document.getElementById('editor-badges');
 
 // ─── Init ─────────────────────────────────────────────────────
 
@@ -45,8 +50,14 @@ async function init() {
 
   editorTextarea.addEventListener('input', updateWc);
   copyBtn.addEventListener('click', copyText);
-  editAiBtn.addEventListener('click', editWithAI);
+  editAiBtn.addEventListener('click', openPromptBox);
+  aiPromptCancel.addEventListener('click', closePromptBox);
+  aiPromptApply.addEventListener('click', editWithAI);
+  aiPromptInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editWithAI(); }
+  });
 
+  renderBadges();
   saveResult(result, mode, session);
 }
 
@@ -86,19 +97,35 @@ async function copyText() {
   }
 }
 
+// ─── AI prompt box ────────────────────────────────────────────
+
+function openPromptBox() {
+  aiPromptBox.classList.remove('hidden');
+  aiPromptInput.focus();
+}
+
+function closePromptBox() {
+  aiPromptBox.classList.add('hidden');
+  aiPromptInput.value = '';
+}
+
 // ─── Edit with AI ─────────────────────────────────────────────
 
 async function editWithAI() {
-  const text = editorTextarea.value.trim();
+  const text       = editorTextarea.value.trim();
+  const instruction = aiPromptInput.value.trim();
   if (!text) { showToast('Nothing to edit'); return; }
+  if (!instruction) { showToast('Tell the AI what to change'); aiPromptInput.focus(); return; }
 
-  const level   = sessionStorage.getItem('bipass_level') || 'easy';
-  const grammar = sessionStorage.getItem('bipass_grammar') === 'true';
-  const punct   = sessionStorage.getItem('bipass_punct')   === 'true';
-
-  const prompt = buildHumanizePrompt(text, level, grammar, punct);
-
+  closePromptBox();
   setLoading(true);
+
+  const prompt = `The user wants to edit the following text. Their instruction: "${instruction}"
+
+Apply the instruction while keeping the text sounding natural and human. Do not make it sound AI-generated. Return only the edited text, nothing else.
+
+Text:
+${text}`;
 
   try {
     const result = await callAPI(prompt);
@@ -111,6 +138,27 @@ async function editWithAI() {
   } finally {
     setLoading(false);
   }
+}
+
+// ─── Feature badges ───────────────────────────────────────────
+
+function renderBadges() {
+  const level   = sessionStorage.getItem('bipass_level') || 'easy';
+  const grammar = sessionStorage.getItem('bipass_grammar') === 'true';
+  const punct   = sessionStorage.getItem('bipass_punct')   === 'true';
+
+  const badges = [
+    { label: level.charAt(0).toUpperCase() + level.slice(1) + ' mode', active: true },
+    { label: 'Grammar mistakes', active: grammar },
+    { label: 'Punctuation mistakes', active: punct },
+  ];
+
+  editorBadgesEl.innerHTML = badges.map(b => `
+    <span class="editor-feature-badge ${b.active ? 'active' : ''}">
+      <span class="editor-feature-tick">${b.active ? '✓' : '○'}</span>
+      ${b.label}
+    </span>
+  `).join('');
 }
 
 // ─── Build humanize prompt (mirrors app.js) ───────────────────

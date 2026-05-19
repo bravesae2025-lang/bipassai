@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Plans</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-logo" href="app.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="app.html">New Text</a>
+        <a class="nav-link" href="history.html">History</a>
+        <a class="nav-link nav-link-active" href="plans.html">Plans</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="app.html">New Text</a>
+      <a class="drawer-item" href="history.html">History</a>
+      <a class="drawer-item drawer-item-active" href="plans.html">Plans</a>
+      <div class="drawer-item drawer-item-soon">
+        Settings
+        <span class="drawer-soon-badge">Soon</span>
+      </div>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="plans-main">
+    <div class="plans-wrap">
+
+      <div class="plans-head">
+        <h1 class="plans-title">Plans</h1>
+        <p class="plans-sub">Simple pricing. No surprises.</p>
+      </div>
+
+      <div class="plans-grid" id="plans-grid">
+
+        <div class="plan-card plan-card-current">
+          <div class="plan-card-top">
+            <div class="plan-badge-row">
+              <span class="plan-name">Free</span>
+              <span class="plan-current-badge" id="free-badge">Current Plan</span>
+            </div>
+            <div class="plan-price">
+              <span class="plan-price-num">$0</span>
+              <span class="plan-price-per">/month</span>
+            </div>
+            <p class="plan-desc">Everything you need to get started with AI-proof writing.</p>
+          </div>
+          <ul class="plan-features">
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              10 humanizations per day
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              All humanization levels
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              History saved
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              AI edit (Edit with AI)
+            </li>
+          </ul>
+          <button class="plan-btn plan-btn-current" disabled>Current Plan</button>
+        </div>
+
+        <div class="plan-card plan-card-pro">
+          <div class="plan-card-top">
+            <div class="plan-badge-row">
+              <span class="plan-name">Pro</span>
+              <span class="plan-pro-badge">Coming Soon</span>
+            </div>
+            <div class="plan-price">
+              <span class="plan-price-num">$9</span>
+              <span class="plan-price-per">/month</span>
+            </div>
+            <p class="plan-desc">For students and writers who need unlimited access.</p>
+          </div>
+          <ul class="plan-features">
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Unlimited humanizations
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Priority processing
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Everything in Free
+            </li>
+            <li class="plan-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Early access to new features
+            </li>
+          </ul>
+          <button class="plan-btn plan-btn-pro" disabled>Coming Soon</button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="plans.js"></script>
+</body>
+</html>

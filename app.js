@@ -155,6 +155,8 @@ function setupDrawer(session) {
 
   const email = session ? session.user.email : '';
   let displayName = session ? (session.user.user_metadata?.display_name || '') : '';
+  const tier = session ? (session.user.user_metadata?.tier || 'free') : 'free';
+  const tierLabel = { free: 'Free', pro: 'Pro', premium: 'Premium' }[tier] || 'Free';
   const initials = () => (displayName || email || '?')[0].toUpperCase();
 
   function renderProfile() {
@@ -169,6 +171,7 @@ function setupDrawer(session) {
             </button>
           </div>
           <span class="drawer-user-email">${email}</span>
+          <a class="drawer-tier-badge drawer-tier-${tier}" href="plans.html">${tierLabel}</a>
         </div>
       </div>
     `;

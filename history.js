@@ -1,11 +1,36 @@
 const toast = document.getElementById('toast');
 let toastTimer;
 
+function setupDrawer(session) {
+  const hamburger  = document.getElementById('nav-hamburger');
+  const overlay    = document.getElementById('drawer-overlay');
+  const drawer     = document.getElementById('drawer');
+  const closeBtn   = document.getElementById('drawer-close');
+  const drawerUser = document.getElementById('drawer-user');
+  const signoutBtn = document.getElementById('drawer-signout-btn');
+
+  if (session) {
+    drawerUser.innerHTML = `
+      <span class="drawer-user-label">Signed in as</span>
+      <span class="drawer-user-email">${session.user.email}</span>
+    `;
+  }
+
+  function openDrawer()  { drawer.classList.add('open'); overlay.classList.add('open'); document.body.classList.add('drawer-lock'); }
+  function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); document.body.classList.remove('drawer-lock'); }
+
+  hamburger.addEventListener('click', openDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
+}
+
 async function init() {
   const session = await window.bipassAuth.requireAuth();
   if (!session) return;
 
   setupNavUser(session);
+  setupDrawer(session);
   loadHistory(session);
 }
 

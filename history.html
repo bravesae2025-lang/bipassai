@@ -16,6 +16,9 @@
 
   <nav class="navbar">
     <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
       <a class="nav-logo" href="app.html">BIPASS AI</a>
       <div class="nav-links">
         <a class="nav-link" href="app.html">New Text</a>
@@ -23,6 +26,28 @@
       <div class="nav-user" id="nav-user"></div>
     </div>
   </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="app.html">New Text</a>
+      <a class="drawer-item" href="history.html">History</a>
+      <div class="drawer-item drawer-item-soon">
+        Settings
+        <span class="drawer-soon-badge">Soon</span>
+      </div>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
 
   <main class="history-main">
     <div class="history-wrap">

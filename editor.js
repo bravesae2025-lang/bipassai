@@ -18,14 +18,11 @@ const editorTextarea  = document.getElementById('editor-textarea');
 const editorBadge     = document.getElementById('editor-badge');
 const editorWc        = document.getElementById('editor-wc');
 const copyBtn         = document.getElementById('copy-btn');
-const editAiBtn       = document.getElementById('edit-ai-btn');
 const loadingOverlay  = document.getElementById('loading-overlay');
 const loadingText     = document.getElementById('loading-text');
 const toast           = document.getElementById('toast');
-const aiPromptBox     = document.getElementById('ai-prompt-box');
 const aiPromptInput   = document.getElementById('ai-prompt-input');
 const aiPromptApply   = document.getElementById('ai-prompt-apply');
-const aiPromptCancel  = document.getElementById('ai-prompt-cancel');
 const editorBadgesEl  = document.getElementById('editor-badges');
 
 // ─── Init ─────────────────────────────────────────────────────
@@ -50,8 +47,6 @@ async function init() {
 
   editorTextarea.addEventListener('input', updateWc);
   copyBtn.addEventListener('click', copyText);
-  editAiBtn.addEventListener('click', openPromptBox);
-  aiPromptCancel.addEventListener('click', closePromptBox);
   aiPromptApply.addEventListener('click', editWithAI);
   aiPromptInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editWithAI(); }
@@ -95,18 +90,6 @@ async function copyText() {
     document.execCommand('copy');
     showToast('Copied');
   }
-}
-
-// ─── AI prompt box ────────────────────────────────────────────
-
-function openPromptBox() {
-  aiPromptBox.classList.remove('hidden');
-  aiPromptInput.focus();
-}
-
-function closePromptBox() {
-  aiPromptBox.classList.add('hidden');
-  aiPromptInput.value = '';
 }
 
 // ─── Edit with AI ─────────────────────────────────────────────

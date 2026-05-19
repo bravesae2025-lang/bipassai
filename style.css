@@ -1548,51 +1548,44 @@ body.editor-page { background: var(--bg); }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: var(--g050);
-  border: 1px solid var(--g150);
+  background: var(--black);
+  border: 1px solid var(--g800);
   border-radius: 12px;
   padding: 14px;
-  animation: fade-up-in 0.2s var(--ease-out) both;
+}
+
+.ai-prompt-label {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
 }
 
 .ai-prompt-input {
   width: 100%;
-  background: #fff;
-  border: 1.5px solid var(--g150);
+  background: var(--g900);
+  border: 1.5px solid var(--g700);
   border-radius: 9px;
   padding: 10px 14px;
   font-family: var(--ff-mono);
   font-size: 13px;
-  color: var(--black);
+  color: #fff;
   resize: none;
   outline: none;
   line-height: 1.5;
   transition: border-color 0.15s;
 }
 
-.ai-prompt-input:focus { border-color: var(--black); }
-.ai-prompt-input::placeholder { color: var(--g300); }
+.ai-prompt-input:focus { border-color: #fff; }
+.ai-prompt-input::placeholder { color: var(--g600); }
 
 .ai-prompt-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
-
-.ai-prompt-cancel {
-  font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--g400);
-  background: transparent;
-  border: 1px solid var(--g150);
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.ai-prompt-cancel:hover { color: var(--black); border-color: var(--g400); }
 
 .ai-prompt-apply {
   display: flex;
@@ -1603,8 +1596,8 @@ body.editor-page { background: var(--bg); }
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
-  background: var(--black);
+  color: var(--black);
+  background: #fff;
   border: none;
   border-radius: 8px;
   padding: 8px 18px;

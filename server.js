@@ -27,7 +27,7 @@ app.post('/api/humanize', async (req, res) => {
     return res.status(400).json({ error: 'No prompt provided' });
   }
 
-  const apiKey = process.env.gemeni || process.env['gemeni api key'] || process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
   if (!apiKey) {
     return res.status(500).json({ error: 'Server not configured' });
   }
@@ -68,5 +68,5 @@ app.post('/api/humanize', async (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Bipass AI running on port ${PORT}`);
-  console.log(`gemeni: "${process.env.gemeni}", gemeni api key: "${process.env['gemeni api key']}"`);
+  console.log(`API key present: ${!!(process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'])}`);
 });

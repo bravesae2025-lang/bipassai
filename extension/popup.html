@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI Auto Typer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #0a0a0a;
+    }
+
+    .header {
+      background: #0a0a0a;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-logo {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-tag {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.08);
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* States */
+    .state { display: none; flex-direction: column; gap: 14px; }
+    .state.active { display: flex; }
+
+    /* Loading */
+    .loading-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 24px 0; color: #888; font-size: 12px;
+    }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 1.5px solid #ddd;
+      border-top-color: #0a0a0a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Empty state */
+    .empty-wrap {
+      text-align: center; padding: 24px 0;
+      display: flex; flex-direction: column; gap: 8px; align-items: center;
+    }
+    .empty-icon { font-size: 28px; }
+    .empty-title { font-size: 13px; font-weight: 700; color: #0a0a0a; }
+    .empty-sub { font-size: 11px; color: #888; line-height: 1.5; }
+    .empty-link {
+      font-size: 11px; font-weight: 600; color: #0a0a0a;
+      text-decoration: underline; cursor: pointer;
+    }
+
+    /* Text preview */
+    .preview-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #888;
+    }
+    .preview-box {
+      background: #f7f7f7;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.6;
+      color: #333;
+      max-height: 100px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .preview-meta {
+      font-size: 10px; color: #aaa;
+      display: flex; justify-content: space-between;
+    }
+
+    /* Speed control */
+    .speed-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #888;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .speed-val {
+      font-size: 10px; font-weight: 600; color: #0a0a0a;
+    }
+    .speed-track {
+      display: flex; gap: 6px;
+    }
+    .speed-btn {
+      flex: 1; padding: 7px 0;
+      font-size: 11px; font-weight: 600;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 7px;
+      background: #fff;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .speed-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .speed-btn.active {
+      background: #0a0a0a; color: #fff; border-color: #0a0a0a;
+    }
+
+    /* Start button */
+    .start-btn {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .start-btn:hover { opacity: 0.85; }
+    .start-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Instructions */
+    .instructions {
+      font-size: 10px;
+      color: #999;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .instructions strong { color: #555; }
+
+    /* Armed state */
+    .armed-wrap {
+      text-align: center; padding: 8px 0;
+      display: flex; flex-direction: column; gap: 10px; align-items: center;
+    }
+    .armed-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,0.2)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0.1)} }
+    .armed-title { font-size: 13px; font-weight: 700; }
+    .armed-sub { font-size: 11px; color: #888; line-height: 1.5; }
+    .cancel-btn {
+      font-size: 11px; font-weight: 600; color: #888;
+      background: none; border: 1px solid #e8e8e8; border-radius: 6px;
+      padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+    }
+    .cancel-btn:hover { color: #0a0a0a; border-color: #0a0a0a; }
+
+    .divider { height: 1px; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <span class="header-logo">Bipass AI</span>
+    <span class="header-tag">Auto Typer</span>
+  </div>
+
+  <div class="body">
+
+    <!-- Loading -->
+    <div class="state active" id="state-loading">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <span>Loading from Bipass AI…</span>
+      </div>
+    </div>
+
+    <!-- No text found -->
+    <div class="state" id="state-empty">
+      <div class="empty-wrap">
+        <div class="empty-icon">✦</div>
+        <div class="empty-title">No text found</div>
+        <div class="empty-sub">Generate or humanize text on Bipass AI first, then come back here.</div>
+        <span class="empty-link" id="open-bipass">Open Bipass AI →</span>
+      </div>
+    </div>
+
+    <!-- Text ready -->
+    <div class="state" id="state-ready">
+      <div>
+        <div class="preview-label" style="margin-bottom:6px">Your text</div>
+        <div class="preview-box" id="preview-text"></div>
+        <div class="preview-meta" style="margin-top:5px">
+          <span id="preview-wc"></span>
+          <span id="preview-mode"></span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="speed-label" style="margin-bottom:8px">
+          <span>Typing Speed</span>
+          <span class="speed-val" id="speed-val">Normal</span>
+        </div>
+        <div class="speed-track">
+          <button class="speed-btn" data-speed="90" data-label="Slow">Slow</button>
+          <button class="speed-btn active" data-speed="45" data-label="Normal">Normal</button>
+          <button class="speed-btn" data-speed="18" data-label="Fast">Fast</button>
+        </div>
+      </div>
+
+      <button class="start-btn" id="start-btn">Start Typing →</button>
+
+      <div class="instructions">
+        After clicking Start, switch to the page where you want to type.<br>
+        A <strong>▶ button</strong> will appear — click into your text field, then press it.
+      </div>
+    </div>
+
+    <!-- Armed -->
+    <div class="state" id="state-armed">
+      <div class="armed-wrap">
+        <div class="armed-dot"></div>
+        <div class="armed-title">Ready to type</div>
+        <div class="armed-sub">
+          Switch to your target page.<br>
+          Click into the text field, then press the <strong>▶</strong> button.
+        </div>
+        <button class="cancel-btn" id="cancel-btn">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -59,7 +59,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Empty state */
+    /* Empty / gate states */
     .empty-wrap {
       text-align: center; padding: 24px 0;
       display: flex; flex-direction: column; gap: 8px; align-items: center;
@@ -71,6 +71,15 @@
       font-size: 11px; font-weight: 600; color: #0a0a0a;
       text-decoration: underline; cursor: pointer;
     }
+    .upgrade-btn {
+      padding: 9px 20px;
+      background: #0a0a0a; color: #fff;
+      border: none; border-radius: 7px;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .upgrade-btn:hover { opacity: 0.8; }
 
     /* Text preview */
     .preview-label {
@@ -186,6 +195,26 @@
       <div class="loading-wrap">
         <div class="spinner"></div>
         <span>Loading from Bipass AI…</span>
+      </div>
+    </div>
+
+    <!-- Not signed in -->
+    <div class="state" id="state-signin">
+      <div class="empty-wrap">
+        <div class="empty-icon">🔒</div>
+        <div class="empty-title">Sign in required</div>
+        <div class="empty-sub">Sign into Bipass AI to use the Auto Typer.</div>
+        <span class="empty-link" id="open-signin">Sign in →</span>
+      </div>
+    </div>
+
+    <!-- Free tier — upgrade needed -->
+    <div class="state" id="state-upgrade">
+      <div class="empty-wrap">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-title">Pro feature</div>
+        <div class="empty-sub">The Auto Typer is available on the Pro plan. Upgrade to unlock it.</div>
+        <button class="upgrade-btn" id="open-upgrade">Upgrade to Pro →</button>
       </div>
     </div>
 

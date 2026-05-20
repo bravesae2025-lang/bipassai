@@ -1,7 +1,7 @@
 let currentText = '';
 let currentSpeed = 45;
 
-const states = ['loading', 'empty', 'ready', 'armed'];
+const states = ['loading', 'signin', 'upgrade', 'empty', 'ready', 'armed'];
 function showState(name) {
   states.forEach(s => document.getElementById(`state-${s}`).classList.remove('active'));
   document.getElementById(`state-${name}`).classList.add('active');
@@ -19,31 +19,51 @@ async function loadText() {
       url: ['https://bipassai.com/*', 'https://www.bipassai.com/*']
     });
 
-    if (tabs.length === 0) { showState('empty'); return; }
+    if (tabs.length === 0) {
+      // No bipassai.com tab open — check sign in by opening one
+      showState('signin');
+      return;
+    }
 
     const results = await chrome.scripting.executeScript({
       target: { tabId: tabs[0].id },
-      func: () => ({
-        result: sessionStorage.getItem('bipass_result'),
-        mode:   sessionStorage.getItem('bipass_mode'),
-      }),
+      func: () => {
+        // Read Supabase session from localStorage
+        const key = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+        let session = null;
+        if (key) {
+          try { session = JSON.parse(localStorage.getItem(key)); } catch {}
+        }
+
+        const user = session?.user || null;
+        const tier = user?.user_metadata?.tier || 'free';
+
+        return {
+          result: sessionStorage.getItem('bipass_result'),
+          mode:   sessionStorage.getItem('bipass_mode'),
+          signedIn: !!user,
+          tier,
+        };
+      },
     });
 
     const data = results[0]?.result;
+
+    if (!data?.signedIn) { showState('signin'); return; }
+    if (data.tier === 'free') { showState('upgrade'); return; }
     if (!data?.result) { showState('empty'); return; }
 
     currentText = data.result;
-    const mode  = data.mode || 'humanize';
     const words = countWords(currentText);
 
     document.getElementById('preview-text').textContent = currentText;
     document.getElementById('preview-wc').textContent   = `${words} word${words !== 1 ? 's' : ''}`;
-    document.getElementById('preview-mode').textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+    document.getElementById('preview-mode').textContent = data.mode === 'generate' ? 'Generated' : 'Humanized';
 
     showState('ready');
 
   } catch {
-    showState('empty');
+    showState('signin');
   }
 }
 
@@ -89,9 +109,15 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
   showState('ready');
 });
 
-// Open Bipass AI
+// Navigation links
 document.getElementById('open-bipass').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/app.html' });
+});
+document.getElementById('open-signin').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://bipassai.com/login.html' });
+});
+document.getElementById('open-upgrade').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://bipassai.com/plans.html' });
 });
 
 loadText();

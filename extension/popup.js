@@ -20,10 +20,32 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+async function refreshSession() {
+  const { refresh_token } = await chrome.storage.local.get(['refresh_token']);
+  if (!refresh_token) return null;
+
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token }),
+  });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const tier = data.user?.user_metadata?.tier || 'free';
+  await chrome.storage.local.set({
+    access_token:  data.access_token,
+    refresh_token: data.refresh_token,
+    user_id:       data.user.id,
+    tier,
+  });
+  return { access_token: data.access_token, user_id: data.user.id, tier };
+}
+
 async function fetchResults(accessToken, userId, tier) {
   if (tier === 'free') { showState('upgrade'); return; }
 
-  const res = await fetch(
+  let res = await fetch(
     `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
     {
       headers: {
@@ -32,6 +54,20 @@ async function fetchResults(accessToken, userId, tier) {
       },
     }
   );
+
+  if (res.status === 401) {
+    // Token expired — try to refresh silently
+    const refreshed = await refreshSession();
+    if (!refreshed) { await chrome.storage.local.clear(); showState('login'); return; }
+    accessToken = refreshed.access_token;
+    userId      = refreshed.user_id;
+    tier        = refreshed.tier;
+    if (tier === 'free') { showState('upgrade'); return; }
+    res = await fetch(
+      `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` } }
+    );
+  }
 
   if (!res.ok) {
     await chrome.storage.local.clear();
@@ -75,8 +111,14 @@ function selectResult(text, mode) {
 
 async function init() {
   showState('loading');
-  const { access_token, user_id, tier } = await chrome.storage.local.get(['access_token', 'user_id', 'tier']);
-  if (!access_token) { showState('login'); return; }
+  const { access_token, refresh_token, user_id, tier } = await chrome.storage.local.get(['access_token', 'refresh_token', 'user_id', 'tier']);
+  if (!access_token && !refresh_token) { showState('login'); return; }
+  if (!access_token && refresh_token) {
+    const refreshed = await refreshSession();
+    if (!refreshed) { showState('login'); return; }
+    await fetchResults(refreshed.access_token, refreshed.user_id, refreshed.tier);
+    return;
+  }
   await fetchResults(access_token, user_id, tier);
 }
 
@@ -143,8 +185,9 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
 
     const tier = data.user?.user_metadata?.tier || 'free';
     await chrome.storage.local.set({
-      access_token: data.access_token,
-      user_id:      data.user.id,
+      access_token:  data.access_token,
+      refresh_token: data.refresh_token,
+      user_id:       data.user.id,
       tier,
     });
 

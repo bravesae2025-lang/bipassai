@@ -3,8 +3,9 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 let currentText  = '';
 let currentSpeed = 45;
+let otpEmail     = '';
 
-const states = ['loading', 'login', 'upgrade', 'empty', 'list', 'ready', 'armed'];
+const states = ['loading', 'login', 'verify', 'upgrade', 'empty', 'list', 'ready', 'armed'];
 function showState(name) {
   states.forEach(s => document.getElementById(`state-${s}`).classList.remove('active'));
   document.getElementById(`state-${name}`).classList.add('active');
@@ -33,14 +34,12 @@ async function fetchResults(accessToken, userId, tier) {
   );
 
   if (!res.ok) {
-    // Token may be expired — force re-login
     await chrome.storage.local.clear();
     showState('login');
     return;
   }
 
   const rows = await res.json();
-
   if (!rows.length) { showState('empty'); return; }
 
   const list = document.getElementById('result-list');
@@ -48,11 +47,9 @@ async function fetchResults(accessToken, userId, tier) {
   rows.forEach(row => {
     const item = document.createElement('div');
     item.className = 'result-item';
-
-    const modeLabel = row.mode === 'generate' ? 'Generated' : 'Humanized';
+    const modeLabel  = row.mode === 'generate' ? 'Generated' : 'Humanized';
     const levelLabel = row.level ? ` · ${row.level}` : '';
-    const preview = row.text.length > 80 ? row.text.slice(0, 80) + '…' : row.text;
-
+    const preview    = row.text.length > 80 ? row.text.slice(0, 80) + '…' : row.text;
     item.innerHTML = `
       <div class="result-meta">
         <span class="result-badge">${modeLabel}${levelLabel}</span>
@@ -60,7 +57,6 @@ async function fetchResults(accessToken, userId, tier) {
       </div>
       <div class="result-preview">${preview}</div>
     `;
-
     item.addEventListener('click', () => selectResult(row.text, row.mode));
     list.appendChild(item);
   });
@@ -84,35 +80,64 @@ async function init() {
   await fetchResults(access_token, user_id, tier);
 }
 
-// Login form
+// Step 1 — send OTP
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('login-error');
-  const btn      = document.getElementById('login-btn');
+  const email = document.getElementById('login-email').value.trim();
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
 
   errEl.textContent = '';
   btn.disabled = true;
-  btn.textContent = 'Signing in…';
+  btn.textContent = 'Sending…';
 
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-      {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      }
-    );
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      errEl.textContent = data.msg || 'Could not send code. Check your email.';
+      return;
+    }
+
+    otpEmail = email;
+    document.getElementById('verify-email-label').textContent = email;
+    showState('verify');
+
+  } catch {
+    errEl.textContent = 'Connection error. Try again.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+  }
+});
+
+// Step 2 — verify OTP
+document.getElementById('verify-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const token = document.getElementById('verify-token').value.trim();
+  const errEl = document.getElementById('verify-error');
+  const btn   = document.getElementById('verify-btn');
+
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Verifying…';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: otpEmail, token, type: 'email' }),
+    });
 
     const data = await res.json();
 
     if (!res.ok) {
-      errEl.textContent = data.error_description || data.msg || 'Invalid email or password.';
+      errEl.textContent = data.msg || 'Invalid or expired code.';
       return;
     }
 
@@ -129,8 +154,31 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     errEl.textContent = 'Connection error. Try again.';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Sign In';
+    btn.textContent = 'Verify';
   }
+});
+
+// Resend code
+document.getElementById('resend-link').addEventListener('click', async () => {
+  const errEl = document.getElementById('verify-error');
+  errEl.textContent = '';
+  try {
+    await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: otpEmail }),
+    });
+    errEl.style.color = '#080';
+    errEl.textContent = 'New code sent!';
+    setTimeout(() => { errEl.textContent = ''; errEl.style.color = ''; }, 3000);
+  } catch {
+    errEl.textContent = 'Could not resend.';
+  }
+});
+
+// Use different email
+document.getElementById('change-email-link').addEventListener('click', () => {
+  showState('login');
 });
 
 // Sign out
@@ -139,7 +187,7 @@ document.getElementById('signout-btn').addEventListener('click', async () => {
   showState('login');
 });
 
-// Back button (ready → list)
+// Back (ready → list)
 document.getElementById('back-btn').addEventListener('click', async () => {
   const { access_token, user_id, tier } = await chrome.storage.local.get(['access_token', 'user_id', 'tier']);
   await fetchResults(access_token, user_id, tier);
@@ -158,44 +206,28 @@ document.querySelectorAll('.speed-btn').forEach(btn => {
 // Start button
 document.getElementById('start-btn').addEventListener('click', async () => {
   if (!currentText) return;
-
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab) return;
-
   try {
-    await chrome.scripting.executeScript({
-      target: { tabId: activeTab.id },
-      files: ['content.js'],
-    });
+    await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ['content.js'] });
   } catch {}
-
-  await chrome.tabs.sendMessage(activeTab.id, {
-    type: 'ARM',
-    text: currentText,
-    speed: currentSpeed,
-  });
-
+  await chrome.tabs.sendMessage(activeTab.id, { type: 'ARM', text: currentText, speed: currentSpeed });
   showState('armed');
 });
 
 // Cancel button
 document.getElementById('cancel-btn').addEventListener('click', async () => {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (activeTab) {
-    chrome.tabs.sendMessage(activeTab.id, { type: 'STOP' }).catch(() => {});
-  }
+  if (activeTab) chrome.tabs.sendMessage(activeTab.id, { type: 'STOP' }).catch(() => {});
   showState('ready');
 });
 
-// Navigation links
+// Navigation
 document.getElementById('open-bipass').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/app.html' });
 });
 document.getElementById('open-upgrade').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/plans.html' });
-});
-document.getElementById('forgot-link').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'https://bipassai.com/login.html' });
 });
 
 init();

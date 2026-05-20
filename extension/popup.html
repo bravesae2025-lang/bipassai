@@ -22,27 +22,18 @@
       justify-content: space-between;
     }
     .header-logo {
-      font-size: 14px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-size: 14px; font-weight: 800; color: #fff;
+      letter-spacing: 0.08em; text-transform: uppercase;
     }
     .header-tag {
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      background: rgba(255,255,255,0.08);
-      padding: 2px 7px;
-      border-radius: 20px;
+      font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 20px;
     }
 
     .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-    /* States */
-    .state { display: none; flex-direction: column; gap: 14px; }
+    .state { display: none; flex-direction: column; gap: 12px; }
     .state.active { display: flex; }
 
     /* Loading */
@@ -52,50 +43,39 @@
     }
     .spinner {
       width: 14px; height: 14px;
-      border: 1.5px solid #ddd;
-      border-top-color: #0a0a0a;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+      border: 1.5px solid #ddd; border-top-color: #0a0a0a;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Login form */
-    .login-title {
-      font-size: 13px; font-weight: 700; color: #0a0a0a;
-      text-align: center; padding-top: 8px;
-    }
-    .login-sub {
-      font-size: 11px; color: #888; text-align: center; line-height: 1.5;
-    }
+    /* Login / Verify shared */
+    .auth-title { font-size: 13px; font-weight: 700; color: #0a0a0a; text-align: center; padding-top: 6px; }
+    .auth-sub { font-size: 11px; color: #888; text-align: center; line-height: 1.5; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
     .form-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
     .form-input {
       padding: 9px 11px;
-      border: 1.5px solid #e8e8e8;
-      border-radius: 7px;
-      font-size: 12px;
-      color: #0a0a0a;
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
+      border: 1.5px solid #e8e8e8; border-radius: 7px;
+      font-size: 12px; color: #0a0a0a; outline: none;
+      transition: border-color 0.15s; width: 100%;
     }
     .form-input:focus { border-color: #0a0a0a; }
-    .login-error { font-size: 11px; color: #d00; min-height: 14px; text-align: center; }
-    .login-btn {
+    .auth-error { font-size: 11px; color: #d00; min-height: 14px; text-align: center; }
+    .auth-btn {
       width: 100%; padding: 11px;
-      background: #0a0a0a; color: #fff;
-      border: none; border-radius: 8px;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.08em; text-transform: uppercase;
+      background: #0a0a0a; color: #fff; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
       cursor: pointer; transition: opacity 0.15s;
     }
-    .login-btn:hover { opacity: 0.85; }
-    .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .forgot-link {
+    .auth-btn:hover { opacity: 0.85; }
+    .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .auth-link {
       font-size: 10px; color: #aaa; text-align: center;
       cursor: pointer; text-decoration: underline;
     }
-    .forgot-link:hover { color: #0a0a0a; }
+    .auth-link:hover { color: #0a0a0a; }
+    .verify-hint { font-size: 10px; color: #888; text-align: center; line-height: 1.5; }
+    .verify-hint strong { color: #0a0a0a; }
 
     /* Empty / gate states */
     .empty-wrap {
@@ -103,134 +83,83 @@
       display: flex; flex-direction: column; gap: 8px; align-items: center;
     }
     .empty-icon { font-size: 28px; }
-    .empty-title { font-size: 13px; font-weight: 700; color: #0a0a0a; }
+    .empty-title { font-size: 13px; font-weight: 700; }
     .empty-sub { font-size: 11px; color: #888; line-height: 1.5; }
-    .empty-link {
-      font-size: 11px; font-weight: 600; color: #0a0a0a;
-      text-decoration: underline; cursor: pointer;
-    }
+    .empty-link { font-size: 11px; font-weight: 600; color: #0a0a0a; text-decoration: underline; cursor: pointer; }
     .upgrade-btn {
-      padding: 9px 20px;
-      background: #0a0a0a; color: #fff;
+      padding: 9px 20px; background: #0a0a0a; color: #fff;
       border: none; border-radius: 7px;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       cursor: pointer; transition: opacity 0.15s;
     }
     .upgrade-btn:hover { opacity: 0.8; }
 
     /* Result list */
-    .list-header {
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .list-title {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: #888;
-    }
-    .signout-btn {
-      font-size: 10px; color: #bbb; background: none; border: none;
-      cursor: pointer; padding: 0; transition: color 0.15s;
-    }
+    .list-header { display: flex; align-items: center; justify-content: space-between; }
+    .list-title { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+    .signout-btn { font-size: 10px; color: #bbb; background: none; border: none; cursor: pointer; transition: color 0.15s; }
     .signout-btn:hover { color: #0a0a0a; }
-    .result-list {
-      display: flex; flex-direction: column; gap: 6px;
-      max-height: 240px; overflow-y: auto;
-    }
+    .result-list { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
     .result-list::-webkit-scrollbar { width: 3px; }
     .result-list::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
     .result-item {
-      padding: 10px 12px;
-      border: 1.5px solid #e8e8e8;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
+      padding: 10px 12px; border: 1.5px solid #e8e8e8; border-radius: 8px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
       display: flex; flex-direction: column; gap: 5px;
     }
     .result-item:hover { border-color: #0a0a0a; background: #fafafa; }
     .result-meta { display: flex; align-items: center; justify-content: space-between; }
     .result-badge {
       font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      background: #0a0a0a; color: #fff;
-      padding: 2px 7px; border-radius: 20px;
+      background: #0a0a0a; color: #fff; padding: 2px 7px; border-radius: 20px;
     }
     .result-date { font-size: 10px; color: #aaa; }
     .result-preview { font-size: 11px; color: #555; line-height: 1.5; }
 
     /* Text preview */
-    .preview-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: #888;
-    }
+    .preview-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
     .preview-box {
-      background: #f7f7f7;
-      border: 1px solid #e8e8e8;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 11px;
-      line-height: 1.6;
-      color: #333;
-      max-height: 100px;
-      overflow-y: auto;
-      white-space: pre-wrap;
+      background: #f7f7f7; border: 1px solid #e8e8e8; border-radius: 8px;
+      padding: 10px 12px; font-size: 11px; line-height: 1.6; color: #333;
+      max-height: 100px; overflow-y: auto; white-space: pre-wrap;
     }
-    .preview-meta {
-      font-size: 10px; color: #aaa;
-      display: flex; justify-content: space-between;
-    }
+    .preview-meta { font-size: 10px; color: #aaa; display: flex; justify-content: space-between; }
 
-    /* Speed control */
+    /* Speed */
     .speed-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: #888;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888;
       display: flex; justify-content: space-between; align-items: center;
     }
     .speed-val { font-size: 10px; font-weight: 600; color: #0a0a0a; }
     .speed-track { display: flex; gap: 6px; }
     .speed-btn {
-      flex: 1; padding: 7px 0;
-      font-size: 11px; font-weight: 600;
-      border: 1.5px solid #e8e8e8;
-      border-radius: 7px;
-      background: #fff; color: #555;
+      flex: 1; padding: 7px 0; font-size: 11px; font-weight: 600;
+      border: 1.5px solid #e8e8e8; border-radius: 7px; background: #fff; color: #555;
       cursor: pointer; transition: all 0.15s;
     }
     .speed-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
     .speed-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
 
-    /* Start button */
+    /* Start */
     .start-btn {
-      width: 100%; padding: 12px;
-      background: #0a0a0a; color: #fff;
-      border: none; border-radius: 8px;
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      cursor: pointer; transition: opacity 0.15s;
+      width: 100%; padding: 12px; background: #0a0a0a; color: #fff;
+      border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s;
     }
     .start-btn:hover { opacity: 0.85; }
-
-    /* Back link */
-    .back-link {
-      font-size: 10px; color: #aaa; text-align: center;
-      cursor: pointer; text-decoration: underline;
-    }
+    .back-link { font-size: 10px; color: #aaa; text-align: center; cursor: pointer; text-decoration: underline; }
     .back-link:hover { color: #0a0a0a; }
-
-    /* Instructions */
-    .instructions {
-      font-size: 10px; color: #999; line-height: 1.6; text-align: center;
-    }
+    .instructions { font-size: 10px; color: #999; line-height: 1.6; text-align: center; }
     .instructions strong { color: #555; }
 
-    /* Armed state */
+    /* Armed */
     .armed-wrap {
       text-align: center; padding: 8px 0;
       display: flex; flex-direction: column; gap: 10px; align-items: center;
     }
     .armed-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
-      animation: pulse 1.5s ease-in-out infinite;
+      width: 10px; height: 10px; border-radius: 50%; background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2); animation: pulse 1.5s ease-in-out infinite;
     }
     @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,0.2)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0.1)} }
     .armed-title { font-size: 13px; font-weight: 700; }
@@ -262,23 +191,37 @@
       </div>
     </div>
 
-    <!-- Login -->
+    <!-- Login — enter email -->
     <div class="state" id="state-login">
-      <div class="login-title">Sign in to Bipass AI</div>
-      <div class="login-sub">Use your Bipass AI account.</div>
+      <div class="auth-title">Sign in to Bipass AI</div>
+      <div class="auth-sub">Enter your email and we'll send you a code.</div>
       <form id="login-form" style="display:flex;flex-direction:column;gap:10px;">
         <div class="form-field">
           <label class="form-label" for="login-email">Email</label>
           <input class="form-input" type="email" id="login-email" placeholder="you@email.com" required autocomplete="email">
         </div>
-        <div class="form-field">
-          <label class="form-label" for="login-password">Password</label>
-          <input class="form-input" type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-        <p class="login-error" id="login-error"></p>
-        <button class="login-btn" type="submit" id="login-btn">Sign In</button>
+        <p class="auth-error" id="login-error"></p>
+        <button class="auth-btn" type="submit" id="login-btn">Send Code</button>
       </form>
-      <span class="forgot-link" id="forgot-link">Forgot password?</span>
+    </div>
+
+    <!-- Verify — enter OTP -->
+    <div class="state" id="state-verify">
+      <div class="auth-title">Check your email</div>
+      <p class="verify-hint">We sent a 6-digit code to<br><strong id="verify-email-label"></strong></p>
+      <form id="verify-form" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="form-field">
+          <label class="form-label" for="verify-token">6-digit code</label>
+          <input class="form-input" type="text" id="verify-token" placeholder="123456"
+            maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required>
+        </div>
+        <p class="auth-error" id="verify-error"></p>
+        <button class="auth-btn" type="submit" id="verify-btn">Verify</button>
+      </form>
+      <div style="display:flex;justify-content:center;gap:14px;">
+        <span class="auth-link" id="resend-link">Resend code</span>
+        <span class="auth-link" id="change-email-link">Use different email</span>
+      </div>
     </div>
 
     <!-- Free tier — upgrade needed -->
@@ -291,7 +234,7 @@
       </div>
     </div>
 
-    <!-- No text found -->
+    <!-- No texts yet -->
     <div class="state" id="state-empty">
       <div class="empty-wrap">
         <div class="empty-icon">✦</div>

@@ -4,10 +4,15 @@
   "version": "1.0.0",
   "description": "Automatically type your Bipass AI results into any text field",
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Bipass AI Auto Typer"
   },
-  "permissions": ["tabs", "scripting", "activeTab", "storage"],
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "scripting", "activeTab", "storage", "sidePanel"],
   "host_permissions": [
     "https://bipassai.com/*",
     "https://www.bipassai.com/*"

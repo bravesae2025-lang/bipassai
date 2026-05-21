@@ -1,27 +1,28 @@
 const LEVEL_DESCRIPTIONS = {
-  easy:   'Simple words, short sentences — like a beginner English speaker wrote it',
-  medium: 'Average student voice — decent grammar, nothing too fancy',
-  hard:   'Confident and fluent — strong vocabulary, varied sentences',
+  easy:      'Simple words, mixed sentences, tense mistakes — like a beginner non-native speaker wrote it',
+  medium:    'Average student voice — decent grammar, nothing too fancy',
+  hard:      'Confident and fluent — strong vocabulary, varied sentences',
+  customize: 'Pick exactly which human traits to add — build your own level',
 };
 
-const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2 };
+const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 
 const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like it was written by a beginner or non-native English speaker. Use MANY of these human writing traits — they make beginner writing feel real:
+  easy: `Rewrite the following text so it sounds like it was written by a beginner or non-native English speaker. Use MANY of these human writing traits:
 
-- Short sentences. Sometimes a run-on that goes too long because they don't stop themselves.
-- Repeat the same idea twice in slightly different words — like they're thinking while writing.
+- Mix short choppy sentences with long comma-run-on sentences that keep going without a period, just adding comma after comma because the writer does not know when to stop, it feels very natural for a beginner.
+- Make tense mistakes: use the wrong verb tense sometimes ("yesterday I go to the store" instead of "went", "she tell me" instead of "told", "I seen it" instead of "saw").
+- Repeat the same idea twice in slightly different words, like they are thinking while writing.
 - Simple, common words only. No fancy vocabulary.
-- Say "I think" or "maybe" often — they're not fully confident.
-- Use specific simple details instead of abstract ideas: "the test was hard, I didn't sleep" not "academic pressure was intense."
+- Say "I think" or "maybe" often, they are not fully confident.
+- Use specific simple details: "the test was hard, I didn't sleep" not "academic pressure was intense."
 - Jump between thoughts without a clean connection.
-- Uneven pacing — some parts feel rushed, some too slow.
-- A little redundant — they say things again without realizing.
+- A little redundant, say things again without realizing.
 
 Use most of these. Beginner writing is visibly human.
-Do NOT make it unreadable — just simple, plain, and rough around the edges.
-Avoid clean structure, polished transitions, or anything that sounds edited or AI-written.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", em dashes more than once, or conclusion summaries.
+Do NOT make it unreadable, just simple, plain, and rough around the edges.
+Do NOT use hyphens (-) or em dashes anywhere in the text, not even in compound words or lists.
+Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
 Return only the rewritten text, nothing else.`,
 
   medium: `Rewrite the following text so it sounds like an average student wrote it. Use SOME of these human writing traits — not all, just what fits naturally:
@@ -50,6 +51,9 @@ Return only the rewritten text, nothing else.`,
 
 Only use 2–3 of these. A skilled writer's humanness is subtle, not loud.
 Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, perfect paragraph symmetry, fake-deep transitions like "at the end of the day", conclusion summaries after every point.
+Return only the rewritten text, nothing else.`,
+
+  customize: `Rewrite the following text to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
 Return only the rewritten text, nothing else.`,
 };
 
@@ -97,6 +101,9 @@ Return only the written text, nothing else.`,
 Only 2–3 traits. Subtlety is the point.
 Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, fake-deep transitions, conclusion summaries.
 Return only the written text, nothing else.`,
+
+  customize: `Write the following to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+Return only the written text, nothing else.`,
 };
 
 // ─── State ────────────────────────────────────────────────────
@@ -124,6 +131,8 @@ const statusLabel    = document.getElementById('status-label');
 const pills          = document.querySelectorAll('.level-btn');
 const grammarToggle  = document.getElementById('grammar-toggle');
 const punctToggle    = document.getElementById('punct-toggle');
+const tenseToggle    = document.getElementById('tense-toggle');
+const optionsPanel   = document.getElementById('options-panel');
 const toast          = document.getElementById('toast');
 const workspace      = document.getElementById('workspace');
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -250,6 +259,7 @@ function restoreState() {
 
   if (sessionStorage.getItem('bipass_grammar') === 'true') grammarToggle.checked = true;
   if (sessionStorage.getItem('bipass_punct') === 'true')   punctToggle.checked   = true;
+  if (sessionStorage.getItem('bipass_tense') === 'true')   tenseToggle.checked   = true;
 }
 
 // ─── Events ───────────────────────────────────────────────────
@@ -277,6 +287,7 @@ function selectLevel(level) {
   levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
   levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
+  optionsPanel.style.display = level === 'customize' ? '' : 'none';
 }
 
 // ─── Stats ────────────────────────────────────────────────────
@@ -297,20 +308,26 @@ function updateStats() {
 
 function buildHumanizePrompt(text) {
   let prompt = HUMANIZE_PROMPTS[selectedLevel];
-  const extras = [];
-  if (grammarToggle.checked) extras.push('Also include a few subtle grammar mistakes that a real person might make.');
-  if (punctToggle.checked)   extras.push('Also use inconsistent punctuation — sometimes miss a comma, use a dash instead of a period, etc.');
-  if (extras.length > 0) prompt += '\n\n' + extras.join(' ');
+  if (selectedLevel === 'customize') {
+    const extras = [];
+    if (grammarToggle.checked) extras.push('Include subtle grammar errors a real person makes — subject-verb disagreement, missing articles, run-ons.');
+    if (punctToggle.checked)   extras.push('Use inconsistent punctuation — miss commas, overuse commas instead of periods.');
+    if (tenseToggle.checked)   extras.push('Make occasional verb tense mistakes — wrong tense for past or present events, like a non-native speaker ("she tell me", "yesterday I go").');
+    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
+  }
   prompt += `\n\nText to rewrite:\n${text}`;
   return prompt;
 }
 
 function buildGeneratePrompt(userPrompt) {
   let prompt = GENERATE_PROMPTS[selectedLevel];
-  const extras = [];
-  if (grammarToggle.checked) extras.push('Include a few subtle grammar mistakes that a real person might make.');
-  if (punctToggle.checked)   extras.push('Use inconsistent punctuation — sometimes miss a comma, use a dash instead of a period, etc.');
-  if (extras.length > 0) prompt += ' ' + extras.join(' ');
+  if (selectedLevel === 'customize') {
+    const extras = [];
+    if (grammarToggle.checked) extras.push('Include subtle grammar errors a real person makes — subject-verb disagreement, missing articles, run-ons.');
+    if (punctToggle.checked)   extras.push('Use inconsistent punctuation — miss commas, overuse commas instead of periods.');
+    if (tenseToggle.checked)   extras.push('Make occasional verb tense mistakes — wrong tense for past or present events, like a non-native speaker ("she tell me", "yesterday I go").');
+    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
+  }
   prompt += `\n\nWhat to write:\n${userPrompt}`;
   return prompt;
 }
@@ -366,6 +383,7 @@ function saveState(mode) {
   sessionStorage.setItem('bipass_input',   inputText.value);
   sessionStorage.setItem('bipass_grammar', grammarToggle.checked);
   sessionStorage.setItem('bipass_punct',   punctToggle.checked);
+  sessionStorage.setItem('bipass_tense',   tenseToggle.checked);
 }
 
 // ─── API call ─────────────────────────────────────────────────

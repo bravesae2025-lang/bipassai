@@ -172,11 +172,12 @@
             <button class="level-btn active" data-level="easy">Easy</button>
             <button class="level-btn" data-level="medium">Medium</button>
             <button class="level-btn" data-level="hard">Hard</button>
+            <button class="level-btn" data-level="customize">Customize</button>
           </div>
           <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
         </div>
 
-        <div class="control-block">
+        <div class="control-block" id="options-panel" style="display:none">
           <div class="control-head">Options</div>
 
           <label class="toggle-row" for="grammar-toggle">
@@ -199,6 +200,19 @@
             </div>
             <div class="toggle-shell">
               <input type="checkbox" id="punct-toggle">
+              <div class="toggle-track">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </label>
+
+          <label class="toggle-row" for="tense-toggle">
+            <div class="toggle-text">
+              <span class="toggle-title">Tense mistakes</span>
+              <span class="toggle-sub">Wrong verb tense like a non-native speaker</span>
+            </div>
+            <div class="toggle-shell">
+              <input type="checkbox" id="tense-toggle">
               <div class="toggle-track">
                 <div class="toggle-thumb"></div>
               </div>

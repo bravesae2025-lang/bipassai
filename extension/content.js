@@ -1,42 +1,94 @@
 (() => {
-  if (window.__bipassLoaded) return;
-  window.__bipassLoaded = true;
+  if (window.__bipass) return;
 
-  let armedText        = '';
-  let armedSpeed       = 45;
-  let isTyping         = false;
-  let stopFlag         = false;
-  let floatBtn         = null;
-  let lastFocusedField = null;
+  const s = window.__bipass = {
+    armedText: '',
+    armedSpeed: 45,
+    isTyping: false,
+    stopFlag: false,
+    floatBtn: null,
+    lastFocusedField: null,
+  };
+
+  function isValidField(t) {
+    if (!t) return false;
+    return t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
+  }
+
+  // Peek inside a same-origin iframe to find the active editable element
+  function peekIframe(iframeEl) {
+    try {
+      const doc = iframeEl.contentDocument || iframeEl.contentWindow?.document;
+      if (!doc) return null;
+      let t = doc.activeElement;
+      while (t && t !== doc.body && t !== doc.documentElement) {
+        if (isValidField(t)) return t;
+        t = t.parentElement;
+      }
+      return doc.querySelector('[contenteditable="true"], textarea, input:not([type="hidden"])');
+    } catch (_) { return null; } // cross-origin
+  }
+
+  function findTarget() {
+    if (isValidField(s.lastFocusedField)) return s.lastFocusedField;
+
+    const active = document.activeElement;
+
+    // Google Docs captures input in a same-origin iframe — peek inside
+    if (active && active.tagName === 'IFRAME') {
+      const inner = peekIframe(active);
+      if (inner) return inner;
+    }
+
+    // Walk up from activeElement in the main document
+    let t = active;
+    while (t && t !== document.body && t !== document.documentElement) {
+      if (isValidField(t)) return t;
+      t = t.parentElement;
+    }
+
+    // Also check all iframes on the page (Google Docs may not be activeElement)
+    for (const iframe of document.querySelectorAll('iframe')) {
+      const inner = peekIframe(iframe);
+      if (inner) return inner;
+    }
+
+    return null; // No blind querySelector — avoids selecting wrong element (title, etc.)
+  }
 
   document.addEventListener('focusin', (e) => {
     const t = e.target;
-    if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) {
-      lastFocusedField = t;
-    }
+    if (isValidField(t)) s.lastFocusedField = t;
   }, true);
 
-  // Google Docs uses a custom editor — catch clicks anywhere and use activeElement
-  document.addEventListener('mousedown', () => {
+  document.addEventListener('mousedown', (e) => {
+    // Don't reset when clicking our own button
+    if (document.getElementById('bipass-float-inner')?.contains(e.target)) return;
+    // Reset so stale focus (e.g. title from earlier click) doesn't persist
+    s.lastFocusedField = null;
     setTimeout(() => {
-      const t = document.activeElement;
-      if (t && t !== document.body && t !== document.documentElement) {
-        lastFocusedField = t;
+      const active = document.activeElement;
+      if (!active || active === document.body || active === document.documentElement) return;
+      if (isValidField(active)) {
+        s.lastFocusedField = active;
+      } else if (active.tagName === 'IFRAME') {
+        const inner = peekIframe(active);
+        if (inner) s.lastFocusedField = inner;
       }
-    }, 100);
+    }, 150);
   }, true);
 
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'ARM') {
-      armedText  = msg.text;
-      armedSpeed = msg.speed;
-      stopFlag   = false;
+      s.armedText  = msg.text;
+      s.armedSpeed = msg.speed;
+      s.stopFlag   = false;
       showFloatBtn();
       sendResponse({ ok: true });
     }
     if (msg.type === 'STOP') {
-      stopFlag = true;
-      isTyping = false;
+      s.stopFlag = true;
+      s.isTyping = false;
       removeFloatBtn();
       sendResponse({ ok: true });
     }
@@ -46,15 +98,15 @@
   function removeFloatBtn() {
     const existing = document.getElementById('bipass-float-btn');
     if (existing) existing.remove();
-    floatBtn = null;
+    s.floatBtn = null;
   }
 
   function showFloatBtn() {
     removeFloatBtn();
 
-    floatBtn = document.createElement('div');
-    floatBtn.id = 'bipass-float-btn';
-    floatBtn.innerHTML = `
+    s.floatBtn = document.createElement('div');
+    s.floatBtn.id = 'bipass-float-btn';
+    s.floatBtn.innerHTML = `
       <div id="bipass-float-inner">
         <span id="bipass-float-icon">▶</span>
         <span id="bipass-float-label">Start Typing</span>
@@ -96,32 +148,30 @@
     `;
 
     document.head.appendChild(style);
-    document.body.appendChild(floatBtn);
+    document.body.appendChild(s.floatBtn);
 
     document.getElementById('bipass-float-inner').addEventListener('mousedown', (e) => e.preventDefault());
     document.getElementById('bipass-float-inner').addEventListener('click', handleStart);
     document.getElementById('bipass-float-close').addEventListener('click', (e) => {
       e.stopPropagation();
-      stopFlag = true;
-      isTyping = false;
+      s.stopFlag = true;
+      s.isTyping = false;
       removeFloatBtn();
       document.getElementById('bipass-float-style')?.remove();
     });
   }
 
   async function handleStart() {
-    if (isTyping) {
-      stopFlag = true;
-      isTyping = false;
+    if (s.isTyping) {
+      s.stopFlag = true;
+      s.isTyping = false;
       updateBtn(false);
       return;
     }
 
-    const target     = lastFocusedField;
-    const isInput    = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
-    const isEditable = target && target.isContentEditable;
+    const target = findTarget();
 
-    if (!target || (!isInput && !isEditable)) {
+    if (!target) {
       const label = document.getElementById('bipass-float-label');
       if (label) {
         label.textContent = 'Click a text field first';
@@ -130,13 +180,13 @@
       return;
     }
 
-    isTyping = true;
-    stopFlag = false;
+    s.isTyping = true;
+    s.stopFlag = false;
     updateBtn(true);
 
-    await typeText(target, armedText, armedSpeed);
+    await typeText(target, s.armedText, s.armedSpeed);
 
-    isTyping = false;
+    s.isTyping = false;
     updateBtn(false);
     removeFloatBtn();
     document.getElementById('bipass-float-style')?.remove();
@@ -157,9 +207,10 @@
 
   async function typeText(target, text, speed) {
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+    const doc = target.ownerDocument || document;
     if (isInput) target.focus();
     for (const char of text) {
-      if (stopFlag) break;
+      if (s.stopFlag) break;
       if (isInput) {
         const start = target.selectionStart ?? target.value.length;
         const end   = target.selectionEnd   ?? start;
@@ -169,8 +220,16 @@
           data: char, inputType: 'insertText', bubbles: true, cancelable: true,
         }));
       } else {
-        // execCommand works when editor focus is preserved (mousedown preventDefault on button)
-        document.execCommand('insertText', false, char);
+        target.focus();
+        const ok = doc.execCommand('insertText', false, char);
+        if (!ok) {
+          target.dispatchEvent(new InputEvent('beforeinput', {
+            inputType: 'insertText', data: char, bubbles: true, cancelable: true,
+          }));
+          target.dispatchEvent(new InputEvent('input', {
+            inputType: 'insertText', data: char, bubbles: true,
+          }));
+        }
       }
       const jitter = (Math.random() * 20) - 10;
       await sleep(Math.max(8, speed + jitter));

@@ -28,6 +28,58 @@ app.use(express.json());
 
 app.use(express.static(__dirname));
 
+// ─── GET /config ───────────────────────────────────────────────
+
+app.get('/config', (req, res) => {
+  res.json({ googleClientId: GOOGLE_CLIENT_ID || '' });
+});
+
+// ─── POST /auth/google/exchange-extension ──────────────────────
+
+app.post('/auth/google/exchange-extension', async (req, res) => {
+  const { code, redirect_uri } = req.body;
+  if (!code || !redirect_uri) return res.status(400).json({ error: 'Missing params' });
+  if (!redirect_uri.endsWith('.chromiumapp.org/')) return res.status(400).json({ error: 'Invalid redirect_uri' });
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id:     GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri,
+        grant_type:    'authorization_code',
+      }),
+    });
+    const tokens = await tokenRes.json();
+    if (!tokenRes.ok) throw new Error(tokens.error_description || 'Token exchange failed');
+
+    const payload = JSON.parse(Buffer.from(tokens.id_token.split('.')[1], 'base64url').toString());
+    const { email, name } = payload;
+
+    const linkRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey':        SUPABASE_SERVICE_KEY,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({ type: 'magiclink', email, data: { full_name: name, tier: 'free' } }),
+    });
+    const linkData = await linkRes.json();
+    if (!linkRes.ok) throw new Error(linkData.msg || 'Failed to generate link');
+
+    const tokenHash = new URL(linkData.action_link).searchParams.get('token');
+    res.json({ token_hash: tokenHash });
+
+  } catch (err) {
+    console.error('Extension auth error:', err);
+    res.status(500).json({ error: 'Auth failed' });
+  }
+});
+
 // ─── POST /api/humanize ────────────────────────────────────────
 
 app.post('/api/humanize', async (req, res) => {

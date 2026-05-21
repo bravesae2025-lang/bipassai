@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signing in — Bipass AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2.5px solid rgba(255,255,255,0.15);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <p>Signing you in…</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    (async () => {
+      const params    = new URLSearchParams(location.search);
+      const tokenHash = params.get('token_hash');
+      const next      = params.get('next') || '/app.html';
+
+      if (!tokenHash) {
+        window.location.replace('/login.html?error=missing_token');
+        return;
+      }
+
+      const { error } = await window.bipassAuth.client.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'magiclink',
+      });
+
+      if (error) {
+        console.error('Auth callback error:', error);
+        window.location.replace('/login.html?error=auth_failed');
+      } else {
+        window.location.replace(next);
+      }
+    })();
+  </script>
+</body>
+</html>

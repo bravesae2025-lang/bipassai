@@ -104,14 +104,9 @@ emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.foc
 nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') emailEl.focus(); });
 
 // ─── Google OAuth ─────────────────────────────────────────────
-document.getElementById('google-btn').addEventListener('click', async () => {
-  clearMessages();
+document.getElementById('google-btn').addEventListener('click', () => {
   const next = new URLSearchParams(location.search).get('next') || '/app.html';
-  const { error } = await window.bipassAuth.client.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + next },
-  });
-  if (error) showError(error.message);
+  window.location.href = `/auth/google?next=${encodeURIComponent(next)}`;
 });
 
 // ─── Helpers ──────────────────────────────────────────────────

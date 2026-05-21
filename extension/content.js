@@ -1,3 +1,6 @@
+if (window.__bipassLoaded) return;
+window.__bipassLoaded = true;
+
 let armedText        = '';
 let armedSpeed       = 45;
 let isTyping         = false;

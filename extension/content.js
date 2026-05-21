@@ -1,8 +1,17 @@
-let armedText  = '';
-let armedSpeed = 45;
-let isTyping   = false;
-let stopFlag   = false;
-let floatBtn   = null;
+let armedText        = '';
+let armedSpeed       = 45;
+let isTyping         = false;
+let stopFlag         = false;
+let floatBtn         = null;
+let lastFocusedField = null;
+
+// Track the last focused text field so clicking the button doesn't lose it
+document.addEventListener('focusin', (e) => {
+  const t = e.target;
+  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) {
+    lastFocusedField = t;
+  }
+}, true);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'ARM') {
@@ -104,8 +113,8 @@ async function handleStart() {
     return;
   }
 
-  const target = document.activeElement;
-  const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+  const target     = lastFocusedField;
+  const isInput    = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
   const isEditable = target && target.isContentEditable;
 
   if (!target || (!isInput && !isEditable)) {

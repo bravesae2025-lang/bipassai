@@ -1724,7 +1724,7 @@ body.editor-page { background: var(--bg); }
 .level-track {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   border: 1px solid var(--g150);
   border-radius: var(--r);
   background: var(--bg);
@@ -1740,7 +1740,7 @@ body.editor-page { background: var(--bg); }
 .level-glider {
   position: absolute;
   top: 0; left: 0;
-  width: 33.333%;
+  width: 25%;
   height: 100%;
   background: var(--black);
   border-radius: calc(var(--r) - 1px);

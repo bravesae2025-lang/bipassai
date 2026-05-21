@@ -7,6 +7,9 @@
     "default_popup": "popup.html",
     "default_title": "Bipass AI Auto Typer"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": ["tabs", "scripting", "activeTab", "storage", "identity"],
   "host_permissions": [
     "https://bipassai.com/*",

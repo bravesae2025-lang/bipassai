@@ -16,6 +16,16 @@
     }
   }, true);
 
+  // Google Docs uses a custom editor — catch clicks anywhere and use activeElement
+  document.addEventListener('mousedown', () => {
+    setTimeout(() => {
+      const t = document.activeElement;
+      if (t && t !== document.body && t !== document.documentElement) {
+        lastFocusedField = t;
+      }
+    }, 100);
+  }, true);
+
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'ARM') {
       armedText  = msg.text;
@@ -146,6 +156,7 @@
 
   async function typeText(target, text, speed) {
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+    target.focus();
     for (const char of text) {
       if (stopFlag) break;
       if (isInput) {
@@ -157,8 +168,14 @@
           data: char, inputType: 'insertText', bubbles: true, cancelable: true,
         }));
       } else {
-        target.focus();
-        document.execCommand('insertText', false, char);
+        // Try execCommand first (works in most editors)
+        const inserted = document.execCommand('insertText', false, char);
+        // Fallback: dispatch keyboard events (works in Google Docs)
+        if (!inserted) {
+          target.dispatchEvent(new KeyboardEvent('keydown', { key: char, bubbles: true }));
+          target.dispatchEvent(new InputEvent('input', { data: char, inputType: 'insertText', bubbles: true }));
+          target.dispatchEvent(new KeyboardEvent('keyup', { key: char, bubbles: true }));
+        }
       }
       const jitter = (Math.random() * 20) - 10;
       await sleep(Math.max(8, speed + jitter));

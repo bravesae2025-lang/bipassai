@@ -64,5 +64,10 @@ async function handleGoogleAuth() {
     tier,
   });
 
+  // Flash green badge so user knows to reopen the popup
+  chrome.action.setBadgeText({ text: '✓' });
+  chrome.action.setBadgeBackgroundColor({ color: '#22c55e' });
+  setTimeout(() => chrome.action.setBadgeText({ text: '' }), 6000);
+
   return { access_token: verifyData.access_token, user_id: verifyData.user.id, tier };
 }

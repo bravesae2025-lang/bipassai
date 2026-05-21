@@ -44,7 +44,6 @@ async function refreshSession() {
 }
 
 async function fetchResults(accessToken, userId, tier) {
-  if (tier === 'free') { showState('upgrade'); return; }
 
   let res = await fetch(
     `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
@@ -55,7 +54,6 @@ async function fetchResults(accessToken, userId, tier) {
     const refreshed = await refreshSession();
     if (!refreshed) { await chrome.storage.local.clear(); showState('login'); return; }
     ({ access_token: accessToken, user_id: userId, tier } = refreshed);
-    if (tier === 'free') { showState('upgrade'); return; }
     res = await fetch(
       `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
       { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` } }

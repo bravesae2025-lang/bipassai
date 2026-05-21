@@ -98,6 +98,7 @@
     document.head.appendChild(style);
     document.body.appendChild(floatBtn);
 
+    document.getElementById('bipass-float-inner').addEventListener('mousedown', (e) => e.preventDefault());
     document.getElementById('bipass-float-inner').addEventListener('click', handleStart);
     document.getElementById('bipass-float-close').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -156,7 +157,7 @@
 
   async function typeText(target, text, speed) {
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
-    target.focus();
+    if (isInput) target.focus();
     for (const char of text) {
       if (stopFlag) break;
       if (isInput) {
@@ -168,14 +169,8 @@
           data: char, inputType: 'insertText', bubbles: true, cancelable: true,
         }));
       } else {
-        // Try execCommand first (works in most editors)
-        const inserted = document.execCommand('insertText', false, char);
-        // Fallback: dispatch keyboard events (works in Google Docs)
-        if (!inserted) {
-          target.dispatchEvent(new KeyboardEvent('keydown', { key: char, bubbles: true }));
-          target.dispatchEvent(new InputEvent('input', { data: char, inputType: 'insertText', bubbles: true }));
-          target.dispatchEvent(new KeyboardEvent('keyup', { key: char, bubbles: true }));
-        }
+        // execCommand works when editor focus is preserved (mousedown preventDefault on button)
+        document.execCommand('insertText', false, char);
       }
       const jitter = (Math.random() * 20) - 10;
       await sleep(Math.max(8, speed + jitter));

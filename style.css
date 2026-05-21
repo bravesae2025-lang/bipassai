@@ -1767,6 +1767,7 @@ body.editor-page { background: var(--bg); }
 
 .level-btn.active { color: #fff; }
 .level-btn:not(.active):hover { color: var(--black); }
+.level-btn[data-level="customize"] { font-size: 10px; letter-spacing: 0.02em; }
 
 .col-customize .level-btn.active { color: #000; }
 .col-customize .level-btn:not(.active):hover { color: #aaa; }

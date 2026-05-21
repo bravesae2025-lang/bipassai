@@ -108,7 +108,9 @@ Return only the written text, nothing else.`,
 
 // ─── State ────────────────────────────────────────────────────
 
-let selectedLevel = 'easy';
+let selectedLevel  = 'easy';
+let myStyleActive  = false;
+let savedStyle     = null; // { style_summary, style_prompt }
 
 // ─── Elements ─────────────────────────────────────────────────
 
@@ -137,6 +139,17 @@ const toast          = document.getElementById('toast');
 const workspace      = document.getElementById('workspace');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText    = document.getElementById('loading-text');
+const levelTrack     = document.querySelector('.level-track');
+const sampleContainer  = document.getElementById('sample-container');
+const addSampleBtn     = document.getElementById('add-sample-btn');
+const analyzeStyleBtn  = document.getElementById('analyze-style-btn');
+const analyzeLabel     = document.getElementById('analyze-label');
+const analyzeLoader    = document.getElementById('analyze-loader');
+const myStyleInputs    = document.getElementById('my-style-inputs');
+const myStyleCard      = document.getElementById('my-style-card');
+const myStyleSummary   = document.getElementById('my-style-summary');
+const useMyStyleBtn    = document.getElementById('use-my-style-btn');
+const reanalyzeLink    = document.getElementById('reanalyze-link');
 
 // ─── Nav user ─────────────────────────────────────────────────
 
@@ -235,6 +248,7 @@ async function init() {
   restoreState();
   updateStats();
   bindEvents();
+  loadSavedStyle(session);
 
   const autostart = sessionStorage.getItem('bipass_autostart');
   if (autostart) {
@@ -260,6 +274,7 @@ function restoreState() {
   if (sessionStorage.getItem('bipass_grammar') === 'true') grammarToggle.checked = true;
   if (sessionStorage.getItem('bipass_punct') === 'true')   punctToggle.checked   = true;
   if (sessionStorage.getItem('bipass_tense') === 'true')   tenseToggle.checked   = true;
+  if (sessionStorage.getItem('bipass_my_style') === 'true') myStyleActive = true;
 }
 
 // ─── Events ───────────────────────────────────────────────────
@@ -277,17 +292,125 @@ function bindEvents() {
 
   generateBtn.addEventListener('click', generateNew);
   humanizeBtn.addEventListener('click', humanize);
+
+  // My Style events
+  let sampleCount = 1;
+  addSampleBtn.addEventListener('click', () => {
+    if (sampleCount >= 5) return;
+    sampleCount++;
+    const ta = document.createElement('textarea');
+    ta.className = 'style-sample-textarea';
+    ta.id = `style-sample-${sampleCount}`;
+    ta.placeholder = `Paste sample ${sampleCount}…`;
+    ta.rows = 4;
+    sampleContainer.appendChild(ta);
+    if (sampleCount >= 5) addSampleBtn.style.display = 'none';
+  });
+
+  analyzeStyleBtn.addEventListener('click', analyzeStyle);
+  useMyStyleBtn.addEventListener('click', () => {
+    if (myStyleActive) deactivateMyStyle();
+    else activateMyStyle();
+  });
+  reanalyzeLink.addEventListener('click', () => {
+    myStyleCard.style.display = 'none';
+    myStyleInputs.style.display = '';
+  });
 }
 
 // ─── Level selection ──────────────────────────────────────────
 
 function selectLevel(level) {
+  deactivateMyStyle();
   selectedLevel = level;
   pills.forEach(p => p.classList.toggle('active', p.dataset.level === level));
   levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
   levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
   optionsPanel.style.display = level === 'customize' ? '' : 'none';
+}
+
+// ─── My Style ─────────────────────────────────────────────────
+
+function activateMyStyle() {
+  if (!savedStyle) return;
+  myStyleActive = true;
+  useMyStyleBtn.classList.add('active');
+  levelTrack.classList.add('dimmed');
+  sessionStorage.setItem('bipass_my_style', 'true');
+}
+
+function deactivateMyStyle() {
+  myStyleActive = false;
+  if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
+  if (levelTrack) levelTrack.classList.remove('dimmed');
+  sessionStorage.setItem('bipass_my_style', 'false');
+}
+
+function showMyStyleCard() {
+  myStyleInputs.style.display = 'none';
+  myStyleSummary.textContent  = savedStyle.style_summary;
+  myStyleCard.style.display   = '';
+  if (myStyleActive) useMyStyleBtn.classList.add('active');
+}
+
+async function loadSavedStyle(session) {
+  try {
+    const { data } = await window.bipassAuth.client
+      .from('user_styles')
+      .select('style_summary, style_prompt')
+      .eq('user_id', session.user.id)
+      .single();
+    if (data) {
+      savedStyle = data;
+      showMyStyleCard();
+      if (myStyleActive) activateMyStyle();
+    }
+  } catch (_) {}
+}
+
+async function analyzeStyle() {
+  const samples = Array.from(document.querySelectorAll('.style-sample-textarea'))
+    .map(t => t.value.trim())
+    .filter(v => v.length > 0);
+
+  if (samples.length === 0) { showToast('Paste at least one writing sample'); return; }
+
+  analyzeLabel.style.display  = 'none';
+  analyzeLoader.style.display = '';
+  analyzeStyleBtn.disabled    = true;
+
+  const prompt = `Analyze the writing style of these text samples and return ONLY valid JSON with no markdown, no code fences, nothing else.
+
+Return exactly this format: {"summary":"one sentence describing the writing style","style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
+
+${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
+
+  try {
+    const raw  = await callAPI(prompt);
+    const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    if (!json.summary || !json.style_prompt) throw new Error('Invalid response');
+
+    savedStyle = { style_summary: json.summary, style_prompt: json.style_prompt };
+
+    const session = await window.bipassAuth.getSession();
+    await window.bipassAuth.client.from('user_styles').upsert({
+      user_id:       session.user.id,
+      style_summary: json.summary,
+      style_prompt:  json.style_prompt,
+      sample_count:  samples.length,
+      updated_at:    new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+
+    showMyStyleCard();
+    showToast('Style saved');
+  } catch (e) {
+    showToast('Could not analyze style — try again');
+  } finally {
+    analyzeLabel.style.display  = '';
+    analyzeLoader.style.display = 'none';
+    analyzeStyleBtn.disabled    = false;
+  }
 }
 
 // ─── Stats ────────────────────────────────────────────────────
@@ -307,6 +430,9 @@ function updateStats() {
 // ─── Build prompts ────────────────────────────────────────────
 
 function buildHumanizePrompt(text) {
+  if (myStyleActive && savedStyle) {
+    return `${savedStyle.style_prompt}\n\nText to rewrite:\n${text}`;
+  }
   let prompt = HUMANIZE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
     const extras = [];
@@ -320,6 +446,9 @@ function buildHumanizePrompt(text) {
 }
 
 function buildGeneratePrompt(userPrompt) {
+  if (myStyleActive && savedStyle) {
+    return `${savedStyle.style_prompt}\n\nWhat to write:\n${userPrompt}`;
+  }
   let prompt = GENERATE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
     const extras = [];
@@ -377,13 +506,14 @@ async function humanize() {
 // ─── Save state for regenerate ────────────────────────────────
 
 function saveState(mode) {
-  sessionStorage.setItem('bipass_level',   selectedLevel);
-  sessionStorage.setItem('bipass_mode',    mode);
-  sessionStorage.setItem('bipass_prompt',  promptText.value);
-  sessionStorage.setItem('bipass_input',   inputText.value);
-  sessionStorage.setItem('bipass_grammar', grammarToggle.checked);
-  sessionStorage.setItem('bipass_punct',   punctToggle.checked);
-  sessionStorage.setItem('bipass_tense',   tenseToggle.checked);
+  sessionStorage.setItem('bipass_level',    selectedLevel);
+  sessionStorage.setItem('bipass_mode',     mode);
+  sessionStorage.setItem('bipass_prompt',   promptText.value);
+  sessionStorage.setItem('bipass_input',    inputText.value);
+  sessionStorage.setItem('bipass_grammar',  grammarToggle.checked);
+  sessionStorage.setItem('bipass_punct',    punctToggle.checked);
+  sessionStorage.setItem('bipass_tense',    tenseToggle.checked);
+  sessionStorage.setItem('bipass_my_style', myStyleActive);
 }
 
 // ─── API call ─────────────────────────────────────────────────

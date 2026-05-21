@@ -46,7 +46,7 @@ async function refreshSession() {
 async function fetchResults(accessToken, userId, tier) {
 
   let res = await fetch(
-    `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
+    `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc&limit=20`,
     { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` } }
   );
 
@@ -55,7 +55,7 @@ async function fetchResults(accessToken, userId, tier) {
     if (!refreshed) { await chrome.storage.local.clear(); showState('login'); return; }
     ({ access_token: accessToken, user_id: userId, tier } = refreshed);
     res = await fetch(
-      `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc`,
+      `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&order=created_at.desc&limit=20`,
       { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` } }
     );
   }

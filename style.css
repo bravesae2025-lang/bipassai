@@ -784,6 +784,42 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   z-index: 50;
 }
 
+.app-ticker-bar {
+  padding: 0;
+  overflow: hidden;
+  justify-content: flex-start;
+}
+
+.ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding: 11px 28px 11px 0;
+  white-space: nowrap;
+  animation: ticker-scroll 22s linear infinite;
+  will-change: transform;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.ticker-sep {
+  font-size: 7px;
+  color: #ccc;
+  flex-shrink: 0;
+}
+
 .app-main {
   padding: 20px 20px 20px;
   max-width: 1400px;
@@ -1718,6 +1754,17 @@ body.editor-page { background: var(--bg); }
 .col-customize .control-head {
   color: #777;
   border-color: #222;
+}
+
+.control-sub {
+  font-size: 11px;
+  color: var(--g400);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.col-customize .control-sub {
+  color: #666;
 }
 
 /* Level selector */
@@ -3786,4 +3833,125 @@ body.drawer-lock { overflow: hidden; }
 @media (max-width: 600px) {
   .plans-grid { grid-template-columns: 1fr; }
   .plans-main { padding: 40px 16px 48px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   My Style
+───────────────────────────────────────────────────────────── */
+
+.my-style-block { margin-top: 0; }
+
+.style-sample-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--g900);
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: var(--r);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-bottom: 8px;
+  display: block;
+}
+.style-sample-textarea:focus { border-color: var(--g400); }
+.style-sample-textarea::placeholder { color: var(--g300); }
+
+.add-sample-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g400);
+  background: transparent;
+  border: 1px solid var(--g150);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: 10px;
+}
+.add-sample-btn:hover { color: var(--black); border-color: var(--g400); }
+
+.analyze-btn {
+  width: 100%;
+  padding: 11px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--black);
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.analyze-btn:hover:not(:disabled) { opacity: 0.82; }
+.analyze-btn:disabled { opacity: 0.5; cursor: default; }
+
+.my-style-card {
+  border: 1px solid var(--g150);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  background: var(--g050);
+}
+
+.my-style-summary {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--g400);
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.my-style-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.use-my-style-btn {
+  padding: 7px 16px;
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--black);
+  background: transparent;
+  border: 1.5px solid var(--black);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.use-my-style-btn:hover { background: var(--g100); }
+.use-my-style-btn.active {
+  background: var(--black);
+  color: #fff;
+}
+
+.reanalyze-link {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g400);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+  transition: color 0.15s;
+}
+.reanalyze-link:hover { color: var(--black); }
+
+.level-track.dimmed {
+  opacity: 0.35;
+  pointer-events: none;
 }

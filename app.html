@@ -57,27 +57,40 @@
     </div>
   </aside>
 
-  <!-- Slim app stats bar -->
-  <div class="app-statsbar">
-    <div class="stat-item">
-      <span class="stat-val" id="word-count">0</span>
-      <span class="stat-lbl">words</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-val" id="char-count">0</span>
-      <span class="stat-lbl">chars</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-lbl">level</span>
-      <span class="stat-val" id="level-label">Easy</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-val status-val" id="status-label">Ready</span>
+  <!-- Scrolling ticker bar -->
+  <div class="app-statsbar app-ticker-bar">
+    <div class="ticker-track">
+      <span class="ticker-item">100% undetectable</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">bypass all AI detectors</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">superhuman writing style</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">customize to your level</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">built-in auto typer</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">sounds totally human</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">100% undetectable</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">bypass all AI detectors</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">superhuman writing style</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">customize to your level</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">built-in auto typer</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">sounds totally human</span>
+      <span class="ticker-sep">✦</span>
     </div>
   </div>
+  <!-- Hidden elements kept for JS stat tracking -->
+  <span id="word-count" style="display:none">0</span>
+  <span id="char-count" style="display:none">0</span>
+  <span id="level-label" style="display:none">Easy</span>
+  <span id="status-label" style="display:none">Ready</span>
 
   <main class="app-main">
     <div class="workspace" id="workspace">
@@ -161,7 +174,6 @@
       <section class="col col-customize" data-reveal data-reveal-delay="1">
 
         <div class="col-label">
-          <span class="col-num">04</span>
           <span class="col-name">Customize</span>
         </div>
 
@@ -178,7 +190,8 @@
         </div>
 
         <div class="control-block" id="options-panel" style="display:none">
-          <div class="control-head">Options</div>
+          <div class="control-head">Human Mistakes</div>
+          <p class="control-sub">Turn these on to make your writing feel more naturally human — real people make these kinds of errors all the time.</p>
 
           <label class="toggle-row" for="grammar-toggle">
             <div class="toggle-text">
@@ -218,6 +231,30 @@
               </div>
             </div>
           </label>
+        </div>
+
+        <div class="control-block my-style-block" id="my-style-block">
+          <div class="control-head">My Style</div>
+          <p class="control-sub">Paste samples of your own writing — AI will learn your style and reproduce it.</p>
+
+          <div id="my-style-inputs">
+            <div id="sample-container">
+              <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4"></textarea>
+            </div>
+            <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
+            <button class="analyze-btn" id="analyze-style-btn" type="button">
+              <span id="analyze-label">Analyze My Style</span>
+              <span id="analyze-loader" style="display:none">Analyzing…</span>
+            </button>
+          </div>
+
+          <div id="my-style-card" style="display:none">
+            <p class="my-style-summary" id="my-style-summary"></p>
+            <div class="my-style-actions">
+              <button class="use-my-style-btn" id="use-my-style-btn" type="button">Use My Style</button>
+              <button class="reanalyze-link" id="reanalyze-link" type="button">Re-analyze</button>
+            </div>
+          </div>
         </div>
 
         <div class="control-block tips-block">

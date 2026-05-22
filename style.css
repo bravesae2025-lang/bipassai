@@ -1814,10 +1814,18 @@ body.editor-page { background: var(--bg); }
 
 .level-btn.active { color: #fff; }
 .level-btn:not(.active):hover { color: var(--black); }
-.level-btn[data-level="customize"] { font-size: 10px; letter-spacing: 0.02em; }
+.level-btn[data-level="customize"] {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
 
 .col-customize .level-btn.active { color: #000; }
 .col-customize .level-btn:not(.active):hover { color: #aaa; }
+
+.col-customize .level-btn[data-level="customize"] { color: #c09a35; }
+.col-customize .level-btn[data-level="customize"]:not(.active):hover { color: #d4b050; }
+.col-customize .level-btn[data-level="customize"].active { color: #6b4f15; }
 
 .level-desc {
   font-family: var(--ff-mono);

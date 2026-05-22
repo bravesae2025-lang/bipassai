@@ -327,7 +327,7 @@ function selectLevel(level) {
   levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
   levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
-  optionsPanel.style.display = level === 'customize' ? '' : 'none';
+  optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
 }
 
 // ─── My Style ─────────────────────────────────────────────────

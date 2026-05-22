@@ -445,7 +445,18 @@ main {
   background: transparent;
   flex: 1;
   min-height: 0;
-  align-items: stretch;
+  align-items: start;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.col-my-style {
+  background: rgba(255,255,255,0.94);
 }
 
 /* ─── Columns ──────────────────────────────────────────────── */
@@ -3919,20 +3930,15 @@ body.drawer-lock { overflow: hidden; }
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #000;
-  background: #fff;
+  color: #fff;
+  background: var(--black);
   border: none;
   border-radius: var(--r);
   cursor: pointer;
   transition: opacity 0.15s;
 }
-.analyze-btn:hover:not(:disabled) { opacity: 0.85; }
+.analyze-btn:hover:not(:disabled) { opacity: 0.82; }
 .analyze-btn:disabled { opacity: 0.4; cursor: default; }
-
-.col-customize .analyze-btn {
-  background: #fff;
-  color: #000;
-}
 
 /* Style card — shown after analyzing */
 .my-style-card {
@@ -3981,13 +3987,6 @@ body.drawer-lock { overflow: hidden; }
 .use-my-style-btn:hover { background: var(--g100); }
 .use-my-style-btn.active { background: var(--black); color: #fff; }
 
-.col-customize .use-my-style-btn {
-  color: #aaa;
-  border-color: rgba(255,255,255,0.2);
-}
-.col-customize .use-my-style-btn:hover { background: rgba(255,255,255,0.07); color: #fff; }
-.col-customize .use-my-style-btn.active { background: #fff; color: #000; border-color: #fff; }
-
 .reanalyze-link {
   font-family: var(--ff-mono);
   font-size: 11px;
@@ -4001,8 +4000,6 @@ body.drawer-lock { overflow: hidden; }
   transition: color 0.15s;
 }
 .reanalyze-link:hover { color: var(--black); }
-.col-customize .reanalyze-link { color: #555; }
-.col-customize .reanalyze-link:hover { color: #aaa; }
 
 .level-track.dimmed {
   opacity: 0.35;

@@ -170,61 +170,70 @@
 
       </section>
 
-      <!-- ── CUSTOMIZE ──────────────────────────────────────── -->
-      <section class="col col-customize" data-reveal data-reveal-delay="1">
+      <!-- ── RIGHT PANEL ──────────────────────────────────────── -->
+      <div class="right-panel">
 
-        <div class="col-label">
-          <span class="col-name">Customize</span>
-        </div>
+        <!-- Customize box -->
+        <section class="col col-customize" data-reveal data-reveal-delay="1">
 
-        <div class="control-block">
-          <div class="control-head">Humanization Level</div>
-          <div class="level-track" role="group" aria-label="Level">
-            <div class="level-glider" id="level-glider"></div>
-            <button class="level-btn active" data-level="easy">Easy</button>
-            <button class="level-btn" data-level="medium">Medium</button>
-            <button class="level-btn" data-level="hard">Hard</button>
-            <button class="level-btn" data-level="customize">Customize</button>
+          <div class="col-label">
+            <span class="col-name">Customize</span>
           </div>
-          <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
-        </div>
 
-        <div class="control-block" id="options-panel" style="display:none">
-          <div class="control-head">Human Mistakes</div>
-
-          <label class="toggle-row" for="grammar-toggle">
-            <span class="toggle-title">Grammar mistakes</span>
-            <div class="toggle-shell">
-              <input type="checkbox" id="grammar-toggle">
-              <div class="toggle-track">
-                <div class="toggle-thumb"></div>
-              </div>
+          <div class="control-block">
+            <div class="control-head">Humanization Level</div>
+            <div class="level-track" role="group" aria-label="Level">
+              <div class="level-glider" id="level-glider"></div>
+              <button class="level-btn active" data-level="easy">Easy</button>
+              <button class="level-btn" data-level="medium">Medium</button>
+              <button class="level-btn" data-level="hard">Hard</button>
+              <button class="level-btn" data-level="customize">Customize</button>
             </div>
-          </label>
+            <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
+          </div>
 
-          <label class="toggle-row" for="punct-toggle">
-            <span class="toggle-title">Punctuation mistakes</span>
-            <div class="toggle-shell">
-              <input type="checkbox" id="punct-toggle">
-              <div class="toggle-track">
-                <div class="toggle-thumb"></div>
+          <div class="control-block" id="options-panel" style="display:none">
+            <div class="control-head">Human Mistakes</div>
+
+            <label class="toggle-row" for="grammar-toggle">
+              <span class="toggle-title">Grammar mistakes</span>
+              <div class="toggle-shell">
+                <input type="checkbox" id="grammar-toggle">
+                <div class="toggle-track">
+                  <div class="toggle-thumb"></div>
+                </div>
               </div>
-            </div>
-          </label>
+            </label>
 
-          <label class="toggle-row" for="tense-toggle">
-            <span class="toggle-title">Tense mistakes</span>
-            <div class="toggle-shell">
-              <input type="checkbox" id="tense-toggle">
-              <div class="toggle-track">
-                <div class="toggle-thumb"></div>
+            <label class="toggle-row" for="punct-toggle">
+              <span class="toggle-title">Punctuation mistakes</span>
+              <div class="toggle-shell">
+                <input type="checkbox" id="punct-toggle">
+                <div class="toggle-track">
+                  <div class="toggle-thumb"></div>
+                </div>
               </div>
-            </div>
-          </label>
-        </div>
+            </label>
 
-        <div class="control-block my-style-block" id="my-style-block">
-          <div class="control-head">My Style</div>
+            <label class="toggle-row" for="tense-toggle">
+              <span class="toggle-title">Tense mistakes</span>
+              <div class="toggle-shell">
+                <input type="checkbox" id="tense-toggle">
+                <div class="toggle-track">
+                  <div class="toggle-thumb"></div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+        </section>
+
+        <!-- My Style box -->
+        <div class="col col-my-style" id="my-style-block" data-reveal data-reveal-delay="2">
+
+          <div class="col-label">
+            <span class="col-name">My Style</span>
+          </div>
 
           <div id="my-style-inputs">
             <div id="sample-container">
@@ -244,10 +253,10 @@
               <button class="reanalyze-link" id="reanalyze-link" type="button">Re-analyze</button>
             </div>
           </div>
+
         </div>
 
-
-      </section>
+      </div><!-- /right-panel -->
 
     </div>
   </main>

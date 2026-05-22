@@ -440,8 +440,8 @@ main {
 
 .workspace {
   display: grid;
-  grid-template-columns: 1fr 296px;
-  gap: 14px;
+  grid-template-columns: 1fr minmax(300px, 420px);
+  gap: 16px;
   background: transparent;
   flex: 1;
   min-height: 0;
@@ -451,8 +451,12 @@ main {
 .right-panel {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   min-height: 0;
+}
+
+.col-main {
+  align-self: stretch;
 }
 
 .col-my-style {
@@ -832,8 +836,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 .app-main {
-  padding: 20px 20px 20px;
-  max-width: 1400px;
+  padding: 20px 28px 32px;
+  max-width: 1800px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
@@ -2848,11 +2852,13 @@ body.editor-page { background: var(--bg); }
 ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 1100px) {
-  .workspace { grid-template-columns: 1fr 260px; }
+  .workspace { grid-template-columns: 1fr minmax(260px, 360px); }
 }
 
 @media (max-width: 860px) {
   .workspace { grid-template-columns: 1fr; gap: 12px; }
+  .right-panel { flex-direction: row; gap: 12px; }
+  .right-panel > * { flex: 1; min-width: 0; }
   .app-main { min-height: unset; padding: 16px 16px 32px; }
   textarea { min-height: 180px; }
 }
@@ -2874,6 +2880,10 @@ body.editor-page { background: var(--bg); }
   .ext-ring-1, .ext-ring-2 { display: block; }
   .btn-ext { width: 100%; margin-top: 8px; }
   .ext-meta { width: auto; text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .right-panel { flex-direction: column; }
 }
 
 @media (max-width: 480px) {

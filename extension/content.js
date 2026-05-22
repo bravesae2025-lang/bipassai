@@ -2,11 +2,12 @@
   if (window.__bipass) return;
 
   const s = window.__bipass = {
-    armedText: '',
-    armedSpeed: 45,
-    isTyping: false,
-    stopFlag: false,
-    floatBtn: null,
+    armedText:      '',
+    armedSpeed:     45,
+    isTyping:       false,
+    stopFlag:       false,
+    remainingText:  '',
+    floatBtn:       null,
     lastFocusedField: null,
   };
 
@@ -15,7 +16,6 @@
     return t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
   }
 
-  // Peek inside a same-origin iframe to find the active editable element
   function peekIframe(iframeEl) {
     try {
       const doc = iframeEl.contentDocument || iframeEl.contentWindow?.document;
@@ -26,34 +26,26 @@
         t = t.parentElement;
       }
       return doc.querySelector('[contenteditable="true"], textarea, input:not([type="hidden"])');
-    } catch (_) { return null; } // cross-origin
+    } catch (_) { return null; }
   }
 
   function findTarget() {
     if (isValidField(s.lastFocusedField)) return s.lastFocusedField;
-
     const active = document.activeElement;
-
-    // Google Docs captures input in a same-origin iframe — peek inside
     if (active && active.tagName === 'IFRAME') {
       const inner = peekIframe(active);
       if (inner) return inner;
     }
-
-    // Walk up from activeElement in the main document
     let t = active;
     while (t && t !== document.body && t !== document.documentElement) {
       if (isValidField(t)) return t;
       t = t.parentElement;
     }
-
-    // Also check all iframes on the page (Google Docs may not be activeElement)
     for (const iframe of document.querySelectorAll('iframe')) {
       const inner = peekIframe(iframe);
       if (inner) return inner;
     }
-
-    return null; // No blind querySelector — avoids selecting wrong element (title, etc.)
+    return null;
   }
 
   document.addEventListener('focusin', (e) => {
@@ -62,9 +54,7 @@
   }, true);
 
   document.addEventListener('mousedown', (e) => {
-    // Don't reset when clicking our own button
     if (document.getElementById('bipass-float-inner')?.contains(e.target)) return;
-    // Reset so stale focus (e.g. title from earlier click) doesn't persist
     s.lastFocusedField = null;
     setTimeout(() => {
       const active = document.activeElement;
@@ -80,29 +70,37 @@
 
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'ARM') {
-      s.armedText  = msg.text;
-      s.armedSpeed = msg.speed;
-      s.stopFlag   = false;
+      s.armedText     = msg.text;
+      s.armedSpeed    = msg.speed;
+      s.remainingText = msg.text;
+      s.stopFlag      = false;
       showFloatBtn();
       sendResponse({ ok: true });
     }
     if (msg.type === 'STOP') {
       s.stopFlag = true;
-      s.isTyping = false;
-      removeFloatBtn();
+      // If not currently typing, just dismiss the float
+      if (!s.isTyping) {
+        dismissFloat();
+      }
+      // If typing, the loop will detect stopFlag and switch to 'continue' state
       sendResponse({ ok: true });
     }
     return true;
   });
 
-  function removeFloatBtn() {
+  function dismissFloat() {
     const existing = document.getElementById('bipass-float-btn');
     if (existing) existing.remove();
+    document.getElementById('bipass-float-style')?.remove();
     s.floatBtn = null;
   }
 
+  // kept for backward compat — same as dismissFloat
+  function removeFloatBtn() { dismissFloat(); }
+
   function showFloatBtn() {
-    removeFloatBtn();
+    dismissFloat();
 
     s.floatBtn = document.createElement('div');
     s.floatBtn.id = 'bipass-float-btn';
@@ -156,49 +154,56 @@
       e.stopPropagation();
       s.stopFlag = true;
       s.isTyping = false;
-      removeFloatBtn();
-      document.getElementById('bipass-float-style')?.remove();
+      dismissFloat();
     });
   }
 
   async function handleStart() {
+    // Currently typing → pause it
     if (s.isTyping) {
       s.stopFlag = true;
       s.isTyping = false;
-      updateBtn(false);
+      // updateBtn to 'continue' happens after typeText loop breaks
       return;
     }
 
     const target = findTarget();
-
     if (!target) {
       const label = document.getElementById('bipass-float-label');
       if (label) {
         label.textContent = 'Click a text field first';
-        setTimeout(() => { if (label) label.textContent = 'Start Typing'; }, 1800);
+        setTimeout(() => { if (label) label.textContent = s.remainingText === s.armedText ? 'Start Typing' : 'Continue'; }, 1800);
       }
       return;
     }
 
     s.isTyping = true;
     s.stopFlag = false;
-    updateBtn(true);
+    updateBtn('typing');
 
-    await typeText(target, s.armedText, s.armedSpeed);
+    await typeText(target, s.remainingText, s.armedSpeed);
 
     s.isTyping = false;
-    updateBtn(false);
-    removeFloatBtn();
-    document.getElementById('bipass-float-style')?.remove();
+
+    if (s.stopFlag) {
+      // Stopped mid-way — stay visible so user can continue
+      updateBtn('paused');
+    } else {
+      // Finished all text — dismiss
+      dismissFloat();
+    }
   }
 
-  function updateBtn(typing) {
+  function updateBtn(state) {
     const icon  = document.getElementById('bipass-float-icon');
     const label = document.getElementById('bipass-float-label');
     if (!icon || !label) return;
-    if (typing) {
+    if (state === 'typing') {
       icon.textContent  = '■';
       label.textContent = 'Stop';
+    } else if (state === 'paused') {
+      icon.textContent  = '▶';
+      label.textContent = 'Continue';
     } else {
       icon.textContent  = '▶';
       label.textContent = 'Start Typing';
@@ -209,8 +214,15 @@
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
     const doc = target.ownerDocument || document;
     if (isInput) target.focus();
-    for (const char of text) {
-      if (s.stopFlag) break;
+
+    const chars = [...text];
+    for (let i = 0; i < chars.length; i++) {
+      if (s.stopFlag) {
+        // Save what's left so Continue resumes here
+        s.remainingText = chars.slice(i).join('');
+        return;
+      }
+      const char = chars[i];
       if (isInput) {
         const start = target.selectionStart ?? target.value.length;
         const end   = target.selectionEnd   ?? start;
@@ -234,6 +246,9 @@
       const jitter = (Math.random() * 20) - 10;
       await sleep(Math.max(8, speed + jitter));
     }
+
+    // Completed all characters
+    s.remainingText = '';
   }
 
   function sleep(ms) {

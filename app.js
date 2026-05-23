@@ -1,8 +1,8 @@
 const LEVEL_DESCRIPTIONS = {
-  easy:      'Simple words, mixed sentences, tense mistakes — like a beginner non-native speaker wrote it',
-  medium:    'Average student voice — decent grammar, nothing too fancy',
-  hard:      'Confident and fluent — strong vocabulary, varied sentences',
-  customize: 'Pick exactly which human traits to add — build your own level',
+  easy:      'Beginner — simple words, mixed sentences, tense mistakes like a non-native speaker',
+  medium:    'Student — average voice, decent grammar, nothing too fancy',
+  hard:      'Expert — confident and fluent, strong vocabulary, varied sentences',
+  customize: 'Custom — pick exactly which human traits to add',
 };
 
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };

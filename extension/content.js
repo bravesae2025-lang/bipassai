@@ -5,6 +5,7 @@
     armedText:        '',
     armedSpeed:       45,
     targetDuration:   0,
+    mistyping:        0,
     isTyping:         false,
     stopFlag:         false,
     remainingText:    '',
@@ -74,6 +75,7 @@
       s.armedText       = msg.text;
       s.armedSpeed      = msg.speed;
       s.targetDuration  = msg.targetDuration || 0;
+      s.mistyping       = msg.mistyping ?? 0;
       s.remainingText   = msg.text;
       s.stopFlag        = false;
       showFloatBtn();
@@ -241,12 +243,68 @@
     }
   }
 
+  const MISTYPE_PROB = [0, 0.03, 0.08, 0.15, 0.25];
+  const ADJACENT = {
+    a:'sqwz',b:'vghn',c:'xdfv',d:'sfxcre',e:'wrsdf',f:'dcgvre',g:'fhbvty',
+    h:'gjnbyu',i:'uojk',j:'hknmui',k:'jlmio',l:'kop',m:'njk',n:'bhjm',
+    o:'iklp',p:'ol',q:'wa',r:'etdf',s:'adwxze',t:'ryfg',u:'yihj',
+    v:'cfgb',w:'qase',x:'zsdc',y:'tugh',z:'asx',
+  };
+
+  function pickAdjacentKey(char) {
+    const pool = ADJACENT[char.toLowerCase()];
+    if (!pool) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function insertChar(target, char, isInput, doc) {
+    if (isInput) {
+      const start = target.selectionStart ?? target.value.length;
+      const end   = target.selectionEnd   ?? start;
+      target.value = target.value.slice(0, start) + char + target.value.slice(end);
+      target.selectionStart = target.selectionEnd = start + 1;
+      target.dispatchEvent(new InputEvent('input', { data: char, inputType: 'insertText', bubbles: true, cancelable: true }));
+    } else {
+      target.focus();
+      const ok = doc.execCommand('insertText', false, char);
+      if (!ok) {
+        target.dispatchEvent(new InputEvent('beforeinput', { inputType: 'insertText', data: char, bubbles: true, cancelable: true }));
+        target.dispatchEvent(new InputEvent('input', { inputType: 'insertText', data: char, bubbles: true }));
+      }
+    }
+  }
+
+  function deleteChar(target, isInput, doc) {
+    if (isInput) {
+      const start = target.selectionStart ?? target.value.length;
+      if (start === 0) return;
+      target.value = target.value.slice(0, start - 1) + target.value.slice(start);
+      target.selectionStart = target.selectionEnd = start - 1;
+      target.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward', bubbles: true }));
+    } else {
+      // sel.modify extends selection backward by one char, then we delete it
+      const sel = doc.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        sel.modify('extend', 'backward', 'character');
+        const range = sel.getRangeAt(0);
+        if (!range.collapsed) {
+          target.dispatchEvent(new InputEvent('beforeinput', { inputType: 'deleteContentBackward', bubbles: true, cancelable: true }));
+          range.deleteContents();
+          sel.collapseToEnd();
+          target.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward', bubbles: true }));
+        }
+      }
+    }
+  }
+
   async function typeText(target, text, speed) {
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
     const doc = target.ownerDocument || document;
     if (isInput) target.focus();
 
     const chars = [...text];
+    let wordMult = 0.5 + Math.random() * 1.2;
+    let wordCharCount = 0;
 
     // Calculate extra pause per break point to hit the target duration
     let breakPause = 0;
@@ -265,30 +323,99 @@
         return;
       }
       const char = chars[i];
-      if (isInput) {
-        const start = target.selectionStart ?? target.value.length;
-        const end   = target.selectionEnd   ?? start;
-        target.value = target.value.slice(0, start) + char + target.value.slice(end);
-        target.selectionStart = target.selectionEnd = start + 1;
-        target.dispatchEvent(new InputEvent('input', {
-          data: char, inputType: 'insertText', bubbles: true, cancelable: true,
-        }));
-      } else {
-        target.focus();
-        const ok = doc.execCommand('insertText', false, char);
-        if (!ok) {
-          target.dispatchEvent(new InputEvent('beforeinput', {
-            inputType: 'insertText', data: char, bubbles: true, cancelable: true,
-          }));
-          target.dispatchEvent(new InputEvent('input', {
-            inputType: 'insertText', data: char, bubbles: true,
-          }));
+      // Mistype: type adjacent wrong key, pause, then delete+retype correct char
+      const mistypeProb = MISTYPE_PROB[s.mistyping] || 0;
+      const wrong = (mistypeProb > 0 && /[a-zA-Z]/.test(char) && Math.random() < mistypeProb)
+        ? pickAdjacentKey(char) : null;
+
+      if (wrong) {
+        insertChar(target, wrong, isInput, doc);
+        await sleep(110 + Math.random() * 190); // "oh wait" visual pause
+
+        if (s.stopFlag) {
+          if (isInput) {
+            deleteChar(target, isInput, doc);
+          } else {
+            // same synthetic backspace as the normal mistype path
+            target.dispatchEvent(new KeyboardEvent('keydown', {
+              key: 'Backspace', code: 'Backspace', keyCode: 8, which: 8, bubbles: true, cancelable: true,
+            }));
+            const bh = !target.dispatchEvent(new InputEvent('beforeinput', {
+              inputType: 'deleteContentBackward', bubbles: true, cancelable: true,
+            }));
+            if (!bh) {
+              const sel = doc.getSelection();
+              if (sel && sel.rangeCount > 0) {
+                sel.modify('extend', 'backward', 'character');
+                const r = sel.getRangeAt(0);
+                if (!r.collapsed) { r.deleteContents(); sel.collapseToEnd(); }
+              }
+            }
+            target.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward', bubbles: true }));
+            target.dispatchEvent(new KeyboardEvent('keyup', {
+              key: 'Backspace', code: 'Backspace', keyCode: 8, which: 8, bubbles: true,
+            }));
+          }
+          s.remainingText = chars.slice(i).join('');
+          return;
         }
+
+        if (isInput) {
+          deleteChar(target, isInput, doc);
+          await sleep(50 + Math.random() * 60);
+          insertChar(target, char, isInput, doc);
+        } else {
+          // contenteditable: fire synthetic keyboard/input events so the editor's own
+          // listeners handle deletion (works for React/Lexical, ProseMirror, Quill, etc.)
+          target.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Backspace', code: 'Backspace', keyCode: 8, which: 8, bubbles: true, cancelable: true,
+          }));
+          const bhHandled = !target.dispatchEvent(new InputEvent('beforeinput', {
+            inputType: 'deleteContentBackward', bubbles: true, cancelable: true,
+          }));
+          if (!bhHandled) {
+            // Vanilla contenteditable (no framework): delete directly
+            const sel = doc.getSelection();
+            if (sel && sel.rangeCount > 0) {
+              sel.modify('extend', 'backward', 'character');
+              const r = sel.getRangeAt(0);
+              if (!r.collapsed) { r.deleteContents(); sel.collapseToEnd(); }
+            }
+          }
+          target.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward', bubbles: true }));
+          target.dispatchEvent(new KeyboardEvent('keyup', {
+            key: 'Backspace', code: 'Backspace', keyCode: 8, which: 8, bubbles: true,
+          }));
+          // wait for editor to re-render (deletion applied) before typing correct char
+          await sleep(50 + Math.random() * 70);
+          if (s.stopFlag) { s.remainingText = chars.slice(i).join(''); return; }
+          insertChar(target, char, isInput, doc);
+        }
+        await sleep(40 + Math.random() * 45);
+      } else {
+        insertChar(target, char, isInput, doc);
       }
 
-      // Regular per-character delay
-      const jitter = (Math.random() * 20) - 10;
-      await sleep(Math.max(8, speed + jitter));
+      // Variable human-like speed: word-level multiplier + per-char noise + inter-word pause
+      let delay;
+      if (char === ' ' || char === '\n') {
+        delay = speed * (0.8 + Math.random() * 1.7);
+        wordMult = 0.5 + Math.random() * 1.2;
+        wordCharCount = 0;
+      } else {
+        const noise = 0.75 + Math.random() * 0.5;
+        delay = Math.max(8, speed * wordMult * noise);
+        wordCharCount++;
+        if (wordCharCount > 1 && Math.random() < 0.08) delay *= 2.5;
+      }
+      await sleep(delay);
+
+      // ~11% chance of a random mid-sentence thinking pause between words
+      if (char === ' ' && Math.random() < 0.11) {
+        const thinkMs = 350 + Math.random() * 1150;
+        await pauseAtBreak(thinkMs);
+        if (s.stopFlag) { s.remainingText = chars.slice(i + 1).join(''); return; }
+      }
 
       // Extra pause at sentence/clause breaks to hit target duration
       if (breakPause > 0 && isBreakPoint(chars, i)) {

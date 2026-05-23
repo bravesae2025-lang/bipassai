@@ -12,10 +12,33 @@ const GEMINI_ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const SUPABASE_URL     = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
+const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
+
+const INITIAL_CREDITS = 5000;
+
+async function getUserFromToken(token) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function updateUserCredits(userId, credits) {
+  await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method:  'PUT',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'apikey':        SUPABASE_SERVICE_KEY,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({ user_metadata: { credits } }),
+  });
+}
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)
 const oauthStates = new Map();
@@ -89,6 +112,18 @@ app.post('/api/humanize', async (req, res) => {
     return res.status(400).json({ error: 'No prompt provided' });
   }
 
+  // ── Auth + credit check ────────────────────────────────────────
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  if (credits <= 0) {
+    return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
   if (!apiKey) {
     return res.status(500).json({ error: 'Server not configured' });
@@ -118,7 +153,13 @@ app.post('/api/humanize', async (req, res) => {
 
     if (!result) return res.status(500).json({ error: 'No output from Gemini' });
 
-    return res.json({ result: result.trim() });
+    // ── Deduct credits (only on success) ─────────────────────────
+    const resultText   = result.trim();
+    const creditsUsed  = resultText.length;
+    const newCredits   = Math.max(0, credits - creditsUsed);
+    await updateUserCredits(user.id, newCredits);
+
+    return res.json({ result: resultText, creditsUsed, creditsRemaining: newCredits });
 
   } catch (err) {
     console.error(err);

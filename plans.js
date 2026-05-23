@@ -89,13 +89,6 @@ async function init() {
   setupNavUser();
   setupDrawer(session);
 
-  // Highlight current plan based on tier
-  const tier = session.user.user_metadata?.tier || 'free';
-  if (tier !== 'free') {
-    document.querySelector('.plan-card-current')?.classList.remove('plan-card-current');
-    document.querySelector('.plan-card-pro')?.classList.add('plan-card-current');
-    document.getElementById('free-badge')?.remove();
-  }
 }
 
 init();

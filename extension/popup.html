@@ -140,13 +140,13 @@
       display: block; margin-bottom: 8px;
     }
     .dur-track { display: flex; gap: 6px; }
-    .dur-btn {
+    .dur-btn, .spd-btn {
       flex: 1; padding: 7px 0; font-size: 11px; font-weight: 600;
       border: 1.5px solid #e8e8e8; border-radius: 7px; background: #fff; color: #555;
       cursor: pointer; transition: all 0.15s;
     }
-    .dur-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
-    .dur-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+    .dur-btn:hover, .spd-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .dur-btn.active, .spd-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
     .dur-custom-row {
       display: flex; align-items: center; gap: 8px; margin-top: 8px;
     }
@@ -187,6 +187,19 @@
       padding: 6px 14px; cursor: pointer; transition: all 0.15s;
     }
     .cancel-btn:hover { color: #0a0a0a; border-color: #0a0a0a; }
+
+    /* Mistype slider */
+    .mistype-row { display: flex; flex-direction: column; gap: 6px; }
+    .mistype-track { display: flex; align-items: center; gap: 8px; }
+    .mistype-track input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 3px;
+      background: #e8e8e8; border-radius: 2px; outline: none; cursor: pointer;
+    }
+    .mistype-track input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: #0a0a0a; cursor: pointer;
+    }
+    .mistype-val { font-size: 10px; font-weight: 700; color: #0a0a0a; min-width: 44px; text-align: right; }
 
     .divider { height: 1px; background: #f0f0f0; }
   </style>
@@ -275,6 +288,23 @@
         <div class="preview-meta" style="margin-top:5px">
           <span id="preview-wc"></span>
           <span id="preview-mode"></span>
+        </div>
+      </div>
+
+      <div>
+        <span class="ctrl-label">Typing Speed</span>
+        <div class="dur-track">
+          <button class="spd-btn" data-spd="150">Slow</button>
+          <button class="spd-btn active" data-spd="90">Normal</button>
+          <button class="spd-btn" data-spd="55">Fast</button>
+        </div>
+      </div>
+
+      <div class="mistype-row">
+        <span class="ctrl-label">Mistyping</span>
+        <div class="mistype-track">
+          <input type="range" id="mistype-slider" min="0" max="4" value="0" step="1">
+          <span class="mistype-val" id="mistype-val-label">None</span>
         </div>
       </div>
 

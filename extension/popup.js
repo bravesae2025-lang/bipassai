@@ -3,8 +3,9 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const BIPASS_URL    = 'https://bipassai.com';
 
 let currentText     = '';
-let currentSpeed    = 45;
+let currentSpeed    = 90;
 let currentDuration = 0; // 0 = off, else target ms
+let currentMistype  = 0; // 0–4
 
 const states = ['loading', 'login', 'upgrade', 'empty', 'list', 'ready', 'armed'];
 function showState(name) {
@@ -175,6 +176,24 @@ document.getElementById('back-btn').addEventListener('click', async () => {
   await fetchResults(access_token, user_id, tier);
 });
 
+// ── Mistype slider ──────────────────────────────────────────────
+const MISTYPE_LABELS = ['None', 'A little', 'Some', 'More', 'A lot'];
+const mistypeSlider  = document.getElementById('mistype-slider');
+const mistypeLabel   = document.getElementById('mistype-val-label');
+mistypeSlider.addEventListener('input', () => {
+  currentMistype = parseInt(mistypeSlider.value);
+  mistypeLabel.textContent = MISTYPE_LABELS[currentMistype];
+});
+
+// ── Speed buttons ───────────────────────────────────────────────
+document.querySelectorAll('.spd-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.spd-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSpeed = parseInt(btn.dataset.spd);
+  });
+});
+
 // ── Duration buttons ────────────────────────────────────────────
 const durCustomRow = document.getElementById('dur-custom-row');
 const durCustomVal = document.getElementById('dur-custom-val');
@@ -205,7 +224,7 @@ document.getElementById('start-btn').addEventListener('click', async () => {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab) return;
   try { await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ['content.js'] }); } catch {}
-  await chrome.tabs.sendMessage(activeTab.id, { type: 'ARM', text: currentText, speed: currentSpeed, targetDuration: currentDuration });
+  await chrome.tabs.sendMessage(activeTab.id, { type: 'ARM', text: currentText, speed: currentSpeed, targetDuration: currentDuration, mistyping: currentMistype });
   showState('armed');
 });
 

@@ -250,6 +250,13 @@ async function init() {
   bindEvents();
   loadSavedStyle(session);
 
+  // Seed credit display from session metadata (server keeps it authoritative)
+  const valEl = document.getElementById('credit-val');
+  if (valEl) {
+    const credits = session.user.user_metadata?.credits ?? 5000;
+    valEl.textContent = credits.toLocaleString();
+  }
+
   const autostart = sessionStorage.getItem('bipass_autostart');
   if (autostart) {
     sessionStorage.removeItem('bipass_autostart');
@@ -519,11 +526,17 @@ function saveState(mode) {
 // ─── API call ─────────────────────────────────────────────────
 
 async function callAPI(prompt) {
+  const token = await window.bipassAuth.getToken();
   const res = await fetch('/api/humanize', {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body:    JSON.stringify({ prompt }),
   });
+
+  if (res.status === 402) {
+    showToast('No credits remaining — visit Plans to get more');
+    throw new Error('No credits remaining');
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -532,7 +545,24 @@ async function callAPI(prompt) {
 
   const data = await res.json();
   if (!data?.result) throw new Error('No output from server');
+
+  if (data.creditsUsed !== undefined) {
+    updateCreditDisplay(data.creditsUsed, data.creditsRemaining);
+  }
+
   return data.result;
+}
+
+function updateCreditDisplay(used, remaining) {
+  const valEl  = document.getElementById('credit-val');
+  const badgeEl = document.getElementById('credit-used-badge');
+  if (valEl) valEl.textContent = remaining.toLocaleString();
+  if (badgeEl) {
+    badgeEl.textContent = `−${used.toLocaleString()} credits`;
+    badgeEl.classList.remove('hidden', 'credit-used-animate');
+    void badgeEl.offsetWidth; // reflow to restart animation
+    badgeEl.classList.add('credit-used-animate');
+  }
 }
 
 // ─── Loading overlay ──────────────────────────────────────────

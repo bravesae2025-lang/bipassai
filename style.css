@@ -2892,10 +2892,40 @@ body.editor-page { background: var(--bg); }
   .right-panel { flex-direction: column; }
 }
 
+@media (max-width: 740px) {
+  .nav-inner { padding: 0 16px; }
+}
+
 @media (max-width: 480px) {
-  .app-main { padding: 12px 12px 24px; }
-  .col { padding: 18px 16px 20px; }
-  textarea { min-height: 150px; }
+  .app-main { padding: 10px 10px 20px; }
+  .col { padding: 16px 14px 18px; gap: 14px; }
+  textarea { min-height: 140px; }
+
+  /* Generate / Humanize buttons */
+  .btn-generate {
+    height: 44px;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    padding: 0 14px;
+  }
+
+  /* Level selector */
+  .level-track { height: 34px; }
+  .level-btn { font-size: 10px; letter-spacing: 0.01em; }
+  .level-btn[data-level="customize"] { font-size: 8px; letter-spacing: 0; }
+
+  /* Customize column controls */
+  .control-block { gap: 8px; }
+  .toggle-row { padding: 8px 10px; }
+  .toggle-title { font-size: 11.5px; }
+}
+
+@media (max-width: 380px) {
+  .col { padding: 14px 12px 16px; gap: 12px; }
+  .btn-generate { height: 40px; font-size: 10px; padding: 0 12px; }
+  .level-track { height: 32px; }
+  .level-btn { font-size: 9px; }
+  .level-btn[data-level="customize"] { font-size: 7.5px; }
 }
 
 /* ─────────────────────────────────────────────────────────────

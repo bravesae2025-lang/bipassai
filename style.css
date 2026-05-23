@@ -444,6 +444,7 @@ main {
 .workspace {
   display: grid;
   grid-template-columns: 1fr minmax(320px, 460px);
+  grid-template-rows: 1fr;
   gap: 16px;
   background: transparent;
   flex: 1;
@@ -2861,10 +2862,10 @@ body.editor-page { background: var(--bg); }
 }
 
 @media (max-width: 860px) {
-  .workspace { grid-template-columns: 1fr; gap: 12px; }
+  .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 12px; }
   .right-panel { flex-direction: row; gap: 12px; }
   .right-panel > * { flex: 1; min-width: 0; }
-  .app-main { padding: 16px 16px 24px; }
+  .app-main { padding: 16px 16px 24px; overflow-y: visible; }
   textarea { min-height: 180px; }
 }
 

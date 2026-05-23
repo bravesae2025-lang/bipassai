@@ -149,6 +149,29 @@
     .speed-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
     .speed-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
 
+    /* Duration */
+    .ctrl-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888;
+      display: block; margin-bottom: 8px;
+    }
+    .dur-track { display: flex; gap: 6px; }
+    .dur-btn {
+      flex: 1; padding: 7px 0; font-size: 11px; font-weight: 600;
+      border: 1.5px solid #e8e8e8; border-radius: 7px; background: #fff; color: #555;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .dur-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .dur-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+    .dur-custom-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 8px;
+    }
+    .dur-custom-row input {
+      flex: 1; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 7px;
+      font-size: 12px; color: #0a0a0a; outline: none; transition: border-color 0.15s;
+    }
+    .dur-custom-row input:focus { border-color: #0a0a0a; }
+    .dur-custom-unit { font-size: 11px; color: #888; font-weight: 600; }
+
     /* Start */
     .start-btn {
       width: 100%; padding: 12px; background: #0a0a0a; color: #fff;
@@ -281,6 +304,21 @@
           <button class="speed-btn" data-speed="90" data-label="Slow">Slow</button>
           <button class="speed-btn active" data-speed="45" data-label="Normal">Normal</button>
           <button class="speed-btn" data-speed="18" data-label="Fast">Fast</button>
+        </div>
+      </div>
+
+      <div>
+        <span class="ctrl-label">Target Time</span>
+        <div class="dur-track">
+          <button class="dur-btn active" data-dur="0">Off</button>
+          <button class="dur-btn" data-dur="5">5m</button>
+          <button class="dur-btn" data-dur="10">10m</button>
+          <button class="dur-btn" data-dur="20">20m</button>
+          <button class="dur-btn" data-dur="custom">···</button>
+        </div>
+        <div class="dur-custom-row" id="dur-custom-row" style="display:none">
+          <input type="number" id="dur-custom-val" min="1" max="120" value="15" />
+          <span class="dur-custom-unit">min</span>
         </div>
       </div>
 

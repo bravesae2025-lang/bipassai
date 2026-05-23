@@ -2,12 +2,13 @@
   if (window.__bipass) return;
 
   const s = window.__bipass = {
-    armedText:      '',
-    armedSpeed:     45,
-    isTyping:       false,
-    stopFlag:       false,
-    remainingText:  '',
-    floatBtn:       null,
+    armedText:        '',
+    armedSpeed:       45,
+    targetDuration:   0,
+    isTyping:         false,
+    stopFlag:         false,
+    remainingText:    '',
+    floatBtn:         null,
     lastFocusedField: null,
   };
 
@@ -70,10 +71,11 @@
 
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'ARM') {
-      s.armedText     = msg.text;
-      s.armedSpeed    = msg.speed;
-      s.remainingText = msg.text;
-      s.stopFlag      = false;
+      s.armedText       = msg.text;
+      s.armedSpeed      = msg.speed;
+      s.targetDuration  = msg.targetDuration || 0;
+      s.remainingText   = msg.text;
+      s.stopFlag        = false;
       showFloatBtn();
       sendResponse({ ok: true });
     }
@@ -210,15 +212,55 @@
     }
   }
 
+  function isBreakPoint(chars, i) {
+    const c    = chars[i];
+    const next = chars[i + 1];
+    if ('.!?'.includes(c) && (!next || next === ' ' || next === '\n')) return true;
+    if (',;:'.includes(c) && next === ' ') return true;
+    if (c === '\n' && next === '\n') return true;
+    return false;
+  }
+
+  function countBreakPoints(text) {
+    const chars = [...text];
+    let n = 0;
+    for (let i = 0; i < chars.length; i++) {
+      if (isBreakPoint(chars, i)) n++;
+    }
+    return n;
+  }
+
+  // Sleeps in small chunks so stopFlag is checked during long pauses
+  async function pauseAtBreak(ms) {
+    const chunk = 100;
+    let elapsed = 0;
+    while (elapsed < ms) {
+      if (s.stopFlag) return;
+      await sleep(Math.min(chunk, ms - elapsed));
+      elapsed += chunk;
+    }
+  }
+
   async function typeText(target, text, speed) {
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
     const doc = target.ownerDocument || document;
     if (isInput) target.focus();
 
     const chars = [...text];
+
+    // Calculate extra pause per break point to hit the target duration
+    let breakPause = 0;
+    if (s.targetDuration > 0) {
+      const naturalTime = chars.length * speed;
+      const extraTime   = s.targetDuration - naturalTime;
+      if (extraTime > 0) {
+        const breaks = countBreakPoints(text);
+        if (breaks > 0) breakPause = Math.min(extraTime / breaks, 90000); // cap at 90s per break
+      }
+    }
+
     for (let i = 0; i < chars.length; i++) {
       if (s.stopFlag) {
-        // Save what's left so Continue resumes here
         s.remainingText = chars.slice(i).join('');
         return;
       }
@@ -243,11 +285,18 @@
           }));
         }
       }
+
+      // Regular per-character delay
       const jitter = (Math.random() * 20) - 10;
       await sleep(Math.max(8, speed + jitter));
+
+      // Extra pause at sentence/clause breaks to hit target duration
+      if (breakPause > 0 && isBreakPoint(chars, i)) {
+        await pauseAtBreak(breakPause);
+        if (s.stopFlag) { s.remainingText = chars.slice(i + 1).join(''); return; }
+      }
     }
 
-    // Completed all characters
     s.remainingText = '';
   }
 

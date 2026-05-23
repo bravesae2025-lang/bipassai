@@ -2,8 +2,9 @@ const SUPABASE_URL  = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const BIPASS_URL    = 'https://bipassai.com';
 
-let currentText  = '';
-let currentSpeed = 45;
+let currentText     = '';
+let currentSpeed    = 45;
+let currentDuration = 0; // 0 = off, else target ms
 
 const states = ['loading', 'login', 'upgrade', 'empty', 'list', 'ready', 'armed'];
 function showState(name) {
@@ -184,13 +185,37 @@ document.querySelectorAll('.speed-btn').forEach(btn => {
   });
 });
 
+// ── Duration buttons ────────────────────────────────────────────
+const durCustomRow = document.getElementById('dur-custom-row');
+const durCustomVal = document.getElementById('dur-custom-val');
+
+document.querySelectorAll('.dur-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const val = btn.dataset.dur;
+    if (val === 'custom') {
+      durCustomRow.style.display = 'flex';
+      currentDuration = parseInt(durCustomVal.value || 15) * 60000;
+    } else {
+      durCustomRow.style.display = 'none';
+      currentDuration = parseInt(val) * 60000;
+    }
+  });
+});
+
+durCustomVal.addEventListener('input', () => {
+  const mins = Math.max(1, Math.min(120, parseInt(durCustomVal.value) || 1));
+  currentDuration = mins * 60000;
+});
+
 // ── Start button ────────────────────────────────────────────────
 document.getElementById('start-btn').addEventListener('click', async () => {
   if (!currentText) return;
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab) return;
   try { await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ['content.js'] }); } catch {}
-  await chrome.tabs.sendMessage(activeTab.id, { type: 'ARM', text: currentText, speed: currentSpeed });
+  await chrome.tabs.sendMessage(activeTab.id, { type: 'ARM', text: currentText, speed: currentSpeed, targetDuration: currentDuration });
   showState('armed');
 });
 

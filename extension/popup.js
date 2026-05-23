@@ -175,16 +175,6 @@ document.getElementById('back-btn').addEventListener('click', async () => {
   await fetchResults(access_token, user_id, tier);
 });
 
-// ── Speed buttons ───────────────────────────────────────────────
-document.querySelectorAll('.speed-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentSpeed = parseInt(btn.dataset.speed);
-    document.getElementById('speed-val').textContent = btn.dataset.label;
-  });
-});
-
 // ── Duration buttons ────────────────────────────────────────────
 const durCustomRow = document.getElementById('dur-custom-row');
 const durCustomVal = document.getElementById('dur-custom-val');

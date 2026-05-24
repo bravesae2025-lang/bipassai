@@ -459,6 +459,10 @@ main {
   min-height: 0;
 }
 
+.right-panel > * {
+  min-width: 0;
+}
+
 .col-main {
   background: var(--bg);
   align-self: stretch;
@@ -4105,6 +4109,7 @@ body.drawer-lock { overflow: hidden; }
   transition: border-color 0.15s;
   margin-bottom: 8px;
   display: block;
+  max-width: 100%;
 }
 .style-sample-textarea:focus { border-color: var(--g400); background: #fff; }
 .style-sample-textarea::placeholder { color: var(--g300); }

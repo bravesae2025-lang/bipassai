@@ -18,10 +18,16 @@
   <div class="loading-overlay" id="loading-overlay" aria-live="polite">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loading-text">Generating your text…</div>
-    <div class="loading-credits" id="loading-credits"></div>
+    <div class="loading-credits-wrap" id="loading-credits-wrap" style="display:none">
+      <div class="loading-credits-num" id="loading-credits">0</div>
+      <div class="loading-credits-lbl">credits used</div>
+    </div>
     <button class="loading-cancel-btn" id="loading-cancel-btn">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      Cancel
+      <span class="btn-content">Cancel</span>
+      <span class="btn-arrow" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </span>
+      <span class="btn-sweep" aria-hidden="true"></span>
     </button>
   </div>
 

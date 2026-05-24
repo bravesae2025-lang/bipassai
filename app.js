@@ -615,7 +615,8 @@ async function callAPIStream(prompt) {
 
   const reader  = res.body.getReader();
   const decoder = new TextDecoder();
-  const credEl  = document.getElementById('loading-credits');
+  const credWrap = document.getElementById('loading-credits-wrap');
+  const credEl   = document.getElementById('loading-credits');
   let buffer = '';
   let finalResult = null;
   let creditsData = null;
@@ -633,8 +634,9 @@ async function callAPIStream(prompt) {
       try {
         const json = JSON.parse(line.slice(6));
         if (json.error) throw new Error(json.error);
-        if (json.chars !== undefined && credEl) {
-          credEl.textContent = `⚡ ${json.chars.toLocaleString()} credits used`;
+        if (json.chars !== undefined) {
+          if (credWrap) credWrap.style.display = 'flex';
+          if (credEl) credEl.textContent = json.chars.toLocaleString();
         }
         if (json.done) {
           finalResult = json.result;
@@ -703,11 +705,6 @@ function setLoading(on, text) {
 
   if (on) {
     loadingText.textContent = text || 'Loading…';
-    const credEl = document.getElementById('loading-credits');
-    const valEl  = document.getElementById('credit-val');
-    if (credEl && valEl && valEl.textContent !== '—') {
-      credEl.textContent = `⚡ ${valEl.textContent} credits remaining`;
-    }
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');
@@ -716,8 +713,10 @@ function setLoading(on, text) {
     workspace.style.opacity = '';
     workspace.style.pointerEvents = '';
     loadingOverlay.classList.remove('visible');
-    const credEl = document.getElementById('loading-credits');
-    if (credEl) credEl.textContent = '';
+    const credWrap = document.getElementById('loading-credits-wrap');
+    const credEl   = document.getElementById('loading-credits');
+    if (credWrap) credWrap.style.display = 'none';
+    if (credEl) credEl.textContent = '0';
     setStatus('Ready');
   }
 }

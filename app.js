@@ -544,7 +544,7 @@ async function generateNew() {
   setLoading(true, 'Generating your text…');
 
   try {
-    const result = await callAPI(buildGeneratePrompt(prompt));
+    const result = await callAPIStream(buildGeneratePrompt(prompt));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'generate');
     window.location.href = 'editor.html';
@@ -566,7 +566,7 @@ async function humanize() {
   setLoading(true, 'Humanizing your text…');
 
   try {
-    const result = await callAPI(buildHumanizePrompt(text));
+    const result = await callAPIStream(buildHumanizePrompt(text));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'humanize');
     window.location.href = 'editor.html';
@@ -591,7 +591,67 @@ function saveState(mode) {
   }
 }
 
-// ─── API call ─────────────────────────────────────────────────
+// ─── Streaming API call (for generate / humanize) ────────────
+
+async function callAPIStream(prompt) {
+  currentAbortController = new AbortController();
+  const token = await window.bipassAuth.getToken();
+
+  const res = await fetch('/api/stream', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body:    JSON.stringify({ prompt }),
+    signal:  currentAbortController.signal,
+  });
+
+  if (res.status === 402) {
+    showToast('No credits remaining — visit Plans to get more');
+    throw new Error('No credits remaining');
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error || `Server error ${res.status}`);
+  }
+
+  const reader  = res.body.getReader();
+  const decoder = new TextDecoder();
+  const credEl  = document.getElementById('loading-credits');
+  let buffer = '';
+  let finalResult = null;
+  let creditsData = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const json = JSON.parse(line.slice(6));
+        if (json.error) throw new Error(json.error);
+        if (json.chars !== undefined && credEl) {
+          credEl.textContent = `⚡ ${json.chars.toLocaleString()} credits used`;
+        }
+        if (json.done) {
+          finalResult = json.result;
+          creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };
+        }
+      } catch (e) {
+        if (e.message !== 'Unexpected end of JSON input') throw e;
+      }
+    }
+  }
+
+  if (!finalResult) throw new Error('No output received');
+  if (creditsData) updateCreditDisplay(creditsData.creditsUsed, creditsData.creditsRemaining);
+  return finalResult;
+}
+
+// ─── API call (for style analysis) ───────────────────────────
 
 async function callAPI(prompt) {
   currentAbortController = new AbortController();
@@ -656,6 +716,8 @@ function setLoading(on, text) {
     workspace.style.opacity = '';
     workspace.style.pointerEvents = '';
     loadingOverlay.classList.remove('visible');
+    const credEl = document.getElementById('loading-credits');
+    if (credEl) credEl.textContent = '';
     setStatus('Ready');
   }
 }

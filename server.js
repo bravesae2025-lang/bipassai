@@ -11,6 +11,9 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
+const GEMINI_STREAM_ENDPOINT =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
+
 const SUPABASE_URL     = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
@@ -169,6 +172,89 @@ app.post('/api/humanize', async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── POST /api/stream ─────────────────────────────────────────
+
+app.post('/api/stream', async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
+  if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
+
+  let cancelled = false;
+  req.on('close', () => { cancelled = true; });
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  try {
+    const geminiRes = await fetch(`${GEMINI_STREAM_ENDPOINT}?key=${apiKey}&alt=sse`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
+      }),
+    });
+
+    if (!geminiRes.ok) {
+      const err = await geminiRes.json().catch(() => ({}));
+      res.write(`data: ${JSON.stringify({ error: err?.error?.message || 'Gemini error' })}\n\n`);
+      return res.end();
+    }
+
+    const reader  = geminiRes.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer   = '';
+
+    while (!cancelled) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const json = JSON.parse(line.slice(6));
+          const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (text) {
+            fullText += text;
+            res.write(`data: ${JSON.stringify({ chars: fullText.length })}\n\n`);
+          }
+        } catch {}
+      }
+    }
+
+    if (!cancelled && fullText) {
+      const resultText  = fullText.trim();
+      const creditsUsed = resultText.length;
+      const newCredits  = Math.max(0, credits - creditsUsed);
+      await updateUserCredits(user.id, newCredits);
+      res.write(`data: ${JSON.stringify({ done: true, result: resultText, creditsUsed, creditsRemaining: newCredits })}\n\n`);
+    }
+
+    res.end();
+  } catch (err) {
+    console.error('Stream error:', err);
+    res.end();
   }
 });
 

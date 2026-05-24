@@ -129,6 +129,9 @@ app.post('/api/humanize', async (req, res) => {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
+  let cancelled = false;
+  req.on('close', () => { cancelled = true; });
+
   try {
     const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
       method:  'POST',
@@ -153,10 +156,12 @@ app.post('/api/humanize', async (req, res) => {
 
     if (!result) return res.status(500).json({ error: 'No output from Gemini' });
 
-    // ── Deduct credits (only on success) ─────────────────────────
-    const resultText   = result.trim();
-    const creditsUsed  = resultText.length;
-    const newCredits   = Math.max(0, credits - creditsUsed);
+    // ── Deduct credits (only on success, only if client didn't cancel) ───
+    const resultText  = result.trim();
+    if (cancelled) return;
+
+    const creditsUsed = resultText.length;
+    const newCredits  = Math.max(0, credits - creditsUsed);
     await updateUserCredits(user.id, newCredits);
 
     return res.json({ result: resultText, creditsUsed, creditsRemaining: newCredits });

@@ -142,7 +142,11 @@ async function saveResult(text, mode, session) {
 
 // ─── Typewriter ───────────────────────────────────────────────
 
+let typewriterStarted = false;
+
 function typewriter(text) {
+  if (typewriterStarted) return;
+  typewriterStarted = true;
   editorTextarea.value = '';
   let i = 0;
   const tick = setInterval(() => {
@@ -153,6 +157,15 @@ function typewriter(text) {
     if (i >= text.length) clearInterval(tick);
   }, 12);
 }
+
+// Start typewriter immediately from sessionStorage — before auth resolves
+(function () {
+  const result = sessionStorage.getItem('bipass_result');
+  const mode   = sessionStorage.getItem('bipass_mode');
+  if (!result) return;
+  editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+  typewriter(result);
+})();
 
 // ─── Word count ───────────────────────────────────────────────
 

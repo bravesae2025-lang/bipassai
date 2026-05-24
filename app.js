@@ -643,6 +643,11 @@ function setLoading(on, text) {
 
   if (on) {
     loadingText.textContent = text || 'Loading…';
+    const credEl = document.getElementById('loading-credits');
+    const valEl  = document.getElementById('credit-val');
+    if (credEl && valEl && valEl.textContent !== '—') {
+      credEl.textContent = `⚡ ${valEl.textContent} credits remaining`;
+    }
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');

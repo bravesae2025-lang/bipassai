@@ -92,3 +92,11 @@ async function init() {
 }
 
 init();
+
+// Scroll reveal — same IntersectionObserver pattern as index.html
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('revealed'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('[data-anim]').forEach(el => revealObs.observe(el));

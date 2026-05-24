@@ -201,35 +201,50 @@
           <div class="control-block" id="options-panel" style="display:none">
             <div class="control-head">Human Mistakes</div>
 
-            <label class="toggle-row" for="grammar-toggle">
-              <span class="toggle-title">Grammar mistakes</span>
-              <div class="toggle-shell">
-                <input type="checkbox" id="grammar-toggle">
-                <div class="toggle-track">
-                  <div class="toggle-thumb"></div>
-                </div>
+            <div class="mistake-row">
+              <span class="mistake-label">Grammar</span>
+              <div class="mistake-intensity" data-mistake="grammar">
+                <button class="mint-btn active" data-val="0">None</button>
+                <button class="mint-btn" data-val="1">A little</button>
+                <button class="mint-btn" data-val="2">A lot</button>
               </div>
-            </label>
+            </div>
 
-            <label class="toggle-row" for="punct-toggle">
-              <span class="toggle-title">Punctuation mistakes</span>
-              <div class="toggle-shell">
-                <input type="checkbox" id="punct-toggle">
-                <div class="toggle-track">
-                  <div class="toggle-thumb"></div>
-                </div>
+            <div class="mistake-row">
+              <span class="mistake-label">Tense</span>
+              <div class="mistake-intensity" data-mistake="tense">
+                <button class="mint-btn active" data-val="0">None</button>
+                <button class="mint-btn" data-val="1">A little</button>
+                <button class="mint-btn" data-val="2">A lot</button>
               </div>
-            </label>
+            </div>
 
-            <label class="toggle-row" for="tense-toggle">
-              <span class="toggle-title">Tense mistakes</span>
-              <div class="toggle-shell">
-                <input type="checkbox" id="tense-toggle">
-                <div class="toggle-track">
-                  <div class="toggle-thumb"></div>
-                </div>
+            <div class="mistake-row">
+              <span class="mistake-label">Punctuation</span>
+              <div class="mistake-intensity" data-mistake="punct">
+                <button class="mint-btn active" data-val="0">None</button>
+                <button class="mint-btn" data-val="1">A little</button>
+                <button class="mint-btn" data-val="2">A lot</button>
               </div>
-            </label>
+            </div>
+
+            <div class="mistake-row">
+              <span class="mistake-label">Capitalization</span>
+              <div class="mistake-intensity" data-mistake="caps">
+                <button class="mint-btn active" data-val="0">None</button>
+                <button class="mint-btn" data-val="1">A little</button>
+                <button class="mint-btn" data-val="2">A lot</button>
+              </div>
+            </div>
+
+            <div class="mistake-row">
+              <span class="mistake-label">Spelling</span>
+              <div class="mistake-intensity" data-mistake="spelling">
+                <button class="mint-btn active" data-val="0">None</button>
+                <button class="mint-btn" data-val="1">A little</button>
+                <button class="mint-btn" data-val="2">A lot</button>
+              </div>
+            </div>
           </div>
 
         </section>

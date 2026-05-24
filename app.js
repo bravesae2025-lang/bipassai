@@ -131,9 +131,6 @@ const levelLabel     = document.getElementById('level-label');
 const levelGlider    = document.getElementById('level-glider');
 const statusLabel    = document.getElementById('status-label');
 const pills          = document.querySelectorAll('.level-btn');
-const grammarToggle  = document.getElementById('grammar-toggle');
-const punctToggle    = document.getElementById('punct-toggle');
-const tenseToggle    = document.getElementById('tense-toggle');
 const optionsPanel   = document.getElementById('options-panel');
 const toast          = document.getElementById('toast');
 const workspace      = document.getElementById('workspace');
@@ -278,9 +275,15 @@ function restoreState() {
   if (savedPrompt) promptText.value = savedPrompt;
   if (savedInput)  inputText.value  = savedInput;
 
-  if (sessionStorage.getItem('bipass_grammar') === 'true') grammarToggle.checked = true;
-  if (sessionStorage.getItem('bipass_punct') === 'true')   punctToggle.checked   = true;
-  if (sessionStorage.getItem('bipass_tense') === 'true')   tenseToggle.checked   = true;
+  for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
+    const saved = parseInt(sessionStorage.getItem(`bipass_m_${type}`) || '0');
+    if (saved > 0) {
+      const group = optionsPanel?.querySelector(`.mistake-intensity[data-mistake="${type}"]`);
+      if (group) {
+        group.querySelectorAll('.mint-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) === saved));
+      }
+    }
+  }
   if (sessionStorage.getItem('bipass_my_style') === 'true') myStyleActive = true;
 }
 
@@ -295,6 +298,16 @@ function bindEvents() {
 
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
+  });
+
+  // Mistake intensity buttons
+  optionsPanel?.querySelectorAll('.mistake-intensity').forEach(group => {
+    group.querySelectorAll('.mint-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.mint-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
   });
 
   generateBtn.addEventListener('click', generateNew);
@@ -356,8 +369,16 @@ function deactivateMyStyle() {
 
 function showMyStyleCard() {
   myStyleInputs.style.display = 'none';
-  myStyleSummary.textContent  = savedStyle.style_summary;
-  myStyleCard.style.display   = '';
+
+  let traits = [];
+  try { traits = JSON.parse(savedStyle.style_summary); } catch (_) {
+    traits = [savedStyle.style_summary]; // fallback for old plain-text summaries
+  }
+  myStyleSummary.innerHTML = traits
+    .map(t => `<span class="style-trait-chip">${t}</span>`)
+    .join('');
+
+  myStyleCard.style.display = '';
   if (myStyleActive) useMyStyleBtn.classList.add('active');
 }
 
@@ -389,16 +410,16 @@ async function analyzeStyle() {
 
   const prompt = `Analyze the writing style of these text samples and return ONLY valid JSON with no markdown, no code fences, nothing else.
 
-Return exactly this format: {"summary":"one sentence describing the writing style","style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
+Return exactly this format: {"traits":["4 to 7 short labels, each 2-4 words, naming the key style traits — e.g. Short sentences, Casual tone, Few commas, Simple words, Direct voice"],"style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
 
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 
   try {
     const raw  = await callAPI(prompt);
     const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
-    if (!json.summary || !json.style_prompt) throw new Error('Invalid response');
+    if (!json.traits || !json.style_prompt) throw new Error('Invalid response');
 
-    savedStyle = { style_summary: json.summary, style_prompt: json.style_prompt };
+    savedStyle = { style_summary: JSON.stringify(json.traits), style_prompt: json.style_prompt };
 
     const session = await window.bipassAuth.getSession();
     await window.bipassAuth.client.from('user_styles').upsert({
@@ -436,16 +457,57 @@ function updateStats() {
 
 // ─── Build prompts ────────────────────────────────────────────
 
+const MISTAKE_PROMPTS = {
+  grammar: [
+    null,
+    'Make one or two grammar mistakes — a subject-verb disagreement or a missing article.',
+    'Make frequent grammar mistakes throughout — missing articles, wrong subject-verb agreement ("they was", "he don\'t"), run-on sentences.',
+  ],
+  tense: [
+    null,
+    'Make one or two verb tense mistakes — use present instead of past tense occasionally ("she tell me", "yesterday I go").',
+    'Make frequent tense mistakes throughout — mix past and present tense consistently, like a non-native speaker ("I seen it", "she tell me yesterday", "we was there").',
+  ],
+  punct: [
+    null,
+    'Miss a comma or two, or add one where it doesn\'t belong.',
+    'Use inconsistent punctuation throughout — miss commas often, overuse commas instead of periods, occasionally skip ending punctuation.',
+  ],
+  caps: [
+    null,
+    'Miss a capital letter once or twice — a proper noun left lowercase or a sentence starting without a capital.',
+    'Frequently miss capital letters — proper nouns often lowercase, some sentences start without capitals, inconsistent throughout.',
+  ],
+  spelling: [
+    null,
+    'Make one or two minor spelling mistakes — a wrong homophone (their/there/they\'re, your/you\'re) or a simple repeated letter.',
+    'Make several spelling mistakes — wrong homophones, simple misspellings ("recieve", "definately", "alot"), a typo or two.',
+  ],
+};
+
+function getMistakeLevel(type) {
+  const group = optionsPanel?.querySelector(`.mistake-intensity[data-mistake="${type}"]`);
+  if (!group) return 0;
+  const active = group.querySelector('.mint-btn.active');
+  return active ? parseInt(active.dataset.val) : 0;
+}
+
+function buildMistakeExtras() {
+  const extras = [];
+  for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
+    const level = getMistakeLevel(type);
+    if (level > 0 && MISTAKE_PROMPTS[type][level]) extras.push(MISTAKE_PROMPTS[type][level]);
+  }
+  return extras;
+}
+
 function buildHumanizePrompt(text) {
   if (myStyleActive && savedStyle) {
     return `${savedStyle.style_prompt}\n\nText to rewrite:\n${text}`;
   }
   let prompt = HUMANIZE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
-    const extras = [];
-    if (grammarToggle.checked) extras.push('Include subtle grammar errors a real person makes — subject-verb disagreement, missing articles, run-ons.');
-    if (punctToggle.checked)   extras.push('Use inconsistent punctuation — miss commas, overuse commas instead of periods.');
-    if (tenseToggle.checked)   extras.push('Make occasional verb tense mistakes — wrong tense for past or present events, like a non-native speaker ("she tell me", "yesterday I go").');
+    const extras = buildMistakeExtras();
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
   }
   prompt += `\n\nText to rewrite:\n${text}`;
@@ -458,10 +520,7 @@ function buildGeneratePrompt(userPrompt) {
   }
   let prompt = GENERATE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
-    const extras = [];
-    if (grammarToggle.checked) extras.push('Include subtle grammar errors a real person makes — subject-verb disagreement, missing articles, run-ons.');
-    if (punctToggle.checked)   extras.push('Use inconsistent punctuation — miss commas, overuse commas instead of periods.');
-    if (tenseToggle.checked)   extras.push('Make occasional verb tense mistakes — wrong tense for past or present events, like a non-native speaker ("she tell me", "yesterday I go").');
+    const extras = buildMistakeExtras();
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
   }
   prompt += `\n\nWhat to write:\n${userPrompt}`;
@@ -517,10 +576,10 @@ function saveState(mode) {
   sessionStorage.setItem('bipass_mode',     mode);
   sessionStorage.setItem('bipass_prompt',   promptText.value);
   sessionStorage.setItem('bipass_input',    inputText.value);
-  sessionStorage.setItem('bipass_grammar',  grammarToggle.checked);
-  sessionStorage.setItem('bipass_punct',    punctToggle.checked);
-  sessionStorage.setItem('bipass_tense',    tenseToggle.checked);
   sessionStorage.setItem('bipass_my_style', myStyleActive);
+  for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
+    sessionStorage.setItem(`bipass_m_${type}`, getMistakeLevel(type));
+  }
 }
 
 // ─── API call ─────────────────────────────────────────────────

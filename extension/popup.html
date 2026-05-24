@@ -201,6 +201,30 @@
     }
     .mistype-val { font-size: 10px; font-weight: 700; color: #0a0a0a; min-width: 44px; text-align: right; }
 
+    /* Ctrl label row with info icon */
+    .ctrl-label-row {
+      display: flex; align-items: center; gap: 5px;
+      margin-bottom: 8px; position: relative;
+    }
+    .ctrl-label-row .ctrl-label { margin-bottom: 0; }
+    .info-btn {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 1.5px solid #ccc; background: #fff; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; padding: 0; flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .info-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .info-popup {
+      display: none; position: absolute;
+      top: calc(100% + 6px); left: 0;
+      width: 210px; background: #0a0a0a; color: #fff;
+      font-size: 10.5px; line-height: 1.55;
+      padding: 8px 10px; border-radius: 7px;
+      z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+    .info-popup.open { display: block; }
+
     .divider { height: 1px; background: #f0f0f0; }
   </style>
 </head>
@@ -301,7 +325,15 @@
       </div>
 
       <div class="mistype-row">
-        <span class="ctrl-label">Mistyping</span>
+        <div class="ctrl-label-row">
+          <span class="ctrl-label">Mistyping</span>
+          <button class="info-btn" id="mistype-info-btn" type="button" aria-label="What is mistyping?">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>
+          </button>
+          <div class="info-popup" id="mistype-popup">
+            Occasionally types the wrong character, pauses briefly, backspaces, then types the correct one — like a real human making and catching a typo.
+          </div>
+        </div>
         <div class="mistype-track">
           <input type="range" id="mistype-slider" min="0" max="4" value="0" step="1">
           <span class="mistype-val" id="mistype-val-label">None</span>
@@ -317,7 +349,14 @@
           <button class="dur-btn" data-dur="5">5m</button>
           <button class="dur-btn" data-dur="10">10m</button>
           <button class="dur-btn" data-dur="20">20m</button>
-          <button class="dur-btn" data-dur="custom">···</button>
+          <button class="dur-btn" data-dur="custom" title="Custom time" aria-label="Custom duration">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+              <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+            </svg>
+          </button>
         </div>
         <div class="dur-custom-row" id="dur-custom-row" style="display:none">
           <input type="number" id="dur-custom-val" min="1" max="120" value="15" />

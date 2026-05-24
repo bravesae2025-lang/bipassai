@@ -176,6 +176,15 @@ document.getElementById('back-btn').addEventListener('click', async () => {
   await fetchResults(access_token, user_id, tier);
 });
 
+// ── Mistype info tooltip ─────────────────────────────────────────
+const mistypeInfoBtn = document.getElementById('mistype-info-btn');
+const mistypePopup   = document.getElementById('mistype-popup');
+mistypeInfoBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  mistypePopup.classList.toggle('open');
+});
+document.addEventListener('click', () => mistypePopup.classList.remove('open'));
+
 // ── Mistype slider ──────────────────────────────────────────────
 const MISTYPE_LABELS = ['None', 'A little', 'Some', 'More', 'A lot'];
 const mistypeSlider  = document.getElementById('mistype-slider');

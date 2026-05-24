@@ -4373,6 +4373,8 @@ body.drawer-lock { overflow: hidden; }
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 12px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .style-trait-chip {

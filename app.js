@@ -108,9 +108,10 @@ Return only the written text, nothing else.`,
 
 // ─── State ────────────────────────────────────────────────────
 
-let selectedLevel  = 'easy';
-let myStyleActive  = false;
-let savedStyle     = null; // { style_summary, style_prompt }
+let selectedLevel         = 'easy';
+let myStyleActive         = false;
+let savedStyle            = null; // { style_summary, style_prompt }
+let currentAbortController = null;
 
 // ─── Elements ─────────────────────────────────────────────────
 
@@ -312,6 +313,12 @@ function bindEvents() {
 
   generateBtn.addEventListener('click', generateNew);
   humanizeBtn.addEventListener('click', humanize);
+
+  document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
+    if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
+    setLoading(false);
+    showToast('Cancelled');
+  });
 
   // My Style events
   let sampleCount = 1;
@@ -542,6 +549,7 @@ async function generateNew() {
     sessionStorage.setItem('bipass_mode', 'generate');
     window.location.href = 'editor.html';
   } catch (err) {
+    if (err.name === 'AbortError') return;
     setLoading(false);
     showToast(err.message || 'Something went wrong');
     setStatus('Error');
@@ -563,6 +571,7 @@ async function humanize() {
     sessionStorage.setItem('bipass_mode', 'humanize');
     window.location.href = 'editor.html';
   } catch (err) {
+    if (err.name === 'AbortError') return;
     setLoading(false);
     showToast(err.message || 'Something went wrong');
     setStatus('Error');
@@ -585,11 +594,13 @@ function saveState(mode) {
 // ─── API call ─────────────────────────────────────────────────
 
 async function callAPI(prompt) {
+  currentAbortController = new AbortController();
   const token = await window.bipassAuth.getToken();
   const res = await fetch('/api/humanize', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body:    JSON.stringify({ prompt }),
+    signal:  currentAbortController.signal,
   });
 
   if (res.status === 402) {

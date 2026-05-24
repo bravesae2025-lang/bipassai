@@ -791,6 +791,21 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   letter-spacing: 0.06em;
 }
 
+.loading-cancel-btn {
+  margin-top: 8px;
+  padding: 8px 22px;
+  background: transparent;
+  border: 1.5px solid var(--g200);
+  border-radius: 8px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--g500);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.loading-cancel-btn:hover { border-color: var(--black); color: var(--black); }
+
 /* ─────────────────────────────────────────────────────────────
    App page — stats bar + workspace fade
 ───────────────────────────────────────────────────────────── */

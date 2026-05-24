@@ -116,9 +116,8 @@ async function init() {
     return;
   }
 
-  editorTextarea.value = result;
   editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Humanized';
-  updateWc();
+  typewriter(result);
 
   editorTextarea.addEventListener('input', updateWc);
   copyBtn.addEventListener('click', copyText);
@@ -139,6 +138,20 @@ async function saveResult(text, mode, session) {
     mode: mode || 'humanize',
     level,
   });
+}
+
+// ─── Typewriter ───────────────────────────────────────────────
+
+function typewriter(text) {
+  editorTextarea.value = '';
+  let i = 0;
+  const tick = setInterval(() => {
+    i = Math.min(i + 3, text.length);
+    editorTextarea.value = text.slice(0, i);
+    editorTextarea.scrollTop = editorTextarea.scrollHeight;
+    updateWc();
+    if (i >= text.length) clearInterval(tick);
+  }, 12);
 }
 
 // ─── Word count ───────────────────────────────────────────────

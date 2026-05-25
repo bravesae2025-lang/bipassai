@@ -420,7 +420,7 @@ async function analyzeStyle() {
 
   const prompt = `Analyze the writing style of these text samples and return ONLY valid JSON with no markdown, no code fences, nothing else.
 
-Return exactly this format: {"traits":["4 to 7 short labels, each 2-4 words, naming the key style traits — e.g. Short sentences, Casual tone, Few commas, Simple words, Direct voice"],"style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
+Return exactly this format: {"traits":["5 to 8 specific observations about this person's writing — each one a short descriptive sentence (6–12 words) describing a concrete habit, pattern, or quirk actually visible in the samples. Cover: spelling accuracy, grammar errors (tense/agreement), sentence length and structure, punctuation habits, vocabulary level, run-on sentences, fragments, capitalisation, tone. Example observations: 'Frequent spelling mistakes throughout', 'Mostly short punchy sentences', 'Run-on sentences with missing full stops', 'Incorrect verb tenses occasionally', 'Rarely uses commas or punctuation', 'Simple everyday vocabulary', 'Casual conversational tone'."],"style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
 
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 

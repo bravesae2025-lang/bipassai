@@ -4369,12 +4369,36 @@ body.drawer-lock { overflow: hidden; }
 }
 
 .my-style-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   margin-bottom: 12px;
   width: 100%;
-  overflow: hidden;
+}
+
+.my-style-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.my-style-list li {
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--black);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.my-style-list li::before {
+  content: '•';
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--black);
+  flex-shrink: 0;
 }
 
 .style-trait-chip {

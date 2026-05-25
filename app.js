@@ -381,9 +381,9 @@ function showMyStyleCard() {
   try { traits = JSON.parse(savedStyle.style_summary); } catch (_) {
     traits = [savedStyle.style_summary]; // fallback for old plain-text summaries
   }
-  myStyleSummary.innerHTML = traits
-    .map(t => `<span class="style-trait-chip">${t}</span>`)
-    .join('');
+  myStyleSummary.innerHTML = `<ul class="my-style-list">${
+    traits.map(t => `<li>${t}</li>`).join('')
+  }</ul>`;
 
   myStyleCard.style.display = '';
   if (myStyleActive) useMyStyleBtn.classList.add('active');

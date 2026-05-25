@@ -63,7 +63,7 @@
     for (let i = COUNT - 1; i >= 0; i--) {
       const frac   = i / (COUNT - 1);
       const radius = 5.5 - frac * 3;
-      const alpha  = (1 - frac * 0.82) * (isText ? 0.25 : 1);
+      const alpha  = 1 - frac * 0.82;
 
       circle(
         pts[i].x, pts[i].y, Math.max(radius, 1),

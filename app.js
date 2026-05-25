@@ -427,19 +427,23 @@ ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
     if (!json.traits || !json.style_prompt) throw new Error('Invalid response');
 
     savedStyle = { style_summary: JSON.stringify(json.traits), style_prompt: json.style_prompt };
-
-    const session = await window.bipassAuth.getSession();
-    await window.bipassAuth.client.from('user_styles').upsert({
-      user_id:       session.user.id,
-      style_summary: json.summary,
-      style_prompt:  json.style_prompt,
-      sample_count:  samples.length,
-      updated_at:    new Date().toISOString(),
-    }, { onConflict: 'user_id' });
-
     showMyStyleCard();
-    showToast('Style saved');
+    showToast('Style analyzed');
+
+    try {
+      const session = await window.bipassAuth.getSession();
+      await window.bipassAuth.client.from('user_styles').upsert({
+        user_id:       session.user.id,
+        style_summary: JSON.stringify(json.traits),
+        style_prompt:  json.style_prompt,
+        sample_count:  samples.length,
+        updated_at:    new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    } catch (saveErr) {
+      console.warn('Style save failed (non-critical):', saveErr);
+    }
   } catch (e) {
+    console.error('analyzeStyle error:', e);
     showToast('Could not analyze style — try again');
   } finally {
     analyzeLabel.style.display  = '';

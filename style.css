@@ -4481,57 +4481,17 @@ body.drawer-lock { overflow: hidden; }
 @media (pointer: fine) {
   * { cursor: none !important; }
 
-  .cursor-dot {
+  .cursor-trail {
     position: fixed;
     top: 0; left: 0;
-    width: 6px; height: 6px;
-    margin: -3px 0 0 -3px;
     background: var(--black);
     border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
     will-change: transform;
-    transition: opacity 0.25s;
+    transition: scale 0.2s var(--ease-out), opacity 0.3s;
   }
-  .cursor-dot--text { opacity: 0; }
-
-  .cursor-ring {
-    position: fixed;
-    top: 0; left: 0;
-    width: 32px; height: 32px;
-    margin: -16px 0 0 -16px;
-    border: 1.5px solid rgba(13,13,13,0.5);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99998;
-    will-change: transform;
-    transition:
-      width  0.22s var(--ease-out),
-      height 0.22s var(--ease-out),
-      margin 0.22s var(--ease-out),
-      background 0.22s,
-      border-color 0.22s,
-      border-radius 0.22s,
-      opacity 0.25s;
-  }
-
-  .cursor-ring--hover {
-    width: 44px; height: 44px;
-    margin: -22px 0 0 -22px;
-    background: rgba(13,13,13,0.07);
-    border-color: rgba(13,13,13,0.35);
-  }
-
-  .cursor-ring--text {
-    width: 2px; height: 22px;
-    margin: -11px 0 0 -1px;
-    border-radius: 1px;
-    background: var(--black);
-    border-color: transparent;
-  }
-
-  .cursor-ring--click {
-    width: 20px; height: 20px;
-    margin: -10px 0 0 -10px;
-  }
+  .cursor-trail--hover { scale: 2.2; }
+  .cursor-trail--text  { scale: 0.3; opacity: 0.4 !important; }
+  .cursor-trail--press { scale: 0.8; }
 }

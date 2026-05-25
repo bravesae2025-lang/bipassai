@@ -14,7 +14,20 @@
   });
 
   let mx = -300, my = -300;
+  let isDown = false, visible = true;
+  let scale = 1, scaleTarget = 1;
+
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mousedown', () => { isDown = true; });
+  document.addEventListener('mouseup',   () => { isDown = false; });
+  document.addEventListener('mouseleave', () => {
+    visible = false;
+    dots.forEach(d => { d.el.style.opacity = '0'; });
+  });
+  document.addEventListener('mouseenter', () => {
+    visible = true;
+    dots.forEach(d => { d.el.style.opacity = d.baseOp; });
+  });
 
   const HOVER = 'a, button, [role="button"], .level-btn, .mint-btn, .nav-link, .drawer-item, label, .credit-card, .analyze-btn, .use-my-style-btn';
   const TEXT  = 'textarea, input, [contenteditable]';
@@ -30,18 +43,19 @@
     const target  = document.elementFromPoint(mx, my);
     const isHover = !!target?.closest(HOVER);
     const isText  = !!target?.closest(TEXT);
-    dots[0].el.classList.toggle('cursor-trail--hover', isHover && !isText);
-    dots[0].el.classList.toggle('cursor-trail--text',  isText);
 
-    dots.forEach(d => {
-      d.el.style.transform = `translate(${d.x}px, ${d.y}px)`;
+    scaleTarget = isDown ? 0.75 : isText ? 0.3 : isHover ? 1.7 : 1;
+    scale += (scaleTarget - scale) * 0.2;
+
+    if (visible) {
+      dots[0].el.style.opacity = isText ? '0.35' : dots[0].baseOp;
+    }
+
+    dots.forEach((d, i) => {
+      d.el.style.transform = i === 0
+        ? `translate(${d.x}px,${d.y}px) scale(${scale.toFixed(3)})`
+        : `translate(${d.x}px,${d.y}px)`;
     });
     requestAnimationFrame(tick);
   })();
-
-  document.addEventListener('mousedown', () => dots[0].el.classList.add('cursor-trail--press'));
-  document.addEventListener('mouseup',   () => dots[0].el.classList.remove('cursor-trail--press'));
-
-  document.addEventListener('mouseleave', () => dots.forEach(d => { d.el.style.opacity = '0'; }));
-  document.addEventListener('mouseenter', () => dots.forEach(d => { d.el.style.opacity = d.baseOp; }));
 })();

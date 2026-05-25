@@ -249,12 +249,15 @@ async function init() {
   bindEvents();
   loadSavedStyle(session);
 
-  // Seed credit display from session metadata (server keeps it authoritative)
+  // Seed credit display from session metadata, then immediately refresh from server
   const valEl = document.getElementById('credit-val');
   if (valEl) {
-    const credits = session.user.user_metadata?.credits ?? 5000;
-    valEl.textContent = credits.toLocaleString();
+    const cached = session.user.user_metadata?.credits ?? 5000;
+    valEl.textContent = cached.toLocaleString();
   }
+  window.bipassAuth.refreshCredits().then(fresh => {
+    if (fresh !== null && valEl) valEl.textContent = fresh.toLocaleString();
+  }).catch(() => {});
 
   const autostart = sessionStorage.getItem('bipass_autostart');
   if (autostart) {
@@ -697,9 +700,15 @@ function updateCreditDisplay(used, remaining) {
   if (badgeEl) {
     badgeEl.textContent = `−${used.toLocaleString()} credits`;
     badgeEl.classList.remove('hidden', 'credit-used-animate');
-    void badgeEl.offsetWidth; // reflow to restart animation
+    void badgeEl.offsetWidth;
     badgeEl.classList.add('credit-used-animate');
   }
+  // Confirm with a fresh server-side value a moment later
+  setTimeout(() => {
+    window.bipassAuth.refreshCredits().then(fresh => {
+      if (fresh !== null && valEl) valEl.textContent = fresh.toLocaleString();
+    }).catch(() => {});
+  }, 1500);
 }
 
 // ─── Loading overlay ──────────────────────────────────────────

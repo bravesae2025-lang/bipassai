@@ -36,4 +36,11 @@ window.bipassAuth = {
     const session = await this.getSession();
     return session?.access_token || null;
   },
+
+  // Force-refresh the Supabase session and return fresh credit balance
+  async refreshCredits() {
+    const { data: { session } } = await _sb.auth.refreshSession();
+    if (!session) return null;
+    return session.user.user_metadata?.credits ?? 5000;
+  },
 };

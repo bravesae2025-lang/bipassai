@@ -720,8 +720,9 @@ function setLoading(on, text) {
     creditTickInterval = setInterval(() => {
       if (!credEl) return;
       const cur = parseInt(credEl.textContent.replace(/,/g, '') || '0');
-      credEl.textContent = (cur + 1).toLocaleString();
-    }, 60);
+      const step = Math.floor(Math.random() * 20) + 10;
+      credEl.textContent = (cur + step).toLocaleString();
+    }, 50);
   } else {
     clearInterval(creditTickInterval);
     creditTickInterval = null;

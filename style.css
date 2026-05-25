@@ -919,6 +919,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 #workspace {
+  flex: 1;
   transition: opacity 0.4s ease;
 }
 

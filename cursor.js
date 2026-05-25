@@ -22,7 +22,6 @@
   let mx = -300, my = -300;
   let visible = true;
   let ringR = 0, ringAlpha = 0;
-  let hoverR = 0;
 
   /* ── Events ── */
   document.addEventListener('mousemove',  e => { mx = e.clientX; my = e.clientY; });
@@ -55,7 +54,6 @@
     const isHover = !!target?.closest(HOVER);
     const isText  = !!target?.closest(TEXT);
 
-    hoverR += ((isHover && !isText ? 20 : 0) - hoverR) * 0.14;
     if (ringAlpha > 0.01) { ringR += 2.2; ringAlpha -= 0.032; }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -63,26 +61,15 @@
 
     /* trail — back to front so lead dot is on top */
     for (let i = COUNT - 1; i >= 0; i--) {
-      const frac   = i / (COUNT - 1);           // 0 (lead) → 1 (tail)
-      const radius = 5.5 - frac * 3;            // 5.5 → 2.5 px
+      const frac   = i / (COUNT - 1);
+      const radius = 5.5 - frac * 3;
       const alpha  = (1 - frac * 0.82) * (isText ? 0.25 : 1);
 
       circle(
         pts[i].x, pts[i].y, Math.max(radius, 1),
-        `rgba(255,255,255,${alpha.toFixed(2)})`,          /* white fill */
-        `rgba(0,0,0,${(alpha * 0.45).toFixed(2)})`,       /* dark border */
+        `rgba(255,255,255,${alpha.toFixed(2)})`,
+        `rgba(0,0,0,${(alpha * 0.45).toFixed(2)})`,
         1.2
-      );
-    }
-
-    /* hover ring */
-    if (hoverR > 0.5) {
-      const a = (hoverR / 20) * 0.55;
-      circle(
-        mx, my, hoverR,
-        `rgba(255,255,255,${(a * 0.07).toFixed(2)})`,   /* faint fill */
-        `rgba(255,255,255,${a.toFixed(2)})`,             /* white stroke */
-        1.5
       );
     }
 

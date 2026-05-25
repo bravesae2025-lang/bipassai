@@ -112,7 +112,6 @@ let selectedLevel         = 'easy';
 let myStyleActive         = false;
 let savedStyle            = null; // { style_summary, style_prompt }
 let currentAbortController = null;
-let creditTickInterval     = null;
 
 // ─── Elements ─────────────────────────────────────────────────
 
@@ -553,6 +552,7 @@ async function generateNew() {
 
   try {
     const result = await callAPIStream(buildGeneratePrompt(prompt));
+    await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'generate');
     window.location.href = 'editor.html';
@@ -575,6 +575,7 @@ async function humanize() {
 
   try {
     const result = await callAPIStream(buildHumanizePrompt(text));
+    await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'humanize');
     window.location.href = 'editor.html';
@@ -641,14 +642,10 @@ async function callAPIStream(prompt) {
       try {
         const json = JSON.parse(line.slice(6));
         if (json.error) throw new Error(json.error);
-        if (json.chars !== undefined) {
-          clearInterval(creditTickInterval);
-          creditTickInterval = null;
-          if (credEl) credEl.textContent = json.chars.toLocaleString();
-        }
         if (json.done) {
           finalResult = json.result;
           creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };
+          if (credEl) credEl.textContent = json.creditsUsed.toLocaleString();
         }
       } catch (e) {
         if (e.message !== 'Unexpected end of JSON input') throw e;
@@ -720,26 +717,17 @@ function setLoading(on, text) {
   if (on) {
     loadingText.textContent = text || 'Loading…';
     const credEl = document.getElementById('loading-credits');
-    if (credEl) credEl.textContent = '0';
+    if (credEl) credEl.textContent = '';
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');
     setStatus(text || 'Loading…');
-    clearInterval(creditTickInterval);
-    creditTickInterval = setInterval(() => {
-      if (!credEl) return;
-      const cur = parseInt(credEl.textContent.replace(/,/g, '') || '0');
-      const step = Math.floor(Math.random() * 20) + 10;
-      credEl.textContent = (cur + step).toLocaleString();
-    }, 50);
   } else {
-    clearInterval(creditTickInterval);
-    creditTickInterval = null;
     workspace.style.opacity = '';
     workspace.style.pointerEvents = '';
     loadingOverlay.classList.remove('visible');
     const credEl = document.getElementById('loading-credits');
-    if (credEl) credEl.textContent = '0';
+    if (credEl) credEl.textContent = '';
     setStatus('Ready');
   }
 }

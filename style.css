@@ -775,13 +775,25 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   pointer-events: all;
 }
 
-.loading-spinner {
-  width: 56px;
-  height: 56px;
-  border: 3px solid var(--g150);
-  border-top-color: var(--black);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+.loading-bar {
+  width: 260px;
+  height: 2px;
+  background: var(--g150);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  width: 45%;
+  height: 100%;
+  background: var(--black);
+  border-radius: 2px;
+  animation: loading-sweep 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes loading-sweep {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(290%); }
 }
 
 .loading-text {

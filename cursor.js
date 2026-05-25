@@ -1,13 +1,13 @@
 (function () {
   if (window.matchMedia('(pointer: coarse)').matches) return;
 
-  const COUNT = 12;
+  const COUNT = 7;
 
   const dots = Array.from({ length: COUNT }, (_, i) => {
     const el  = document.createElement('div');
     el.className = 'cursor-trail';
-    const size = Math.round(10 - i * 0.55);
-    const op   = +(1 - (i / COUNT) * 0.88).toFixed(2);
+    const size = Math.round(10 - i * 0.65);
+    const op   = +(1 - (i / COUNT) * 0.82).toFixed(2);
     el.style.cssText = `width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;opacity:${op}`;
     document.body.appendChild(el);
     return { el, x: -300, y: -300, baseOp: op };
@@ -23,8 +23,8 @@
     dots[0].x += (mx - dots[0].x) * 0.5;
     dots[0].y += (my - dots[0].y) * 0.5;
     for (let i = 1; i < COUNT; i++) {
-      dots[i].x += (dots[i - 1].x - dots[i].x) * 0.28;
-      dots[i].y += (dots[i - 1].y - dots[i].y) * 0.28;
+      dots[i].x += (dots[i - 1].x - dots[i].x) * 0.42;
+      dots[i].y += (dots[i - 1].y - dots[i].y) * 0.42;
     }
 
     const target  = document.elementFromPoint(mx, my);

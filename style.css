@@ -4485,14 +4485,13 @@ body.drawer-lock { overflow: hidden; }
     position: fixed;
     top: 0; left: 0;
     background: #fff;
-    mix-blend-mode: difference;
+    box-shadow: 0 0 0 1.5px rgba(0,0,0,0.45);
     border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
-    will-change: transform;
-    transition: scale 0.2s var(--ease-out), opacity 0.3s;
+    transition: scale 0.18s var(--ease-out), opacity 0.25s;
   }
-  .cursor-trail--hover { scale: 2.2; }
-  .cursor-trail--text  { scale: 0.3; opacity: 0.4 !important; }
-  .cursor-trail--press { scale: 0.8; }
+  .cursor-trail--hover { scale: 1.7; }
+  .cursor-trail--text  { scale: 0.3; opacity: 0.35 !important; }
+  .cursor-trail--press { scale: 0.75; }
 }

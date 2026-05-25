@@ -16,6 +16,9 @@
   let mx = -300, my = -300;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 
+  const HOVER = 'a, button, [role="button"], .level-btn, .mint-btn, .nav-link, .drawer-item, label, .credit-card, .analyze-btn, .use-my-style-btn';
+  const TEXT  = 'textarea, input, [contenteditable]';
+
   (function tick() {
     dots[0].x += (mx - dots[0].x) * 0.5;
     dots[0].y += (my - dots[0].y) * 0.5;
@@ -23,21 +26,18 @@
       dots[i].x += (dots[i - 1].x - dots[i].x) * 0.28;
       dots[i].y += (dots[i - 1].y - dots[i].y) * 0.28;
     }
+
+    const target  = document.elementFromPoint(mx, my);
+    const isHover = !!target?.closest(HOVER);
+    const isText  = !!target?.closest(TEXT);
+    dots[0].el.classList.toggle('cursor-trail--hover', isHover && !isText);
+    dots[0].el.classList.toggle('cursor-trail--text',  isText);
+
     dots.forEach(d => {
       d.el.style.transform = `translate(${d.x}px, ${d.y}px)`;
     });
     requestAnimationFrame(tick);
   })();
-
-  const HOVER = 'a, button, [role="button"], .level-btn, .mint-btn, .nav-link, .drawer-item, label, .credit-card, .analyze-btn, .use-my-style-btn';
-  const TEXT  = 'textarea, input, [contenteditable]';
-
-  document.addEventListener('mouseover', e => {
-    const isHover = !!e.target.closest(HOVER);
-    const isText  = !!e.target.closest(TEXT);
-    dots[0].el.classList.toggle('cursor-trail--hover', isHover && !isText);
-    dots[0].el.classList.toggle('cursor-trail--text',  isText);
-  });
 
   document.addEventListener('mousedown', () => dots[0].el.classList.add('cursor-trail--press'));
   document.addEventListener('mouseup',   () => dots[0].el.classList.remove('cursor-trail--press'));

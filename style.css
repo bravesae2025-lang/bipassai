@@ -4480,20 +4480,4 @@ body.drawer-lock { overflow: hidden; }
 ───────────────────────────────────────────────────────────── */
 @media (pointer: fine) {
   * { cursor: none !important; }
-
-  .cursor-trail {
-    position: fixed;
-    top: 0; left: 0;
-    background: #fff;
-    box-shadow: 0 0 0 1.5px rgba(0,0,0,0.4);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 99999;
-    transition: box-shadow 0.15s ease, opacity 0.2s;
-  }
-  .cursor-trail--hover {
-    box-shadow: 0 0 0 6px rgba(0,0,0,0.18), 0 0 0 1.5px rgba(0,0,0,0.4);
-  }
-  .cursor-trail--text  { opacity: 0.25; }
-  .cursor-trail--press { opacity: 0.5; }
 }

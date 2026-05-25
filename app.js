@@ -58,7 +58,7 @@ Return only the rewritten text, nothing else.`,
 };
 
 const GENERATE_PROMPTS = {
-  easy: `Write the following in simple, plain English — like a beginner or non-native English speaker wrote it. Use MANY of these human writing traits:
+  easy: `Read the task or topic below and write a complete, original piece that fulfils it — a story, essay, or whatever is asked. Write it as a beginner or non-native English speaker would. Use MANY of these human writing traits:
 
 - Short sentences. Sometimes a run-on that goes a bit long because they don't stop themselves.
 - Repeat the same idea twice in slightly different words — like thinking while writing.
@@ -74,7 +74,7 @@ Do NOT make it unreadable — just simple, plain, and rough around the edges.
 Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
 Return only the written text, nothing else.`,
 
-  medium: `Write the following the way an average student would. Use SOME of these human writing traits — not all, just what fits naturally:
+  medium: `Read the task or topic below and write a complete, original piece that fulfils it. Write it the way an average student would — thoughtful but not polished. Use SOME of these human writing traits — not all, just what fits naturally:
 
 - Mixed sentence lengths — nothing feels planned.
 - Reuse the same word or phrase a couple times without noticing.
@@ -89,7 +89,7 @@ Pick 3–4 and let them show up naturally.
 Never use: "it's worth noting", "certainly", "in conclusion", "delve", conclusion summaries, or equal sentence energy throughout.
 Return only the written text, nothing else.`,
 
-  hard: `Write the following the way a confident, capable person would — like they wrote it quickly and didn't over-edit. The humanness should be subtle. Use only 2–3 of these traits, once or twice each:
+  hard: `Read the task or topic below and write a complete, original piece that fulfils it. Write it the way a confident, capable person would — like they drafted it and didn't over-edit. The humanness should be subtle. Use only 2–3 of these traits, once or twice each:
 
 - Uneven rhythm — mostly flows, but one part speeds up or lingers a bit.
 - One slight contradiction: "it worked. Though honestly it kind of annoyed me."
@@ -102,7 +102,7 @@ Only 2–3 traits. Subtlety is the point.
 Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, fake-deep transitions, conclusion summaries.
 Return only the written text, nothing else.`,
 
-  customize: `Write the following to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+  customize: `Read the task or topic below and write a complete, original piece that fulfils it. Make it sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
 Return only the written text, nothing else.`,
 };
 

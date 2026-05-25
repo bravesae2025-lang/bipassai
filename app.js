@@ -112,6 +112,7 @@ let selectedLevel         = 'easy';
 let myStyleActive         = false;
 let savedStyle            = null; // { style_summary, style_prompt }
 let currentAbortController = null;
+let creditTickInterval     = null;
 
 // ─── Elements ─────────────────────────────────────────────────
 
@@ -638,6 +639,8 @@ async function callAPIStream(prompt) {
         const json = JSON.parse(line.slice(6));
         if (json.error) throw new Error(json.error);
         if (json.chars !== undefined) {
+          clearInterval(creditTickInterval);
+          creditTickInterval = null;
           if (credEl) credEl.textContent = json.chars.toLocaleString();
         }
         if (json.done) {
@@ -713,7 +716,15 @@ function setLoading(on, text) {
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');
     setStatus(text || 'Loading…');
+    clearInterval(creditTickInterval);
+    creditTickInterval = setInterval(() => {
+      if (!credEl) return;
+      const cur = parseInt(credEl.textContent.replace(/,/g, '') || '0');
+      credEl.textContent = (cur + 1).toLocaleString();
+    }, 60);
   } else {
+    clearInterval(creditTickInterval);
+    creditTickInterval = null;
     workspace.style.opacity = '';
     workspace.style.pointerEvents = '';
     loadingOverlay.classList.remove('visible');

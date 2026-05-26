@@ -209,7 +209,7 @@ async function setupMyStyle(session) {
 
     let traits = [];
     try { traits = JSON.parse(data.style_summary); } catch { traits = [data.style_summary]; }
-    traitsEl.innerHTML = traits.map(t => `<span class="settings-trait-chip">${t}</span>`).join('');
+    traitsEl.innerHTML = traits.map(t => `<span class="settings-trait-chip">${typeof t === 'string' ? t : t.name}</span>`).join('');
     promptEl.textContent = data.style_prompt;
 
     clearBtn.addEventListener('click', async () => {

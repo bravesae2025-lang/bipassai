@@ -4925,3 +4925,30 @@ body.drawer-lock { overflow: hidden; }
   .settings-level-picker { width: 100%; }
   .settings-level-opt { flex: 1; text-align: center; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   My Style — per-trait intensity rows
+───────────────────────────────────────────────────────────── */
+
+.style-trait-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.style-trait-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.style-trait-name {
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  color: var(--black);
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}

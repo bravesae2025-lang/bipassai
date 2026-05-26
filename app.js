@@ -382,16 +382,61 @@ function deactivateMyStyle() {
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 
+let styleTraitSaveTimer = null;
+
+function saveStyleTraits() {
+  clearTimeout(styleTraitSaveTimer);
+  styleTraitSaveTimer = setTimeout(async () => {
+    try {
+      const session = await window.bipassAuth.getSession();
+      if (!session) return;
+      await window.bipassAuth.client.from('user_styles').upsert({
+        user_id:       session.user.id,
+        style_summary: savedStyle.style_summary,
+        style_prompt:  savedStyle.style_prompt,
+        updated_at:    new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    } catch (_) {}
+  }, 500);
+}
+
+function getTraits() {
+  let raw = [];
+  try { raw = JSON.parse(savedStyle.style_summary); } catch (_) { raw = [savedStyle.style_summary]; }
+  return raw.map(t => typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 });
+}
+
 function showMyStyleCard() {
   myStyleInputs.style.display = 'none';
 
-  let traits = [];
-  try { traits = JSON.parse(savedStyle.style_summary); } catch (_) {
-    traits = [savedStyle.style_summary]; // fallback for old plain-text summaries
-  }
-  myStyleSummary.innerHTML = `<ul class="my-style-list">${
-    traits.map(t => `<li>${t}</li>`).join('')
-  }</ul>`;
+  const traits = getTraits();
+  const LABELS = ['None', 'A little', 'A lot'];
+
+  myStyleSummary.innerHTML = `<div class="style-trait-rows">${
+    traits.map((t, i) => `
+      <div class="style-trait-row">
+        <span class="style-trait-name">${t.name}</span>
+        <div class="mistake-intensity" data-trait-idx="${i}">
+          ${LABELS.map((lbl, v) => `<button class="mint-btn${t.intensity === v ? ' active' : ''}" data-val="${v}">${lbl}</button>`).join('')}
+        </div>
+      </div>`).join('')
+  }</div>`;
+
+  // Bind intensity buttons
+  myStyleSummary.querySelectorAll('.mistake-intensity').forEach(group => {
+    group.querySelectorAll('.mint-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.mint-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const idx = parseInt(group.dataset.traitIdx);
+        const val = parseInt(btn.dataset.val);
+        const traits = getTraits();
+        traits[idx].intensity = val;
+        savedStyle.style_summary = JSON.stringify(traits);
+        saveStyleTraits();
+      });
+    });
+  });
 
   myStyleCard.style.display = '';
   if (myStyleActive) useMyStyleBtn.classList.add('active');
@@ -428,7 +473,9 @@ async function analyzeStyle() {
 Look for personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Ignore sentence length or writing structure — those depend on the topic.
 
 Use this exact format (replace the example values with real findings, keep it on ONE LINE):
-{"traits":["Grammar mistakes","Missing capitals","Word repetition","Run-on sentences","Informal vocabulary"],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
+{"traits":[{"name":"Grammar mistakes","intensity":2},{"name":"Missing capitals","intensity":1},{"name":"Word repetition","intensity":2}],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
+
+intensity must be 1 (trait appears occasionally) or 2 (trait appears frequently). Include up to 7 traits.
 
 Writing samples:
 ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
@@ -458,7 +505,12 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
     }
     if (!json.traits || !json.style_prompt) throw new Error('Missing traits or style_prompt in response');
 
-    savedStyle = { style_summary: JSON.stringify(json.traits), style_prompt: json.style_prompt };
+    // Normalise traits — accept both {name,intensity} objects and plain strings
+    const normTraits = json.traits.map(t =>
+      typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 }
+    );
+
+    savedStyle = { style_summary: JSON.stringify(normTraits), style_prompt: json.style_prompt };
     showMyStyleCard();
     showToast('Style analyzed');
 
@@ -466,7 +518,7 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
       const session = await window.bipassAuth.getSession();
       await window.bipassAuth.client.from('user_styles').upsert({
         user_id:       session.user.id,
-        style_summary: JSON.stringify(json.traits),
+        style_summary: JSON.stringify(normTraits),
         style_prompt:  json.style_prompt,
         sample_count:  samples.length,
         updated_at:    new Date().toISOString(),
@@ -544,9 +596,16 @@ function buildMistakeExtras() {
   return extras;
 }
 
+function buildTraitIntensityLine() {
+  const traits = getTraits();
+  const active = traits.filter(t => t.intensity > 0)
+    .map(t => `${t.name} (${t.intensity === 1 ? 'a little' : 'a lot'})`).join(', ');
+  return active ? `\nApply these writing traits at the given levels: ${active}.` : '';
+}
+
 function buildHumanizePrompt(text) {
   if (myStyleActive && savedStyle) {
-    return `${savedStyle.style_prompt}\n\nText to rewrite:\n${text}`;
+    return `${savedStyle.style_prompt}${buildTraitIntensityLine()}\n\nText to rewrite:\n${text}`;
   }
   let prompt = HUMANIZE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
@@ -559,7 +618,7 @@ function buildHumanizePrompt(text) {
 
 function buildGeneratePrompt(userPrompt) {
   if (myStyleActive && savedStyle) {
-    return `${savedStyle.style_prompt}\n\nWhat to write:\n${userPrompt}`;
+    return `${savedStyle.style_prompt}${buildTraitIntensityLine()}\n\nWhat to write:\n${userPrompt}`;
   }
   let prompt = GENERATE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {

@@ -418,9 +418,21 @@ async function analyzeStyle() {
   analyzeLoader.style.display = '';
   analyzeStyleBtn.disabled    = true;
 
-  const prompt = `Analyze the writing style of these text samples and return ONLY valid JSON with no markdown, no code fences, nothing else.
+  const prompt = `Analyze the writing samples below and return ONLY valid JSON — no markdown, no code fences, nothing else.
 
-Return exactly this format: {"traits":["5 to 8 specific observations about this person's writing — each one a short descriptive sentence (6–12 words) describing a concrete habit, pattern, or quirk actually visible in the samples. Cover: spelling accuracy, grammar errors (tense/agreement), sentence length and structure, punctuation habits, vocabulary level, run-on sentences, fragments, capitalisation, tone. Example observations: 'Frequent spelling mistakes throughout', 'Mostly short punchy sentences', 'Run-on sentences with missing full stops', 'Incorrect verb tenses occasionally', 'Rarely uses commas or punctuation', 'Simple everyday vocabulary', 'Casual conversational tone'."],"style_prompt":"a detailed paragraph instruction for an AI to rewrite or generate text that matches this person's style exactly — include vocabulary level, sentence length patterns, grammatical quirks, punctuation habits, and any consistent errors"}
+Your job is to identify this person's PERSONAL writing habits and recurring mistakes — things that would appear no matter what type of writing they do (an essay, an email, an article). Do NOT comment on sentence length, paragraph structure, or the genre/format of the sample (e.g. do not say "short sentences" or "descriptive style") — those are content choices, not personal habits.
+
+ONLY look for:
+- Spelling mistakes or patterns (e.g. "Frequently misspells common words", "Apostrophes often missing")
+- Grammar errors (e.g. "Wrong verb tense", "Subject-verb disagreement occasionally")
+- Capitalisation habits (e.g. "Often skips capital letter at start of sentence", "Random mid-sentence capitals")
+- Punctuation habits (e.g. "Missing full stops at end of sentences", "Overuses commas", "Rarely uses any punctuation")
+- Repeated words or filler phrases (e.g. "Repeats 'basically' and 'like' often", "Overuses 'and' to join clauses")
+- Vocabulary level and casual language (e.g. "Uses very casual everyday words", "Mixes formal and slang")
+- Run-on sentences as a personal habit (e.g. "Chains multiple ideas without full stops")
+
+Return exactly this format:
+{"traits":["5 to 7 observations, each a short sentence (5–10 words) describing one personal habit or mistake"],"style_prompt":"Instructions for an AI to write NEW text in any format the user requests, but with this person's personal quirks layered on top. List each quirk explicitly (grammar errors, capitalisation, punctuation, vocabulary, repeated words). End with: 'Apply these quirks naturally throughout — but always follow the structure and format that the user's actual prompt asks for, not the structure of these samples.'"}
 
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 

@@ -428,8 +428,18 @@ Return this exact JSON structure (replace placeholder text with real observation
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 
   try {
-    const raw  = await callAPI(prompt);
-    const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
+    const token = await window.bipassAuth.getToken();
+    const res   = await fetch('/api/analyze', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ prompt }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error || `Server error ${res.status}`);
+    }
+    const data = await res.json();
+    const jsonStr = (data.result || '').match(/\{[\s\S]*\}/)?.[0] || data.result || '';
     const json = JSON.parse(jsonStr);
     if (!json.traits || !json.style_prompt) throw new Error('Invalid response');
 

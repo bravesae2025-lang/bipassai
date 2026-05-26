@@ -418,27 +418,25 @@ async function analyzeStyle() {
   analyzeLoader.style.display = '';
   analyzeStyleBtn.disabled    = true;
 
-  const prompt = `Analyze the writing samples below and return ONLY valid JSON — no markdown, no code fences, nothing else.
+  const prompt = `You are analyzing someone's personal writing habits. Study the samples and return a JSON object. Return ONLY the JSON — no explanation, no markdown, no code fences.
 
-Your job is to identify this person's PERSONAL writing habits and recurring mistakes — things that would appear no matter what type of writing they do (an essay, an email, an article). Do NOT comment on sentence length, paragraph structure, or the genre/format of the sample (e.g. do not say "short sentences" or "descriptive style") — those are content choices, not personal habits.
+Rules:
+- Focus ONLY on personal habits that show up regardless of topic: spelling errors, grammar mistakes (wrong tense, missing articles), capitalisation habits (skipping capitals, random capitals), punctuation habits (missing full stops, overusing commas), repeated words or phrases, run-on sentences, vocabulary level.
+- Do NOT mention sentence length, writing structure, descriptive style, or anything specific to the genre of the sample. Those are topic choices, not personal habits.
 
-ONLY look for:
-- Spelling mistakes or patterns (e.g. "Frequently misspells common words", "Apostrophes often missing")
-- Grammar errors (e.g. "Wrong verb tense", "Subject-verb disagreement occasionally")
-- Capitalisation habits (e.g. "Often skips capital letter at start of sentence", "Random mid-sentence capitals")
-- Punctuation habits (e.g. "Missing full stops at end of sentences", "Overuses commas", "Rarely uses any punctuation")
-- Repeated words or filler phrases (e.g. "Repeats 'basically' and 'like' often", "Overuses 'and' to join clauses")
-- Vocabulary level and casual language (e.g. "Uses very casual everyday words", "Mixes formal and slang")
-- Run-on sentences as a personal habit (e.g. "Chains multiple ideas without full stops")
+JSON format:
+{
+  "traits": ["observation 1", "observation 2", "...up to 7 total — each a plain sentence describing one specific personal habit or mistake seen in the samples"],
+  "style_prompt": "A paragraph telling an AI how to mimic this person's personal quirks (only the habits above — NOT the structure or genre of the sample). Must end with this exact sentence: Apply these quirks to whatever format and structure the user requests."
+}
 
-Return exactly this format:
-{"traits":["5 to 7 observations, each a short sentence (5–10 words) describing one personal habit or mistake"],"style_prompt":"Instructions for an AI to write NEW text in any format the user requests, but with this person's personal quirks layered on top. List each quirk explicitly (grammar errors, capitalisation, punctuation, vocabulary, repeated words). End with: 'Apply these quirks naturally throughout — but always follow the structure and format that the user's actual prompt asks for, not the structure of these samples.'"}
-
+Samples:
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 
   try {
     const raw  = await callAPI(prompt);
-    const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
+    const json = JSON.parse(jsonStr);
     if (!json.traits || !json.style_prompt) throw new Error('Invalid response');
 
     savedStyle = { style_summary: JSON.stringify(json.traits), style_prompt: json.style_prompt };

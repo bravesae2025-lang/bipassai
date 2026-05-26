@@ -387,6 +387,46 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
+// ─── DELETE /api/account ───────────────────────────────────────
+
+app.delete('/api/account', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  try {
+    // Delete style profile first
+    await fetch(`${SUPABASE_URL}/rest/v1/user_styles?user_id=eq.${user.id}`, {
+      method:  'DELETE',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey':        SUPABASE_SERVICE_KEY,
+      },
+    });
+
+    // Delete the auth user
+    const deleteRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
+      method:  'DELETE',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey':        SUPABASE_SERVICE_KEY,
+      },
+    });
+
+    if (!deleteRes.ok) {
+      const err = await deleteRes.json().catch(() => ({}));
+      throw new Error(err.msg || 'Delete failed');
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    return res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 // ─── Start ─────────────────────────────────────────────────────
 
 app.listen(PORT, '0.0.0.0', () => {

@@ -271,7 +271,7 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
-  const level = sessionStorage.getItem('bipass_level') || 'easy';
+  const level = sessionStorage.getItem('bipass_level') || localStorage.getItem('bipass_pref_level') || 'easy';
   selectLevel(level);
 
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
@@ -288,7 +288,12 @@ function restoreState() {
       }
     }
   }
-  if (sessionStorage.getItem('bipass_my_style') === 'true') myStyleActive = true;
+  const savedMyStyle = sessionStorage.getItem('bipass_my_style');
+  if (savedMyStyle !== null) {
+    myStyleActive = savedMyStyle === 'true';
+  } else {
+    myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
+  }
 }
 
 // ─── Events ───────────────────────────────────────────────────

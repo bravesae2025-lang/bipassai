@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-logo" href="app.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="app.html">New Text</a>
+        <a class="nav-link" href="history.html">History</a>
+        <a class="nav-link" href="plans.html">Plans</a>
+        <a class="nav-link nav-link-active" href="settings.html">Settings</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="app.html">New Text</a>
+      <a class="drawer-item" href="history.html">History</a>
+      <a class="drawer-item" href="plans.html">Plans</a>
+      <a class="drawer-item drawer-item-active" href="settings.html">Settings</a>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="settings-main">
+    <div class="settings-wrap">
+
+      <div class="settings-head">
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-sub">Manage your account, preferences, and style profile.</p>
+      </div>
+
+      <!-- ── Account ──────────────────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-label">Account</div>
+
+        <div class="settings-profile-card">
+          <div class="settings-avatar" id="settings-avatar">?</div>
+          <div class="settings-profile-info">
+            <div class="settings-username-row">
+              <span class="settings-username" id="settings-username">Loading…</span>
+              <button class="settings-edit-btn" id="settings-username-edit-btn">Edit</button>
+            </div>
+            <span class="settings-email" id="settings-email">…</span>
+            <a class="drawer-tier-badge drawer-tier-free" id="settings-tier" href="plans.html">Free</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Credits ─────────────────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-label">Credits</div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Balance</div>
+            <div class="settings-row-sub">Credits remaining in your account</div>
+          </div>
+          <div class="settings-credits-display">
+            <span class="settings-credits-num" id="settings-credits">—</span>
+            <button class="settings-refresh-btn" id="settings-refresh-btn" title="Refresh">↻</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Need more?</div>
+            <div class="settings-row-sub">Top up your account on the plans page</div>
+          </div>
+          <a href="plans.html" class="settings-outline-btn">Buy Credits →</a>
+        </div>
+      </section>
+
+      <!-- ── Defaults ────────────────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-label">Defaults</div>
+        <p class="settings-section-sub">Applied automatically when you start a new session.</p>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Default Level</div>
+            <div class="settings-row-sub">Which humanize level opens by default</div>
+          </div>
+          <div class="settings-level-picker" id="settings-level-picker">
+            <button class="settings-level-opt" data-level="easy">Easy</button>
+            <button class="settings-level-opt" data-level="medium">Medium</button>
+            <button class="settings-level-opt" data-level="hard">Hard</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Use My Style by default</div>
+            <div class="settings-row-sub">Automatically apply your saved style profile on load</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="pref-mystyle">
+            <span class="settings-toggle-track"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- ── My Style ────────────────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-label">My Style</div>
+
+        <div id="mystyle-loading" class="settings-muted">Loading…</div>
+
+        <div id="mystyle-empty" class="settings-muted hidden">
+          No style profile saved yet.
+          <a href="app.html" style="color:var(--black);text-decoration:underline;">Analyze your writing</a> to create one.
+        </div>
+
+        <div id="mystyle-content" class="hidden">
+          <div class="settings-row-title" style="margin-bottom:10px;">Detected traits</div>
+          <div class="settings-traits" id="settings-traits"></div>
+          <div class="settings-row-sub" style="margin:14px 0 6px;">Style instruction sent to AI</div>
+          <div class="settings-style-prompt" id="settings-style-prompt"></div>
+          <div style="margin-top:16px;">
+            <button class="settings-danger-outline-btn" id="clear-style-btn">Clear Style Profile</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Danger Zone ─────────────────────────────────────── -->
+      <section class="settings-section settings-danger-section">
+        <div class="settings-section-label">Danger Zone</div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Sign Out</div>
+            <div class="settings-row-sub">Sign out on this device</div>
+          </div>
+          <button class="settings-outline-btn" id="signout-btn">Sign out</button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title settings-danger-text">Delete Account</div>
+            <div class="settings-row-sub">Permanently remove your account and all data</div>
+          </div>
+          <button class="settings-danger-outline-btn" id="delete-account-btn">Delete</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Delete confirmation modal -->
+  <div class="settings-modal-overlay hidden" id="delete-modal">
+    <div class="settings-modal">
+      <div class="settings-modal-title">Delete Account?</div>
+      <div class="settings-modal-body">
+        This will permanently delete your account, all credits, and your style profile.
+        This cannot be undone.
+      </div>
+      <div class="settings-modal-actions">
+        <button class="settings-modal-cancel" id="delete-modal-cancel">Cancel</button>
+        <button class="settings-modal-confirm" id="delete-modal-confirm">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="settings.js"></script>
+  <script src="cursor.js"></script>
+</body>
+</html>

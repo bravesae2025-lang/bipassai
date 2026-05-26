@@ -422,8 +422,8 @@ async function analyzeStyle() {
 
 Identify personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Do NOT mention sentence length or writing structure — those depend on the topic.
 
-Return this exact JSON structure (replace placeholder text with real observations):
-{"traits":["habit 1","habit 2","habit 3 — up to 7 short sentences each describing one specific habit"],"style_prompt":"A short paragraph for an AI describing how to write with this person's specific quirks. End with: Apply these personal quirks to whatever format the user requests."}
+Return this exact JSON structure:
+{"traits":["2-3 word label","2-3 word label","up to 7 labels — each just 2-3 words naming the habit, e.g. Grammar mistakes, Run-on sentences, Missing capitals, Word repetition, Basic vocabulary"],"style_prompt":"A detailed paragraph for an AI describing exactly how to replicate this person's specific writing quirks in full detail. End with: Apply these personal quirks to whatever format the user requests."}
 
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 

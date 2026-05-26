@@ -418,19 +418,13 @@ async function analyzeStyle() {
   analyzeLoader.style.display = '';
   analyzeStyleBtn.disabled    = true;
 
-  const prompt = `You are analyzing someone's personal writing habits. Study the samples and return a JSON object. Return ONLY the JSON — no explanation, no markdown, no code fences.
+  const prompt = `Analyze these writing samples and return ONLY a JSON object (no markdown, no explanation).
 
-Rules:
-- Focus ONLY on personal habits that show up regardless of topic: spelling errors, grammar mistakes (wrong tense, missing articles), capitalisation habits (skipping capitals, random capitals), punctuation habits (missing full stops, overusing commas), repeated words or phrases, run-on sentences, vocabulary level.
-- Do NOT mention sentence length, writing structure, descriptive style, or anything specific to the genre of the sample. Those are topic choices, not personal habits.
+Identify personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Do NOT mention sentence length or writing structure — those depend on the topic.
 
-JSON format:
-{
-  "traits": ["observation 1", "observation 2", "...up to 7 total — each a plain sentence describing one specific personal habit or mistake seen in the samples"],
-  "style_prompt": "A paragraph telling an AI how to mimic this person's personal quirks (only the habits above — NOT the structure or genre of the sample). Must end with this exact sentence: Apply these quirks to whatever format and structure the user requests."
-}
+Return this exact JSON structure (replace placeholder text with real observations):
+{"traits":["habit 1","habit 2","habit 3 — up to 7 short sentences each describing one specific habit"],"style_prompt":"A short paragraph for an AI describing how to write with this person's specific quirks. End with: Apply these personal quirks to whatever format the user requests."}
 
-Samples:
 ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
 
   try {
@@ -456,8 +450,8 @@ ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
       console.warn('Style save failed (non-critical):', saveErr);
     }
   } catch (e) {
-    console.error('analyzeStyle error:', e);
-    showToast('Could not analyze style — try again');
+    console.error('analyzeStyle error:', e?.message || e);
+    showToast('Could not analyze style — ' + (e?.message?.slice(0, 60) || 'try again'));
   } finally {
     analyzeLabel.style.display  = '';
     analyzeLoader.style.display = 'none';

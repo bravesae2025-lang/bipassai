@@ -5,7 +5,7 @@
   const canvas = document.createElement('canvas');
   const ctx    = canvas.getContext('2d');
   canvas.style.cssText =
-    'position:fixed;top:0;left:0;pointer-events:none;z-index:99999';
+    'position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;pointer-events:none;z-index:99999';
   document.body.appendChild(canvas);
 
   function resize() {

@@ -423,17 +423,19 @@ async function analyzeStyle() {
   analyzeLoader.style.display = '';
   analyzeStyleBtn.disabled    = true;
 
-  const prompt = `Analyze these writing samples and return ONLY a JSON object (no markdown, no explanation).
+  const prompt = `Analyze these writing samples. Return ONLY a single-line JSON object — no markdown, no code fences, no line breaks inside the JSON, no explanation before or after.
 
-Identify personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Do NOT mention sentence length or writing structure — those depend on the topic.
+Look for personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Ignore sentence length or writing structure — those depend on the topic.
 
-Return this exact JSON structure:
-{"traits":["2-3 word label","2-3 word label","up to 7 labels — each just 2-3 words naming the habit, e.g. Grammar mistakes, Run-on sentences, Missing capitals, Word repetition, Basic vocabulary"],"style_prompt":"A detailed paragraph for an AI describing exactly how to replicate this person's specific writing quirks in full detail. End with: Apply these personal quirks to whatever format the user requests."}
+Use this exact format (replace the example values with real findings, keep it on ONE LINE):
+{"traits":["Grammar mistakes","Missing capitals","Word repetition","Run-on sentences","Informal vocabulary"],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
 
-${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
+Writing samples:
+${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
 
   try {
     const token = await window.bipassAuth.getToken();
+    if (!token) throw new Error('Not signed in');
     const res   = await fetch('/api/analyze', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -444,9 +446,17 @@ ${samples.map((s, i) => `Sample ${i + 1}:\n${s}`).join('\n---\n')}`;
       throw new Error(err?.error || `Server error ${res.status}`);
     }
     const data = await res.json();
-    const jsonStr = (data.result || '').match(/\{[\s\S]*\}/)?.[0] || data.result || '';
-    const json = JSON.parse(jsonStr);
-    if (!json.traits || !json.style_prompt) throw new Error('Invalid response');
+    console.log('[analyze] raw result:', data.result);
+    const rawStr = (data.result || '').replace(/```json|```/g, '').trim();
+    const jsonStr = rawStr.match(/\{[\s\S]*\}/)?.[0] || rawStr;
+    let json;
+    try {
+      json = JSON.parse(jsonStr);
+    } catch {
+      const cleaned = jsonStr.replace(/[\r\n\t]/g, ' ').replace(/\s{2,}/g, ' ');
+      json = JSON.parse(cleaned);
+    }
+    if (!json.traits || !json.style_prompt) throw new Error('Missing traits or style_prompt in response');
 
     savedStyle = { style_summary: JSON.stringify(json.traits), style_prompt: json.style_prompt };
     showMyStyleCard();

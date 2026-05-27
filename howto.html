@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — How to Use</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-logo" href="app.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="app.html">New Text</a>
+        <a class="nav-link" href="history.html">History</a>
+        <a class="nav-link" href="plans.html">Plans</a>
+        <a class="nav-link nav-link-active" href="howto.html">How to Use</a>
+        <a class="nav-link" href="settings.html">Settings</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="app.html">New Text</a>
+      <a class="drawer-item" href="history.html">History</a>
+      <a class="drawer-item" href="plans.html">Plans</a>
+      <a class="drawer-item drawer-item-active" href="howto.html">How to Use</a>
+      <a class="drawer-item" href="settings.html">Settings</a>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="howto-main">
+    <div class="howto-wrap">
+
+      <!-- Header -->
+      <div class="howto-head">
+        <div class="howto-eyebrow">Guide</div>
+        <h1 class="howto-title">How to Use<br>Bipass AI</h1>
+        <p class="howto-sub">Go from AI-written to undetectable in under a minute.</p>
+      </div>
+
+      <!-- Steps -->
+      <div class="howto-steps">
+
+        <!-- ── Step 1 ─────────────────────────────────────────── -->
+        <div class="howto-step" data-anim="slide-up">
+          <div class="howto-step-left">
+            <div class="howto-num">01</div>
+            <div class="howto-step-info">
+              <h2 class="howto-step-title">Paste your AI text or enter a prompt</h2>
+              <p class="howto-step-desc">
+                Use <strong>Humanize</strong> to make existing AI-generated text sound human — paste it in the left panel.<br><br>
+                Use <strong>Generate</strong> to write something from scratch — type your topic or prompt and Bipass AI writes it in a human voice directly.
+              </p>
+              <div class="howto-tip">
+                <span class="howto-tip-label">Tip</span>
+                The longer your input, the more realistic the result. Aim for at least 100 words.
+              </div>
+            </div>
+          </div>
+          <div class="howto-step-right">
+            <div class="howto-mock">
+              <div class="mock-topbar">
+                <div class="mock-tab mock-tab-active">Humanize</div>
+                <div class="mock-tab">Generate</div>
+              </div>
+              <div class="mock-body">
+                <div class="mock-label">Paste AI text to humanize</div>
+                <div class="mock-textarea">
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-lg"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-md"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-sm"></div>
+                </div>
+                <div class="mock-stats">
+                  <span class="mock-stat">247 words</span>
+                  <span class="mock-stat">1,432 chars</span>
+                </div>
+                <div class="mock-action-btn">
+                  <div class="mock-btn-icon">↑</div>
+                  Humanize
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 2 ─────────────────────────────────────────── -->
+        <div class="howto-step howto-step-flip" data-anim="slide-up">
+          <div class="howto-step-left">
+            <div class="howto-num">02</div>
+            <div class="howto-step-info">
+              <h2 class="howto-step-title">Choose your humanization level</h2>
+              <p class="howto-step-desc">
+                Pick how human your text should sound. Match it to whoever you're writing as.
+              </p>
+              <div class="howto-levels">
+                <div class="howto-level">
+                  <div class="howto-level-name">Easy</div>
+                  <div class="howto-level-desc">Beginner writer — simple words, tense mistakes, non-native feel</div>
+                </div>
+                <div class="howto-level">
+                  <div class="howto-level-name">Medium</div>
+                  <div class="howto-level-desc">Average student — decent grammar, casual filler words, slight imperfections</div>
+                </div>
+                <div class="howto-level">
+                  <div class="howto-level-name">Hard</div>
+                  <div class="howto-level-desc">Confident writer — subtle humanity, strong voice, barely noticeable quirks</div>
+                </div>
+                <div class="howto-level">
+                  <div class="howto-level-name">Custom</div>
+                  <div class="howto-level-desc">You pick exactly which mistakes to add and how often — full control</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="howto-step-right">
+            <div class="howto-mock">
+              <div class="mock-body mock-body-pad">
+                <div class="mock-label">Humanization level</div>
+                <div class="mock-pill-row">
+                  <div class="mock-pill mock-pill-active">Easy</div>
+                  <div class="mock-pill">Medium</div>
+                  <div class="mock-pill">Hard</div>
+                  <div class="mock-pill">Custom</div>
+                </div>
+                <div class="mock-level-desc">Beginner — simple words, mixed sentences, tense mistakes like a non-native speaker</div>
+                <div class="mock-divider"></div>
+                <div class="mock-label" style="margin-top:4px;">Add extra mistakes</div>
+                <div class="mock-mistake-row">
+                  <span class="mock-mistake-name">Grammar</span>
+                  <div class="mock-mints">
+                    <div class="mock-mint mock-mint-active">None</div>
+                    <div class="mock-mint">A little</div>
+                    <div class="mock-mint">A lot</div>
+                  </div>
+                </div>
+                <div class="mock-mistake-row">
+                  <span class="mock-mistake-name">Spelling</span>
+                  <div class="mock-mints">
+                    <div class="mock-mint mock-mint-active">None</div>
+                    <div class="mock-mint">A little</div>
+                    <div class="mock-mint">A lot</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 3 ─────────────────────────────────────────── -->
+        <div class="howto-step" data-anim="slide-up">
+          <div class="howto-step-left">
+            <div class="howto-num">03</div>
+            <div class="howto-step-info">
+              <h2 class="howto-step-title">Hit Humanize and get your result</h2>
+              <p class="howto-step-desc">
+                Click the button and watch the credit counter tick while Bipass AI rewrites your text in real time. The result appears on a clean editor page.
+              </p>
+              <p class="howto-step-desc">
+                From the result page you can <strong>copy</strong> your text, go back and <strong>regenerate</strong> with different settings, or use <strong>Edit with AI</strong> to make specific changes without rewriting the whole thing.
+              </p>
+              <div class="howto-tip">
+                <span class="howto-tip-label">Tip</span>
+                Not happy with the result? Hit the back arrow and tweak the level — Hard mode passes AI detectors most reliably for academic writing.
+              </div>
+            </div>
+          </div>
+          <div class="howto-step-right">
+            <div class="howto-mock">
+              <div class="mock-body mock-body-pad">
+                <div class="mock-result-topbar">
+                  <div class="mock-result-badge">Result</div>
+                  <div class="mock-result-wc">182 words</div>
+                  <div class="mock-copy-btn">Copy</div>
+                </div>
+                <div class="mock-result-area">
+                  <div class="mock-line mock-line-full" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-full" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-lg" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-full" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-md" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-full" style="background:rgba(0,0,0,0.12)"></div>
+                  <div class="mock-line mock-line-sm" style="background:rgba(0,0,0,0.12)"></div>
+                </div>
+                <div class="mock-edit-ai-bar">
+                  <div class="mock-edit-label">Edit with AI</div>
+                  <div class="mock-edit-input">make it sound more casual…</div>
+                  <div class="mock-edit-apply">Apply ⚡</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Step 4 ─────────────────────────────────────────── -->
+        <div class="howto-step howto-step-flip" data-anim="slide-up">
+          <div class="howto-step-left">
+            <div class="howto-num">04</div>
+            <div class="howto-step-info">
+              <h2 class="howto-step-title">Train it on your own writing style</h2>
+              <p class="howto-step-desc">
+                This is the most powerful feature. Paste 1–5 samples of your own writing (essays, messages, anything you wrote yourself) and Bipass AI will analyze your personal quirks — spelling habits, grammar patterns, punctuation style.
+              </p>
+              <p class="howto-step-desc">
+                Once analyzed, each detected trait shows as a bar you can slide from <em>None → A little → A lot</em>. Toggle <strong>Use My Style</strong> and every generation will match your specific writing fingerprint, not a generic human voice.
+              </p>
+              <div class="howto-tip">
+                <span class="howto-tip-label">Best practice</span>
+                Use writing samples that you didn't try hard on — casual essays, old assignments, chat messages. The more natural, the better the profile.
+              </div>
+            </div>
+          </div>
+          <div class="howto-step-right">
+            <div class="howto-mock">
+              <div class="mock-body mock-body-pad">
+                <div class="mock-label">Create my own humanize level</div>
+                <div class="mock-sample-box">
+                  <div class="mock-line mock-line-full" style="height:5px;margin-bottom:5px;"></div>
+                  <div class="mock-line mock-line-lg" style="height:5px;margin-bottom:5px;"></div>
+                  <div class="mock-line mock-line-md" style="height:5px;"></div>
+                </div>
+                <div class="mock-analyze-btn">Analyze My Style</div>
+                <div class="mock-divider" style="margin:12px 0;"></div>
+                <div class="mock-label">Detected traits</div>
+                <div class="mock-trait-row">
+                  <span class="mock-trait-name">Grammar mistakes</span>
+                  <div class="mock-mints mock-mints-sm">
+                    <div class="mock-mint">None</div>
+                    <div class="mock-mint">A little</div>
+                    <div class="mock-mint mock-mint-active">A lot</div>
+                  </div>
+                </div>
+                <div class="mock-trait-row">
+                  <span class="mock-trait-name">Missing capitals</span>
+                  <div class="mock-mints mock-mints-sm">
+                    <div class="mock-mint">None</div>
+                    <div class="mock-mint mock-mint-active">A little</div>
+                    <div class="mock-mint">A lot</div>
+                  </div>
+                </div>
+                <div class="mock-trait-row">
+                  <span class="mock-trait-name">Word repetition</span>
+                  <div class="mock-mints mock-mints-sm">
+                    <div class="mock-mint">None</div>
+                    <div class="mock-mint mock-mint-active">A little</div>
+                    <div class="mock-mint">A lot</div>
+                  </div>
+                </div>
+                <div class="mock-use-style-btn">Use My Style</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── FAQ ───────────────────────────────────────────────── -->
+      <div class="howto-faq-section">
+        <div class="howto-faq-head">
+          <div class="howto-eyebrow">FAQ</div>
+          <h2 class="howto-faq-title">Common Questions</h2>
+        </div>
+
+        <div class="howto-faq-grid">
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">Does it bypass Turnitin and GPTZero?</div>
+            <div class="howto-faq-a">Yes. Bipass AI specifically targets the patterns those detectors flag. Hard mode + My Style is the most effective combination for academic work.</div>
+          </div>
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">What are credits?</div>
+            <div class="howto-faq-a">Credits are used when you Humanize or Generate text. 1 credit = 1 character in the output. Analyzing your style is always free and doesn't cost credits.</div>
+          </div>
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">Why does it need multiple writing samples?</div>
+            <div class="howto-faq-a">More samples = better profile. One sample might just reflect the topic's style. Multiple samples let Bipass spot habits that are uniquely yours across different contexts.</div>
+          </div>
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">Can I use it for any language?</div>
+            <div class="howto-faq-a">Bipass AI works best with English. It can process other languages but the humanization patterns are optimized for English text and detectors.</div>
+          </div>
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">What's the difference between Humanize and Generate?</div>
+            <div class="howto-faq-a">Humanize rewrites text you already have. Generate writes brand new text from a topic or prompt. Both use the same humanization settings and My Style profile.</div>
+          </div>
+          <div class="howto-faq-item">
+            <div class="howto-faq-q">Is my writing saved anywhere?</div>
+            <div class="howto-faq-a">Your history is saved to your account so you can review past results. Your style profile is stored to your account. We never use your writing to train any AI model.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CTA ───────────────────────────────────────────────── -->
+      <div class="howto-cta">
+        <div class="howto-cta-title">Ready to try it?</div>
+        <p class="howto-cta-sub">Your first 5,000 credits are free — no card needed.</p>
+        <a href="app.html" class="howto-cta-btn">Start Writing →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="howto.js"></script>
+  <script src="cursor.js"></script>
+</body>
+</html>

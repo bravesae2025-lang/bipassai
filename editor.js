@@ -127,6 +127,7 @@ async function init() {
   });
 
   renderBadges();
+  setupSpeedButtons();
   saveResult(result, mode, session);
 }
 
@@ -142,20 +143,46 @@ async function saveResult(text, mode, session) {
 
 // ─── Typewriter ───────────────────────────────────────────────
 
+const TYPING_SPEEDS = {
+  slow:   { chars: 1, ms: 60  },
+  normal: { chars: 1, ms: 25  },
+  fast:   { chars: 2, ms: 14  },
+};
+
 let typewriterStarted = false;
+let typewriterInterval = null;
+
+function getTypingSpeed() {
+  const saved = localStorage.getItem('bipass_pref_speed') || 'fast';
+  return TYPING_SPEEDS[saved] || TYPING_SPEEDS.fast;
+}
 
 function typewriter(text) {
   if (typewriterStarted) return;
   typewriterStarted = true;
   editorTextarea.value = '';
+  if (typewriterInterval) clearInterval(typewriterInterval);
   let i = 0;
-  const tick = setInterval(() => {
-    i = Math.min(i + 3, text.length);
+  const { chars, ms } = getTypingSpeed();
+  typewriterInterval = setInterval(() => {
+    i = Math.min(i + chars, text.length);
     editorTextarea.value = text.slice(0, i);
     editorTextarea.scrollTop = editorTextarea.scrollHeight;
     updateWc();
-    if (i >= text.length) clearInterval(tick);
-  }, 12);
+    if (i >= text.length) clearInterval(typewriterInterval);
+  }, ms);
+}
+
+function setupSpeedButtons() {
+  const saved = localStorage.getItem('bipass_pref_speed') || 'fast';
+  document.querySelectorAll('.typing-speed-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.speed === saved);
+    btn.addEventListener('click', () => {
+      localStorage.setItem('bipass_pref_speed', btn.dataset.speed);
+      document.querySelectorAll('.typing-speed-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
 }
 
 // Start typewriter immediately from sessionStorage — before auth resolves

@@ -1676,6 +1676,44 @@ body.editor-page { background: var(--bg); }
   font-size: 10px;
 }
 
+/* Typing speed selector */
+.typing-speed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.typing-speed-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g300);
+  white-space: nowrap;
+}
+.typing-speed-track {
+  display: flex;
+  gap: 4px;
+}
+.typing-speed-btn {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 4px 11px;
+  border-radius: 99px;
+  border: 1px solid var(--g150);
+  background: transparent;
+  color: var(--g300);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.typing-speed-btn:hover { color: var(--black); border-color: var(--g400); }
+.typing-speed-btn.active {
+  background: var(--black);
+  color: #fff;
+  border-color: var(--black);
+}
+
 /* AI prompt box */
 .ai-prompt-box {
   display: flex;

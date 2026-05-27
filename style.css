@@ -4069,6 +4069,13 @@ body.drawer-lock { overflow: hidden; }
   white-space: nowrap;
 }
 
+.credit-token-icon {
+  color: var(--black);
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+.credit-card-best .credit-token-icon { color: #fff; }
+
 .credit-amount {
   font-family: var(--ff-display);
   font-size: 32px;

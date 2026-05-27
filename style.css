@@ -5748,6 +5748,22 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .my-style-inset .reanalyze-link:hover { color: #0d0d0d; }
 .my-style-inset .style-trait-name { color: #555; }
 
+/* Reset mint-btn for white inset — overrides .col-customize .mint-btn dark styles */
+.my-style-inset .mint-btn {
+  background: transparent;
+  border-color: rgba(0,0,0,0.15);
+  color: var(--g400);
+}
+.my-style-inset .mint-btn:hover {
+  border-color: rgba(0,0,0,0.4);
+  color: var(--black);
+}
+.my-style-inset .mint-btn.active {
+  background: var(--black);
+  color: #fff;
+  border-color: var(--black);
+}
+
 /* ── Welcome modal ─────────────────────────────────────────────── */
 .welcome-modal-overlay {
   position: fixed;

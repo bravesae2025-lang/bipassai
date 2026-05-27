@@ -1820,8 +1820,8 @@ body.editor-page { background: var(--bg); }
     0 56px 112px rgba(0,0,0,0.25);
 }
 
-.col-customize .col-num  { color: #666; }
-.col-customize .col-name { color: #888; }
+.col-customize .col-num  { color: #888; }
+.col-customize .col-name { color: #bbb; }
 
 .control-block {
   display: flex;
@@ -1840,8 +1840,8 @@ body.editor-page { background: var(--bg); }
 }
 
 .col-customize .control-head {
-  color: #777;
-  border-color: #222;
+  color: #aaa;
+  border-color: #2a2a2a;
 }
 
 .control-sub {
@@ -1852,7 +1852,7 @@ body.editor-page { background: var(--bg); }
 }
 
 .col-customize .control-sub {
-  color: #666;
+  color: #888;
 }
 
 /* Level selector */
@@ -1923,7 +1923,7 @@ body.editor-page { background: var(--bg); }
   line-height: 1.5;
 }
 
-.col-customize .level-desc { color: #777; }
+.col-customize .level-desc { color: #999; }
 
 /* Toggles */
 /* ── Mistake intensity rows ──────────────────────────────────── */
@@ -1961,7 +1961,7 @@ body.editor-page { background: var(--bg); }
 }
 .mint-btn:hover { border-color: var(--black); color: var(--black); }
 .mint-btn.active { background: var(--black); color: #fff; border-color: var(--black); }
-.col-customize .mint-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+.col-customize .mint-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.65); }
 .col-customize .mint-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 .col-customize .mint-btn.active { background: #fff; color: #000; border-color: #fff; }
 
@@ -2012,7 +2012,7 @@ body.editor-page { background: var(--bg); }
   color: var(--g400);
 }
 
-.col-customize .toggle-sub { color: #888; }
+.col-customize .toggle-sub { color: #aaa; }
 
 .toggle-shell { flex-shrink: 0; }
 
@@ -2141,7 +2141,7 @@ body.editor-page { background: var(--bg); }
   color: var(--g300);
 }
 
-.col-customize .key-hint { color: #3d3d3d; }
+.col-customize .key-hint { color: #666; }
 
 /* Tips */
 .tips-block { margin-top: auto; }
@@ -2158,8 +2158,8 @@ body.editor-page { background: var(--bg); }
 .tip::before { content: '›'; position: absolute; left: 0; color: var(--g300); }
 .tip em { font-style: normal; color: var(--black); font-weight: 600; }
 
-.col-customize .tip { color: #888; }
-.col-customize .tip::before { color: #666; }
+.col-customize .tip { color: #aaa; }
+.col-customize .tip::before { color: #888; }
 .col-customize .tip em { color: #fff; }
 
 /* ─────────────────────────────────────────────────────────────

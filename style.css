@@ -5512,6 +5512,102 @@ body.drawer-lock { overflow: hidden; }
 
 .howto-cta-btn:hover { opacity: 0.85; }
 
+/* ═══════════════════════════════════════════════════════════════
+   AESTHETIC REFINEMENTS — white-first, more black contrast
+   Main bg stays white. Adds bolder blacks, sharper edges,
+   cool animations. No full dark mode.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Panels — crisper borders, tighter shadows ──────────────── */
+.col {
+  border-color: rgba(0,0,0,0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 1px 2px rgba(0,0,0,0.06),
+    0 4px 12px rgba(0,0,0,0.07),
+    0 20px 40px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.col:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 1.5px rgba(0,0,0,0.12),
+    0 2px 6px rgba(0,0,0,0.08),
+    0 12px 28px rgba(0,0,0,0.1),
+    0 32px 64px rgba(0,0,0,0.08);
+}
+
+/* Subtle scan-line drifting down each white panel */
+@keyframes scan-drift {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(3000%); }
+}
+.col::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.04) 60%, transparent 95%);
+  animation: scan-drift 18s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 2. Navbar — slightly more opaque, stronger border ─────────── */
+.navbar {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.12);
+}
+
+/* ── 3. Dot grid — denser, slightly more visible ───────────────── */
+.bg-dots {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── 4. Ticker bar — sharper bottom line ───────────────────────── */
+.app-statsbar {
+  border-bottom: 1.5px solid rgba(0,0,0,0.1);
+}
+.ticker-item { color: #333; font-weight: 700; }
+.ticker-sep  { color: #bbb; }
+
+/* ── 5. Textareas — slightly darker bg, crisper focus ring ─────── */
+textarea { background: #f4f4f2; border-color: rgba(0,0,0,0.12); }
+textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
+
+/* ── 6. Col-main — pure white to stand out from page bg ────────── */
+.col-main { background: #ffffff; }
+
+/* ── 7. Idle shimmer on Generate button ────────────────────────── */
+@keyframes btn-shimmer {
+  0%   { transform: translateX(-140%) skewX(-12deg); opacity: 0; }
+  8%   { opacity: 1; }
+  55%  { opacity: 1; }
+  65%  { opacity: 0; }
+  100% { transform: translateX(260%) skewX(-12deg); opacity: 0; }
+}
+.btn-generate::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+  width: 35%;
+  animation: btn-shimmer 6s ease-in-out 2s infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── 8. More cinematic panel reveal ────────────────────────────── */
+[data-reveal] { transform: translateY(22px); }
+@keyframes col-reveal { to { opacity: 1; transform: translateY(0); } }
+
+/* ── 9. Scrollbar — slightly darker thumb ──────────────────────── */
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); }
+
 /* Responsive */
 @media (max-width: 768px) {
   .howto-main { padding: 40px 16px 64px; }

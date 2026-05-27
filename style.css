@@ -5661,3 +5661,42 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 
   .howto-cta { padding: 40px 20px; border-radius: 16px; }
 }
+
+/* ── My Style inset — white sub-section inside col-customize ───── */
+.my-style-inset {
+  background: #fff;
+  margin: 0 -26px -32px;
+  padding: 20px 26px 28px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0 0 15px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.my-style-inset .col-label { margin-bottom: 0; }
+.my-style-inset .col-name { color: #0d0d0d; font-size: 13px; }
+.my-style-inset .style-sample-textarea {
+  background: #f7f7f5;
+  border-color: rgba(0,0,0,0.12);
+  color: #0d0d0d;
+}
+.my-style-inset .style-sample-textarea::placeholder { color: #999; }
+.my-style-inset .style-sample-textarea:focus {
+  background: #fff;
+  border-color: rgba(0,0,0,0.3);
+}
+.my-style-inset .analyze-btn { background: #0d0d0d; color: #fff; }
+.my-style-inset .analyze-btn:hover { background: #2a2a2a; }
+.my-style-inset .add-sample-btn { color: #555; border-color: rgba(0,0,0,0.15); }
+.my-style-inset .add-sample-btn:hover {
+  color: #0d0d0d;
+  border-color: rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.04);
+}
+.my-style-inset .my-style-summary { color: #555; }
+.my-style-inset .use-my-style-btn { background: #0d0d0d; color: #fff; border-color: transparent; }
+.my-style-inset .use-my-style-btn:hover { background: #2a2a2a; }
+.my-style-inset .use-my-style-btn.active { background: #0d0d0d; }
+.my-style-inset .reanalyze-link { color: #888; }
+.my-style-inset .reanalyze-link:hover { color: #0d0d0d; }
+.my-style-inset .style-trait-name { color: #555; }

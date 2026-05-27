@@ -1858,8 +1858,7 @@ body.editor-page { background: var(--bg); }
 /* Level selector */
 .level-track {
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   border: 1px solid var(--g150);
   border-radius: var(--r);
   background: var(--bg);
@@ -1889,6 +1888,7 @@ body.editor-page { background: var(--bg); }
 .level-btn {
   position: relative;
   z-index: 1;
+  flex: 1;
   background: transparent;
   border: none;
   color: var(--g400);
@@ -5601,11 +5601,13 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 /* ── 10. Level track wrap + detached Custom button ─────────────── */
 .level-track-wrap {
   display: flex;
-  align-items: center;
+  flex-wrap: nowrap;
+  align-items: stretch;
   gap: 8px;
 }
 .level-track-wrap .level-track {
   flex: 1;
+  min-width: 0;
 }
 .level-presets-label {
   font-family: var(--ff-mono);
@@ -5615,9 +5617,9 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   color: var(--g300);
   margin-bottom: 2px;
 }
-.col-customize .level-presets-label { color: #666; }
+.col-customize .level-presets-label { color: #999; }
 .level-btn-custom {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   height: 36px;
   padding: 0 14px;
   border-radius: var(--r);

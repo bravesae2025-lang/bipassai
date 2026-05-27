@@ -1868,7 +1868,7 @@ body.editor-page { background: var(--bg); }
 
 .col-customize .level-track {
   background: #1a1a1a;
-  border-color: #2a2a2a;
+  border-color: rgba(255,255,255,0.18);
 }
 
 .level-glider {

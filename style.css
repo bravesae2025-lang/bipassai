@@ -1859,7 +1859,7 @@ body.editor-page { background: var(--bg); }
 .level-track {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border: 1px solid var(--g150);
   border-radius: var(--r);
   background: var(--bg);
@@ -1875,7 +1875,7 @@ body.editor-page { background: var(--bg); }
 .level-glider {
   position: absolute;
   top: 0; left: 0;
-  width: 25%;
+  width: 33.33%;
   height: 100%;
   background: var(--black);
   border-radius: calc(var(--r) - 1px);
@@ -1902,18 +1902,8 @@ body.editor-page { background: var(--bg); }
 
 .level-btn.active { color: #fff; }
 .level-btn:not(.active):hover { color: var(--black); }
-.level-btn[data-level="customize"] {
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  border-left: 1px solid rgba(255,255,255,0.1);
-}
-
 .col-customize .level-btn.active { color: #000; }
 .col-customize .level-btn:not(.active):hover { color: #aaa; }
-
-.col-customize .level-btn[data-level="customize"] { color: #c09a35; }
-.col-customize .level-btn[data-level="customize"]:not(.active):hover { color: #d4b050; }
-.col-customize .level-btn[data-level="customize"].active { color: #6b4f15; }
 
 .level-desc {
   font-family: var(--ff-mono);
@@ -3110,7 +3100,7 @@ body.editor-page { background: var(--bg); }
   /* Level selector */
   .level-track { height: 34px; }
   .level-btn { font-size: 10px; letter-spacing: 0.01em; }
-  .level-btn[data-level="customize"] { font-size: 8px; letter-spacing: 0; }
+  .level-btn-custom { font-size: 10px; padding: 0 10px; }
 
   /* Customize column controls */
   .control-block { gap: 8px; }
@@ -3123,7 +3113,7 @@ body.editor-page { background: var(--bg); }
   .btn-generate { height: 40px; font-size: 10px; padding: 0 12px; }
   .level-track { height: 32px; }
   .level-btn { font-size: 9px; }
-  .level-btn[data-level="customize"] { font-size: 7.5px; }
+  .level-btn-custom { font-size: 9px; padding: 0 9px; }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -5607,6 +5597,45 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 
 /* ── 9. Scrollbar — slightly darker thumb ──────────────────────── */
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); }
+
+/* ── 10. Level track wrap + detached Custom button ─────────────── */
+.level-track-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.level-track-wrap .level-track {
+  flex: 1;
+}
+.level-presets-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--g300);
+  margin-bottom: 2px;
+}
+.col-customize .level-presets-label { color: #666; }
+.level-btn-custom {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r);
+  border: 1px solid var(--g200);
+  background: transparent;
+  color: var(--g400);
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.level-btn-custom:hover { color: var(--black); border-color: var(--g400); }
+.level-btn-custom.active { background: var(--black); color: #fff; border-color: var(--black); }
+.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.55); }
+.col-customize .level-btn-custom:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+.col-customize .level-btn-custom.active { background: #fff; color: #000; border-color: #fff; }
 
 /* Responsive */
 @media (max-width: 768px) {

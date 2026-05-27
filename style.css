@@ -3458,8 +3458,10 @@ body.login-page {
   position: relative;
 }
 .credit-icon {
-  font-size: 11px;
+  display: flex;
+  align-items: center;
   line-height: 1;
+  color: var(--black);
 }
 .credit-val {
   font-size: 12px;

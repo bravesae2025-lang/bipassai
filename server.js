@@ -31,7 +31,7 @@ async function getUserFromToken(token) {
   return res.json();
 }
 
-async function updateUserCredits(userId, credits) {
+async function updateUserMeta(userId, metaFields) {
   await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
     method:  'PUT',
     headers: {
@@ -39,8 +39,12 @@ async function updateUserCredits(userId, credits) {
       'apikey':        SUPABASE_SERVICE_KEY,
       'Content-Type':  'application/json',
     },
-    body: JSON.stringify({ user_metadata: { credits } }),
+    body: JSON.stringify({ user_metadata: metaFields }),
   });
+}
+
+async function updateUserCredits(userId, credits) {
+  await updateUserMeta(userId, { credits });
 }
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)
@@ -106,6 +110,29 @@ app.post('/auth/google/exchange-extension', async (req, res) => {
   }
 });
 
+// ─── POST /api/init-credits ───────────────────────────────────
+
+app.post('/api/init-credits', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  if (user.user_metadata?.signup_welcome_shown) {
+    return res.json({ alreadyInit: true });
+  }
+
+  const expiresAt = Date.now() + 86400000; // 24 hours
+  await updateUserMeta(user.id, {
+    credits: INITIAL_CREDITS,
+    credits_expire_at: expiresAt,
+    signup_welcome_shown: true,
+  });
+
+  return res.json({ credits: INITIAL_CREDITS, expiresAt });
+});
+
 // ─── POST /api/analyze (auth only, no credit deduction) ───────
 
 app.post('/api/analyze', async (req, res) => {
@@ -162,6 +189,13 @@ app.post('/api/humanize', async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  // Expiry check for free starter credits
+  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  if (creditsExpireAt && Date.now() > creditsExpireAt) {
+    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
+  }
 
   const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
   if (credits <= 0) {
@@ -227,6 +261,13 @@ app.post('/api/stream', async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  // Expiry check for free starter credits
+  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  if (creditsExpireAt && Date.now() > creditsExpireAt) {
+    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
+  }
 
   const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
   if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });

@@ -5709,3 +5709,141 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .my-style-inset .reanalyze-link { color: #888; }
 .my-style-inset .reanalyze-link:hover { color: #0d0d0d; }
 .my-style-inset .style-trait-name { color: #555; }
+
+/* ── Welcome modal ─────────────────────────────────────────────── */
+.welcome-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.welcome-modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.welcome-modal-overlay.hidden { display: none; }
+
+.welcome-modal-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 44px 36px 36px;
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(16px);
+  transition: transform 0.3s var(--ease-out);
+}
+.welcome-modal-overlay.show .welcome-modal-card {
+  transform: translateY(0);
+}
+
+.welcome-token-icon {
+  color: var(--black);
+  line-height: 1;
+}
+
+.welcome-sparks {
+  font-size: 11px;
+  letter-spacing: 10px;
+  color: var(--g300);
+  margin-top: -4px;
+}
+
+.welcome-title {
+  font-family: var(--ff-display);
+  font-size: 40px;
+  letter-spacing: 0.02em;
+  color: var(--black);
+  line-height: 1;
+  margin: 0;
+}
+
+.welcome-body {
+  font-family: var(--ff-ui);
+  font-size: 14px;
+  color: var(--g400);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+}
+.welcome-body strong { color: var(--black); font-weight: 700; }
+
+.welcome-expire-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 99px;
+  padding: 8px 20px;
+  margin-top: 2px;
+}
+.welcome-expire-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--g300);
+}
+.welcome-expire-val {
+  font-family: var(--ff-mono);
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--black);
+  letter-spacing: 0.04em;
+}
+
+.welcome-cta {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--black);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  height: 46px;
+  font-family: var(--ff-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 4px;
+}
+.welcome-cta:hover { background: var(--g800); }
+.welcome-cta .btn-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  width: 40%;
+  transform: translateX(-150%);
+  transition: transform 0.5s ease;
+}
+.welcome-cta:hover .btn-sweep { transform: translateX(400%); }
+
+.welcome-note {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+  text-align: center;
+}
+.welcome-note a { color: var(--g400); text-decoration: underline; }
+.welcome-note a:hover { color: var(--black); }

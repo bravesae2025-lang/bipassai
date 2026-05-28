@@ -5964,6 +5964,16 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .welcome-note a { color: var(--g400); text-decoration: underline; }
 .welcome-note a:hover { color: var(--black); }
 
+/* Regenerate button */
+.editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.editor-btn-regen {
+  color: var(--black);
+  background: transparent;
+  border-color: var(--g150);
+}
+.editor-btn-regen:hover { color: #fff; background: var(--black); border-color: var(--black); }
+.editor-btn-regen:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* History search + filter controls */
 .history-controls {
   display: flex;

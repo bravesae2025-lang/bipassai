@@ -129,6 +129,7 @@ async function init() {
   renderBadges();
   setupSpeedButtons();
   setupViewToggle(result, mode);
+  document.getElementById('regen-btn')?.addEventListener('click', regenerate);
   saveResult(result, mode, session);
 }
 
@@ -416,6 +417,47 @@ function buildHumanizePrompt(text, level, grammar, punct) {
   if (extras.length > 0) prompt += '\n\n' + extras.join(' ');
   prompt += `\n\nText to rewrite:\n${text}`;
   return prompt;
+}
+
+// ─── Regenerate ───────────────────────────────────────────────
+
+function buildRegeneratePrompt(userPrompt, level) {
+  const levelDesc = { easy: 'beginner', medium: 'student', hard: 'expert' }[level] || 'student';
+  return `Write a fresh version of the following task. Write it the way a ${levelDesc} would — naturally human, not AI-generated. Return only the text, nothing else.\n\nTask: ${userPrompt}`;
+}
+
+async function regenerate() {
+  const mode    = sessionStorage.getItem('bipass_mode');
+  const level   = sessionStorage.getItem('bipass_level') || 'easy';
+  const grammar = parseInt(sessionStorage.getItem('bipass_m_grammar') || '0') > 0;
+  const punct   = parseInt(sessionStorage.getItem('bipass_m_punct')   || '0') > 0;
+
+  let prompt;
+  if (mode === 'humanize') {
+    const text = sessionStorage.getItem('bipass_input') || '';
+    if (!text) { showToast('No original text found'); return; }
+    prompt = buildHumanizePrompt(text, level, grammar, punct);
+  } else {
+    const userPrompt = sessionStorage.getItem('bipass_prompt') || '';
+    if (!userPrompt) { showToast('No prompt found'); return; }
+    prompt = buildRegeneratePrompt(userPrompt, level);
+  }
+
+  const regenBtn = document.getElementById('regen-btn');
+  regenBtn.disabled = true;
+  setLoading(true);
+
+  try {
+    const result = await callEditorStream(prompt);
+    sessionStorage.setItem('bipass_result', result);
+    document.getElementById('toggle-result')?.click();
+    showToast('Regenerated');
+  } catch (err) {
+    showToast(err.message || 'Something went wrong');
+  } finally {
+    regenBtn.disabled = false;
+    setLoading(false);
+  }
 }
 
 // ─── Loading overlay ──────────────────────────────────────────

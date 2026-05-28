@@ -128,7 +128,45 @@ async function init() {
 
   renderBadges();
   setupSpeedButtons();
+  setupViewToggle(result, mode);
   saveResult(result, mode, session);
+}
+
+let viewingOriginal = false;
+
+function setupViewToggle(result, mode) {
+  const toggle    = document.getElementById('editor-view-toggle');
+  const btnResult = document.getElementById('toggle-result');
+  const btnOrig   = document.getElementById('toggle-original');
+  const aiBox     = document.getElementById('ai-prompt-box');
+  const original  = sessionStorage.getItem('bipass_input') || '';
+
+  if (mode !== 'humanize' || !original.trim()) return;
+  toggle.classList.remove('hidden');
+
+  btnResult.addEventListener('click', () => {
+    if (!viewingOriginal) return;
+    viewingOriginal = false;
+    editorTextarea.value = result;
+    editorTextarea.readOnly = false;
+    editorBadge.textContent = 'Humanized';
+    btnResult.classList.add('active');
+    btnOrig.classList.remove('active');
+    if (aiBox) aiBox.style.display = '';
+    updateWc();
+  });
+
+  btnOrig.addEventListener('click', () => {
+    if (viewingOriginal) return;
+    viewingOriginal = true;
+    editorTextarea.value = original;
+    editorTextarea.readOnly = true;
+    editorBadge.textContent = 'Original';
+    btnOrig.classList.add('active');
+    btnResult.classList.remove('active');
+    if (aiBox) aiBox.style.display = 'none';
+    updateWc();
+  });
 }
 
 async function saveResult(text, mode, session) {

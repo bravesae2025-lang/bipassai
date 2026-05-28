@@ -460,6 +460,11 @@ function getTraits() {
   return raw.map(t => typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 });
 }
 
+function updateSliderFill(slider) {
+  const pct = (parseInt(slider.value) / 2) * 100;
+  slider.style.setProperty('--pct', `${pct}%`);
+}
+
 function showMyStyleCard() {
   myStyleInputs.style.display = 'none';
 
@@ -469,26 +474,27 @@ function showMyStyleCard() {
   myStyleSummary.innerHTML = `<div class="style-trait-rows">${
     traits.map((t, i) => `
       <div class="style-trait-row">
-        <span class="style-trait-name">${t.name}</span>
-        <div class="mistake-intensity" data-trait-idx="${i}">
-          ${LABELS.map((lbl, v) => `<button class="mint-btn${t.intensity === v ? ' active' : ''}" data-val="${v}">${lbl}</button>`).join('')}
+        <div class="trait-slider-head">
+          <span class="style-trait-name">${t.name}</span>
+          <span class="trait-slider-val">${LABELS[t.intensity]}</span>
         </div>
+        <input class="trait-slider" type="range" min="0" max="2" step="1"
+               value="${t.intensity}" data-trait-idx="${i}">
       </div>`).join('')
   }</div>`;
 
-  // Bind intensity buttons
-  myStyleSummary.querySelectorAll('.mistake-intensity').forEach(group => {
-    group.querySelectorAll('.mint-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        group.querySelectorAll('.mint-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const idx = parseInt(group.dataset.traitIdx);
-        const val = parseInt(btn.dataset.val);
-        const traits = getTraits();
-        traits[idx].intensity = val;
-        savedStyle.style_summary = JSON.stringify(traits);
-        saveStyleTraits();
-      });
+  // Init fill + bind events
+  myStyleSummary.querySelectorAll('.trait-slider').forEach(slider => {
+    updateSliderFill(slider);
+    slider.addEventListener('input', () => {
+      const idx = parseInt(slider.dataset.traitIdx);
+      const val = parseInt(slider.value);
+      slider.previousElementSibling.querySelector('.trait-slider-val').textContent = LABELS[val];
+      updateSliderFill(slider);
+      const traits = getTraits();
+      traits[idx].intensity = val;
+      savedStyle.style_summary = JSON.stringify(traits);
+      saveStyleTraits();
     });
   });
 

@@ -457,28 +457,42 @@ function saveStyleTraits() {
 function getTraits() {
   let raw = [];
   try { raw = JSON.parse(savedStyle.style_summary); } catch (_) { raw = [savedStyle.style_summary]; }
-  return raw.map(t => typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 });
+  return raw.map(t => {
+    if (typeof t === 'string') return { name: t, intensity: 10 };
+    const intensity = t.intensity ?? 10;
+    // Migrate old 0/1/2 scale → 0/5/10
+    const migrated = intensity <= 2 ? intensity * 5 : intensity;
+    return { name: t.name, intensity: migrated };
+  });
 }
 
 function updateSliderFill(slider) {
-  const pct = (parseInt(slider.value) / 2) * 100;
+  const pct = (parseInt(slider.value) / 10) * 100;
   slider.style.setProperty('--pct', `${pct}%`);
+}
+
+function traitIntensityLabel(val) {
+  if (val === 0)  return 'None';
+  if (val <= 2)   return 'Very subtle';
+  if (val <= 4)   return 'Subtle';
+  if (val <= 6)   return 'Moderate';
+  if (val <= 8)   return 'Strong';
+  return 'Heavy';
 }
 
 function showMyStyleCard() {
   myStyleInputs.style.display = 'none';
 
   const traits = getTraits();
-  const LABELS = ['None', 'A little', 'A lot'];
 
   myStyleSummary.innerHTML = `<div class="style-trait-rows">${
     traits.map((t, i) => `
       <div class="style-trait-row">
         <div class="trait-slider-head">
           <span class="style-trait-name">${t.name}</span>
-          <span class="trait-slider-val">${LABELS[t.intensity]}</span>
+          <span class="trait-slider-val">${traitIntensityLabel(t.intensity)}</span>
         </div>
-        <input class="trait-slider" type="range" min="0" max="2" step="1"
+        <input class="trait-slider" type="range" min="0" max="10" step="1"
                value="${t.intensity}" data-trait-idx="${i}">
       </div>`).join('')
   }</div>`;
@@ -489,7 +503,7 @@ function showMyStyleCard() {
     slider.addEventListener('input', () => {
       const idx = parseInt(slider.dataset.traitIdx);
       const val = parseInt(slider.value);
-      slider.previousElementSibling.querySelector('.trait-slider-val').textContent = LABELS[val];
+      slider.previousElementSibling.querySelector('.trait-slider-val').textContent = traitIntensityLabel(val);
       updateSliderFill(slider);
       const traits = getTraits();
       traits[idx].intensity = val;
@@ -658,8 +672,15 @@ function buildMistakeExtras() {
 
 function buildTraitIntensityLine() {
   const traits = getTraits();
+  function intensityWord(v) {
+    if (v <= 2)  return 'very subtly';
+    if (v <= 4)  return 'subtly';
+    if (v <= 6)  return 'moderately';
+    if (v <= 8)  return 'quite a lot';
+    return 'heavily';
+  }
   const active = traits.filter(t => t.intensity > 0)
-    .map(t => `${t.name} (${t.intensity === 1 ? 'a little' : 'a lot'})`).join(', ');
+    .map(t => `${t.name} (${intensityWord(t.intensity)})`).join(', ');
   return active ? `\nApply these writing traits at the given levels: ${active}.` : '';
 }
 

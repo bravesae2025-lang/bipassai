@@ -110,6 +110,24 @@ app.post('/auth/google/exchange-extension', async (req, res) => {
   }
 });
 
+// ─── POST /api/reset-credits (admin only) ────────────────────
+
+app.post('/api/reset-credits', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'brave.sae2025@gmail.com';
+  if (user.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' });
+
+  const amount = parseInt(req.body?.amount) || 50000;
+  await updateUserMeta(user.id, { credits: amount, credits_expire_at: null });
+
+  return res.json({ ok: true, credits: amount });
+});
+
 // ─── POST /api/init-credits ───────────────────────────────────
 
 app.post('/api/init-credits', async (req, res) => {

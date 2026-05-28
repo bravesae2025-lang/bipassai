@@ -5964,6 +5964,35 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .welcome-note a { color: var(--g400); text-decoration: underline; }
 .welcome-note a:hover { color: var(--black); }
 
+/* Credit warning banner */
+.credit-warning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0d0d0d;
+  color: #fff;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  padding: 12px 24px;
+  position: sticky;
+  top: 52px;
+  z-index: 100;
+}
+.credit-warning.hidden { display: none; }
+.credit-warning-text { flex: 1; }
+.credit-warning-link { color: #fff; text-decoration: underline; white-space: nowrap; }
+.credit-warning-link:hover { opacity: 0.8; }
+.credit-warning-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  line-height: 1;
+}
+.credit-warning-close:hover { color: #fff; }
+
 /* Regenerate button */
 .editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .editor-btn-regen {

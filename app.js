@@ -825,7 +825,7 @@ async function callAPIStream(prompt) {
     const data = await res.json().catch(() => ({}));
     const msg = data.error || 'No credits remaining';
     setLoading(false);
-    showToast(msg + ' — visit Plans');
+    showCreditWarning(msg);
     throw Object.assign(new Error(msg), { name: 'CreditError' });
   }
   if (!res.ok) {
@@ -925,6 +925,17 @@ function updateCreditDisplay(used, remaining) {
 }
 
 // ─── Loading overlay ──────────────────────────────────────────
+
+function showCreditWarning(msg) {
+  const banner = document.getElementById('credit-warning');
+  const textEl = document.getElementById('credit-warning-text');
+  if (!banner) { showToast(msg + ' — visit Plans'); return; }
+  if (textEl) textEl.textContent = msg;
+  banner.classList.remove('hidden');
+  document.getElementById('credit-warning-close')?.addEventListener('click', () => {
+    banner.classList.add('hidden');
+  }, { once: true });
+}
 
 function setLoading(on, text) {
   generateBtn.disabled = on;

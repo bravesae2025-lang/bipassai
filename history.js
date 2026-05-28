@@ -89,40 +89,36 @@ async function setupNavUser(session) {
   document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
 }
 
-async function loadHistory(session) {
-  const subEl  = document.getElementById('history-sub');
-  const listEl = document.getElementById('history-list');
+// ─── State ────────────────────────────────────────────────────
 
-  const { data, error } = await window.bipassAuth.client
-    .from('results')
-    .select('*')
-    .eq('user_id', session.user.id)
-    .order('created_at', { ascending: false });
+let allResults  = [];
+let filterMode  = '';
+let filterQuery = '';
+let searchTimer = null;
 
-  if (error) { subEl.textContent = 'Failed to load history.'; return; }
-  if (!data || data.length === 0) {
-    subEl.textContent = 'No saved results yet — humanize some text first.';
-    return;
-  }
+// ─── Card builder ─────────────────────────────────────────────
 
-  subEl.textContent = `${data.length} saved result${data.length !== 1 ? 's' : ''}`;
-
-  listEl.innerHTML = data.map(item => `
-    <div class="history-item" data-id="${item.id}">
-      <div class="history-item-meta">
-        <span class="history-badge">${item.mode === 'generate' ? 'Generated' : 'Humanized'} · ${item.level}</span>
-        <span class="history-date">${formatDate(item.created_at)}</span>
-      </div>
-      <p class="history-preview">${escapeHtml(item.text.slice(0, 200))}${item.text.length > 200 ? '…' : ''}</p>
-      <div class="history-actions">
-        <button class="history-btn history-btn-copy" data-text="${escapeAttr(item.text)}">Copy</button>
-        <button class="history-btn history-btn-load" data-text="${escapeAttr(item.text)}" data-mode="${item.mode}">Open in editor</button>
-        <button class="history-btn history-btn-delete" data-id="${item.id}">Delete</button>
-      </div>
+function buildCard(item) {
+  const div = document.createElement('div');
+  div.className = 'history-item';
+  div.dataset.id = item.id;
+  div.innerHTML = `
+    <div class="history-item-meta">
+      <span class="history-badge">${item.mode === 'generate' ? 'Generated' : 'Humanized'} · ${item.level}</span>
+      <span class="history-date">${formatDate(item.created_at)}</span>
     </div>
-  `).join('');
+    <p class="history-preview">${escapeHtml(item.text.slice(0, 200))}${item.text.length > 200 ? '…' : ''}</p>
+    <div class="history-actions">
+      <button class="history-btn history-btn-copy" data-text="${escapeAttr(item.text)}">Copy</button>
+      <button class="history-btn history-btn-load" data-text="${escapeAttr(item.text)}" data-mode="${item.mode}">Open in editor</button>
+      <button class="history-btn history-btn-delete" data-id="${item.id}">Delete</button>
+    </div>
+  `;
+  return div;
+}
 
-  listEl.addEventListener('click', async e => {
+function bindCardActions(container) {
+  container.addEventListener('click', async e => {
     const copyBtn   = e.target.closest('.history-btn-copy');
     const loadBtn   = e.target.closest('.history-btn-load');
     const deleteBtn = e.target.closest('.history-btn-delete');
@@ -142,14 +138,96 @@ async function loadHistory(session) {
       const id = deleteBtn.dataset.id;
       const { error } = await window.bipassAuth.client.from('results').delete().eq('id', id);
       if (!error) {
-        deleteBtn.closest('.history-item').remove();
-        const remaining = document.querySelectorAll('.history-item').length;
-        subEl.textContent = `${remaining} saved result${remaining !== 1 ? 's' : ''}`;
-        if (remaining === 0) subEl.textContent = 'No saved results yet — humanize some text first.';
+        allResults = allResults.filter(r => String(r.id) !== String(id));
+        renderFiltered();
       }
     }
   });
 }
+
+// ─── Filter + render ──────────────────────────────────────────
+
+function renderFiltered() {
+  const q = filterQuery.toLowerCase();
+  const filtered = allResults.filter(item => {
+    const modeMatch  = !filterMode || item.mode === filterMode;
+    const queryMatch = !q || item.text.toLowerCase().includes(q);
+    return modeMatch && queryMatch;
+  });
+
+  const listEl    = document.getElementById('history-list');
+  const emptyEl   = document.getElementById('history-empty-search');
+  const subEl     = document.getElementById('history-sub');
+
+  listEl.innerHTML = '';
+  filtered.forEach(item => listEl.appendChild(buildCard(item)));
+  bindCardActions(listEl);
+
+  emptyEl.classList.toggle('hidden', filtered.length > 0 || allResults.length === 0);
+
+  if (allResults.length === 0) {
+    subEl.textContent = 'No saved results yet — humanize some text first.';
+  } else if (filtered.length === allResults.length) {
+    subEl.textContent = `${allResults.length} saved result${allResults.length !== 1 ? 's' : ''}`;
+  } else {
+    subEl.textContent = `Showing ${filtered.length} of ${allResults.length} results`;
+  }
+}
+
+// ─── Load + wire controls ─────────────────────────────────────
+
+async function loadHistory(session) {
+  const subEl = document.getElementById('history-sub');
+
+  const { data, error } = await window.bipassAuth.client
+    .from('results')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { subEl.textContent = 'Failed to load history.'; return; }
+  if (!data || data.length === 0) {
+    subEl.textContent = 'No saved results yet — humanize some text first.';
+    return;
+  }
+
+  allResults = data;
+  renderFiltered();
+
+  // Show controls
+  document.getElementById('history-controls').style.display = '';
+
+  // Search input
+  const searchInput = document.getElementById('history-search');
+  const clearBtn    = document.getElementById('history-search-clear');
+
+  searchInput.addEventListener('input', () => {
+    filterQuery = searchInput.value;
+    clearBtn.classList.toggle('hidden', !filterQuery);
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderFiltered, 200);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filterQuery = '';
+    clearBtn.classList.add('hidden');
+    renderFiltered();
+    searchInput.focus();
+  });
+
+  // Mode pills
+  document.querySelectorAll('.history-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.history-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterMode = btn.dataset.mode;
+      renderFiltered();
+    });
+  });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────
 
 function formatDate(str) {
   return new Date(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });

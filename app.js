@@ -354,10 +354,19 @@ function restoreState() {
 
 function bindEvents() {
   inputText.addEventListener('input', updateStats);
+  inputText.addEventListener('paste', () => setTimeout(updateStats, 0));
+
   promptText.addEventListener('input', () => {
     const w = countWords(promptText.value);
     promptWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
     updateCostPreview('generate-cost', estimateGenerateCost(promptText.value));
+  });
+  promptText.addEventListener('paste', () => {
+    setTimeout(() => {
+      const w = countWords(promptText.value);
+      promptWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
+      updateCostPreview('generate-cost', estimateGenerateCost(promptText.value));
+    }, 0);
   });
 
   pills.forEach(pill => {
@@ -627,6 +636,17 @@ function estimateGenerateCost(prompt) {
 function updateCostPreview(elId, chars) {
   const el = document.getElementById(elId);
   if (!el) return;
+  if (chars === null && elId === 'generate-cost') {
+    const hasText = document.getElementById('prompt-text')?.value.trim();
+    if (hasText) {
+      el.textContent = 'cost varies with output length';
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+      el.textContent = '';
+    }
+    return;
+  }
   if (!chars) { el.classList.add('hidden'); el.textContent = ''; return; }
   el.textContent = `≈ ${chars.toLocaleString()} credits`;
   el.classList.remove('hidden');
@@ -744,7 +764,7 @@ async function generateNew() {
     sessionStorage.setItem('bipass_mode', 'generate');
     window.location.href = 'editor.html';
   } catch (err) {
-    if (err.name === 'AbortError') return;
+    if (err.name === 'AbortError' || err.name === 'CreditError') return;
     setLoading(false);
     showToast(err.message || 'Something went wrong');
     setStatus('Error');
@@ -768,7 +788,7 @@ async function humanize() {
     sessionStorage.setItem('bipass_mode', 'humanize');
     window.location.href = 'editor.html';
   } catch (err) {
-    if (err.name === 'AbortError') return;
+    if (err.name === 'AbortError' || err.name === 'CreditError') return;
     setLoading(false);
     showToast(err.message || 'Something went wrong');
     setStatus('Error');
@@ -802,8 +822,11 @@ async function callAPIStream(prompt) {
   });
 
   if (res.status === 402) {
-    showToast('No credits remaining — visit Plans to get more');
-    throw new Error('No credits remaining');
+    const data = await res.json().catch(() => ({}));
+    const msg = data.error || 'No credits remaining';
+    setLoading(false);
+    showToast(msg + ' — visit Plans');
+    throw Object.assign(new Error(msg), { name: 'CreditError' });
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -814,6 +837,7 @@ async function callAPIStream(prompt) {
   const decoder = new TextDecoder();
   const credEl = document.getElementById('loading-credits');
   let buffer = '';
+  let accumulated = '';
   let finalResult = null;
   let creditsData = null;
 
@@ -830,6 +854,7 @@ async function callAPIStream(prompt) {
       try {
         const json = JSON.parse(line.slice(6));
         if (json.error) throw new Error(json.error);
+        if (json.chunk) accumulated += json.chunk;
         if (json.done) {
           finalResult = json.result;
           creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };
@@ -841,7 +866,10 @@ async function callAPIStream(prompt) {
     }
   }
 
-  if (!finalResult) throw new Error('No output received');
+  if (!finalResult) {
+    if (accumulated.trim()) finalResult = accumulated.trim();
+    else throw new Error('No output received');
+  }
   if (creditsData) updateCreditDisplay(creditsData.creditsUsed, creditsData.creditsRemaining);
   return finalResult;
 }

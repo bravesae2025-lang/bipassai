@@ -330,8 +330,8 @@ function restoreState() {
 
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
   const savedInput  = sessionStorage.getItem('bipass_input');
-  if (savedPrompt) promptText.value = savedPrompt;
-  if (savedInput)  inputText.value  = savedInput;
+  if (savedPrompt) { promptText.value = savedPrompt; updateCostPreview('generate-cost', estimateGenerateCost(savedPrompt)); }
+  if (savedInput)  { inputText.value  = savedInput;  updateCostPreview('humanize-cost', savedInput.length || null); }
 
   for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
     const saved = parseInt(sessionStorage.getItem(`bipass_m_${type}`) || '0');
@@ -357,6 +357,7 @@ function bindEvents() {
   promptText.addEventListener('input', () => {
     const w = countWords(promptText.value);
     promptWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
+    updateCostPreview('generate-cost', estimateGenerateCost(promptText.value));
   });
 
   pills.forEach(pill => {
@@ -616,12 +617,28 @@ function countWords(val) {
   return val.trim() === '' ? 0 : val.trim().split(/\s+/).length;
 }
 
+function estimateGenerateCost(prompt) {
+  const match = prompt.match(/(\d[\d,]*)[- ]word/i);
+  if (!match) return null;
+  const words = parseInt(match[1].replace(/,/g, ''));
+  return Math.round(words * 5);
+}
+
+function updateCostPreview(elId, chars) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!chars) { el.classList.add('hidden'); el.textContent = ''; return; }
+  el.textContent = `≈ ${chars.toLocaleString()} credits`;
+  el.classList.remove('hidden');
+}
+
 function updateStats() {
   const val   = inputText.value;
   const words = countWords(val);
   charCount.textContent  = val.length.toLocaleString();
   wordCount.textContent  = words.toLocaleString();
   humanizeWc.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  updateCostPreview('humanize-cost', val.length || null);
 }
 
 // ─── Build prompts ────────────────────────────────────────────
@@ -716,6 +733,7 @@ async function generateNew() {
   const prompt = promptText.value.trim();
   if (!prompt) { showToast('Enter a prompt first'); promptText.focus(); return; }
 
+  updateCostPreview('generate-cost', null);
   saveState('generate');
   setLoading(true, 'Generating your text…');
 
@@ -739,6 +757,7 @@ async function humanize() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
+  updateCostPreview('humanize-cost', null);
   saveState('humanize');
   setLoading(true, 'Humanizing your text…');
 

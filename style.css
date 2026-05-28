@@ -5963,3 +5963,13 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .welcome-note a { color: var(--g400); text-decoration: underline; }
 .welcome-note a:hover { color: var(--black); }
+
+/* Credit cost preview */
+.cost-preview {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+  letter-spacing: 0.04em;
+  padding: 0 2px 8px;
+}
+.cost-preview.hidden { display: none; }

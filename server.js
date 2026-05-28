@@ -319,7 +319,7 @@ app.post('/api/stream', async (req, res) => {
           const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
           if (text) {
             fullText += text;
-            res.write(`data: ${JSON.stringify({ chars: fullText.length })}\n\n`);
+            res.write(`data: ${JSON.stringify({ chunk: text, chars: fullText.length })}\n\n`);
           }
         } catch {}
       }

@@ -260,14 +260,58 @@ async function copyText() {
 
 // ─── Edit with AI ─────────────────────────────────────────────
 
+async function callEditorStream(prompt) {
+  const token = await window.bipassAuth.getToken();
+  const res = await fetch('/api/stream', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body:    JSON.stringify({ prompt }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `Error ${res.status}`);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '', accumulated = '', finalResult = null;
+  editorTextarea.value = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const json = JSON.parse(line.slice(6));
+        if (json.error) throw new Error(json.error);
+        if (json.chunk) {
+          accumulated += json.chunk;
+          editorTextarea.value = accumulated;
+          editorTextarea.scrollTop = editorTextarea.scrollHeight;
+          updateWc();
+        }
+        if (json.done) finalResult = json.result;
+      } catch (e) {
+        if (e.message !== 'Unexpected end of JSON input') throw e;
+      }
+    }
+  }
+  return finalResult || accumulated.trim();
+}
+
 async function editWithAI() {
-  const text       = editorTextarea.value.trim();
+  const text        = editorTextarea.value.trim();
   const instruction = aiPromptInput.value.trim();
-  if (!text) { showToast('Nothing to edit'); return; }
+  if (!text)        { showToast('Nothing to edit'); return; }
   if (!instruction) { showToast('Tell the AI what to change'); aiPromptInput.focus(); return; }
 
-  closePromptBox();
-  setLoading(true);
+  const origHtml = aiPromptApply.innerHTML;
+  aiPromptApply.disabled  = true;
+  aiPromptInput.disabled  = true;
+  aiPromptApply.textContent = 'Editing…';
+  copyBtn.disabled = true;
 
   const prompt = `The user wants to edit the following text. Their instruction: "${instruction}"
 
@@ -277,15 +321,21 @@ Text:
 ${text}`;
 
   try {
-    const result = await callAPI(prompt);
+    const result = await callEditorStream(prompt);
     editorTextarea.value = result;
     sessionStorage.setItem('bipass_result', result);
     updateWc();
+    aiPromptInput.value = '';
     showToast('Done');
   } catch (err) {
+    editorTextarea.value = text;
+    updateWc();
     showToast(err.message || 'Something went wrong');
   } finally {
-    setLoading(false);
+    aiPromptApply.disabled = false;
+    aiPromptInput.disabled = false;
+    aiPromptApply.innerHTML = origHtml;
+    copyBtn.disabled = false;
   }
 }
 
@@ -368,30 +418,10 @@ function buildHumanizePrompt(text, level, grammar, punct) {
   return prompt;
 }
 
-// ─── API call ─────────────────────────────────────────────────
-
-async function callAPI(prompt) {
-  const res = await fetch('/api/humanize', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ prompt }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error || `Server error ${res.status}`);
-  }
-
-  const data = await res.json();
-  if (!data?.result) throw new Error('No output from server');
-  return data.result;
-}
-
 // ─── Loading overlay ──────────────────────────────────────────
 
 function setLoading(on) {
-  editAiBtn.disabled = on;
-  copyBtn.disabled   = on;
+  copyBtn.disabled        = on;
   editorTextarea.disabled = on;
   if (on) loadingOverlay.classList.add('visible');
   else    loadingOverlay.classList.remove('visible');

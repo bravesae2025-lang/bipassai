@@ -4612,8 +4612,7 @@ body.drawer-lock { overflow: hidden; }
 .col-my-style-box.my-style-active {
   opacity: 1;
   cursor: default;
-  border-color: var(--black);
-  border-width: 2px;
+  border-color: rgba(0,0,0,0.12);
   transform: translateY(-8px) scale(1.015);
   box-shadow:
     0 2px 4px rgba(0,0,0,0.10),

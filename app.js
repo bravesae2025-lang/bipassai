@@ -108,9 +108,11 @@ Return only the written text, nothing else.`,
 
 // ─── State ────────────────────────────────────────────────────
 
-let selectedLevel         = 'easy';
-let myStyleActive         = false;
-let savedStyle            = null; // { style_summary, style_prompt }
+let selectedLevel          = 'easy';
+let myStyleActive          = false;
+let savedStyle             = null; // points to the active style in savedStyles
+let savedStyles            = [];   // array of {id, name, style_summary, style_prompt}
+let activeStyleId          = null;
 let currentAbortController = null;
 
 // ─── Elements ─────────────────────────────────────────────────
@@ -146,11 +148,7 @@ const analyzeStyleBtn  = document.getElementById('analyze-style-btn');
 const analyzeLabel     = document.getElementById('analyze-label');
 const analyzeLoader    = document.getElementById('analyze-loader');
 const myStyleInputs    = document.getElementById('my-style-inputs');
-const myStyleCard      = document.getElementById('my-style-card');
-const myStyleSummary   = document.getElementById('my-style-summary');
-const useMyStyleBtn    = document.getElementById('use-my-style-btn');
-const reanalyzeLink    = document.getElementById('reanalyze-link');
-const styleNameInput   = document.getElementById('style-name-input');
+const styleCardsList   = document.getElementById('style-cards-list');
 
 // ─── Nav user ─────────────────────────────────────────────────
 
@@ -424,17 +422,6 @@ function bindEvents() {
   });
 
   analyzeStyleBtn.addEventListener('click', analyzeStyle);
-  useMyStyleBtn.addEventListener('click', () => {
-    if (myStyleActive) deactivateMyStyle();
-    else activateMyStyle();
-  });
-  reanalyzeLink.addEventListener('click', () => {
-    myStyleCard.style.display = 'none';
-    myStyleInputs.style.display = '';
-  });
-  styleNameInput?.addEventListener('input', () => {
-    localStorage.setItem('bipass_style_name', styleNameInput.value.trim());
-  });
 }
 
 // ─── Level selection ──────────────────────────────────────────
@@ -453,7 +440,6 @@ function selectLevel(level) {
 
 function activateMyStyle() {
   myStyleActive = !!savedStyle;
-  if (useMyStyleBtn) useMyStyleBtn.classList.toggle('active', !!savedStyle);
   colCustomize?.classList.add('col-dimmed');
   colCustomize?.classList.remove('col-active');
   myStyleBox?.classList.add('my-style-active');
@@ -462,7 +448,6 @@ function activateMyStyle() {
 
 function deactivateMyStyle() {
   myStyleActive = false;
-  if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
   colCustomize?.classList.remove('col-dimmed');
   colCustomize?.classList.add('col-active');
   myStyleBox?.classList.remove('my-style-active');
@@ -471,12 +456,19 @@ function deactivateMyStyle() {
 
 let styleTraitSaveTimer = null;
 
+function saveStoredStyles() {
+  try {
+    localStorage.setItem('bipass_styles_v1', JSON.stringify({ styles: savedStyles, activeId: activeStyleId }));
+  } catch (_) {}
+}
+
 function saveStyleTraits() {
+  saveStoredStyles();
   clearTimeout(styleTraitSaveTimer);
   styleTraitSaveTimer = setTimeout(async () => {
     try {
       const session = await window.bipassAuth.getSession();
-      if (!session) return;
+      if (!session || !savedStyle) return;
       await window.bipassAuth.client.from('user_styles').upsert({
         user_id:       session.user.id,
         style_summary: savedStyle.style_summary,
@@ -513,44 +505,161 @@ function traitIntensityLabel(val) {
   return 'Heavy';
 }
 
-function showMyStyleCard() {
-  myStyleInputs.style.display = 'none';
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
+function renderTraitSliders(container, style) {
+  const prevSaved = savedStyle;
+  savedStyle = style;
   const traits = getTraits();
+  savedStyle = prevSaved;
 
-  myStyleSummary.innerHTML = `<div class="style-trait-rows">${
+  container.innerHTML = `<div class="style-trait-rows">${
     traits.map((t, i) => `
       <div class="style-trait-row">
         <div class="trait-slider-head">
-          <span class="style-trait-name">${t.name}</span>
+          <span class="style-trait-name">${escapeHtml(t.name)}</span>
           <span class="trait-slider-val">${traitIntensityLabel(t.intensity)}</span>
         </div>
         <input class="trait-slider" type="range" min="0" max="10" step="1"
-               value="${t.intensity}" data-trait-idx="${i}">
+               value="${t.intensity}" data-trait-idx="${i}" data-sid="${escapeHtml(style.id)}">
       </div>`).join('')
   }</div>`;
 
-  // Init fill + bind events
-  myStyleSummary.querySelectorAll('.trait-slider').forEach(slider => {
+  container.querySelectorAll('.trait-slider').forEach(slider => {
     updateSliderFill(slider);
     slider.addEventListener('input', () => {
+      const sid = slider.dataset.sid;
+      const s = savedStyles.find(x => x.id === sid);
+      if (!s) return;
+      const prevSaved2 = savedStyle;
+      savedStyle = s;
+      const currentTraits = getTraits();
+      savedStyle = prevSaved2;
       const idx = parseInt(slider.dataset.traitIdx);
       const val = parseInt(slider.value);
       slider.previousElementSibling.querySelector('.trait-slider-val').textContent = traitIntensityLabel(val);
       updateSliderFill(slider);
-      const traits = getTraits();
-      traits[idx].intensity = val;
-      savedStyle.style_summary = JSON.stringify(traits);
+      currentTraits[idx].intensity = val;
+      s.style_summary = JSON.stringify(currentTraits);
+      if (s.id === activeStyleId) savedStyle = s;
       saveStyleTraits();
     });
   });
+}
 
-  myStyleCard.style.display = '';
-  if (styleNameInput) styleNameInput.value = localStorage.getItem('bipass_style_name') || '';
-  if (myStyleActive) useMyStyleBtn.classList.add('active');
+function renderStyleList() {
+  myStyleInputs.style.display = 'none';
+  styleCardsList.style.display = 'flex';
+
+  styleCardsList.innerHTML = savedStyles.map(style => {
+    const isActive = style.id === activeStyleId;
+    return `
+      <div class="style-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
+        <div class="style-card-header">
+          <input class="style-card-name" type="text"
+                 value="${escapeHtml(style.name || '')}"
+                 placeholder="Name this style…" maxlength="30" />
+          <div class="style-card-btns">
+            <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}">
+              ${isActive ? 'Active' : 'Use'}
+            </button>
+            <button class="style-delete-btn" data-id="${escapeHtml(style.id)}">✕</button>
+          </div>
+        </div>
+        <details class="style-details">
+          <summary class="style-details-toggle">View details</summary>
+          <div class="style-details-body" data-id="${escapeHtml(style.id)}"></div>
+        </details>
+      </div>`;
+  }).join('') + `<button class="create-another-btn" id="create-another-btn">+ Create another style</button>`;
+
+  styleCardsList.querySelectorAll('.style-card-name').forEach(input => {
+    input.addEventListener('input', () => {
+      const id = input.closest('[data-id]').dataset.id;
+      const s = savedStyles.find(x => x.id === id);
+      if (s) { s.name = input.value; saveStoredStyles(); }
+    });
+  });
+
+  styleCardsList.querySelectorAll('.style-use-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) return;
+      const id = btn.dataset.id;
+      activeStyleId = id;
+      savedStyle = savedStyles.find(s => s.id === id) || null;
+      saveStoredStyles();
+      renderStyleList();
+      activateMyStyle();
+    });
+  });
+
+  styleCardsList.querySelectorAll('.style-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      savedStyles = savedStyles.filter(s => s.id !== id);
+      if (activeStyleId === id) {
+        activeStyleId = savedStyles[0]?.id || null;
+        savedStyle = savedStyles[0] || null;
+      }
+      saveStoredStyles();
+      if (savedStyles.length === 0) {
+        deactivateMyStyle();
+        styleCardsList.style.display = 'none';
+        myStyleInputs.style.display = '';
+      } else {
+        renderStyleList();
+      }
+    });
+  });
+
+  styleCardsList.querySelectorAll('.style-details').forEach(details => {
+    details.addEventListener('toggle', () => {
+      if (!details.open) return;
+      const body = details.querySelector('.style-details-body');
+      if (body.innerHTML.trim()) return;
+      const id = body.dataset.id;
+      const s = savedStyles.find(x => x.id === id);
+      if (s) renderTraitSliders(body, s);
+    });
+  });
+
+  document.getElementById('create-another-btn')?.addEventListener('click', () => {
+    styleCardsList.style.display = 'none';
+    myStyleInputs.style.display = '';
+    if (!document.getElementById('back-to-styles-btn')) {
+      const backBtn = document.createElement('button');
+      backBtn.id = 'back-to-styles-btn';
+      backBtn.className = 'reanalyze-link';
+      backBtn.style.marginTop = '6px';
+      backBtn.textContent = '← Back to styles';
+      backBtn.addEventListener('click', () => { backBtn.remove(); renderStyleList(); });
+      myStyleInputs.appendChild(backBtn);
+    }
+  });
 }
 
 async function loadSavedStyle(session) {
+  // Load from localStorage first
+  try {
+    const raw = localStorage.getItem('bipass_styles_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      savedStyles = Array.isArray(parsed.styles) ? parsed.styles : [];
+      activeStyleId = parsed.activeId || null;
+      savedStyle = savedStyles.find(s => s.id === activeStyleId) || savedStyles[0] || null;
+      if (savedStyle && !activeStyleId) activeStyleId = savedStyle.id;
+    }
+  } catch (_) {}
+
+  if (savedStyles.length > 0) {
+    renderStyleList();
+    if (myStyleActive && savedStyle) activateMyStyle();
+    return;
+  }
+
+  // Fallback: migrate legacy single style from Supabase
   try {
     const { data } = await window.bipassAuth.client
       .from('user_styles')
@@ -558,8 +667,12 @@ async function loadSavedStyle(session) {
       .eq('user_id', session.user.id)
       .single();
     if (data) {
-      savedStyle = data;
-      showMyStyleCard();
+      const id = Date.now().toString();
+      savedStyles = [{ id, name: '', style_summary: data.style_summary, style_prompt: data.style_prompt }];
+      activeStyleId = id;
+      savedStyle = savedStyles[0];
+      saveStoredStyles();
+      renderStyleList();
       if (myStyleActive) activateMyStyle();
     }
   } catch (_) {}
@@ -618,8 +731,18 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
       typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 }
     );
 
-    savedStyle = { style_summary: JSON.stringify(normTraits), style_prompt: json.style_prompt };
-    showMyStyleCard();
+    const newStyle = {
+      id: Date.now().toString(),
+      name: '',
+      style_summary: JSON.stringify(normTraits),
+      style_prompt: json.style_prompt,
+    };
+    savedStyles.push(newStyle);
+    activeStyleId = newStyle.id;
+    savedStyle = newStyle;
+    saveStoredStyles();
+    document.getElementById('back-to-styles-btn')?.remove();
+    renderStyleList();
     showToast('Style analyzed');
 
     try {

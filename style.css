@@ -1837,9 +1837,6 @@ body.editor-page { background: var(--bg); }
   background: linear-gradient(160deg, #1c1c1c 0%, #0d0d0d 100%);
   border: 1px solid rgba(255,255,255,0.07);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 0 -1px 0 rgba(0,0,0,0.5),
-    inset 1px 0 0 rgba(255,255,255,0.04),
     0 1px 2px rgba(0,0,0,0.25),
     0 4px 8px rgba(0,0,0,0.22),
     0 16px 32px rgba(0,0,0,0.28),
@@ -1858,9 +1855,6 @@ body.editor-page { background: var(--bg); }
 .col-customize.col-active:hover {
   transform: translateY(-8px) scale(1.015);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -1px 0 rgba(0,0,0,0.5),
-    inset 1px 0 0 rgba(255,255,255,0.06),
     0 4px 16px rgba(0,0,0,0.28),
     0 16px 48px rgba(0,0,0,0.30);
 }
@@ -5901,6 +5895,124 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .style-details[open] .style-details-toggle::before { transform: rotate(90deg); }
 .style-details-toggle:hover { color: var(--black); }
 .style-details-body { padding: 4px 0 4px; }
+
+/* ── Multi-style cards ─────────────────────────────────────────── */
+#style-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.style-card {
+  border: 1px solid var(--g150);
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: #fafaf9;
+  transition: border-color 0.2s, background 0.2s;
+}
+.style-card-active {
+  background: var(--black);
+  border-color: var(--black);
+}
+
+.style-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.style-card-name {
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  background: transparent;
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.style-card-active .style-card-name { color: #fff; }
+.style-card-name:focus { border-bottom-color: var(--g200); }
+.style-card-active .style-card-name:focus { border-bottom-color: rgba(255,255,255,0.3); }
+.style-card-name::placeholder { color: var(--g300); font-weight: 400; }
+.style-card-active .style-card-name::placeholder { color: rgba(255,255,255,0.3); }
+
+.style-card-btns { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+.style-use-btn {
+  padding: 3px 10px;
+  font-family: var(--ff-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--g400);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.style-use-btn:hover { background: var(--black); color: #fff; border-color: var(--black); }
+.style-use-btn.active {
+  background: #fff;
+  color: var(--black);
+  border-color: rgba(255,255,255,0.3);
+  cursor: default;
+}
+
+.style-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--g200);
+  font-size: 11px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.style-delete-btn:hover { color: var(--black); }
+.style-card-active .style-delete-btn { color: rgba(255,255,255,0.25); }
+.style-card-active .style-delete-btn:hover { color: #fff; }
+
+/* style-details inside a style-card */
+.style-card .style-details { margin: 4px 0 0; }
+.style-card-active .style-details-toggle { color: rgba(255,255,255,0.5); }
+.style-card-active .style-details-toggle:hover { color: rgba(255,255,255,0.85); }
+.style-card-active .style-trait-name { color: rgba(255,255,255,0.7); }
+.style-card-active .trait-slider-val { color: rgba(255,255,255,0.6); }
+.style-card-active .trait-slider {
+  background: linear-gradient(to right,
+    #fff 0%, #fff var(--pct, 100%),
+    rgba(255,255,255,0.2) var(--pct, 100%), rgba(255,255,255,0.2) 100%
+  );
+}
+.style-card-active .trait-slider::-webkit-slider-thumb {
+  background: #fff;
+  box-shadow: 0 0 0 1.5px #fff;
+  border-color: var(--black);
+}
+
+.create-another-btn {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g400);
+  background: none;
+  border: 1px dashed var(--g150);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+.create-another-btn:hover { color: var(--black); border-color: var(--black); }
 
 /* Reset mint-btn for white inset — overrides .col-customize .mint-btn dark styles */
 .col-my-style-box .mint-btn {

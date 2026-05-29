@@ -351,8 +351,10 @@ function restoreState() {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
   if (myStyleActive) {
-    if (colCustomize) { colCustomize.style.opacity = '0.3'; colCustomize.style.transition = 'opacity 0.25s ease'; }
+    colCustomize?.classList.add('col-dimmed');
     myStyleBox?.classList.add('my-style-active');
+  } else {
+    colCustomize?.classList.add('col-active');
   }
 }
 
@@ -392,12 +394,12 @@ function bindEvents() {
   generateBtn.addEventListener('click', generateNew);
   humanizeBtn.addEventListener('click', humanize);
 
-  // Click anywhere on My Style box → activate; click level controls → deactivate
+  // Mutually exclusive toggle: clicking one pops it out and dims the other
   myStyleBox?.addEventListener('click', () => {
-    if (!colCustomize?.classList.contains('my-style-active')) activateMyStyle();
+    if (!myStyleBox.classList.contains('my-style-active')) activateMyStyle();
   });
   colCustomize?.addEventListener('click', () => {
-    if (myStyleActive) deactivateMyStyle();
+    if (!colCustomize.classList.contains('col-active')) deactivateMyStyle();
   });
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
@@ -448,7 +450,8 @@ function selectLevel(level) {
 function activateMyStyle() {
   myStyleActive = !!savedStyle;
   if (useMyStyleBtn) useMyStyleBtn.classList.toggle('active', !!savedStyle);
-  if (colCustomize) { colCustomize.style.opacity = '0.3'; colCustomize.style.transition = 'opacity 0.25s ease'; }
+  colCustomize?.classList.add('col-dimmed');
+  colCustomize?.classList.remove('col-active');
   myStyleBox?.classList.add('my-style-active');
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
 }
@@ -456,7 +459,8 @@ function activateMyStyle() {
 function deactivateMyStyle() {
   myStyleActive = false;
   if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
-  if (colCustomize) { colCustomize.style.opacity = ''; colCustomize.style.transition = ''; }
+  colCustomize?.classList.remove('col-dimmed');
+  colCustomize?.classList.add('col-active');
   myStyleBox?.classList.remove('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'false');
 }

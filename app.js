@@ -139,6 +139,7 @@ const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText    = document.getElementById('loading-text');
 const levelTrack     = document.querySelector('.level-track');
 const colCustomize   = document.querySelector('.col-customize');
+const myStyleBox     = document.getElementById('my-style-block');
 const sampleContainer  = document.getElementById('sample-container');
 const addSampleBtn     = document.getElementById('add-sample-btn');
 const analyzeStyleBtn  = document.getElementById('analyze-style-btn');
@@ -349,7 +350,10 @@ function restoreState() {
   } else {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
-  if (myStyleActive) colCustomize?.classList.add('my-style-active');
+  if (myStyleActive) {
+    colCustomize?.classList.add('my-style-active');
+    myStyleBox?.classList.add('my-style-active');
+  }
 }
 
 // ─── Events ───────────────────────────────────────────────────
@@ -387,6 +391,14 @@ function bindEvents() {
 
   generateBtn.addEventListener('click', generateNew);
   humanizeBtn.addEventListener('click', humanize);
+
+  // Click anywhere on My Style box → activate; click level controls → deactivate
+  myStyleBox?.addEventListener('click', () => {
+    if (savedStyle && !myStyleActive) activateMyStyle();
+  });
+  colCustomize?.addEventListener('click', () => {
+    if (myStyleActive) deactivateMyStyle();
+  });
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
@@ -438,6 +450,7 @@ function activateMyStyle() {
   myStyleActive = true;
   useMyStyleBtn.classList.add('active');
   colCustomize?.classList.add('my-style-active');
+  myStyleBox?.classList.add('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'true');
 }
 
@@ -445,6 +458,7 @@ function deactivateMyStyle() {
   myStyleActive = false;
   if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
   colCustomize?.classList.remove('my-style-active');
+  myStyleBox?.classList.remove('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 

@@ -4507,22 +4507,33 @@ body.drawer-lock { overflow: hidden; }
 }
 .reanalyze-link:hover { color: var(--black); }
 
-/* ── My Style active state ───────────────────────────────────── */
-.col-customize.my-style-active .control-block {
-  opacity: 0.3;
+/* ── My Style separate panel ─────────────────────────────────── */
+.col-my-style-box {
+  background: #fff;
+  border: 1px solid var(--g150);
+  border-radius: 14px;
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.col-my-style-box:hover:not(.my-style-active) { opacity: 0.8; }
+.col-my-style-box.my-style-active {
+  opacity: 1;
+  cursor: default;
+  border-color: var(--black);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+}
+.col-my-style-box .col-name { color: var(--black); font-size: 13px; }
+
+/* ── My Style active state — dim level controls ───────────────── */
+.col-customize.my-style-active {
+  opacity: 0.45;
   pointer-events: none;
   transition: opacity 0.25s ease;
-}
-.col-customize.my-style-active .level-presets-label,
-.col-customize.my-style-active .level-btn-custom {
-  opacity: 0.3;
-  pointer-events: none;
-}
-.col-customize.my-style-active .my-style-inset {
-  opacity: 1 !important;
-  box-shadow: 0 -6px 20px rgba(0,0,0,0.15);
-  transform: translateY(-3px);
-  border-top: 1px solid rgba(0,0,0,0.14);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -5722,58 +5733,51 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   .howto-cta { padding: 40px 20px; border-radius: 16px; }
 }
 
-/* ── My Style inset — white sub-section inside col-customize ───── */
+/* ── My Style inset (legacy — inner styles still apply to col-my-style-box children) ── */
 .my-style-inset {
-  background: #fff;
-  margin: 0 -26px -32px;
-  padding: 20px 26px 28px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  border-radius: 0 0 15px 15px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  opacity: 0.6;
-  transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
-.my-style-inset .col-label { margin-bottom: 0; }
-.my-style-inset .col-name { color: #0d0d0d; font-size: 13px; }
-.my-style-inset .style-sample-textarea {
+.col-my-style-box .col-label { margin-bottom: 0; }
+.col-my-style-box .col-name { color: #0d0d0d; font-size: 13px; }
+.col-my-style-box .style-sample-textarea {
   background: #f7f7f5;
   border-color: rgba(0,0,0,0.12);
   color: #0d0d0d;
 }
-.my-style-inset .style-sample-textarea::placeholder { color: #999; }
-.my-style-inset .style-sample-textarea:focus {
+.col-my-style-box .style-sample-textarea::placeholder { color: #999; }
+.col-my-style-box .style-sample-textarea:focus {
   background: #fff;
   border-color: rgba(0,0,0,0.3);
 }
-.my-style-inset .analyze-btn { background: #0d0d0d; color: #fff; }
-.my-style-inset .analyze-btn:hover { background: #2a2a2a; }
-.my-style-inset .add-sample-btn { color: #555; border-color: rgba(0,0,0,0.15); }
-.my-style-inset .add-sample-btn:hover {
+.col-my-style-box .analyze-btn { background: #0d0d0d; color: #fff; }
+.col-my-style-box .analyze-btn:hover { background: #2a2a2a; }
+.col-my-style-box .add-sample-btn { color: #555; border-color: rgba(0,0,0,0.15); }
+.col-my-style-box .add-sample-btn:hover {
   color: #0d0d0d;
   border-color: rgba(0,0,0,0.35);
   background: rgba(0,0,0,0.04);
 }
-.my-style-inset .my-style-summary { color: #555; }
-.my-style-inset .use-my-style-btn { background: #0d0d0d; color: #fff; border-color: transparent; }
-.my-style-inset .use-my-style-btn:hover { background: #2a2a2a; }
-.my-style-inset .use-my-style-btn.active { background: #0d0d0d; }
-.my-style-inset .reanalyze-link { color: #888; }
-.my-style-inset .reanalyze-link:hover { color: #0d0d0d; }
-.my-style-inset .style-trait-name { color: #555; }
+.col-my-style-box .my-style-summary { color: #555; }
+.col-my-style-box .use-my-style-btn { background: #0d0d0d; color: #fff; border-color: transparent; }
+.col-my-style-box .use-my-style-btn:hover { background: #2a2a2a; }
+.col-my-style-box .use-my-style-btn.active { background: #0d0d0d; }
+.col-my-style-box .reanalyze-link { color: #888; }
+.col-my-style-box .reanalyze-link:hover { color: #0d0d0d; }
+.col-my-style-box .style-trait-name { color: #555; }
 
 /* Reset mint-btn for white inset — overrides .col-customize .mint-btn dark styles */
-.my-style-inset .mint-btn {
+.col-my-style-box .mint-btn {
   background: transparent;
   border-color: rgba(0,0,0,0.15);
   color: var(--g400);
 }
-.my-style-inset .mint-btn:hover {
+.col-my-style-box .mint-btn:hover {
   border-color: rgba(0,0,0,0.4);
   color: var(--black);
 }
-.my-style-inset .mint-btn.active {
+.col-my-style-box .mint-btn.active {
   background: var(--black);
   color: #fff;
   border-color: var(--black);

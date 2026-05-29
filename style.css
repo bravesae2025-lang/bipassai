@@ -2586,7 +2586,7 @@ body.editor-page { background: var(--bg); }
 
 /* All 4 cards: dark gradients with white text — same 160deg angle, progressively darker */
 .pricing-card-day {
-  background: linear-gradient(160deg, #969696 0%, #747474 100%);
+  background: linear-gradient(160deg, #5e5e5e 0%, #3e3e3e 100%);
   border-color: rgba(255,255,255,0.10);
 }
 .pricing-card-day .pricing-plan    { color: rgba(255,255,255,0.5); }
@@ -2599,7 +2599,7 @@ body.editor-page { background: var(--bg); }
 }
 
 .pricing-card-weekly {
-  background: linear-gradient(160deg, #686868 0%, #464646 100%);
+  background: linear-gradient(160deg, #4e4e4e 0%, #303030 100%);
   border-color: rgba(255,255,255,0.08);
 }
 .pricing-card-weekly .pricing-plan    { color: rgba(255,255,255,0.5); }

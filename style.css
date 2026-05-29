@@ -449,7 +449,7 @@ main {
   background: transparent;
   flex: 1;
   min-height: 0;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ── Right panel wrapper — the visible rectangle section ── */
@@ -471,6 +471,7 @@ main {
     0 1px 3px rgba(0,0,0,0.05),
     0 6px 20px rgba(0,0,0,0.04),
     0 20px 60px rgba(0,0,0,0.03);
+  min-height: calc(100vh - 140px);
 }
 
 /* Drifting ambient light spot */
@@ -3222,7 +3223,8 @@ body.editor-page { background: var(--bg); }
   html { height: auto; }
   body { height: auto; min-height: 100vh; }
   .app-main { flex: none; padding: 16px 16px 48px; overflow-y: visible; }
-  .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; }
+  .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; align-items: start; }
+  .right-panel-wrap { min-height: unset; }
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }

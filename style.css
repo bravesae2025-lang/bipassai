@@ -4122,14 +4122,14 @@ body.drawer-lock { overflow: hidden; }
 
 .credits-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
 .credit-card {
   border: 1px solid var(--g150);
   border-radius: 14px;
-  padding: 22px 16px 18px;
+  padding: 32px 24px 26px;
   background: rgba(255,255,255,0.94);
   display: flex;
   flex-direction: column;
@@ -4174,7 +4174,7 @@ body.drawer-lock { overflow: hidden; }
 
 .credit-amount {
   font-family: var(--ff-display);
-  font-size: 32px;
+  font-size: 42px;
   letter-spacing: 0.01em;
   line-height: 1;
 }

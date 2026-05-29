@@ -5856,6 +5856,52 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .col-my-style-box .reanalyze-link:hover { color: #0d0d0d; }
 .col-my-style-box .style-trait-name { color: #555; }
 
+/* ── Style name input ─────────────────────────────────────────── */
+.style-name-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--ff-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--g150);
+  border-radius: 0;
+  padding: 4px 0 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.style-name-input:focus { border-bottom-color: var(--black); }
+.style-name-input::placeholder { color: var(--g300); font-weight: 400; }
+
+/* ── Style details accordion ──────────────────────────────────── */
+.style-details { margin: 4px 0 0; }
+.style-details-toggle {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g400);
+  cursor: pointer;
+  user-select: none;
+  padding: 6px 0;
+}
+.style-details-toggle::-webkit-details-marker { display: none; }
+.style-details-toggle::before {
+  content: '▶';
+  font-size: 7px;
+  transition: transform 0.18s;
+  display: inline-block;
+}
+.style-details[open] .style-details-toggle::before { transform: rotate(90deg); }
+.style-details-toggle:hover { color: var(--black); }
+.style-details-body { padding: 4px 0 4px; }
+
 /* Reset mint-btn for white inset — overrides .col-customize .mint-btn dark styles */
 .col-my-style-box .mint-btn {
   background: transparent;

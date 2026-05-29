@@ -150,6 +150,7 @@ const myStyleCard      = document.getElementById('my-style-card');
 const myStyleSummary   = document.getElementById('my-style-summary');
 const useMyStyleBtn    = document.getElementById('use-my-style-btn');
 const reanalyzeLink    = document.getElementById('reanalyze-link');
+const styleNameInput   = document.getElementById('style-name-input');
 
 // ─── Nav user ─────────────────────────────────────────────────
 
@@ -431,6 +432,9 @@ function bindEvents() {
     myStyleCard.style.display = 'none';
     myStyleInputs.style.display = '';
   });
+  styleNameInput?.addEventListener('input', () => {
+    localStorage.setItem('bipass_style_name', styleNameInput.value.trim());
+  });
 }
 
 // ─── Level selection ──────────────────────────────────────────
@@ -542,6 +546,7 @@ function showMyStyleCard() {
   });
 
   myStyleCard.style.display = '';
+  if (styleNameInput) styleNameInput.value = localStorage.getItem('bipass_style_name') || '';
   if (myStyleActive) useMyStyleBtn.classList.add('active');
 }
 

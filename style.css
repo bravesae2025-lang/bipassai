@@ -924,6 +924,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   backdrop-filter: blur(8px);
   position: relative;
   z-index: 50;
+  flex-shrink: 0;
 }
 
 .app-ticker-bar {

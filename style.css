@@ -930,6 +930,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   padding: 0;
   overflow: hidden;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .ticker-track {

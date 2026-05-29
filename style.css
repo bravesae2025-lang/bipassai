@@ -2584,10 +2584,31 @@ body.editor-page { background: var(--bg); }
 /* Narrower padding when 4 cards share the row */
 .pricing-grid .pricing-card { padding: 28px 20px 24px; }
 
-/* Gradient progression: Day (white) → Weekly (light gray gradient) → Monthly (dark gradient) → Yearly (near-black gradient) */
+/* All 4 cards: dark gradients with white text — same 160deg angle, progressively darker */
+.pricing-card-day {
+  background: linear-gradient(160deg, #969696 0%, #747474 100%);
+  border-color: rgba(255,255,255,0.10);
+}
+.pricing-card-day .pricing-plan    { color: rgba(255,255,255,0.5); }
+.pricing-card-day .pricing-price   { color: #fff; }
+.pricing-card-day .pricing-period  { color: rgba(255,255,255,0.45); }
+.pricing-card-day .pricing-features li         { color: rgba(255,255,255,0.55); }
+.pricing-card-day .pricing-features li::before { color: rgba(255,255,255,0.2); }
+.pricing-card-day:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
+}
+
 .pricing-card-weekly {
-  background: linear-gradient(160deg, #d4d4d4 0%, #b0b0b0 100%);
-  border-color: rgba(0,0,0,0.12);
+  background: linear-gradient(160deg, #686868 0%, #464646 100%);
+  border-color: rgba(255,255,255,0.08);
+}
+.pricing-card-weekly .pricing-plan    { color: rgba(255,255,255,0.5); }
+.pricing-card-weekly .pricing-price   { color: #fff; }
+.pricing-card-weekly .pricing-period  { color: rgba(255,255,255,0.45); }
+.pricing-card-weekly .pricing-features li         { color: rgba(255,255,255,0.55); }
+.pricing-card-weekly .pricing-features li::before { color: rgba(255,255,255,0.2); }
+.pricing-card-weekly:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.20), 0 2px 8px rgba(0,0,0,0.10);
 }
 
 .pricing-card-monthly {

@@ -2586,8 +2586,8 @@ body.editor-page { background: var(--bg); }
 
 /* Gradient progression: Day (white) → Weekly (light gray gradient) → Monthly (dark gradient) → Yearly (near-black gradient) */
 .pricing-card-weekly {
-  background: linear-gradient(160deg, #f0f0f0 0%, #d4d4d4 100%);
-  border-color: rgba(0,0,0,0.10);
+  background: linear-gradient(160deg, #d4d4d4 0%, #b0b0b0 100%);
+  border-color: rgba(0,0,0,0.12);
 }
 
 .pricing-card-monthly {

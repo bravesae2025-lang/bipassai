@@ -4194,6 +4194,15 @@ body.drawer-lock { overflow: hidden; }
 }
 .credit-card-best .credit-price { color: #fff; }
 
+.credit-desc {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g400);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
 .credit-btn {
   width: 100%;
   padding: 9px 0;

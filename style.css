@@ -1847,8 +1847,14 @@ body.editor-page { background: var(--bg); }
   transition: opacity 0.3s ease, transform 0.3s var(--ease-out), box-shadow 0.3s ease;
 }
 
+/* Permanently cancel data-reveal on this element so it never restarts and makes the box invisible */
+.col-customize[data-reveal] {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
 .col-customize.col-active {
-  animation: none; /* clears data-reveal forwards fill so transform can apply */
   transform: translateY(-8px) scale(1.015);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.12),

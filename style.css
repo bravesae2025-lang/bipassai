@@ -924,12 +924,14 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   position: sticky;
   top: 60px;
   z-index: 50;
+  overflow: hidden;
 }
 
 .app-ticker-bar {
   padding: 0;
   overflow: hidden;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .ticker-track {

@@ -183,9 +183,9 @@ async function saveResult(text, mode, session) {
 // ─── Typewriter ───────────────────────────────────────────────
 
 const TYPING_SPEEDS = {
-  slow:   { chars: 1, ms: 60  },
-  normal: { chars: 1, ms: 25  },
-  fast:   { chars: 2, ms: 14  },
+  slow:   { chars: 8,  ms: 16 },
+  normal: { chars: 25, ms: 10 },
+  fast:   { chars: 60, ms: 8  },
 };
 
 let typewriterStarted = false;

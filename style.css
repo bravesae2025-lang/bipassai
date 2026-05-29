@@ -2666,6 +2666,20 @@ body.editor-page { background: var(--bg); }
 
 .pricing-card-featured .pricing-period { color: rgba(255,255,255,0.45); }
 
+.pricing-save {
+  display: inline-block;
+  margin-left: 6px;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 99px;
+  vertical-align: middle;
+}
+
 .pricing-features {
   list-style: none;
   display: flex;

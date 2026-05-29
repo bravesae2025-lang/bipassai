@@ -2584,20 +2584,24 @@ body.editor-page { background: var(--bg); }
 /* Narrower padding when 4 cards share the row */
 .pricing-grid .pricing-card { padding: 28px 20px 24px; }
 
-/* Progressive color effect: Day (white) → Weekly (light gray) → Monthly (mid gray) → Yearly (black) */
+/* Progressive color effect: Day (white) → Weekly (light gray) → Monthly (dark gray) → Yearly (black) */
 .pricing-card-weekly {
-  background: #f0f0f0;
+  background: #c8c8c8;
   border-color: rgba(0,0,0,0.10);
 }
 
 .pricing-card-monthly {
-  background: #d0d0d0;
-  border-color: rgba(0,0,0,0.14);
+  background: #6a6a6a;
+  border-color: rgba(0,0,0,0.18);
 }
-.pricing-card-monthly .pricing-plan    { color: rgba(0,0,0,0.45); }
-.pricing-card-monthly .pricing-period  { color: rgba(0,0,0,0.45); }
-.pricing-card-monthly .pricing-features li         { color: rgba(0,0,0,0.55); }
-.pricing-card-monthly .pricing-features li::before { color: rgba(0,0,0,0.25); }
+.pricing-card-monthly .pricing-plan    { color: rgba(255,255,255,0.5); }
+.pricing-card-monthly .pricing-price   { color: #fff; }
+.pricing-card-monthly .pricing-period  { color: rgba(255,255,255,0.45); }
+.pricing-card-monthly .pricing-features li         { color: rgba(255,255,255,0.55); }
+.pricing-card-monthly .pricing-features li::before { color: rgba(255,255,255,0.2); }
+.pricing-card-monthly:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
+}
 
 .pricing-card-featured {
   background: var(--black);
@@ -2761,7 +2765,7 @@ body.editor-page { background: var(--bg); }
 @media (max-width: 860px) {
   .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
   .pricing-section { padding: 60px 20px 72px; }
-  .credits-grid { grid-template-columns: repeat(2, 1fr); }
+  .credits-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -4097,7 +4101,7 @@ body.drawer-lock { overflow: hidden; }
 
 .credits-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
 }
 
@@ -4348,7 +4352,7 @@ body.drawer-lock { overflow: hidden; }
 @media (max-width: 600px) {
   .plans-grid { grid-template-columns: 1fr; }
   .plans-main { padding: 40px 16px 48px; }
-  .credits-grid { grid-template-columns: 1fr 1fr; }
+  .credits-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ─────────────────────────────────────────────────────────────

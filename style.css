@@ -4507,9 +4507,22 @@ body.drawer-lock { overflow: hidden; }
 }
 .reanalyze-link:hover { color: var(--black); }
 
-.level-track.dimmed {
-  opacity: 0.35;
+/* ── My Style active state ───────────────────────────────────── */
+.col-customize.my-style-active .control-block {
+  opacity: 0.3;
   pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.col-customize.my-style-active .level-presets-label,
+.col-customize.my-style-active .level-btn-custom {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.col-customize.my-style-active .my-style-inset {
+  opacity: 1 !important;
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  border-top: 1px solid rgba(0,0,0,0.14);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -5719,6 +5732,8 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   display: flex;
   flex-direction: column;
   gap: 14px;
+  opacity: 0.6;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .my-style-inset .col-label { margin-bottom: 0; }
 .my-style-inset .col-name { color: #0d0d0d; font-size: 13px; }

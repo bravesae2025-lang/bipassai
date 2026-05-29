@@ -138,6 +138,7 @@ const workspace      = document.getElementById('workspace');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText    = document.getElementById('loading-text');
 const levelTrack     = document.querySelector('.level-track');
+const colCustomize   = document.querySelector('.col-customize');
 const sampleContainer  = document.getElementById('sample-container');
 const addSampleBtn     = document.getElementById('add-sample-btn');
 const analyzeStyleBtn  = document.getElementById('analyze-style-btn');
@@ -348,6 +349,7 @@ function restoreState() {
   } else {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
+  if (myStyleActive) colCustomize?.classList.add('my-style-active');
 }
 
 // ─── Events ───────────────────────────────────────────────────
@@ -435,14 +437,14 @@ function activateMyStyle() {
   if (!savedStyle) return;
   myStyleActive = true;
   useMyStyleBtn.classList.add('active');
-  levelTrack.classList.add('dimmed');
+  colCustomize?.classList.add('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'true');
 }
 
 function deactivateMyStyle() {
   myStyleActive = false;
   if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
-  if (levelTrack) levelTrack.classList.remove('dimmed');
+  colCustomize?.classList.remove('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 

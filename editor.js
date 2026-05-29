@@ -188,12 +188,15 @@ const TYPING_SPEEDS = {
   fast:   { chars: 60, ms: 8  },
 };
 
+/* Result page always uses max speed — the saved preference is for the
+   extension auto-typer, not this display animation */
+const RESULT_SPEED = { chars: 120, ms: 6 };
+
 let typewriterStarted = false;
 let typewriterInterval = null;
 
 function getTypingSpeed() {
-  const saved = localStorage.getItem('bipass_pref_speed') || 'fast';
-  return TYPING_SPEEDS[saved] || TYPING_SPEEDS.fast;
+  return RESULT_SPEED;
 }
 
 function typewriter(text) {

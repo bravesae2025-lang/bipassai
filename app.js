@@ -351,7 +351,7 @@ function restoreState() {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
   if (myStyleActive) {
-    colCustomize?.classList.add('my-style-active');
+    if (colCustomize) { colCustomize.style.opacity = '0.3'; colCustomize.style.transition = 'opacity 0.25s ease'; }
     myStyleBox?.classList.add('my-style-active');
   }
 }
@@ -448,7 +448,7 @@ function selectLevel(level) {
 function activateMyStyle() {
   myStyleActive = !!savedStyle;
   if (useMyStyleBtn) useMyStyleBtn.classList.toggle('active', !!savedStyle);
-  colCustomize?.classList.add('my-style-active');
+  if (colCustomize) { colCustomize.style.opacity = '0.3'; colCustomize.style.transition = 'opacity 0.25s ease'; }
   myStyleBox?.classList.add('my-style-active');
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
 }
@@ -456,7 +456,7 @@ function activateMyStyle() {
 function deactivateMyStyle() {
   myStyleActive = false;
   if (useMyStyleBtn) useMyStyleBtn.classList.remove('active');
-  colCustomize?.classList.remove('my-style-active');
+  if (colCustomize) { colCustomize.style.opacity = ''; colCustomize.style.transition = ''; }
   myStyleBox?.classList.remove('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'false');
 }

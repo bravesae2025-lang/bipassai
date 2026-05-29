@@ -1865,6 +1865,9 @@ body.editor-page { background: var(--bg); }
     0 40px 80px rgba(0,0,0,0.40),
     0 80px 160px rgba(0,0,0,0.30);
 }
+.col-customize.col-active:hover {
+  transform: translateY(-8px) scale(1.015);
+}
 
 .col-customize.col-dimmed {
   opacity: 0.28;

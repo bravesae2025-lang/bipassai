@@ -461,20 +461,16 @@ main {
   100% { transform: translate(0%,   0%)  scale(1);    }
 }
 
-.page-right-section-bg {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: clamp(368px, 38vw, 512px);
+/* Right panel wrapper — bg section lives here, auto-matches grid column width */
+.right-panel-wrap {
+  position: relative;
+  padding: 16px;
   background: linear-gradient(160deg, #f5f5f3 0%, #ececea 100%);
   border-left: 1px solid rgba(0,0,0,0.07);
-  z-index: 0;
-  pointer-events: none;
 }
 
 /* Drifting ambient glow */
-.page-right-section-bg::before {
+.right-panel-wrap::before {
   content: '';
   position: absolute;
   width: 70%;
@@ -485,10 +481,11 @@ main {
   border-radius: 50%;
   animation: panel-glow-drift 18s ease-in-out infinite;
   pointer-events: none;
+  z-index: 0;
 }
 
 /* Soft left-edge fade into page background */
-.page-right-section-bg::after {
+.right-panel-wrap::after {
   content: '';
   position: absolute;
   top: 0;
@@ -499,13 +496,9 @@ main {
   pointer-events: none;
 }
 
-/* Right panel wrapper — transparent, just structural spacing */
-.right-panel-wrap {
-  position: relative;
-  padding: 16px;
-}
-
 .right-panel {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -3217,7 +3210,8 @@ body.editor-page { background: var(--bg); }
   body { height: auto; min-height: 100vh; }
   .app-main { flex: none; padding: 16px 16px 48px; overflow-y: visible; }
   .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; align-items: start; }
-  .page-right-section-bg { display: none; }
+  .right-panel-wrap { background: transparent; border-left: none; }
+  .right-panel-wrap::before, .right-panel-wrap::after { display: none; }
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }

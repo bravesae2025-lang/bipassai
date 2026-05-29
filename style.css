@@ -461,16 +461,21 @@ main {
   100% { transform: translate(0%,   0%)  scale(1);    }
 }
 
-/* Right panel wrapper — bg section lives here, auto-matches grid column width */
-.right-panel-wrap {
-  position: relative;
-  padding: 16px;
+/* Fixed full-height right section background */
+.page-right-section-bg {
+  position: fixed;
+  top: 52px;
+  right: 0;
+  bottom: 0;
+  width: 508px;
   background: linear-gradient(160deg, #f5f5f3 0%, #ececea 100%);
-  border-left: 1px solid rgba(0,0,0,0.07);
+  border-left: 1px solid #000;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Drifting ambient glow */
-.right-panel-wrap::before {
+.page-right-section-bg::before {
   content: '';
   position: absolute;
   width: 70%;
@@ -481,11 +486,10 @@ main {
   border-radius: 50%;
   animation: panel-glow-drift 18s ease-in-out infinite;
   pointer-events: none;
-  z-index: 0;
 }
 
 /* Soft left-edge fade into page background */
-.right-panel-wrap::after {
+.page-right-section-bg::after {
   content: '';
   position: absolute;
   top: 0;
@@ -494,6 +498,12 @@ main {
   height: 100%;
   background: linear-gradient(to right, transparent, #f5f5f3);
   pointer-events: none;
+}
+
+/* Right panel wrapper — transparent structural spacing */
+.right-panel-wrap {
+  position: relative;
+  padding: 16px;
 }
 
 .right-panel {
@@ -3018,6 +3028,9 @@ body.editor-page { background: var(--bg); }
 ───────────────────────────────────────────────────────────── */
 
 .contact-section {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
   padding: clamp(40px, 6vh, 80px) 24px clamp(48px, 7vh, 96px);
   border-top: 1px solid rgba(0,0,0,0.08);
   text-align: center;
@@ -3210,8 +3223,7 @@ body.editor-page { background: var(--bg); }
   body { height: auto; min-height: 100vh; }
   .app-main { flex: none; padding: 16px 16px 48px; overflow-y: visible; }
   .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; align-items: start; }
-  .right-panel-wrap { background: transparent; border-left: none; }
-  .right-panel-wrap::before, .right-panel-wrap::after { display: none; }
+  .page-right-section-bg { display: none; }
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }

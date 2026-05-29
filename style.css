@@ -1869,6 +1869,10 @@ body.editor-page { background: var(--bg); }
   opacity: 0.28;
   transform: translateY(0) scale(1);
 }
+.col-customize.col-dimmed:hover {
+  opacity: 0.45;
+  transform: translateY(0) scale(1);
+}
 
 .col-customize:not(.col-active):not(.col-dimmed):hover {
   transform: translateY(-3px);

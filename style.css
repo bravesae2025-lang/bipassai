@@ -964,7 +964,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 .app-main {
-  padding: 0 28px 24px;
+  padding: 16px 28px 24px;
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -5758,10 +5758,6 @@ body.drawer-lock { overflow: hidden; }
   background-size: 24px 24px;
 }
 
-/* ── 4. Ticker bar — sharper bottom line ───────────────────────── */
-.app-statsbar {
-  border-bottom: 1.5px solid rgba(0,0,0,0.1);
-}
 .ticker-item { color: #333; font-weight: 700; }
 .ticker-sep  { color: #bbb; }
 

@@ -5745,20 +5745,6 @@ body.drawer-lock { overflow: hidden; }
 }
 
 /* Subtle scan-line drifting down each white panel */
-@keyframes scan-drift {
-  from { transform: translateY(-100%); }
-  to   { transform: translateY(3000%); }
-}
-.col::before {
-  content: '';
-  position: absolute;
-  left: 0; right: 0;
-  top: 0; height: 1px;
-  background: linear-gradient(90deg, transparent 5%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.04) 60%, transparent 95%);
-  animation: scan-drift 18s linear infinite;
-  pointer-events: none;
-  z-index: 0;
-}
 
 /* ── 2. Navbar — slightly more opaque, stronger border ─────────── */
 .navbar {

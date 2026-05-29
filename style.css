@@ -2585,18 +2585,23 @@ body.editor-page { background: var(--bg); }
 .pricing-grid .pricing-card {
   padding: 28px 20px 24px;
   border: none;
-  box-shadow: 0 8px 36px rgba(0,0,0,0.30);
+  box-shadow: 0 8px 36px rgba(0,0,0,0.35), 0 0 0 1px rgba(180,180,180,0.08);
   overflow: visible;
 }
 .pricing-grid .pricing-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 56px rgba(0,0,0,0.42);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.45), 0 0 18px rgba(200,200,200,0.12);
 }
 
-/* Animated metallic silver border via ::before pseudo-element */
-@keyframes metallic-sweep {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+/* 3D chrome cylinder border — rotating conic gradient */
+@property --metallic-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes metallic-rotate {
+  to { --metallic-angle: 360deg; }
 }
 
 .pricing-grid .pricing-card::before {
@@ -2604,38 +2609,37 @@ body.editor-page { background: var(--bg); }
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  padding: 2.5px;           /* border thickness */
-  background: linear-gradient(
-    105deg,
-    #3a3a3a  0%,
-    #6e6e6e  8%,
-    #ababab 16%,
-    #d8d8d8 22%,
-    #ffffff 28%,
-    #e8e8e8 34%,
-    #b0b0b0 40%,
-    #6a6a6a 50%,
-    #4a4a4a 58%,
-    #7a7a7a 66%,
-    #b8b8b8 74%,
-    #e0e0e0 80%,
-    #ffffff 86%,
-    #d0d0d0 92%,
-    #7a7a7a 100%
+  padding: 5px;
+  background: conic-gradient(
+    from var(--metallic-angle),
+    #111     0%,
+    #555     8%,
+    #aaa    15%,
+    #e0e0e0 21%,
+    #fff    26%,
+    #e0e0e0 31%,
+    #aaa    38%,
+    #555    48%,
+    #1a1a1a 55%,
+    #444    63%,
+    #909090 72%,
+    #d8d8d8 80%,
+    #fff    86%,
+    #ccc    91%,
+    #666    96%,
+    #111   100%
   );
-  background-size: 300% 100%;
-  /* Mask punches out the interior — only the 2.5px ring stays visible */
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: metallic-sweep 3s ease-in-out infinite alternate;
+  animation: metallic-rotate 5s linear infinite;
   pointer-events: none;
 }
 
 .pricing-grid .pricing-card:hover::before {
-  animation-duration: 1.8s;
+  animation-duration: 2.5s;
 }
 
 /* All 4 cards: dark gradients with white text — same 160deg angle, progressively darker */

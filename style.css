@@ -2897,7 +2897,7 @@ body.editor-page { background: var(--bg); }
 ───────────────────────────────────────────────────────────── */
 
 .contact-section {
-  padding: 80px 24px 96px;
+  padding: clamp(40px, 6vh, 80px) 24px clamp(48px, 7vh, 96px);
   border-top: 1px solid rgba(0,0,0,0.08);
   text-align: center;
 }

@@ -394,7 +394,7 @@ function bindEvents() {
 
   // Click anywhere on My Style box → activate; click level controls → deactivate
   myStyleBox?.addEventListener('click', () => {
-    if (savedStyle && !myStyleActive) activateMyStyle();
+    if (!colCustomize?.classList.contains('my-style-active')) activateMyStyle();
   });
   colCustomize?.addEventListener('click', () => {
     if (myStyleActive) deactivateMyStyle();
@@ -446,12 +446,11 @@ function selectLevel(level) {
 // ─── My Style ─────────────────────────────────────────────────
 
 function activateMyStyle() {
-  if (!savedStyle) return;
-  myStyleActive = true;
-  useMyStyleBtn.classList.add('active');
+  myStyleActive = !!savedStyle;
+  if (useMyStyleBtn) useMyStyleBtn.classList.toggle('active', !!savedStyle);
   colCustomize?.classList.add('my-style-active');
   myStyleBox?.classList.add('my-style-active');
-  sessionStorage.setItem('bipass_my_style', 'true');
+  sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
 }
 
 function deactivateMyStyle() {

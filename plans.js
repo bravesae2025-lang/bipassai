@@ -106,6 +106,27 @@ function setupTaglineTraveler() {
     return { left: sr.left - gr.left, top: sr.top - gr.top, w: sr.width, h: sr.height };
   }
 
+  // Create 3 dark masks positioned exactly in the 16px gaps — hide capsule while sliding
+  function setupGapMasks() {
+    const cards = [...grid.querySelectorAll('.pricing-card')];
+    const gridRect = grid.getBoundingClientRect();
+    cards.slice(0, -1).forEach(card => {
+      const r = card.getBoundingClientRect();
+      const mask = document.createElement('div');
+      mask.style.cssText = [
+        'position:absolute',
+        'top:0',
+        'height:100%',
+        `left:${r.right - gridRect.left - 1}px`,
+        'width:18px',
+        'background:#0d0d0d',
+        'z-index:15',
+        'pointer-events:none',
+      ].join(';');
+      grid.appendChild(mask);
+    });
+  }
+
   // Set top+height once from card 0; only left+width ever change
   function initPosition() {
     const r = slotRect(0);
@@ -185,6 +206,7 @@ function setupTaglineTraveler() {
 
   // Bootstrap
   initPosition();
+  setupGapMasks();
   capsule.getBoundingClientRect();
   capsule.style.opacity = '1';
   setTimeout(step, 400);

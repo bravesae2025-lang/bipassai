@@ -117,6 +117,20 @@ async function init() {
   }
 
   editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+
+  const tokensRaw = sessionStorage.getItem('bipass_tokens');
+  if (tokensRaw) {
+    try {
+      const t = JSON.parse(tokensRaw);
+      const total = (t.input || 0) + (t.output || 0);
+      const tokEl = document.getElementById('editor-tokens');
+      if (tokEl && total > 0) {
+        tokEl.textContent = `${total.toLocaleString()} tokens`;
+        tokEl.classList.remove('hidden');
+      }
+    } catch {}
+  }
+
   typewriter(result);
 
   editorTextarea.addEventListener('input', updateWc);

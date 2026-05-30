@@ -1006,6 +1006,10 @@ async function callAPIStream(prompt) {
           finalResult = json.result;
           creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };
           if (credEl) credEl.textContent = json.creditsUsed.toLocaleString();
+          sessionStorage.setItem('bipass_tokens', JSON.stringify({
+            input: json.inputTokens || 0,
+            output: json.outputTokens || 0,
+          }));
         }
       } catch (e) {
         if (e.message !== 'Unexpected end of JSON input') throw e;

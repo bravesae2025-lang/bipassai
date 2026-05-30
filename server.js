@@ -319,8 +319,9 @@ app.post('/api/stream', async (req, res) => {
 
     const reader  = geminiRes.body.getReader();
     const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer   = '';
+    let fullText  = '';
+    let buffer    = '';
+    let lastUsage = null;
 
     while (!cancelled) {
       const { done, value } = await reader.read();
@@ -339,6 +340,7 @@ app.post('/api/stream', async (req, res) => {
             fullText += text;
             res.write(`data: ${JSON.stringify({ chunk: text, chars: fullText.length })}\n\n`);
           }
+          if (json.usageMetadata) lastUsage = json.usageMetadata;
         } catch {}
       }
     }
@@ -348,7 +350,11 @@ app.post('/api/stream', async (req, res) => {
       const creditsUsed = resultText.length;
       const newCredits  = Math.max(0, credits - creditsUsed);
       await updateUserCredits(user.id, newCredits);
-      res.write(`data: ${JSON.stringify({ done: true, result: resultText, creditsUsed, creditsRemaining: newCredits })}\n\n`);
+      res.write(`data: ${JSON.stringify({
+        done: true, result: resultText, creditsUsed, creditsRemaining: newCredits,
+        inputTokens:  lastUsage?.promptTokenCount     || 0,
+        outputTokens: lastUsage?.candidatesTokenCount || 0,
+      })}\n\n`);
     }
 
     res.end();

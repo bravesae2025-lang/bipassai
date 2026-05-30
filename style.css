@@ -1652,6 +1652,12 @@ body.editor-page { background: var(--bg); }
   color: var(--g300);
 }
 
+.editor-tokens {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+}
+
 .editor-copy-btn {
   font-family: var(--ff-ui);
   font-size: 11px;

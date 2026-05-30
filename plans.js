@@ -82,135 +82,13 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
-function setupTaglineTraveler() {
-  const grid    = document.querySelector('.pricing-grid');
-  const capsule = document.querySelector('.tagline-capsule');
-  const typed   = capsule.querySelector('.tagline-typed');
-  const slots   = [...document.querySelectorAll('.tagline-placeholder')];
-
-  if (!grid || !capsule || !slots.length) return;
-
-  const phrases = [
-    ['Paper due tomorrow?',     'Need it done tonight?',         'One shot. One fix.'],
-    ['Exam week got you?',      'Five assignments, seven days?',  'Finals mode: activated.'],
-    ['Always something due?',   'Writing every other week?',      'This semester is nonstop.'],
-    ['You write. A lot.',       'Make AI your year-round edge.',  'One decision. Done.'],
-  ];
-
-  let cardIdx  = 0;
-  let visitIdx = 0;
-
-  function slotRect(i) {
-    const gr = grid.getBoundingClientRect();
-    const sr = slots[i].getBoundingClientRect();
-    return { left: sr.left - gr.left, top: sr.top - gr.top, w: sr.width, h: sr.height };
-  }
-
-  // White masks in the 16px gaps — hide capsule while sliding (page bg is #ffffff)
-  function setupGapMasks() {
-    const cards = [...grid.querySelectorAll('.pricing-card')];
-    const gridRect = grid.getBoundingClientRect();
-    cards.slice(0, -1).forEach(card => {
-      const r = card.getBoundingClientRect();
-      const mask = document.createElement('div');
-      mask.style.cssText = [
-        'position:absolute',
-        'top:0',
-        'height:100%',
-        `left:${r.right - gridRect.left - 1}px`,
-        'width:18px',
-        'background:#ffffff',
-        'z-index:15',
-        'pointer-events:none',
-      ].join(';');
-      grid.appendChild(mask);
-    });
-  }
-
-  // Slide to card i — animates both left AND top so Yearly's 16px offset is correct
-  function place(i, animate) {
-    const r = slotRect(i);
-    capsule.style.transition = animate
-      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1), top 0.55s cubic-bezier(0.4,0,0.2,1)'
-      : 'none';
-    capsule.style.left   = r.left + 'px';
-    capsule.style.top    = r.top  + 'px';
-    capsule.style.width  = r.w    + 'px';
-    capsule.style.height = '42px'; // fixed — placeholder is now height 0
-  }
-
-  function typeIn(text, done) {
-    let i = 0;
-    typed.textContent = '';
-    (function t() {
-      typed.textContent = text.slice(0, ++i);
-      i < text.length ? setTimeout(t, 42) : setTimeout(done, 2000);
-    })();
-  }
-
-  function deleteOut(done) {
-    let len = typed.textContent.length;
-    (function d() {
-      if (len-- > 0) { typed.textContent = typed.textContent.slice(0, len); setTimeout(d, 22); }
-      else done();
-    })();
-  }
-
-  function step() {
-    const phrase = phrases[cardIdx][visitIdx % phrases[cardIdx].length];
-    typeIn(phrase, () => deleteOut(advance));
-  }
-
-  function advance() {
-    visitIdx++;
-    const isLast = cardIdx === phrases.length - 1;
-
-    if (!isLast) {
-      cardIdx++;
-      place(cardIdx, true);
-      setTimeout(step, 580);
-    } else {
-      // Loop reset: slide out right → snap to left → slide in (clipped by wrapper)
-      const gridW = grid.offsetWidth;
-      capsule.style.transition = 'left 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.35s';
-      capsule.style.left    = (gridW + 20) + 'px';
-      capsule.style.opacity = '0';
-
-      setTimeout(() => {
-        const r0 = slotRect(0);
-        capsule.style.transition = 'none';
-        capsule.style.left    = -(capsule.offsetWidth + 20) + 'px';
-        capsule.style.top     = r0.top + 'px'; // snap to card 0 Y before slide-in
-        capsule.style.width   = r0.w   + 'px';
-        capsule.style.opacity = '0';
-        cardIdx = 0;
-
-        capsule.getBoundingClientRect();
-        setTimeout(() => {
-          capsule.style.transition = 'left 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
-          capsule.style.left    = r0.left + 'px';
-          capsule.style.opacity = '1';
-          setTimeout(step, 520);
-        }, 60);
-      }, 450);
-    }
-  }
-
-  // Bootstrap
-  place(0, false);
-  setupGapMasks();
-  capsule.getBoundingClientRect();
-  capsule.style.opacity = '1';
-  setTimeout(step, 400);
-}
-
 async function init() {
   const session = await window.bipassAuth.requireAuth();
   if (!session) return;
 
   setupNavUser();
   setupDrawer(session);
-  setupTaglineTraveler();
+
 }
 
 init();

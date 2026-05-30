@@ -2678,10 +2678,25 @@ body.editor-page { background: var(--bg); }
   padding: 28px 20px 24px;
   border: 1px solid rgba(255,255,255,0.18);
   box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  position: relative;
+  z-index: 20;
 }
 .pricing-grid .pricing-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 48px rgba(0,0,0,0.38);
+}
+
+/* Gap cover — hides the capsule as it slides through the 16px grid gap */
+.pricing-grid .pricing-card:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -16px;
+  width: 16px;
+  height: 100%;
+  background: #0d0d0d;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* All 4 cards: dark gradients with white text — same 160deg angle, progressively darker */
@@ -2832,7 +2847,7 @@ body.editor-page { background: var(--bg); }
 }
 
 .pricing-tagline {
-  margin-top: 12px;
+  margin-top: 0;
   min-height: 42px;
 }
 
@@ -2859,7 +2874,7 @@ body.editor-page { background: var(--bg); }
   line-height: 1.3;
   pointer-events: none;
   opacity: 0;
-  z-index: 10;
+  z-index: 8;
 }
 
 .tagline-capsule::after {

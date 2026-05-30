@@ -116,20 +116,15 @@ function setupTaglineTraveler() {
     capsule.style.width  = r.w    + 'px';
   }
 
-  // Crossfade teleport — never visible crossing the gap between cards
-  function moveTo(i, done) {
+  // Slide left to new card — cards at z-index:20 cover the capsule in the gap
+  function place(i, animate) {
     const r = slotRect(i);
-    capsule.style.transition = 'opacity 0.18s';
-    capsule.style.opacity = '0';
-    setTimeout(() => {
-      capsule.style.transition = 'none';
-      capsule.style.left  = r.left + 'px';
-      capsule.style.width = r.w    + 'px';
-      capsule.getBoundingClientRect(); // force reflow
-      capsule.style.transition = 'opacity 0.18s';
-      capsule.style.opacity = '1';
-      setTimeout(done, 190);
-    }, 200);
+    capsule.style.transition = animate
+      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1)'
+      : 'none';
+    capsule.style.left  = r.left + 'px';
+    capsule.style.width = r.w    + 'px';
+    // top and height are locked in initPosition — never updated here
   }
 
   function typeIn(text, done) {
@@ -160,7 +155,8 @@ function setupTaglineTraveler() {
 
     if (!isLast) {
       cardIdx++;
-      moveTo(cardIdx, step);
+      place(cardIdx, true);
+      setTimeout(step, 580);
     } else {
       // Loop reset: slide out right → snap to left → slide in (clipped by wrapper)
       const gridW = grid.offsetWidth;

@@ -4276,8 +4276,8 @@ body.drawer-lock { overflow: hidden; }
 
 .credit-price {
   font-size: 20px;
-  font-weight: 800;
-  font-family: var(--ff-ui);
+  font-weight: 500;
+  font-family: var(--ff-mono);
   color: var(--black);
   margin-bottom: 12px;
 }

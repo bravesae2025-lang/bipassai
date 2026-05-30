@@ -106,15 +106,30 @@ function setupTaglineTraveler() {
     return { left: sr.left - gr.left, top: sr.top - gr.top, w: sr.width, h: sr.height };
   }
 
-  function place(i, animate) {
-    const r = slotRect(i);
-    capsule.style.transition = animate
-      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.3s'
-      : 'none';
-    capsule.style.left   = r.left + 'px';
+  // Set top+height once from card 0; only left+width ever change
+  function initPosition() {
+    const r = slotRect(0);
+    capsule.style.transition = 'none';
     capsule.style.top    = r.top  + 'px';
-    capsule.style.width  = r.w    + 'px';
     capsule.style.height = r.h    + 'px';
+    capsule.style.left   = r.left + 'px';
+    capsule.style.width  = r.w    + 'px';
+  }
+
+  // Crossfade teleport — never visible crossing the gap between cards
+  function moveTo(i, done) {
+    const r = slotRect(i);
+    capsule.style.transition = 'opacity 0.18s';
+    capsule.style.opacity = '0';
+    setTimeout(() => {
+      capsule.style.transition = 'none';
+      capsule.style.left  = r.left + 'px';
+      capsule.style.width = r.w    + 'px';
+      capsule.getBoundingClientRect(); // force reflow
+      capsule.style.transition = 'opacity 0.18s';
+      capsule.style.opacity = '1';
+      setTimeout(done, 190);
+    }, 200);
   }
 
   function typeIn(text, done) {
@@ -140,15 +155,14 @@ function setupTaglineTraveler() {
   }
 
   function advance() {
-    const isLast = cardIdx === phrases.length - 1;
     visitIdx++;
+    const isLast = cardIdx === phrases.length - 1;
 
     if (!isLast) {
       cardIdx++;
-      place(cardIdx, true);
-      setTimeout(step, 580);
+      moveTo(cardIdx, step);
     } else {
-      // Exit right, snap to left off-screen, slide back into card 0
+      // Loop reset: slide out right → snap to left → slide in (clipped by wrapper)
       const gridW = grid.offsetWidth;
       capsule.style.transition = 'left 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.35s';
       capsule.style.left    = (gridW + 20) + 'px';
@@ -160,18 +174,21 @@ function setupTaglineTraveler() {
         capsule.style.opacity = '0';
         cardIdx = 0;
 
-        capsule.getBoundingClientRect(); // force reflow
+        capsule.getBoundingClientRect();
+        const r = slotRect(0);
         setTimeout(() => {
-          place(0, true);
+          capsule.style.transition = 'left 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
+          capsule.style.left    = r.left + 'px';
+          capsule.style.width   = r.w    + 'px';
           capsule.style.opacity = '1';
-          setTimeout(step, 580);
+          setTimeout(step, 520);
         }, 60);
       }, 450);
     }
   }
 
-  // Bootstrap: position at card 0 instantly, then start
-  place(0, false);
+  // Bootstrap
+  initPosition();
   capsule.getBoundingClientRect();
   capsule.style.opacity = '1';
   setTimeout(step, 400);

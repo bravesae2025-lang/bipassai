@@ -82,13 +82,54 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
+function setupTaglineTypers() {
+  const SPEED_TYPE   = 42;
+  const SPEED_DELETE = 22;
+  const PAUSE_AFTER  = 2200;
+  const PAUSE_NEXT   = 350;
+
+  document.querySelectorAll('.pricing-tagline[data-questions]').forEach((el, cardIndex) => {
+    const questions = JSON.parse(el.dataset.questions);
+    const span = el.querySelector('.tagline-typed');
+    let phraseIndex = 0;
+    let charIndex   = 0;
+    let deleting    = false;
+
+    function tick() {
+      const phrase = questions[phraseIndex];
+      if (!deleting) {
+        charIndex++;
+        span.textContent = phrase.slice(0, charIndex);
+        if (charIndex === phrase.length) {
+          deleting = true;
+          setTimeout(tick, PAUSE_AFTER);
+          return;
+        }
+        setTimeout(tick, SPEED_TYPE);
+      } else {
+        charIndex--;
+        span.textContent = phrase.slice(0, charIndex);
+        if (charIndex === 0) {
+          deleting = false;
+          phraseIndex = (phraseIndex + 1) % questions.length;
+          setTimeout(tick, PAUSE_NEXT);
+          return;
+        }
+        setTimeout(tick, SPEED_DELETE);
+      }
+    }
+
+    setTimeout(tick, cardIndex * 900);
+  });
+}
+
 async function init() {
   const session = await window.bipassAuth.requireAuth();
   if (!session) return;
 
   setupNavUser();
   setupDrawer(session);
-
+  setupTaglineTypers();
 }
 
 init();

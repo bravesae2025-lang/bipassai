@@ -2840,6 +2840,19 @@ body.editor-page { background: var(--bg); }
   border: 1px solid rgba(255,255,255,0.28);
   text-align: center;
   line-height: 1.3;
+  min-height: 42px;
+}
+
+.pricing-tagline::after {
+  content: '|';
+  margin-left: 1px;
+  font-weight: 300;
+  animation: tagline-blink 0.65s step-end infinite;
+}
+
+@keyframes tagline-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 .pricing-tagline-featured {

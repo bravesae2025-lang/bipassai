@@ -82,45 +82,99 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
-function setupTaglineTypers() {
-  const SPEED_TYPE   = 42;
-  const SPEED_DELETE = 22;
-  const PAUSE_AFTER  = 2200;
-  const PAUSE_NEXT   = 350;
+function setupTaglineTraveler() {
+  const grid    = document.querySelector('.pricing-grid');
+  const capsule = document.querySelector('.tagline-capsule');
+  const typed   = capsule.querySelector('.tagline-typed');
+  const slots   = [...document.querySelectorAll('.tagline-placeholder')];
 
-  document.querySelectorAll('.pricing-tagline[data-questions]').forEach((el, cardIndex) => {
-    const questions = JSON.parse(el.dataset.questions);
-    const span = el.querySelector('.tagline-typed');
-    let phraseIndex = 0;
-    let charIndex   = 0;
-    let deleting    = false;
+  if (!grid || !capsule || !slots.length) return;
 
-    function tick() {
-      const phrase = questions[phraseIndex];
-      if (!deleting) {
-        charIndex++;
-        span.textContent = phrase.slice(0, charIndex);
-        if (charIndex === phrase.length) {
-          deleting = true;
-          setTimeout(tick, PAUSE_AFTER);
-          return;
-        }
-        setTimeout(tick, SPEED_TYPE);
-      } else {
-        charIndex--;
-        span.textContent = phrase.slice(0, charIndex);
-        if (charIndex === 0) {
-          deleting = false;
-          phraseIndex = (phraseIndex + 1) % questions.length;
-          setTimeout(tick, PAUSE_NEXT);
-          return;
-        }
-        setTimeout(tick, SPEED_DELETE);
-      }
+  const phrases = [
+    ['Paper due tomorrow?',     'Need it done tonight?',         'One shot. One fix.'],
+    ['Exam week got you?',      'Five assignments, seven days?',  'Finals mode: activated.'],
+    ['Always something due?',   'Writing every other week?',      'This semester is nonstop.'],
+    ['You write. A lot.',       'Make AI your year-round edge.',  'One decision. Done.'],
+  ];
+
+  let cardIdx  = 0;
+  let visitIdx = 0;
+
+  function slotRect(i) {
+    const gr = grid.getBoundingClientRect();
+    const sr = slots[i].getBoundingClientRect();
+    return { left: sr.left - gr.left, top: sr.top - gr.top, w: sr.width, h: sr.height };
+  }
+
+  function place(i, animate) {
+    const r = slotRect(i);
+    capsule.style.transition = animate
+      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.3s'
+      : 'none';
+    capsule.style.left   = r.left + 'px';
+    capsule.style.top    = r.top  + 'px';
+    capsule.style.width  = r.w    + 'px';
+    capsule.style.height = r.h    + 'px';
+  }
+
+  function typeIn(text, done) {
+    let i = 0;
+    typed.textContent = '';
+    (function t() {
+      typed.textContent = text.slice(0, ++i);
+      i < text.length ? setTimeout(t, 42) : setTimeout(done, 2000);
+    })();
+  }
+
+  function deleteOut(done) {
+    let len = typed.textContent.length;
+    (function d() {
+      if (len-- > 0) { typed.textContent = typed.textContent.slice(0, len); setTimeout(d, 22); }
+      else done();
+    })();
+  }
+
+  function step() {
+    const phrase = phrases[cardIdx][visitIdx % phrases[cardIdx].length];
+    typeIn(phrase, () => deleteOut(advance));
+  }
+
+  function advance() {
+    const isLast = cardIdx === phrases.length - 1;
+    visitIdx++;
+
+    if (!isLast) {
+      cardIdx++;
+      place(cardIdx, true);
+      setTimeout(step, 580);
+    } else {
+      // Exit right, snap to left off-screen, slide back into card 0
+      const gridW = grid.offsetWidth;
+      capsule.style.transition = 'left 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.35s';
+      capsule.style.left    = (gridW + 20) + 'px';
+      capsule.style.opacity = '0';
+
+      setTimeout(() => {
+        capsule.style.transition = 'none';
+        capsule.style.left    = -(capsule.offsetWidth + 20) + 'px';
+        capsule.style.opacity = '0';
+        cardIdx = 0;
+
+        capsule.getBoundingClientRect(); // force reflow
+        setTimeout(() => {
+          place(0, true);
+          capsule.style.opacity = '1';
+          setTimeout(step, 580);
+        }, 60);
+      }, 450);
     }
+  }
 
-    setTimeout(tick, cardIndex * 900);
-  });
+  // Bootstrap: position at card 0 instantly, then start
+  place(0, false);
+  capsule.getBoundingClientRect();
+  capsule.style.opacity = '1';
+  setTimeout(step, 400);
 }
 
 async function init() {
@@ -129,7 +183,7 @@ async function init() {
 
   setupNavUser();
   setupDrawer(session);
-  setupTaglineTypers();
+  setupTaglineTraveler();
 }
 
 init();

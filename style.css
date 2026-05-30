@@ -2668,9 +2668,11 @@ body.editor-page { background: var(--bg); }
 
 /* 4-card row sizing */
 .pricing-grid .pricing-card {
-  padding: 28px 20px 24px;
+  padding: 36px 24px 32px;
   border: 1px solid rgba(255,255,255,0.18);
   box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  min-height: 240px;
+  justify-content: space-between;
 }
 .pricing-grid .pricing-card:hover {
   transform: translateY(-3px);
@@ -2743,7 +2745,7 @@ body.editor-page { background: var(--bg); }
 .pricing-card-top {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pricing-plan {

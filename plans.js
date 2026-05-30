@@ -106,7 +106,7 @@ function setupTaglineTraveler() {
     return { left: sr.left - gr.left, top: sr.top - gr.top, w: sr.width, h: sr.height };
   }
 
-  // Create 3 dark masks positioned exactly in the 16px gaps — hide capsule while sliding
+  // White masks in the 16px gaps — hide capsule while sliding (page bg is #ffffff)
   function setupGapMasks() {
     const cards = [...grid.querySelectorAll('.pricing-card')];
     const gridRect = grid.getBoundingClientRect();
@@ -119,7 +119,7 @@ function setupTaglineTraveler() {
         'height:100%',
         `left:${r.right - gridRect.left - 1}px`,
         'width:18px',
-        'background:#0d0d0d',
+        'background:#ffffff',
         'z-index:15',
         'pointer-events:none',
       ].join(';');
@@ -127,25 +127,16 @@ function setupTaglineTraveler() {
     });
   }
 
-  // Set top+height once from card 0; only left+width ever change
-  function initPosition() {
-    const r = slotRect(0);
-    capsule.style.transition = 'none';
-    capsule.style.top    = r.top  + 'px';
-    capsule.style.height = r.h    + 'px';
-    capsule.style.left   = r.left + 'px';
-    capsule.style.width  = r.w    + 'px';
-  }
-
-  // Slide left to new card — cards at z-index:20 cover the capsule in the gap
+  // Slide to card i — animates both left AND top so Yearly's 16px offset is correct
   function place(i, animate) {
     const r = slotRect(i);
     capsule.style.transition = animate
-      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1)'
+      ? 'left 0.55s cubic-bezier(0.4,0,0.2,1), top 0.55s cubic-bezier(0.4,0,0.2,1)'
       : 'none';
-    capsule.style.left  = r.left + 'px';
-    capsule.style.width = r.w    + 'px';
-    // top and height are locked in initPosition — never updated here
+    capsule.style.left   = r.left + 'px';
+    capsule.style.top    = r.top  + 'px';
+    capsule.style.width  = r.w    + 'px';
+    capsule.style.height = '42px'; // fixed — placeholder is now height 0
   }
 
   function typeIn(text, done) {
@@ -186,17 +177,18 @@ function setupTaglineTraveler() {
       capsule.style.opacity = '0';
 
       setTimeout(() => {
+        const r0 = slotRect(0);
         capsule.style.transition = 'none';
         capsule.style.left    = -(capsule.offsetWidth + 20) + 'px';
+        capsule.style.top     = r0.top + 'px'; // snap to card 0 Y before slide-in
+        capsule.style.width   = r0.w   + 'px';
         capsule.style.opacity = '0';
         cardIdx = 0;
 
         capsule.getBoundingClientRect();
-        const r = slotRect(0);
         setTimeout(() => {
           capsule.style.transition = 'left 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
-          capsule.style.left    = r.left + 'px';
-          capsule.style.width   = r.w    + 'px';
+          capsule.style.left    = r0.left + 'px';
           capsule.style.opacity = '1';
           setTimeout(step, 520);
         }, 60);
@@ -205,7 +197,7 @@ function setupTaglineTraveler() {
   }
 
   // Bootstrap
-  initPosition();
+  place(0, false);
   setupGapMasks();
   capsule.getBoundingClientRect();
   capsule.style.opacity = '1';

@@ -2833,7 +2833,7 @@ body.editor-page { background: var(--bg); }
 
 .pricing-tagline {
   margin-top: 0;
-  min-height: 42px;
+  min-height: 0;
 }
 
 .tagline-placeholder {

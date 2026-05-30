@@ -2828,20 +2828,21 @@ body.editor-page { background: var(--bg); }
   display: inline-flex;
   align-items: center;
   margin-top: 10px;
-  background: #fff;
-  color: #000;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.9);
   font-family: var(--ff-mono);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 4px 11px;
   border-radius: 99px;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .pricing-tagline-featured {
-  background: #fff;
-  color: #000;
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
 }
 
 .pricing-features {

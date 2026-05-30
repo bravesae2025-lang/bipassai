@@ -2832,50 +2832,6 @@ body.editor-page { background: var(--bg); }
   flex: 1;
 }
 
-/* Shared features row below the plan grid */
-.pricing-shared-features {
-  margin-top: 40px;
-  padding: 28px 32px;
-  border: 1px solid var(--g100);
-  border-radius: 14px;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.pricing-shared-label {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--g300);
-}
-
-.pricing-shared-list {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 32px;
-}
-
-.pricing-shared-list li {
-  font-family: var(--ff-mono);
-  font-size: 12px;
-  color: var(--g500);
-  padding-left: 16px;
-  position: relative;
-}
-
-.pricing-shared-list li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: var(--black);
-  font-size: 11px;
-}
-
 .pricing-features li {
   font-family: var(--ff-mono);
   font-size: 12.5px;

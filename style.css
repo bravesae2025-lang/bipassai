@@ -2803,6 +2803,27 @@ body.editor-page { background: var(--bg); }
   vertical-align: middle;
 }
 
+.pricing-credits-bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.80);
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+.pricing-credits-bonus-featured {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+  border-color: rgba(255,255,255,0.28);
+}
+
 .pricing-features {
   list-style: none;
   display: flex;

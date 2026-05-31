@@ -75,12 +75,12 @@ const CREDIT_PACKAGES = {
 };
 
 const STRIPE_CREDIT_PRICES = {
-  c1000:   'price_PLACEHOLDER',
-  c3000:   'price_PLACEHOLDER',
-  c5000:   'price_PLACEHOLDER',
-  c20000:  'price_PLACEHOLDER',
-  c50000:  'price_PLACEHOLDER',
-  c100000: 'price_PLACEHOLDER',
+  c1000:   'price_1Td5u90Bb2AKTBfew06WAetf',
+  c3000:   'price_1Td5uf0Bb2AKTBfeMAGBDDoB',
+  c5000:   'price_1Td5v50Bb2AKTBfeQmrnHSXK',
+  c20000:  'price_1Td5vb0Bb2AKTBfeKjlZmPax',
+  c50000:  'price_1Td5vz0Bb2AKTBfe0Hf3aywB',
+  c100000: 'price_1Td5wq0Bb2AKTBfeXwDSHwdM',
 };
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)

@@ -2781,6 +2781,15 @@ body.editor-page { background: var(--bg); }
   display: inline-block;
 }
 
+.pricing-per-day {
+  font-family: var(--ff-mono);
+  font-size: 18px;
+  vertical-align: bottom;
+  margin-bottom: 6px;
+  display: inline-block;
+  opacity: 0.6;
+}
+
 .pricing-period {
   font-family: var(--ff-mono);
   font-size: 11px;

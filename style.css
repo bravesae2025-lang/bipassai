@@ -4218,6 +4218,36 @@ body.drawer-lock { overflow: hidden; }
   text-align: center;
   margin-bottom: 48px;
 }
+.plans-current-plan {
+  margin-top: 12px;
+  min-height: 24px;
+}
+.plan-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.plan-status-pill--active {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+.plan-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+.plan-status-pill--none {
+  background: rgba(239, 68, 68, 0.08);
+  color: rgba(239, 68, 68, 0.7);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
 .plans-title {
   font-family: var(--ff-display);
   font-size: clamp(48px, 10vw, 80px);

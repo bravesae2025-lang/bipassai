@@ -96,6 +96,15 @@ function setupPlanStatus(session) {
     }
   }
 
+  const pageEl = document.getElementById('plans-current-plan');
+  if (pageEl) {
+    if (hasPlan) {
+      pageEl.innerHTML = `<span class="plan-status-pill plan-status-pill--active"><span class="plan-status-dot"></span>${label}</span>`;
+    } else {
+      pageEl.innerHTML = `<span class="plan-status-pill plan-status-pill--none">No active plan</span>`;
+    }
+  }
+
   if (!hasPlan) {
     document.querySelectorAll('.credit-card').forEach(el => el.classList.add('credit-card--locked'));
   }

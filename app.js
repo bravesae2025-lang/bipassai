@@ -244,6 +244,7 @@ async function init() {
 
   setupNavUser();
   setupDrawer(session);
+  bipassSetupPlanStatus(session);
   restoreState();
   updateStats();
   bindEvents();

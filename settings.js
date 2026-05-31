@@ -272,6 +272,7 @@ async function init() {
 
   setupNavUser(session);
   setupDrawer(session);
+  bipassSetupPlanStatus(session);
   setupProfile(session);
   setupCredits(session);
   setupDefaults();

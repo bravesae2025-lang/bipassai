@@ -79,6 +79,7 @@ async function init() {
 
   setupNavUser(session);
   setupDrawer(session);
+  bipassSetupPlanStatus(session);
   loadHistory(session);
 }
 

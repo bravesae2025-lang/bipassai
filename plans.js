@@ -82,55 +82,6 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
-function setupPlanStatus(session) {
-  const tier = session?.user?.user_metadata?.tier || 'free';
-  const expiresAt = session?.user?.user_metadata?.plan_expires_at;
-  const hasPlan = tier !== 'free';
-
-  const PLAN_NAMES = {
-    day: 'Day Pass', weekly: 'Weekly Pass',
-    monthly: 'Monthly Pass', annual: 'Annual Pass'
-  };
-  const planName = PLAN_NAMES[tier] || null;
-
-  let expiryStr = '';
-  if (expiresAt) {
-    const d = new Date(expiresAt);
-    expiryStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  }
-
-  const pageEl = document.getElementById('plans-current-plan');
-  if (pageEl) {
-    if (hasPlan) {
-      pageEl.innerHTML = `
-        <div class="plan-status-card plan-status-card--active">
-          <div class="plan-status-top">
-            <span class="plan-status-dot"></span>
-            <span class="plan-status-name">${planName}</span>
-          </div>
-          ${expiryStr ? `<div class="plan-status-expiry">Expires ${expiryStr}</div>` : ''}
-        </div>`;
-    } else {
-      pageEl.innerHTML = `
-        <div class="plan-status-card plan-status-card--none">
-          <span class="plan-status-dot plan-status-dot--none"></span>
-          <span class="plan-status-name--none">No active plan</span>
-        </div>`;
-    }
-  }
-
-  const drawerEl = document.getElementById('drawer-plan');
-  if (drawerEl) {
-    drawerEl.innerHTML = hasPlan
-      ? `<div class="drawer-plan-active"><span class="drawer-plan-dot"></span>${planName}${expiryStr ? ` <span class="drawer-plan-expiry">· ${expiryStr}</span>` : ''}</div>`
-      : `<div class="drawer-plan-none">No active plan</div>`;
-  }
-
-  if (!hasPlan) {
-    document.querySelectorAll('.credit-card').forEach(el => el.classList.add('credit-card--locked'));
-  }
-}
 
 async function init() {
   const session = await window.bipassAuth.requireAuth();
@@ -138,7 +89,7 @@ async function init() {
 
   setupNavUser();
   setupDrawer(session);
-  setupPlanStatus(session);
+  bipassSetupPlanStatus(session);
 }
 
 init();

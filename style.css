@@ -2781,11 +2781,11 @@ body.editor-page { background: var(--bg); }
   display: inline-block;
 }
 
-.pricing-per-day {
+.pricing-per-month {
   font-family: var(--ff-display);
-  font-size: 72px;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-size: 32px;
+  vertical-align: top;
+  margin-top: 10px;
   display: inline-block;
   opacity: 0.6;
 }

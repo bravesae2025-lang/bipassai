@@ -58,10 +58,10 @@ function bipassSetupPlanStatus(session) {
   };
   const planName = PLAN_NAMES[tier] || tier;
 
-  let expiryStr = '';
+  let expiryStr = 'Active';
   if (expiresAt) {
     const d = new Date(expiresAt);
-    expiryStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    expiryStr = 'Expires ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   }
 
@@ -74,7 +74,7 @@ function bipassSetupPlanStatus(session) {
             <span class="drawer-plan-dot"></span>
             <span class="drawer-plan-card-name">${planName}</span>
           </div>
-          ${expiryStr ? `<div class="drawer-plan-card-expiry">Expires ${expiryStr}</div>` : ''}
+          <div class="drawer-plan-card-expiry">${expiryStr}</div>
         </div>`;
     } else {
       drawerEl.innerHTML = `
@@ -95,7 +95,7 @@ function bipassSetupPlanStatus(session) {
             <span class="plan-status-dot"></span>
             <span class="plan-status-name">${planName}</span>
           </div>
-          ${expiryStr ? `<div class="plan-status-expiry">Expires ${expiryStr}</div>` : ''}
+          <div class="plan-status-expiry">${expiryStr}</div>
         </div>`;
     } else {
       pageEl.innerHTML = `

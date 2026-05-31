@@ -123,7 +123,10 @@ app.post('/api/reset-credits', async (req, res) => {
   if (user.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' });
 
   const amount = parseInt(req.body?.amount) || 50000;
-  await updateUserMeta(user.id, { credits: amount, credits_expire_at: null });
+  const meta = { credits: amount, credits_expire_at: null };
+  if (req.body?.tier) meta.tier = req.body.tier;
+  if (req.body?.plan_expires_at) meta.plan_expires_at = req.body.plan_expires_at;
+  await updateUserMeta(user.id, meta);
 
   return res.json({ ok: true, credits: amount });
 });

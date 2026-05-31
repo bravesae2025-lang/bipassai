@@ -97,6 +97,28 @@ function setupDrawer(session) {
 }
 
 
+async function buyCredits(pkg) {
+  const token = await window.bipassAuth.getToken();
+  if (!token) return;
+
+  const btn = document.querySelector(`[data-credits="${pkg}"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+  try {
+    const res = await fetch('/api/create-credit-checkout', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pkg }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch {
+    if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
+    showToast('Something went wrong. Try again.');
+  }
+}
+
 async function activatePlan(plan) {
   const token = await window.bipassAuth.getToken();
   if (!token) return;
@@ -128,11 +150,17 @@ async function init() {
   setupDrawer(session);
 
   // After Stripe redirects back, refresh session to get updated plan metadata
-  if (new URLSearchParams(window.location.search).get('activated') === '1') {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('activated') === '1') {
     const { data: { session: fresh } } = await window.bipassAuth.client.auth.refreshSession();
     if (fresh) bipassSetupPlanStatus(fresh);
     history.replaceState({}, '', 'plans.html');
     showToast('Plan activated! Welcome aboard.');
+  } else if (params.get('credits_added') === '1') {
+    const { data: { session: fresh } } = await window.bipassAuth.client.auth.refreshSession();
+    if (fresh) bipassSetupPlanStatus(fresh);
+    history.replaceState({}, '', 'plans.html');
+    showToast('Credits added to your account!');
   } else {
     bipassSetupPlanStatus(session);
   }

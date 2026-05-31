@@ -57,6 +57,32 @@ async function updateUserCredits(userId, credits) {
   await updateUserMeta(userId, { credits });
 }
 
+async function getUserById(userId) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    headers: { 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`, 'apikey': SUPABASE_SERVICE_KEY },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+const CREDIT_PACKAGES = {
+  c1000:   1_000,
+  c3000:   3_000,
+  c5000:   5_000,
+  c20000:  20_000,
+  c50000:  50_000,
+  c100000: 100_000,
+};
+
+const STRIPE_CREDIT_PRICES = {
+  c1000:   'price_PLACEHOLDER',
+  c3000:   'price_PLACEHOLDER',
+  c5000:   'price_PLACEHOLDER',
+  c20000:  'price_PLACEHOLDER',
+  c50000:  'price_PLACEHOLDER',
+  c100000: 'price_PLACEHOLDER',
+};
+
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)
 const oauthStates = new Map();
 
@@ -77,15 +103,27 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const userId = session.metadata?.user_id;
-    const plan   = session.metadata?.plan;
-    const config = PLAN_CONFIG[plan];
-    if (userId && config) {
-      await updateUserMeta(userId, {
-        tier: plan,
-        plan_expires_at: Date.now() + config.ms,
-        credits: config.credits,
-        credits_expire_at: null,
-      });
+    const type   = session.metadata?.type;
+
+    if (type === 'credits') {
+      const pkg    = session.metadata?.pkg;
+      const amount = CREDIT_PACKAGES[pkg];
+      if (userId && amount) {
+        const user    = await getUserById(userId);
+        const current = user?.user_metadata?.credits ?? 0;
+        await updateUserMeta(userId, { credits: current + amount });
+      }
+    } else if (type === 'plan') {
+      const plan   = session.metadata?.plan;
+      const config = PLAN_CONFIG[plan];
+      if (userId && config) {
+        await updateUserMeta(userId, {
+          tier: plan,
+          plan_expires_at: Date.now() + config.ms,
+          credits: config.credits,
+          credits_expire_at: null,
+        });
+      }
     }
   }
 
@@ -222,7 +260,32 @@ app.post('/api/create-checkout', async (req, res) => {
     line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
     success_url: 'https://bipassai.com/plans.html?activated=1',
     cancel_url:  'https://bipassai.com/plans.html',
-    metadata: { user_id: user.id, plan },
+    metadata: { user_id: user.id, type: 'plan', plan },
+    client_reference_id: user.id,
+  });
+
+  return res.json({ url: session.url });
+});
+
+// ─── POST /api/create-credit-checkout ────────────────────────
+
+app.post('/api/create-credit-checkout', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const pkg = req.body?.pkg;
+  if (!STRIPE_CREDIT_PRICES[pkg] || STRIPE_CREDIT_PRICES[pkg] === 'price_PLACEHOLDER')
+    return res.status(400).json({ error: 'Invalid package' });
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: STRIPE_CREDIT_PRICES[pkg], quantity: 1 }],
+    success_url: 'https://bipassai.com/plans.html?credits_added=1',
+    cancel_url:  'https://bipassai.com/plans.html',
+    metadata: { user_id: user.id, type: 'credits', pkg },
     client_reference_id: user.id,
   });
 

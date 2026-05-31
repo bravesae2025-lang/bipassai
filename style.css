@@ -4030,7 +4030,7 @@ body.drawer-lock { overflow: hidden; }
 }
 
 .drawer-plan {
-  padding: 8px 20px 12px;
+  padding: 20px 20px 8px;
   font-family: var(--ff-mono);
   font-size: 11px;
 }

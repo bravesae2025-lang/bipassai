@@ -2782,10 +2782,10 @@ body.editor-page { background: var(--bg); }
 }
 
 .pricing-per-day {
-  font-family: var(--ff-mono);
-  font-size: 18px;
-  vertical-align: bottom;
-  margin-bottom: 6px;
+  font-family: var(--ff-display);
+  font-size: 72px;
+  line-height: 1;
+  letter-spacing: -0.02em;
   display: inline-block;
   opacity: 0.6;
 }

@@ -131,6 +131,39 @@ app.post('/api/reset-credits', async (req, res) => {
   return res.json({ ok: true, credits: amount });
 });
 
+// ─── POST /api/activate-plan ──────────────────────────────────
+
+const PLAN_CONFIG = {
+  day:     { ms: 86_400_000,             credits: 3_000   },
+  weekly:  { ms: 7  * 86_400_000,        credits: 10_000  },
+  monthly: { ms: 30 * 86_400_000,        credits: 30_000  },
+  annual:  { ms: 365 * 86_400_000,       credits: 100_000 },
+};
+
+app.post('/api/activate-plan', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const plan = req.body?.plan;
+  const config = PLAN_CONFIG[plan];
+  if (!config) return res.status(400).json({ error: 'Invalid plan' });
+
+  const plan_expires_at = Date.now() + config.ms;
+
+  await updateUserMeta(user.id, {
+    tier: plan,
+    plan_expires_at,
+    credits: config.credits,
+    credits_expire_at: null,
+  });
+
+  return res.json({ ok: true, plan, plan_expires_at, credits: config.credits });
+});
+
+
 // ─── POST /api/init-credits ───────────────────────────────────
 
 app.post('/api/init-credits', async (req, res) => {

@@ -83,6 +83,32 @@ function setupDrawer(session) {
 }
 
 
+async function activatePlan(plan) {
+  const token = await window.bipassAuth.getToken();
+  if (!token) return;
+
+  const btn = document.querySelector(`[data-plan="${plan}"]`);
+  const labels = { day: 'Get Day Pass', weekly: 'Get Weekly', monthly: 'Get Monthly', annual: 'Get Annual' };
+  if (btn) { btn.disabled = true; btn.textContent = 'Activating…'; }
+
+  try {
+    const res = await fetch('/api/activate-plan', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan }),
+    });
+    if (!res.ok) throw new Error('Failed');
+
+    const { data: { session } } = await window.bipassAuth.client.auth.refreshSession();
+    if (session) bipassSetupPlanStatus(session);
+
+    showToast('Plan activated!');
+  } catch {
+    if (btn) { btn.disabled = false; btn.textContent = labels[plan] || 'Get Plan'; }
+    showToast('Something went wrong. Try again.');
+  }
+}
+
 async function init() {
   const session = await window.bipassAuth.requireAuth();
   if (!session) return;

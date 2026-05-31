@@ -82,13 +82,32 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
+function setupPlanStatus(session) {
+  const tier = session?.user?.user_metadata?.tier || 'free';
+  const hasPlan = tier !== 'free';
+
+  const planEl = document.getElementById('drawer-plan');
+  if (planEl) {
+    if (hasPlan) {
+      const label = { pro: 'Pro Plan', premium: 'Premium Plan', day: 'Day Pass', weekly: 'Weekly Pass', monthly: 'Monthly Pass', annual: 'Annual Pass' }[tier] || tier;
+      planEl.innerHTML = `<div class="drawer-plan-active"><span class="drawer-plan-dot"></span>${label}</div>`;
+    } else {
+      planEl.innerHTML = `<div class="drawer-plan-none">No active plan</div>`;
+    }
+  }
+
+  if (!hasPlan) {
+    document.querySelectorAll('.credit-card').forEach(el => el.classList.add('credit-card--locked'));
+  }
+}
+
 async function init() {
   const session = await window.bipassAuth.requireAuth();
   if (!session) return;
 
   setupNavUser();
   setupDrawer(session);
-
+  setupPlanStatus(session);
 }
 
 init();

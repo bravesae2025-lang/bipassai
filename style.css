@@ -4029,6 +4029,28 @@ body.drawer-lock { overflow: hidden; }
   border-radius: 4px;
 }
 
+.drawer-plan {
+  padding: 8px 20px 12px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+}
+.drawer-plan-active {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4ade80;
+}
+.drawer-plan-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+.drawer-plan-none {
+  color: rgba(255,255,255,0.35);
+}
+
 .drawer-footer {
   padding: 16px 20px;
   border-top: 1px solid rgba(255,255,255,0.08);
@@ -4255,6 +4277,11 @@ body.drawer-lock { overflow: hidden; }
 .credit-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.credit-card--locked {
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
 }
 
 .credit-card-best {

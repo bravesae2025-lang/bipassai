@@ -88,22 +88,19 @@ async function activatePlan(plan) {
   if (!token) return;
 
   const btn = document.querySelector(`[data-plan="${plan}"]`);
-  const labels = { day: 'Get Day Pass', weekly: 'Get Weekly', monthly: 'Get Monthly', annual: 'Get Annual' };
-  if (btn) { btn.disabled = true; btn.textContent = 'Activating…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
   try {
-    const res = await fetch('/api/activate-plan', {
+    const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ plan }),
     });
     if (!res.ok) throw new Error('Failed');
-
-    const { data: { session } } = await window.bipassAuth.client.auth.refreshSession();
-    if (session) bipassSetupPlanStatus(session);
-
-    showToast('Plan activated!');
+    const { url } = await res.json();
+    window.location.href = url;
   } catch {
+    const labels = { day: 'Get Day Pass', weekly: 'Get Weekly', monthly: 'Get Monthly', annual: 'Get Annual' };
     if (btn) { btn.disabled = false; btn.textContent = labels[plan] || 'Get Plan'; }
     showToast('Something went wrong. Try again.');
   }
@@ -115,7 +112,16 @@ async function init() {
 
   setupNavUser();
   setupDrawer(session);
-  bipassSetupPlanStatus(session);
+
+  // After Stripe redirects back, refresh session to get updated plan metadata
+  if (new URLSearchParams(window.location.search).get('activated') === '1') {
+    const { data: { session: fresh } } = await window.bipassAuth.client.auth.refreshSession();
+    if (fresh) bipassSetupPlanStatus(fresh);
+    history.replaceState({}, '', 'plans.html');
+    showToast('Plan activated! Welcome aboard.');
+  } else {
+    bipassSetupPlanStatus(session);
+  }
 }
 
 init();

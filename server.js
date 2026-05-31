@@ -2,6 +2,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import crypto from 'crypto';
+import Stripe from 'stripe';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -22,6 +23,15 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
 
 const INITIAL_CREDITS = 5000;
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const STRIPE_PRICES = {
+  day:     'price_1Td5E50Bb2AKTBfeGmRzRAvq',
+  weekly:  'price_1Td5Em0Bb2AKTBfeBMdLSnAo',
+  monthly: 'price_1Td5FJ0Bb2AKTBfe2XlBh9z7',
+  annual:  'price_1Td5G30Bb2AKTBfeJ7qVMUrw',
+};
 
 async function getUserFromToken(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
@@ -49,6 +59,38 @@ async function updateUserCredits(userId, credits) {
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)
 const oauthStates = new Map();
+
+// ─── Stripe webhook (raw body — must be before express.json()) ─
+
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) return res.status(500).json({ error: 'Webhook secret not configured' });
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  } catch (err) {
+    return res.status(400).send(`Webhook error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const userId = session.metadata?.user_id;
+    const plan   = session.metadata?.plan;
+    const config = PLAN_CONFIG[plan];
+    if (userId && config) {
+      await updateUserMeta(userId, {
+        tier: plan,
+        plan_expires_at: Date.now() + config.ms,
+        credits: config.credits,
+        credits_expire_at: null,
+      });
+    }
+  }
+
+  res.json({ received: true });
+});
 
 // ─── Middleware ────────────────────────────────────────────────
 
@@ -163,6 +205,29 @@ app.post('/api/activate-plan', async (req, res) => {
   return res.json({ ok: true, plan, plan_expires_at, credits: config.credits });
 });
 
+// ─── POST /api/create-checkout ───────────────────────────────
+
+app.post('/api/create-checkout', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const plan = req.body?.plan;
+  if (!STRIPE_PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
+    success_url: 'https://bipassai.com/plans.html?activated=1',
+    cancel_url:  'https://bipassai.com/plans.html',
+    metadata: { user_id: user.id, plan },
+    client_reference_id: user.id,
+  });
+
+  return res.json({ url: session.url });
+});
 
 // ─── POST /api/init-credits ───────────────────────────────────
 

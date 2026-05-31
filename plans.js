@@ -1,3 +1,17 @@
+let _toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.remove('hidden');
+  requestAnimationFrame(() => toast.classList.add('show'));
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.classList.add('hidden'), 200);
+  }, 2200);
+}
+
 async function setupNavUser() {
   const navUser = document.getElementById('nav-user');
   if (!navUser) return;

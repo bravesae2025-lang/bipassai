@@ -966,7 +966,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 .app-main {
-  padding: 16px 28px 24px;
+  padding: 16px 28px 80px;
   width: 100%;
   box-sizing: border-box;
   display: flex;

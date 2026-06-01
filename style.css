@@ -505,6 +505,8 @@ main {
 .right-panel-wrap {
   position: relative;
   padding: 16px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .right-panel {

@@ -27,7 +27,6 @@ function setupDrawer(session) {
   const email = session.user.email || '';
   const displayName = session.user.user_metadata?.display_name || '';
   const tier = session.user.user_metadata?.tier || 'free';
-  const tierLabel = { free: 'Free', pro: 'Pro', premium: 'Premium' }[tier] || 'Free';
   const initial = (displayName || email || '?')[0].toUpperCase();
 
   drawerUser.innerHTML = `
@@ -36,7 +35,6 @@ function setupDrawer(session) {
       <div class="drawer-profile">
         <span class="drawer-username">${displayName || email || 'User'}</span>
         <span class="drawer-user-email">${email}</span>
-        <a class="drawer-tier-badge drawer-tier-${tier}" href="plans.html">${tierLabel}</a>
       </div>
     </div>
   `;
@@ -69,7 +67,6 @@ function setupProfile(session) {
   const email = user.email || '';
   let displayName = user.user_metadata?.display_name || '';
   const tier = user.user_metadata?.tier || 'free';
-  const tierLabel = { free: 'Free', pro: 'Pro', premium: 'Premium' }[tier] || 'Free';
 
   const avatarEl = document.getElementById('settings-avatar');
   const emailEl  = document.getElementById('settings-email');
@@ -84,8 +81,7 @@ function setupProfile(session) {
 
   avatarEl.textContent = initial();
   emailEl.textContent  = email;
-  tierEl.textContent   = tierLabel;
-  tierEl.className     = `drawer-tier-badge drawer-tier-${tier}`;
+  if (tierEl) tierEl.style.display = 'none';
   renderName();
 
   document.getElementById('settings-username-edit-btn').addEventListener('click', function startEdit() {

@@ -26,7 +26,6 @@ async function init() {
     const email = session.user.email || '';
     const displayName = session.user.user_metadata?.display_name || '';
     const tier = session.user.user_metadata?.tier || 'free';
-    const tierLabel = { free: 'Free', pro: 'Pro', premium: 'Premium' }[tier] || 'Free';
     const initial = (displayName || email || '?')[0].toUpperCase();
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
@@ -34,7 +33,6 @@ async function init() {
         <div class="drawer-profile">
           <span class="drawer-username">${displayName || email}</span>
           <span class="drawer-user-email">${email}</span>
-          <a class="drawer-tier-badge drawer-tier-${tier}" href="plans.html">${tierLabel}</a>
         </div>
       </div>`;
   }

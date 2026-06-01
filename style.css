@@ -942,7 +942,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.85);
+  background: #fff;
   border: 1px solid rgba(0,0,0,0.2);
   border-radius: 6px;
   cursor: pointer;

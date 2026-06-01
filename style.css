@@ -2313,11 +2313,13 @@ body.editor-page { background: var(--bg); }
 
 .ext-ring-1 {
   width: 90px; height: 90px;
+  will-change: transform, opacity;
   animation: ring-pulse 3s ease-in-out infinite;
 }
 
 .ext-ring-2 {
   width: 116px; height: 116px;
+  will-change: transform, opacity;
   animation: ring-pulse 3s ease-in-out 0.7s infinite;
 }
 

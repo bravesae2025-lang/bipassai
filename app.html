@@ -348,6 +348,99 @@
     </div>
   </div>
 
+  <!-- Extension feature popup — first-visit onboarding -->
+  <div class="ext-popup" id="ext-popup" role="dialog" aria-label="About the Auto Typer extension">
+    <div class="ext-popup-arrow"></div>
+
+    <div class="ext-popup-head">
+      <div class="ext-popup-status">
+        <span class="ext-popup-dot"></span>
+        <span class="ext-popup-eyebrow">Auto Typer Extension</span>
+      </div>
+      <button class="ext-popup-close" id="ext-popup-close" aria-label="Close">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <h3 class="ext-popup-title">Type anywhere,<br>naturally.</h3>
+    <p class="ext-popup-sub">Your humanized text typed into any field — character by character, just like you would.</p>
+
+    <div class="ext-popup-steps">
+
+      <div class="ext-popup-step">
+        <div class="ext-popup-step-left">
+          <span class="ext-popup-step-num">01</span>
+          <div>
+            <div class="ext-popup-step-title">Generate your text</div>
+            <div class="ext-popup-step-desc">Humanize or generate on Bipass AI</div>
+          </div>
+        </div>
+        <div class="ext-mock ext-mock-list">
+          <div class="ext-mock-bar">
+            <span class="ext-mock-logo-text">BIPASS AI</span>
+            <span class="ext-mock-tag-text">AUTO TYPER</span>
+          </div>
+          <div class="ext-mock-label">YOUR TEXTS</div>
+          <div class="ext-mock-row-item">
+            <span class="ext-mock-badge">Humanized</span>
+            <span class="ext-mock-line" style="width:44px"></span>
+          </div>
+          <div class="ext-mock-row-item ext-mock-row-hover">
+            <span class="ext-mock-badge ext-mock-badge-hi">Generated</span>
+            <span class="ext-mock-line" style="width:36px"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ext-popup-divider"></div>
+
+      <div class="ext-popup-step">
+        <div class="ext-popup-step-left">
+          <span class="ext-popup-step-num">02</span>
+          <div>
+            <div class="ext-popup-step-title">Set your speed</div>
+            <div class="ext-popup-step-desc">Choose how fast it types</div>
+          </div>
+        </div>
+        <div class="ext-mock ext-mock-ready">
+          <div class="ext-mock-spd-row">
+            <span class="ext-mock-spd">Slow</span>
+            <span class="ext-mock-spd ext-mock-spd-active">Normal</span>
+            <span class="ext-mock-spd">Fast</span>
+          </div>
+          <div class="ext-mock-start">Start Typing →</div>
+        </div>
+      </div>
+
+      <div class="ext-popup-divider"></div>
+
+      <div class="ext-popup-step">
+        <div class="ext-popup-step-left">
+          <span class="ext-popup-step-num">03</span>
+          <div>
+            <div class="ext-popup-step-title">Click ▶ and type</div>
+            <div class="ext-popup-step-desc">A float button appears on any page</div>
+          </div>
+        </div>
+        <div class="ext-mock ext-mock-float-scene">
+          <div class="ext-mock-page-line"></div>
+          <div class="ext-mock-page-line" style="width:70%"></div>
+          <div class="ext-mock-page-line" style="width:55%"></div>
+          <div class="ext-mock-float-btn">
+            <span class="ext-mock-float-icon">▶</span>
+            <span class="ext-mock-float-label">Start Typing</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <a class="ext-popup-cta" href="https://bipassai.com/howto.html" target="_blank" rel="noopener">
+      Learn More
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=2"></script>
   <script src="app.js?v=2"></script>

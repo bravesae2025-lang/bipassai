@@ -1167,6 +1167,48 @@ function showToast(msg) {
   });
 })();
 
+// ─── Extension popup (first-visit onboarding) ─────────────────
+(function () {
+  const popup    = document.getElementById('ext-popup');
+  const closeBtn = document.getElementById('ext-popup-close');
+  const extBtn   = document.querySelector('.nav-ext-btn');
+  if (!popup || !extBtn) return;
+
+  function positionPopup() {
+    const r  = extBtn.getBoundingClientRect();
+    const pw = 340;
+    let left = r.left + r.width / 2 - pw / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - pw - 12));
+    popup.style.top  = (r.bottom + 10) + 'px';
+    popup.style.left = left + 'px';
+    const arrow = popup.querySelector('.ext-popup-arrow');
+    if (arrow) arrow.style.left = (r.left + r.width / 2 - left) + 'px';
+  }
+
+  function showPopup() {
+    positionPopup();
+    popup.classList.add('show');
+    localStorage.setItem('ext_popup_seen', '1');
+  }
+
+  function hidePopup() { popup.classList.remove('show'); }
+
+  extBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    popup.classList.contains('show') ? hidePopup() : showPopup();
+  });
+
+  closeBtn?.addEventListener('click', hidePopup);
+
+  document.addEventListener('click', (e) => {
+    if (!popup.contains(e.target) && !extBtn.contains(e.target)) hidePopup();
+  });
+
+  if (!localStorage.getItem('ext_popup_seen')) {
+    setTimeout(showPopup, 1400);
+  }
+})();
+
 // ─── Start ────────────────────────────────────────────────────
 
 init();

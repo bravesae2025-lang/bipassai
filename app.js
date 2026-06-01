@@ -132,7 +132,6 @@ const wordCount      = document.getElementById('word-count');
 const levelDesc      = document.getElementById('level-desc');
 const levelLabel     = document.getElementById('level-label');
 const levelGlider    = document.getElementById('level-glider');
-const levelTrack     = document.querySelector('.level-track');
 const statusLabel    = document.getElementById('status-label');
 const pills          = document.querySelectorAll('.level-btn');
 const optionsPanel   = document.getElementById('options-panel');
@@ -433,7 +432,6 @@ function selectLevel(level) {
   levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
   levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
-  levelTrack.classList.toggle('level-track--inactive', level === 'customize');
   optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
 }
 

@@ -2018,12 +2018,12 @@ body.editor-page { background: var(--bg); }
   background: #1a1a1a;
   border-color: rgba(255,255,255,0.18);
 }
-.col-customize .level-track.level-track--inactive {
+.col-customize .level-track:has(+ .level-btn-custom.active) {
   background: transparent;
   border-color: rgba(255,255,255,0.07);
 }
-.col-customize .level-track.level-track--inactive .level-glider { opacity: 0; }
-.col-customize .level-track.level-track--inactive .level-btn { color: rgba(255,255,255,0.22); }
+.col-customize .level-track:has(+ .level-btn-custom.active) .level-glider { opacity: 0; }
+.col-customize .level-track:has(+ .level-btn-custom.active) .level-btn { color: rgba(255,255,255,0.22); }
 
 .level-glider {
   position: absolute;

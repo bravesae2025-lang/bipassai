@@ -3683,6 +3683,31 @@ body.login-page {
   gap: 10px;
 }
 
+.nav-right-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+}
+.nav-ext-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.nav-ext-btn:hover {
+  background: rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.2);
+}
+
 /* ── Credit indicator ─────────────────────────────────────────── */
 .credit-indicator {
   display: flex;

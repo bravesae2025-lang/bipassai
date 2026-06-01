@@ -46,17 +46,24 @@
         <a class="nav-link" href="howto.html">How to Use</a>
         <a class="nav-link" href="settings.html">Settings</a>
       </div>
-      <div class="credit-indicator" id="credit-indicator">
-        <span class="credit-icon">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="8" cy="8" r="7.2" stroke="currentColor" stroke-width="1.4"/>
-            <circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.2" stroke-dasharray="0.8 1.9" opacity="0.45"/>
-            <text x="8" y="8" text-anchor="middle" dominant-baseline="central" font-family="Syne, sans-serif" font-weight="800" font-size="7" fill="currentColor">B</text>
+      <div class="nav-right-group">
+        <div class="credit-indicator" id="credit-indicator">
+          <span class="credit-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="8" cy="8" r="7.2" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.2" stroke-dasharray="0.8 1.9" opacity="0.45"/>
+              <text x="8" y="8" text-anchor="middle" dominant-baseline="central" font-family="Syne, sans-serif" font-weight="800" font-size="7" fill="currentColor">B</text>
+            </svg>
+          </span>
+          <span class="credit-val" id="credit-val">—</span>
+          <span class="credit-label">credits</span>
+          <span class="credit-used-badge hidden" id="credit-used-badge"></span>
+        </div>
+        <a class="nav-ext-btn" href="#" title="Get the Extension">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.5 2.5 0 0 1 0 5H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.5 2.5 0 0 1 5 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/>
           </svg>
-        </span>
-        <span class="credit-val" id="credit-val">—</span>
-        <span class="credit-label">credits</span>
-        <span class="credit-used-badge hidden" id="credit-used-badge"></span>
+        </a>
       </div>
       <div class="nav-user" id="nav-user"></div>
     </div>

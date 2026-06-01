@@ -1156,6 +1156,19 @@ function showToast(msg) {
   document.querySelectorAll('[data-anim]').forEach(el => observer.observe(el));
 })();
 
+// ─── Ticker bar dismiss ───────────────────────────────────────
+
+(function () {
+  const bar = document.getElementById('ticker-bar');
+  const btn = document.getElementById('ticker-close-btn');
+  if (!bar || !btn) return;
+  if (localStorage.getItem('ticker-dismissed') === '1') bar.classList.add('hidden');
+  btn.addEventListener('click', () => {
+    bar.classList.add('hidden');
+    localStorage.setItem('ticker-dismissed', '1');
+  });
+})();
+
 // ─── Start ────────────────────────────────────────────────────
 
 init();

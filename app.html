@@ -85,7 +85,7 @@
   </aside>
 
   <!-- Scrolling ticker bar -->
-  <div class="app-statsbar app-ticker-bar">
+  <div class="app-statsbar app-ticker-bar" id="ticker-bar">
     <div class="ticker-track">
       <span class="ticker-item">100% undetectable</span>
       <span class="ticker-sep">✦</span>
@@ -112,6 +112,7 @@
       <span class="ticker-item">sounds human</span>
       <span class="ticker-sep">✦</span>
     </div>
+    <button class="ticker-close-btn" id="ticker-close-btn" aria-label="Dismiss">✕</button>
   </div>
   <!-- Hidden elements kept for JS stat tracking -->
   <span id="word-count" style="display:none">0</span>

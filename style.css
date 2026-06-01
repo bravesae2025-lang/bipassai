@@ -489,6 +489,17 @@ main {
   pointer-events: none;
 }
 
+/* Soft left-edge fade into page background */
+.page-right-section-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -48px;
+  width: 48px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, #f0f0f0);
+  pointer-events: none;
+}
 
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {

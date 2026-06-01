@@ -5826,6 +5826,52 @@ body.drawer-lock { overflow: hidden; }
   margin-top: 2px;
 }
 
+.mock-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-family: var(--ff-mono);
+  color: var(--g400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.mock-num { font-weight: 700; color: var(--black); }
+.mock-textarea-sm { margin-bottom: 8px; }
+.mock-style-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+}
+.mock-style-card-ghost { background: rgba(0,0,0,0.03); }
+.mock-style-name { font-size: 11px; font-family: var(--ff-mono); color: var(--black); }
+.mock-style-name-ghost { color: var(--g300); }
+.mock-style-active-badge {
+  font-size: 9px;
+  font-family: var(--ff-mono);
+  background: var(--black);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.mock-style-details { font-size: 9px; font-family: var(--ff-mono); color: var(--g300); }
+.mock-create-btn {
+  font-size: 11px;
+  font-family: var(--ff-mono);
+  color: var(--g400);
+  text-align: center;
+  padding: 8px;
+  border: 1px dashed rgba(0,0,0,0.15);
+  border-radius: 6px;
+}
+
 /* FAQ */
 .howto-faq-section {
   padding: 80px 0 0;

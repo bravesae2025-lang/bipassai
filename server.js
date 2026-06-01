@@ -27,10 +27,10 @@ const INITIAL_CREDITS = 5000;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const STRIPE_PRICES = {
-  day:     'price_1Td5E50Bb2AKTBfeGmRzRAvq',
-  weekly:  'price_1Td5Em0Bb2AKTBfeBMdLSnAo',
-  monthly: 'price_1Td5FJ0Bb2AKTBfe2XlBh9z7',
-  annual:  'price_1Td5G30Bb2AKTBfeJ7qVMUrw',
+  day:     'price_1TdM7R0rExXCXCyX44b8Rpwb',
+  weekly:  'price_1TdM7V0rExXCXCyXAg1RZ7uH',
+  monthly: 'price_1TdM7V0rExXCXCyXx8XLVT7c',
+  annual:  'price_1TdM7T0rExXCXCyXQFyARFPe',
 };
 
 async function getUserFromToken(token) {
@@ -75,12 +75,12 @@ const CREDIT_PACKAGES = {
 };
 
 const STRIPE_CREDIT_PRICES = {
-  c1000:   'price_1Td5u90Bb2AKTBfew06WAetf',
-  c3000:   'price_1Td5uf0Bb2AKTBfeMAGBDDoB',
-  c5000:   'price_1Td5v50Bb2AKTBfeQmrnHSXK',
-  c20000:  'price_1Td5vb0Bb2AKTBfeKjlZmPax',
-  c50000:  'price_1Td5vz0Bb2AKTBfe0Hf3aywB',
-  c100000: 'price_1Td5wq0Bb2AKTBfeXwDSHwdM',
+  c1000:   'price_1TdM7R0rExXCXCyXPl6K4mOi',
+  c3000:   'price_1TdM7V0rExXCXCyXdWG5cmHr',
+  c5000:   'price_1TdM7V0rExXCXCyXl7eYiCqb',
+  c20000:  'price_1TdM7X0rExXCXCyX2UPJc7Jq',
+  c50000:  'price_1TdM7S0rExXCXCyXaBhlQBNX',
+  c100000: 'price_1TdM7R0rExXCXCyXn2Z67c2t',
 };
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)

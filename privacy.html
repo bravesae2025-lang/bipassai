@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI — Privacy Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-logo" href="app.html">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="app.html">Home</a>
+        <a class="nav-link" href="history.html">History</a>
+        <a class="nav-link" href="plans.html">Plans</a>
+        <a class="nav-link" href="howto.html">How to Use</a>
+        <a class="nav-link" href="settings.html">Settings</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <div class="drawer-plan" id="drawer-plan"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="app.html">Home</a>
+      <a class="drawer-item" href="history.html">History</a>
+      <a class="drawer-item" href="plans.html">Plans</a>
+      <a class="drawer-item" href="howto.html">How to Use</a>
+      <a class="drawer-item" href="settings.html">Settings</a>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="privacy-main">
+
+    <h1 class="privacy-title">Privacy Policy</h1>
+    <p class="privacy-date">Last updated: June 2, 2026</p>
+
+    <div class="privacy-section">
+      <h2>Who we are</h2>
+      <p>Bipass AI is a writing tool that helps you humanize and generate text. This policy explains what data we collect when you use the Bipass AI website and the Bipass AI Auto Typer browser extension.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Account information</strong> — your email address and display name, provided when you sign in with Google or email and password.</li>
+        <li><strong>Text results</strong> — the humanized or generated text your account produces, stored so you can access your history and use the Auto Typer extension.</li>
+        <li><strong>Authentication tokens</strong> — access and refresh tokens stored locally in your browser (via <code>chrome.storage.local</code> for the extension, or session cookies for the website) to keep you signed in.</li>
+        <li><strong>Usage tier</strong> — whether your account is on the free or paid plan, stored in your account metadata.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>What we do not collect</h2>
+      <ul>
+        <li>We do not collect your browsing history.</li>
+        <li>We do not read the content of pages you visit.</li>
+        <li>The Auto Typer extension only injects into the active tab when you explicitly press Start — it does not run in the background on other pages.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>How we use your data</h2>
+      <ul>
+        <li>To authenticate your account and keep you signed in.</li>
+        <li>To store and display your text results in History and the extension.</li>
+        <li>To track your credit balance and plan status.</li>
+      </ul>
+      <p>We do not sell, rent, or share your personal data with third parties for advertising or any other purpose.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>Third-party services</h2>
+      <ul>
+        <li><strong>Supabase</strong> — our database and authentication provider. Your account data and results are stored on Supabase servers. See <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase's privacy policy</a>.</li>
+        <li><strong>Stripe</strong> — used to process payments on the Pro plan. We do not store your card details. See <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe's privacy policy</a>.</li>
+        <li><strong>Google OAuth</strong> — used as an optional sign-in method. We only receive your email and display name.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>Data retention</h2>
+      <p>Your text results are kept until you delete them from History. Auth tokens are cleared when you sign out. If you delete your account, all associated data is removed.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>Your rights</h2>
+      <p>You can delete your results at any time from the History page. To request full account deletion or a copy of your data, contact us at the address below.</p>
+    </div>
+
+    <div class="privacy-section privacy-contact">
+      <h2>Contact</h2>
+      <p>Questions about this policy? Email us at <a href="mailto:support@bipassai.com">support@bipassai.com</a>.</p>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 Bipass AI</span>
+    <span class="site-footer-sep">·</span>
+    <a href="privacy.html">Privacy Policy</a>
+  </footer>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js?v=2"></script>
+  <script src="cursor.js?v=2"></script>
+</body>
+</html>

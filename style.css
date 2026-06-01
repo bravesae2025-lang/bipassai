@@ -6984,3 +6984,74 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   margin-top: 2px;
 }
 .ext-popup-cta:hover { background: var(--g100); }
+
+/* ── Site footer ──────────────────────────────────────────────── */
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 32px 24px;
+  border-top: 1px solid rgba(0,0,0,0.07);
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--g300);
+}
+.site-footer a { color: var(--g400); text-decoration: none; transition: color 0.15s; }
+.site-footer a:hover { color: var(--black); }
+.site-footer-sep { color: var(--g150); }
+
+/* ── Privacy policy page ──────────────────────────────────────── */
+.privacy-main {
+  padding: 100px 24px 64px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.privacy-title {
+  font-family: var(--ff-display);
+  font-size: 52px;
+  letter-spacing: 0.02em;
+  color: var(--black);
+  line-height: 1;
+  margin: 0 0 8px;
+}
+.privacy-date {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+  letter-spacing: 0.08em;
+  margin: 0 0 52px;
+}
+.privacy-section { margin-bottom: 36px; }
+.privacy-section h2 {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin: 0 0 10px;
+}
+.privacy-section p,
+.privacy-section li {
+  font-family: var(--ff-ui);
+  font-size: 14px;
+  color: var(--g400);
+  line-height: 1.75;
+  margin: 0 0 6px;
+}
+.privacy-section strong { color: var(--black); font-weight: 600; }
+.privacy-section code {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.privacy-section ul { padding-left: 20px; margin: 6px 0 0; }
+.privacy-section a { color: var(--black); text-decoration: underline; }
+.privacy-section a:hover { opacity: 0.7; }
+.privacy-contact a { font-weight: 600; }

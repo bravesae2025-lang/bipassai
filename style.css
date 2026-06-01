@@ -3065,6 +3065,15 @@ body.editor-page { background: var(--bg); }
    Contact
 ───────────────────────────────────────────────────────────── */
 
+.ext-landing-section {
+  padding: 100px 24px;
+  text-align: center;
+}
+.ext-landing-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
 .contact-section {
   position: relative;
   z-index: 1;

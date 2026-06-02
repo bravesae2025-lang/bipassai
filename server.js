@@ -327,7 +327,7 @@ app.post('/api/analyze', async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
 
   try {
@@ -384,7 +384,7 @@ app.post('/api/humanize', async (req, res) => {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'Server not configured' });
   }
@@ -454,7 +454,7 @@ app.post('/api/stream', async (req, res) => {
   const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
   if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'];
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
 
   let cancelled = false;
@@ -660,5 +660,5 @@ app.delete('/api/account', async (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Bipass AI running on port ${PORT}`);
-  console.log(`API key present: ${!!(process.env.GEMINI_API_KEY || process.env.gemeni || process.env['gemeni api key'])}`);
+  console.log(`API key present: ${!!(process.env.GEMINI_API_KEY)}`);
 });

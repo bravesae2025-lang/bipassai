@@ -80,8 +80,9 @@ async function fetchResults(accessToken, userId, tier) {
         <span class="result-badge">${modeLabel}${levelLabel}</span>
         <span class="result-date">${formatDate(row.created_at)}</span>
       </div>
-      <div class="result-preview">${preview}</div>
+      <div class="result-preview"></div>
     `;
+    item.querySelector('.result-preview').textContent = preview;
     item.addEventListener('click', () => selectResult(row.text, row.mode));
     list.appendChild(item);
   });

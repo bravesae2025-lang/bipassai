@@ -6964,6 +6964,25 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .ext-mock-float-icon { font-size: 6px; color: #fff; }
 .ext-mock-float-label { font-size: 7px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+.ext-mock-pick { padding: 0; }
+.ext-mock-selected-card {
+  margin: 6px;
+  padding: 6px 7px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ext-mock-selected-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ext-mock-check { font-size: 8px; color: #22c55e; font-weight: 700; }
+.ext-mock-text-lines { display: flex; flex-direction: column; gap: 3px; }
+.ext-mock-tline { height: 3px; width: 100%; background: rgba(255,255,255,0.15); border-radius: 2px; }
 
 .ext-popup-cta {
   display: flex;

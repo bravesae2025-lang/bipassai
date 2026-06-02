@@ -318,7 +318,10 @@ async function showWelcomeModal() {
   document.getElementById('welcome-cta')?.addEventListener('click', () => {
     clearInterval(timer);
     overlay.classList.remove('show');
-    setTimeout(() => overlay.classList.add('hidden'), 250);
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      window.__bipassShowExtPopup?.();
+    }, 250);
   });
 }
 
@@ -1204,7 +1207,9 @@ function showToast(msg) {
     if (!popup.contains(e.target) && !extBtn.contains(e.target)) hidePopup();
   });
 
-  if (!localStorage.getItem('ext_popup_seen')) {
+  window.__bipassShowExtPopup = showPopup;
+
+  if (!localStorage.getItem('ext_popup_seen') && !document.getElementById('welcome-modal')) {
     setTimeout(showPopup, 1400);
   }
 })();

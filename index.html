@@ -209,7 +209,7 @@
           <li>Cloud storage for texts</li>
           <li>Good for a single assignment</li>
         </ul>
-        <button class="pricing-btn pricing-btn-featured" onclick="window.location.href='login.html'">Get Day Pass</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Day Pass</button>
       </div>
 
       <div class="pricing-card pricing-card-weekly" data-anim="scale-up" data-anim-delay="1">
@@ -228,7 +228,7 @@
           <li>Cloud storage for texts</li>
           <li>Great for exam week</li>
         </ul>
-        <button class="pricing-btn pricing-btn-featured" onclick="window.location.href='login.html'">Get Weekly</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Weekly</button>
       </div>
 
       <div class="pricing-card pricing-card-monthly" data-anim="scale-up" data-anim-delay="2">
@@ -247,7 +247,7 @@
           <li>Cloud storage for texts</li>
           <li>Priority access to new features</li>
         </ul>
-        <button class="pricing-btn pricing-btn-featured" onclick="window.location.href='login.html'">Get Monthly</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Monthly</button>
       </div>
 
       <div class="pricing-card pricing-card-featured" data-anim="scale-up" data-anim-delay="3">
@@ -267,7 +267,7 @@
           <li>Priority access to new features</li>
           <li>Just $0.55/day — 89% cheaper than daily passes</li>
         </ul>
-        <button class="pricing-btn pricing-btn-featured" onclick="window.location.href='login.html'">Get Annual</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Annual</button>
       </div>
 
     </div>
@@ -384,6 +384,11 @@
         navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
       }
     })();
+
+    async function goToPricing() {
+      const session = await window.bipassAuth.getSession();
+      window.location.href = session ? 'plans.html' : 'login.html';
+    }
 
     // ── Typing showcase ───────────────────────────────────────
     (function () {

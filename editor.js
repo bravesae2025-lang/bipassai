@@ -102,11 +102,16 @@ function setupDrawer(session) {
 // ─── Init ─────────────────────────────────────────────────────
 
 async function init() {
-  const session = await window.bipassAuth.requireAuth();
+  let session = await window.bipassAuth.requireAuth();
   if (!session) return;
+
+  // Refresh to get latest tier/plan metadata (avoids stale "Free" on editor page)
+  const fresh = await window.bipassAuth.refreshSession().catch(() => null);
+  if (fresh) session = fresh;
 
   setupNavUser();
   setupDrawer(session);
+  bipassSetupPlanStatus(session);
 
   const result = sessionStorage.getItem('bipass_result');
   const mode   = sessionStorage.getItem('bipass_mode');

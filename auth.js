@@ -43,6 +43,12 @@ window.bipassAuth = {
     if (!session) return null;
     return session.user.user_metadata?.credits ?? 5000;
   },
+
+  // Force-refresh the full session (gets latest user_metadata including tier)
+  async refreshSession() {
+    const { data: { session } } = await _sb.auth.refreshSession();
+    return session;
+  },
 };
 
 // Shared plan status widget — call on any page that has #drawer-plan

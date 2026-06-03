@@ -376,6 +376,14 @@ app.post('/api/humanize', async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
+  // Plan expiry check for paid plans
+  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const userTier = user.user_metadata?.tier || 'free';
+  if (userTier !== 'free' && planExpiresAt && Date.now() > planExpiresAt) {
+    await updateUserMeta(user.id, { tier: 'free' });
+    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
+
   // Expiry check for free starter credits
   const creditsExpireAt = user.user_metadata?.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
@@ -447,6 +455,14 @@ app.post('/api/stream', async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  // Plan expiry check for paid plans
+  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const userTier = user.user_metadata?.tier || 'free';
+  if (userTier !== 'free' && planExpiresAt && Date.now() > planExpiresAt) {
+    await updateUserMeta(user.id, { tier: 'free' });
+    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
 
   // Expiry check for free starter credits
   const creditsExpireAt = user.user_metadata?.credits_expire_at;

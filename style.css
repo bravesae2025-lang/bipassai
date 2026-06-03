@@ -6603,6 +6603,19 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .editor-btn-regen:hover { color: #fff; background: var(--black); border-color: var(--black); }
 .editor-btn-regen:disabled { opacity: 0.4; cursor: not-allowed; }
+.editor-btn-push {
+  color: var(--black);
+  background: transparent;
+  border-color: var(--g150);
+}
+.editor-btn-push:hover:not(:disabled) { border-color: var(--black); }
+.editor-btn-push:disabled { opacity: 0.5; cursor: not-allowed; }
+.editor-btn-pushed {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+  border-color: #bbf7d0 !important;
+  cursor: default;
+}
 
 /* History search + filter controls */
 .history-controls {

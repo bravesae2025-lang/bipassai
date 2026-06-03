@@ -186,12 +186,12 @@ function setupViewToggle(result, mode) {
 
 async function saveResult(text, mode, session) {
   const level = sessionStorage.getItem('bipass_level') || 'easy';
-  await window.bipassAuth.client.from('results').insert({
-    user_id: session.user.id,
-    text,
-    mode: mode || 'humanize',
-    level,
-  });
+  const { data } = await window.bipassAuth.client
+    .from('results')
+    .insert({ user_id: session.user.id, text, mode: mode || 'humanize', level })
+    .select('id')
+    .single();
+  if (data?.id) sessionStorage.setItem('bipass_result_id', data.id);
 }
 
 // ─── Typewriter ───────────────────────────────────────────────
@@ -513,6 +513,35 @@ function showToast(msg) {
     lastY = y;
   }, { passive: true });
 })();
+
+// ─── Push to Extension ────────────────────────────────────────
+
+async function pushToExtension() {
+  const btn = document.getElementById('push-ext-btn');
+  const resultId = sessionStorage.getItem('bipass_result_id');
+  if (!resultId || !btn) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Pushing…';
+
+  try {
+    const session = await window.bipassAuth.getSession();
+    const { error } = await window.bipassAuth.client
+      .from('results')
+      .update({ ext_push: true })
+      .eq('id', resultId)
+      .eq('user_id', session.user.id);
+
+    if (error) throw error;
+    btn.textContent = 'Pushed ✓';
+    btn.classList.add('editor-btn-pushed');
+  } catch (_) {
+    btn.disabled = false;
+    btn.textContent = 'Push to Extension';
+  }
+}
+
+document.getElementById('push-ext-btn')?.addEventListener('click', pushToExtension);
 
 // ─── Start ────────────────────────────────────────────────────
 

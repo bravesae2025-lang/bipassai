@@ -243,6 +243,21 @@ async function init() {
   setupNavUser();
   setupDrawer(session);
   bipassSetupPlanStatus(session);
+
+  // Show no-plan banner if user has no active plan
+  const _tier = session.user.user_metadata?.tier || 'free';
+  const _planExp = session.user.user_metadata?.plan_expires_at;
+  const _hasPlan = _tier !== 'free' && (!_planExp || Date.now() < _planExp);
+  if (!_hasPlan) {
+    const _banner = document.getElementById('no-plan-banner');
+    if (_banner) {
+      _banner.classList.remove('hidden');
+      document.getElementById('no-plan-banner-close')?.addEventListener('click', () => {
+        _banner.classList.add('hidden');
+      }, { once: true });
+    }
+  }
+
   restoreState();
   updateStats();
   bindEvents();

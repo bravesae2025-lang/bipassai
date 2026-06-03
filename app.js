@@ -1083,10 +1083,18 @@ function updateCreditDisplay(used, remaining) {
     animateCount(valEl, current, remaining);
   }
   if (badgeEl) {
-    badgeEl.textContent = `−${used.toLocaleString()} credits`;
+    badgeEl.textContent = '−0 credits';
     badgeEl.classList.remove('hidden', 'credit-used-animate');
     void badgeEl.offsetWidth;
     badgeEl.classList.add('credit-used-animate');
+    const badgeStart = performance.now();
+    const badgeDur = 700;
+    (function tickBadge(now) {
+      const p = Math.min((now - badgeStart) / badgeDur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      badgeEl.textContent = `−${Math.round(used * ease).toLocaleString()} credits`;
+      if (p < 1) requestAnimationFrame(tickBadge);
+    })(performance.now());
   }
   // Confirm with a fresh server-side value a moment later
   setTimeout(() => {

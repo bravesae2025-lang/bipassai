@@ -4342,8 +4342,27 @@ body.drawer-lock { overflow: hidden; }
 
 .plans-head {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 20px;
 }
+.plans-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 36px;
+}
+.plans-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g600);
+}
+.plans-trust-item svg { color: #16a34a; flex-shrink: 0; }
+.plans-trust-sep { color: var(--g200); font-size: 14px; line-height: 1; }
 .plans-current-plan {
   margin-top: 20px;
 }

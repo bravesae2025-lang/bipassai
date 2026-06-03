@@ -1007,11 +1007,13 @@ async function callAPIStream(prompt) {
       try {
         const json = JSON.parse(line.slice(6));
         if (json.error) throw new Error(json.error);
-        if (json.chunk) accumulated += json.chunk;
+        if (json.chunk) {
+          accumulated += json.chunk;
+          if (credEl && json.chars) credEl.textContent = json.chars.toLocaleString();
+        }
         if (json.done) {
           finalResult = json.result;
           creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };
-          if (credEl) credEl.textContent = json.creditsUsed.toLocaleString();
           sessionStorage.setItem('bipass_tokens', JSON.stringify({
             input: json.inputTokens || 0,
             output: json.outputTokens || 0,
@@ -1124,7 +1126,7 @@ function setLoading(on, text) {
   if (on) {
     loadingText.textContent = text || 'Loading…';
     const credEl = document.getElementById('loading-credits');
-    if (credEl) credEl.textContent = '';
+    if (credEl) credEl.textContent = '0';
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');

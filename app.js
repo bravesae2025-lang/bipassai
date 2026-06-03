@@ -1063,10 +1063,25 @@ async function callAPI(prompt) {
   return data.result;
 }
 
+function animateCount(el, from, to, duration = 700) {
+  if (from === to || isNaN(from)) { el.textContent = to.toLocaleString(); return; }
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * ease).toLocaleString();
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function updateCreditDisplay(used, remaining) {
   const valEl  = document.getElementById('credit-val');
   const badgeEl = document.getElementById('credit-used-badge');
-  if (valEl) valEl.textContent = remaining.toLocaleString();
+  if (valEl) {
+    const current = parseInt(valEl.textContent.replace(/[^0-9]/g, '')) || 0;
+    animateCount(valEl, current, remaining);
+  }
   if (badgeEl) {
     badgeEl.textContent = `−${used.toLocaleString()} credits`;
     badgeEl.classList.remove('hidden', 'credit-used-animate');
@@ -1076,7 +1091,7 @@ function updateCreditDisplay(used, remaining) {
   // Confirm with a fresh server-side value a moment later
   setTimeout(() => {
     window.bipassAuth.refreshCredits().then(fresh => {
-      if (fresh !== null && valEl) valEl.textContent = fresh.toLocaleString();
+      if (fresh !== null && valEl) animateCount(valEl, remaining, fresh, 400);
     }).catch(() => {});
   }, 1500);
 }

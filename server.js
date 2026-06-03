@@ -74,7 +74,7 @@ const CREDIT_PACKAGES = {
 
 const STRIPE_CREDIT_PRICES = {
   c5000:   'price_1Te9500rExXCXCyX8wkXy18D',
-  c20000:  'price_1TdM7X0rExXCXCyX2UPJc7Jq',
+  c20000:  'price_1Te95k0rExXCXCyX0KzAO1Im',
   c50000:  'price_1Te96Q0rExXCXCyXvG8Y1Mjq',
   c100000: 'price_1Te96o0rExXCXCyXzMfjMkvG',
 };

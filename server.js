@@ -280,16 +280,20 @@ app.post('/api/create-credit-checkout', async (req, res) => {
   if (!STRIPE_CREDIT_PRICES[pkg] || STRIPE_CREDIT_PRICES[pkg] === 'price_PLACEHOLDER')
     return res.status(400).json({ error: 'Invalid package' });
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{ price: STRIPE_CREDIT_PRICES[pkg], quantity: 1 }],
-    success_url: 'https://bipassai.com/plans.html?credits_added=1',
-    cancel_url:  'https://bipassai.com/plans.html',
-    metadata: { user_id: user.id, type: 'credits', pkg },
-    client_reference_id: user.id,
-  });
-
-  return res.json({ url: session.url });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: STRIPE_CREDIT_PRICES[pkg], quantity: 1 }],
+      success_url: 'https://bipassai.com/plans.html?credits_added=1',
+      cancel_url:  'https://bipassai.com/plans.html',
+      metadata: { user_id: user.id, type: 'credits', pkg },
+      client_reference_id: user.id,
+    });
+    return res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe credit checkout error:', err.message);
+    return res.status(500).json({ error: 'Payment setup failed. Please try again.' });
+  }
 });
 
 // ─── POST /api/init-credits ───────────────────────────────────

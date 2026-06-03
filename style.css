@@ -2736,6 +2736,14 @@ body.editor-page { background: var(--bg); }
 .pricing-card-weekly .pricing-features li         { color: rgba(255,255,255,0.55); }
 .pricing-card-weekly .pricing-features li::before { color: #4ade80; }
 
+.pricing-billed-note {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em;
+  margin-top: -4px;
+}
+
 .pricing-card-monthly {
   background: linear-gradient(160deg, #454545 0%, #1e1e1e 100%);
 }

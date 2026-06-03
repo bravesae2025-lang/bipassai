@@ -1124,14 +1124,19 @@ function updateCreditDisplay(used, remaining) {
 // ─── Loading overlay ──────────────────────────────────────────
 
 function showCreditWarning(msg) {
-  const banner = document.getElementById('credit-warning');
-  const textEl = document.getElementById('credit-warning-text');
-  if (!banner) { showToast(msg + ' — visit Plans'); return; }
-  if (textEl) textEl.textContent = msg;
-  banner.classList.remove('hidden');
-  document.getElementById('credit-warning-close')?.addEventListener('click', () => {
-    banner.classList.add('hidden');
-  }, { once: true });
+  const modal = document.getElementById('no-plan-modal');
+  const bodyEl = document.getElementById('no-plan-modal-body');
+  if (!modal) { showToast(msg + ' — visit Plans'); return; }
+  if (bodyEl && msg) bodyEl.textContent = msg;
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => modal.classList.add('show'));
+  function closeModal() {
+    modal.classList.remove('show');
+    setTimeout(() => modal.classList.add('hidden'), 250);
+  }
+  document.getElementById('no-plan-modal-close')?.addEventListener('click', closeModal, { once: true });
+  document.getElementById('no-plan-modal-dismiss')?.addEventListener('click', closeModal, { once: true });
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); }, { once: true });
 }
 
 function setLoading(on, text) {

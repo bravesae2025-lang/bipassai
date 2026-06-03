@@ -148,12 +148,6 @@
   <span id="level-label" style="display:none">Easy</span>
   <span id="status-label" style="display:none">Ready</span>
 
-  <div class="credit-warning hidden" id="credit-warning">
-    <span class="credit-warning-text" id="credit-warning-text">Your credits have expired.</span>
-    <a href="plans.html" class="credit-warning-link">Get more →</a>
-    <button class="credit-warning-close" id="credit-warning-close">✕</button>
-  </div>
-
   <main class="app-main">
     <div class="workspace" id="workspace">
 
@@ -472,5 +466,27 @@
     <span class="site-footer-sep">·</span>
     <a href="privacy.html">Privacy Policy</a>
   </footer>
+
+  <!-- No-plan modal -->
+  <div class="no-plan-modal-overlay hidden" id="no-plan-modal" role="dialog" aria-modal="true">
+    <div class="no-plan-modal-card">
+      <button class="no-plan-modal-close" id="no-plan-modal-close" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="no-plan-modal-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h2 class="no-plan-modal-title">No Active Plan</h2>
+      <p class="no-plan-modal-body" id="no-plan-modal-body">You need an active plan to generate text. Pick one to get started.</p>
+      <a href="plans.html" class="no-plan-modal-cta">
+        <span>Explore Plans</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <button class="no-plan-modal-dismiss" id="no-plan-modal-dismiss">Maybe later</button>
+    </div>
+  </div>
 </body>
 </html>

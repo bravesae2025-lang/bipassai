@@ -1988,8 +1988,8 @@ body.editor-page { background: var(--bg); }
 }
 
 .col-customize .control-head {
-  color: #aaa;
-  border-color: #2a2a2a;
+  color: rgba(255,255,255,0.88);
+  border-color: rgba(255,255,255,0.1);
 }
 
 .control-sub {
@@ -2017,6 +2017,12 @@ body.editor-page { background: var(--bg); }
 .col-customize .level-track {
   background: #1a1a1a;
   border-color: rgba(255,255,255,0.18);
+}
+.col-customize .level-btn {
+  color: rgba(255,255,255,0.42);
+}
+.col-customize .level-btn:not(.active):hover {
+  color: rgba(255,255,255,0.8);
 }
 .col-customize .level-track:has(+ .level-btn-custom.active) {
   background: transparent;
@@ -2067,7 +2073,7 @@ body.editor-page { background: var(--bg); }
   line-height: 1.5;
 }
 
-.col-customize .level-desc { color: #999; }
+.col-customize .level-desc { color: rgba(255,255,255,0.62); font-style: normal; }
 
 /* Toggles */
 /* ── Mistake intensity rows ──────────────────────────────────── */
@@ -6099,7 +6105,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   color: var(--g300);
   margin-bottom: 2px;
 }
-.col-customize .level-presets-label { color: #999; }
+.col-customize .level-presets-label { color: rgba(255,255,255,0.38); }
 .level-btn-custom {
   flex: 0 0 auto;
   height: 36px;
@@ -6117,7 +6123,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .level-btn-custom:hover { color: var(--black); border-color: var(--g400); }
 .level-btn-custom.active { background: var(--black); color: #fff; border-color: var(--black); }
-.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.55); }
+.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom.active { background: #fff; color: #000; border-color: #fff; }
 

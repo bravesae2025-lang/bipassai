@@ -38,7 +38,7 @@
     (async () => {
       const params    = new URLSearchParams(location.search);
       const tokenHash = params.get('token_hash');
-      const next      = params.get('next') || '/app.html';
+      const next      = params.get('next') || '/home';
 
       if (!tokenHash) {
         window.location.replace('/login.html?error=missing_token');

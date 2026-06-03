@@ -2,7 +2,7 @@
 (async () => {
   const session = await window.bipassAuth.getSession();
   if (session) {
-    const next = new URLSearchParams(location.search).get('next') || 'app.html';
+    const next = new URLSearchParams(location.search).get('next') || '/home';
     window.location.replace(next);
   }
 })();
@@ -84,7 +84,7 @@ submitBtn.addEventListener('click', async () => {
   if (mode === 'signin') {
     const { error } = await window.bipassAuth.client.auth.signInWithPassword({ email, password });
     if (error) { showError(error.message); setBusy(false); return; }
-    const next = new URLSearchParams(location.search).get('next') || 'app.html';
+    const next = new URLSearchParams(location.search).get('next') || '/home';
     window.location.replace(next);
   } else {
     const { error } = await window.bipassAuth.client.auth.signUp({
@@ -105,7 +105,7 @@ nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') emailEl.focus()
 
 // ─── Google OAuth ─────────────────────────────────────────────
 document.getElementById('google-btn').addEventListener('click', () => {
-  const next = new URLSearchParams(location.search).get('next') || '/app.html';
+  const next = new URLSearchParams(location.search).get('next') || '/home';
   window.location.href = `/auth/google?next=${encodeURIComponent(next)}`;
 });
 

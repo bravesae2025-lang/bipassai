@@ -136,6 +136,10 @@ app.use(express.json());
 
 // ─── Serve frontend ────────────────────────────────────────────
 
+app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
+app.get('/app',      (_req, res) => res.redirect(301, '/home'));
+app.get('/app.html', (_req, res) => res.redirect(301, '/home'));
+
 app.use(express.static(__dirname));
 
 // ─── GET /config ───────────────────────────────────────────────
@@ -534,7 +538,7 @@ app.get('/auth/google', (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(500).send('Google OAuth not configured');
 
   const state = crypto.randomBytes(16).toString('hex');
-  const next  = req.query.next || '/app.html';
+  const next  = req.query.next || '/home';
   oauthStates.set(state, { next, created: Date.now() });
 
   // Clean up states older than 10 minutes
@@ -607,7 +611,7 @@ app.get('/auth/google/callback', async (req, res) => {
     const actionUrl   = new URL(linkData.action_link);
     const tokenHash   = actionUrl.searchParams.get('token');
 
-    const callbackParams = new URLSearchParams({ token_hash: tokenHash, next: next || '/app.html' });
+    const callbackParams = new URLSearchParams({ token_hash: tokenHash, next: next || '/home' });
     res.redirect(`/auth-callback.html?${callbackParams}`);
 
   } catch (err) {

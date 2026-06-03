@@ -112,7 +112,7 @@ async function init() {
   const mode   = sessionStorage.getItem('bipass_mode');
 
   if (!result) {
-    window.location.href = 'app.html';
+    window.location.href = '/home';
     return;
   }
 

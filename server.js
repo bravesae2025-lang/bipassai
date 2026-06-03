@@ -66,8 +66,6 @@ async function getUserById(userId) {
 }
 
 const CREDIT_PACKAGES = {
-  c1000:   1_000,
-  c3000:   3_000,
   c5000:   5_000,
   c20000:  20_000,
   c50000:  50_000,
@@ -75,12 +73,10 @@ const CREDIT_PACKAGES = {
 };
 
 const STRIPE_CREDIT_PRICES = {
-  c1000:   'price_1TdM7R0rExXCXCyXPl6K4mOi',
-  c3000:   'price_1TdM7V0rExXCXCyXdWG5cmHr',
-  c5000:   'price_1TdM7V0rExXCXCyXl7eYiCqb',
+  c5000:   'price_1Te9500rExXCXCyX8wkXy18D',
   c20000:  'price_1TdM7X0rExXCXCyX2UPJc7Jq',
-  c50000:  'price_1TdM7S0rExXCXCyXaBhlQBNX',
-  c100000: 'price_1TdM7R0rExXCXCyXn2Z67c2t',
+  c50000:  'price_1Te96Q0rExXCXCyXvG8Y1Mjq',
+  c100000: 'price_1Te96o0rExXCXCyXzMfjMkvG',
 };
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)

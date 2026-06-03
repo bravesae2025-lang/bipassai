@@ -644,6 +644,7 @@ function renderStyleList() {
 
 async function loadSavedStyle(session) {
   // Load from localStorage first
+  let loadedFromStorage = false;
   try {
     const raw = localStorage.getItem('bipass_styles_v1');
     if (raw) {
@@ -652,12 +653,15 @@ async function loadSavedStyle(session) {
       activeStyleId = parsed.activeId || null;
       savedStyle = savedStyles.find(s => s.id === activeStyleId) || savedStyles[0] || null;
       if (savedStyle && !activeStyleId) activeStyleId = savedStyle.id;
+      loadedFromStorage = true;
     }
   } catch (_) {}
 
-  if (savedStyles.length > 0) {
-    renderStyleList();
-    if (myStyleActive && savedStyle) activateMyStyle();
+  if (loadedFromStorage) {
+    if (savedStyles.length > 0) {
+      renderStyleList();
+      if (myStyleActive && savedStyle) activateMyStyle();
+    }
     return;
   }
 

@@ -544,6 +544,39 @@ main {
   border-color: rgba(0,0,0,0.18);
 }
 
+/* ── Mode tab switcher ──────────────────────────── */
+.mode-tabs {
+  display: flex;
+  background: rgba(0,0,0,0.06);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.mode-tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g400);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.mode-tab.mode-tab-active {
+  background: var(--black);
+  color: #fff;
+}
+#generate-section.mode-hidden,
+#humanize-section.mode-hidden {
+  display: none;
+}
+
 .textarea-wrap {
   position: relative;
   flex: 1;

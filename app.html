@@ -154,6 +154,11 @@
       <!-- ── 01 GENERATE / 02 HUMANIZE ────────────────────── -->
       <section class="col col-main" data-reveal>
 
+        <div class="mode-tabs" id="mode-tabs">
+          <button class="mode-tab mode-tab-active" id="tab-generate" data-mode="generate">Generate</button>
+          <button class="mode-tab" id="tab-humanize" data-mode="humanize">Humanize</button>
+        </div>
+
         <div id="generate-section">
           <div class="col-label">
             <span class="col-num">01</span>
@@ -189,7 +194,7 @@
           </button>
         </div>
 
-        <div class="input-divider" id="divider" aria-hidden="true">
+        <div class="input-divider" id="divider" aria-hidden="true" style="display:none">
           <span>or paste existing AI text</span>
         </div>
 

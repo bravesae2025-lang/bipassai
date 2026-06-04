@@ -346,6 +346,12 @@ function restoreState() {
   const level = sessionStorage.getItem('bipass_level') || localStorage.getItem('bipass_pref_level') || 'easy';
   selectLevel(level);
 
+  // Restore active tab
+  const savedMode = sessionStorage.getItem('bipass_mode');
+  if (savedMode === 'humanize') {
+    document.getElementById('tab-humanize')?.click();
+  }
+
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
   const savedInput  = sessionStorage.getItem('bipass_input');
   if (savedPrompt) { promptText.value = savedPrompt; updateCostPreview('generate-cost', estimateGenerateCost(savedPrompt)); }
@@ -439,6 +445,26 @@ function bindEvents() {
   });
 
   analyzeStyleBtn.addEventListener('click', analyzeStyle);
+
+  // ── Mode tab switching ──────────────────────────
+  document.querySelectorAll('.mode-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('mode-tab-active'));
+      btn.classList.add('mode-tab-active');
+      const genSection = document.getElementById('generate-section');
+      const humSection = document.getElementById('humanize-section');
+      if (mode === 'generate') {
+        genSection.classList.remove('mode-hidden');
+        humSection.classList.add('mode-hidden');
+      } else {
+        humSection.classList.remove('mode-hidden');
+        genSection.classList.add('mode-hidden');
+      }
+    });
+  });
+  // Start with humanize hidden
+  document.getElementById('humanize-section').classList.add('mode-hidden');
 }
 
 // ─── Level selection ──────────────────────────────────────────

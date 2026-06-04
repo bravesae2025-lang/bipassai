@@ -426,7 +426,7 @@ main {
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {
   position: relative;
-  padding: 16px;
+  padding: 36px 16px 16px;
 }
 
 .right-panel {

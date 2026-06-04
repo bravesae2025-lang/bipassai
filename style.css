@@ -4669,7 +4669,7 @@ body.drawer-lock { overflow: hidden; }
    My Style
 ───────────────────────────────────────────────────────────── */
 
-.my-style-block { margin-top: 80px; }
+.my-style-block { margin-top: 20px; }
 
 .style-sample-textarea {
   width: 100%;
@@ -4856,6 +4856,7 @@ body.drawer-lock { overflow: hidden; }
 
 /* ── My Style separate panel ─────────────────────────────────── */
 .col-my-style-box {
+  margin-top: 80px;
   background: #fff;
   border: 1px solid rgba(0,0,0,0.12);
   border-radius: 14px;

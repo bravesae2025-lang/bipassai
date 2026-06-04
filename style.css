@@ -1892,13 +1892,14 @@ body.editor-page { background: var(--bg); }
 
 .col-customize .col-num  { color: #888; }
 .col-customize .col-name { color: #bbb; }
-.col-customize .col-label { margin-bottom: 4px; }
-.col-customize .col-label .col-name {
+
+.right-panel-heading {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: var(--g400);
+  margin: 0 0 6px 0;
 }
 
 .control-block {

@@ -4771,7 +4771,7 @@ body.drawer-lock { overflow: hidden; }
   background: var(--g050);
   border: 1px solid var(--g150);
   border-radius: var(--r);
-  resize: vertical;
+  resize: none;
   outline: none;
   transition: border-color 0.15s;
   margin-bottom: 8px;
@@ -4798,6 +4798,15 @@ body.drawer-lock { overflow: hidden; }
   flex-direction: column;
   gap: 0;
 }
+
+#sample-container {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+#sample-container::-webkit-scrollbar { width: 3px; }
+#sample-container::-webkit-scrollbar-thumb { background: var(--g150); border-radius: 2px; }
 
 .add-sample-btn {
   display: inline-flex;

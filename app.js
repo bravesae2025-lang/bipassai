@@ -432,15 +432,43 @@ function bindEvents() {
 
   // My Style events
   let sampleCount = 1;
+
+  function makeSampleDeleteBtn(row) {
+    const del = document.createElement('button');
+    del.className = 'sample-delete-btn';
+    del.type = 'button';
+    del.setAttribute('aria-label', 'Remove sample');
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      row.remove();
+      sampleCount--;
+      addSampleBtn.style.display = '';
+    });
+    return del;
+  }
+
+  // Wire delete on the initial first sample
+  document.querySelectorAll('.sample-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.sample-row').remove();
+      sampleCount--;
+      addSampleBtn.style.display = '';
+    });
+  });
+
   addSampleBtn.addEventListener('click', () => {
     if (sampleCount >= 5) return;
     sampleCount++;
+    const row = document.createElement('div');
+    row.className = 'sample-row';
     const ta = document.createElement('textarea');
     ta.className = 'style-sample-textarea';
     ta.id = `style-sample-${sampleCount}`;
     ta.placeholder = `Paste sample ${sampleCount}…`;
     ta.rows = 4;
-    sampleContainer.appendChild(ta);
+    row.appendChild(ta);
+    row.appendChild(makeSampleDeleteBtn(row));
+    sampleContainer.appendChild(row);
     if (sampleCount >= 5) addSampleBtn.style.display = 'none';
   });
 

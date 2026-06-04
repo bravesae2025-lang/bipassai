@@ -4808,6 +4808,36 @@ body.drawer-lock { overflow: hidden; }
 #sample-container::-webkit-scrollbar { width: 3px; }
 #sample-container::-webkit-scrollbar-thumb { background: var(--g150); border-radius: 2px; }
 
+.sample-row {
+  position: relative;
+  margin-bottom: 8px;
+}
+.sample-row .style-sample-textarea { margin-bottom: 0; }
+.sample-delete-btn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.08);
+  color: var(--g400);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  z-index: 1;
+  padding: 0;
+}
+.sample-delete-btn:hover {
+  background: rgba(0,0,0,0.18);
+  color: var(--black);
+}
+
 .add-sample-btn {
   display: inline-flex;
   align-items: center;

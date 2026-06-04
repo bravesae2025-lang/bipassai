@@ -426,7 +426,7 @@ main {
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {
   position: relative;
-  padding: 18px 16px 16px 48px;
+  padding: 32px 16px 16px 48px;
 }
 
 .right-panel {
@@ -1895,7 +1895,7 @@ body.editor-page { background: var(--bg); }
 
 .right-panel-heading {
   font-family: var(--ff-display);
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 400;
   letter-spacing: 0.06em;
   color: var(--black);

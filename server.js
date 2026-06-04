@@ -27,10 +27,10 @@ const INITIAL_CREDITS = 5000;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const STRIPE_PRICES = {
-  day:     'price_1TdM7R0rExXCXCyX44b8Rpwb',
-  weekly:  'price_1TdM7V0rExXCXCyXAg1RZ7uH',
-  monthly: 'price_1TdM7V0rExXCXCyXx8XLVT7c',
-  annual:  'price_1TdM7T0rExXCXCyXQFyARFPe',
+  day:     'price_1TeiVy0rExXCXCyXY6r0dH7a',
+  weekly:  'price_1TeiWs0rExXCXCyXa6IDQycH',
+  monthly: 'price_1TeiXE0rExXCXCyXI5c3l9Hk',
+  annual:  'price_1TeiXo0rExXCXCyXVTDAL1cD',
 };
 
 async function getUserFromToken(token) {

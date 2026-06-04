@@ -65,24 +65,6 @@ body {
    Page-load animations — header
 ───────────────────────────────────────────────────────────── */
 
-.wordmark {
-  animation: wordmark-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes wordmark-in {
-  from { opacity: 0; transform: translateX(-28px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.header-meta {
-  animation: header-meta-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
-}
-
-@keyframes header-meta-in {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
 .hero-desc {
   animation: fade-up-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
 }
@@ -296,75 +278,6 @@ body { padding-top: 52px; }
 @media (max-width: 740px) {
   .nav-inner { padding: 0 20px; }
   .nav-links { display: none; }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Header — solid black
-───────────────────────────────────────────────────────────── */
-
-.header-black {
-  background: var(--black);
-  padding: 0 48px;
-}
-
-.header-inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 30px 0 26px;
-}
-
-/* Giant white wordmark */
-.wordmark {
-  font-family: var(--ff-display);
-  font-size: clamp(72px, 10vw, 118px);
-  line-height: 0.88;
-  letter-spacing: -0.01em;
-  color: #ffffff;
-  user-select: none;
-}
-
-.header-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 14px;
-  padding-bottom: 4px;
-}
-
-.header-tagline {
-  font-size: 13px;
-  font-weight: 400;
-  color: #888;
-  text-align: right;
-  line-height: 1.5;
-}
-
-.powered-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  color: #666;
-  border: 1px solid #2a2a2a;
-  padding: 5px 12px;
-  border-radius: 20px;
-  letter-spacing: 0.03em;
-}
-
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #fff;
-  animation: dot-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
 }
 
 /* Stats bar — on black */
@@ -3316,13 +3229,7 @@ body.editor-page { background: var(--bg); }
 }
 
 @media (max-width: 740px) {
-  .header-black { padding: 0 20px; }
   main { padding: 20px 20px 48px; }
-
-  .header-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .header-meta  { align-items: flex-start; }
-  .header-tagline { text-align: left; }
-  .wordmark { font-size: clamp(64px, 18vw, 88px); }
 
   .stat-item { padding: 0 10px; }
   .ticker-track { padding-left: 20px; }

@@ -1870,11 +1870,11 @@ body.editor-page { background: var(--bg); }
 }
 
 .col-customize.col-dimmed {
-  opacity: 0.28;
+  opacity: 0.42;
   transform: translateY(0) scale(1);
 }
 .col-customize.col-dimmed:hover {
-  opacity: 0.45;
+  opacity: 0.55;
   transform: translateY(0) scale(1);
 }
 
@@ -4865,12 +4865,12 @@ body.drawer-lock { overflow: hidden; }
   flex-direction: column;
   gap: 14px;
   cursor: pointer;
-  opacity: 0.4;
+  opacity: 0.55;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   transform: translateY(0);
   transition: opacity 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
-.col-my-style-box:hover:not(.my-style-active) { opacity: 0.6; }
+.col-my-style-box:hover:not(.my-style-active) { opacity: 0.7; }
 .col-my-style-box.my-style-active {
   opacity: 1;
   cursor: default;

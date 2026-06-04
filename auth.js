@@ -111,9 +111,4 @@ function bipassSetupPlanStatus(session) {
         </div>`;
     }
   }
-
-  // Red border on credit cards when no plan (plans.html only)
-  if (!hasPlan) {
-    document.querySelectorAll('.credit-card').forEach(el => el.classList.add('credit-card--locked'));
-  }
 }

@@ -4490,11 +4490,6 @@ body.drawer-lock { overflow: hidden; }
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
-.credit-card--locked {
-  border-color: rgba(239, 68, 68, 0.55);
-  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
-}
-
 .credit-card-best {
   background: var(--black);
   border-color: var(--black);

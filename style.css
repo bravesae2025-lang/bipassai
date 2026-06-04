@@ -4856,7 +4856,7 @@ body.drawer-lock { overflow: hidden; }
 
 /* ── My Style separate panel ─────────────────────────────────── */
 .col-my-style-box {
-  margin-top: 80px;
+  margin-top: 32px;
   background: #fff;
   border: 1px solid rgba(0,0,0,0.12);
   border-radius: 14px;

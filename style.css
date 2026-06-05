@@ -580,7 +580,7 @@ main {
 
 .textarea-wrap {
   position: relative;
-  height: 280px;
+  height: 360px;
   flex-shrink: 0;
 }
 
@@ -958,7 +958,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 .app-main {
-  padding: 56px 28px 24px;
+  padding: 76px 28px 24px;
   width: 100%;
   box-sizing: border-box;
   display: flex;

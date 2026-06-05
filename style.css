@@ -385,11 +385,8 @@ main {
 
 /* Fixed full-height right section background */
 .page-right-section-bg {
-  position: fixed;
-  top: 52px;
-  right: 0;
-  bottom: 0;
-  width: 628px;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(160deg, #f0f0f0 0%, #e6e6e6 100%);
   border-left: 3px solid #000;
   box-shadow: -6px 0 16px rgba(0,0,0,0.1);
@@ -963,8 +960,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: calc(100vh - 60px);
+  flex: none;
+  min-height: auto;
   overflow-y: auto;
   background: #f2f0ec;
 }

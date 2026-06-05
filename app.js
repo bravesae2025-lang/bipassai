@@ -1102,7 +1102,6 @@ async function callAPIStream(prompt) {
         if (json.error) throw new Error(json.error);
         if (json.chunk) {
           accumulated += json.chunk;
-          if (credEl && json.chars) credEl.textContent = json.chars.toLocaleString();
         }
         if (json.done) {
           finalResult = json.result;
@@ -1122,7 +1121,10 @@ async function callAPIStream(prompt) {
     if (accumulated.trim()) finalResult = accumulated.trim();
     else throw new Error('No output received');
   }
-  if (creditsData) updateCreditDisplay(creditsData.creditsUsed, creditsData.creditsRemaining);
+  if (creditsData) {
+    updateCreditDisplay(creditsData.creditsUsed, creditsData.creditsRemaining);
+    animateLoadingCredits(creditsData.creditsUsed);
+  }
   return finalResult;
 }
 
@@ -1156,6 +1158,16 @@ async function callAPI(prompt) {
   }
 
   return data.result;
+}
+
+function animateLoadingCredits(total) {
+  const wrapEl = document.getElementById('loading-credits-wrap');
+  const numEl  = document.getElementById('loading-credits');
+  if (!wrapEl || !numEl) return;
+  numEl.textContent = '0';
+  wrapEl.style.transition = 'opacity 0.25s ease';
+  wrapEl.style.opacity = '1';
+  animateCount(numEl, 0, total, 650);
 }
 
 function animateCount(el, from, to, duration = 700) {
@@ -1223,8 +1235,10 @@ function setLoading(on, text) {
 
   if (on) {
     loadingText.textContent = text || 'Loading…';
-    const credEl = document.getElementById('loading-credits');
-    if (credEl) credEl.textContent = '0';
+    const credEl  = document.getElementById('loading-credits');
+    const wrapEl  = document.getElementById('loading-credits-wrap');
+    if (credEl)  credEl.textContent = '0';
+    if (wrapEl)  { wrapEl.style.transition = 'none'; wrapEl.style.opacity = '0'; }
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');

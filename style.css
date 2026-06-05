@@ -511,10 +511,11 @@ main {
 
 .col-num {
   font-family: var(--ff-display);
-  font-size: 52px;
+  font-size: 88px;
   line-height: 1;
-  color: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.05);
   letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
 .col-name {
@@ -580,6 +581,7 @@ main {
 .textarea-wrap {
   position: relative;
   flex: 1;
+  max-height: 200px;
 }
 
 textarea {
@@ -7283,3 +7285,72 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .privacy-section a { color: var(--black); text-decoration: underline; }
 .privacy-section a:hover { opacity: 0.7; }
 .privacy-contact a { font-weight: 600; }
+
+/* ── Quick-start pills (Generate tab) ────────────────────────── */
+.quick-starts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quick-starts-label {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g300);
+}
+.quick-start-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.qs-pill {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g400);
+  background: transparent;
+  border: 1px solid var(--g150);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.qs-pill:hover { background: var(--black); color: #fff; border-color: var(--black); }
+
+/* ── Humanize hint cards (Humanize tab) ──────────────────────── */
+.humanize-hints {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.h-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--g150);
+  border-radius: var(--r);
+  background: var(--g050);
+}
+.h-hint-icon {
+  font-family: var(--ff-mono);
+  font-size: 14px;
+  color: var(--black);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.h-hint-title {
+  font-family: var(--ff-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.h-hint-sub {
+  font-family: var(--ff-mono);
+  font-size: 9.5px;
+  color: var(--g400);
+  line-height: 1.4;
+}

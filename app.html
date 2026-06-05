@@ -180,6 +180,16 @@
 
           <div class="cost-preview hidden" id="generate-cost" aria-live="polite"></div>
 
+          <div class="quick-starts" id="quick-starts">
+            <span class="quick-starts-label">Quick start</span>
+            <div class="quick-start-pills">
+              <button class="qs-pill" type="button" data-prompt="Write a compelling introduction for an essay about ">Essay intro</button>
+              <button class="qs-pill" type="button" data-prompt="Write a professional email reply to ">Email reply</button>
+              <button class="qs-pill" type="button" data-prompt="Write concise study notes on the topic of ">Study notes</button>
+              <button class="qs-pill" type="button" data-prompt="Write a persuasive argument for ">Persuasive arg</button>
+            </div>
+          </div>
+
           <button id="generate-btn" class="btn-generate" aria-label="Generate text">
             <span class="btn-content">
               <span id="generate-label">Generate</span>
@@ -218,6 +228,24 @@
           </div>
 
           <div class="cost-preview hidden" id="humanize-cost" aria-live="polite"></div>
+
+          <div class="humanize-hints">
+            <div class="h-hint">
+              <span class="h-hint-icon">↓</span>
+              <span class="h-hint-title">AI Patterns</span>
+              <span class="h-hint-sub">Strips GPT-style phrasing</span>
+            </div>
+            <div class="h-hint">
+              <span class="h-hint-icon">≈</span>
+              <span class="h-hint-title">Your Meaning</span>
+              <span class="h-hint-sub">Keeps your original intent</span>
+            </div>
+            <div class="h-hint">
+              <span class="h-hint-icon">✓</span>
+              <span class="h-hint-title">Human Score</span>
+              <span class="h-hint-sub">Passes AI detectors</span>
+            </div>
+          </div>
 
           <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Humanize text">
             <span class="btn-content">

@@ -150,6 +150,14 @@ const analyzeLoader    = document.getElementById('analyze-loader');
 const myStyleInputs    = document.getElementById('my-style-inputs');
 const styleCardsList   = document.getElementById('style-cards-list');
 
+document.querySelectorAll('.qs-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    promptText.value = pill.dataset.prompt;
+    promptText.focus();
+    promptText.dispatchEvent(new Event('input'));
+  });
+});
+
 // ─── Nav user ─────────────────────────────────────────────────
 
 async function setupNavUser() {

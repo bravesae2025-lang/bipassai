@@ -520,26 +520,47 @@ function showToast(msg) {
 
 async function pushToExtension() {
   const btn = document.getElementById('push-ext-btn');
-  const resultId = sessionStorage.getItem('bipass_result_id');
-  if (!resultId || !btn) return;
+  if (!btn || btn.classList.contains('editor-btn-pushed')) return;
 
   btn.disabled = true;
   btn.textContent = 'Pushing…';
 
   try {
     const session = await window.bipassAuth.getSession();
-    const { error } = await window.bipassAuth.client
-      .from('results')
-      .update({ ext_push: true })
-      .eq('id', resultId)
-      .eq('user_id', session.user.id);
+    if (!session) throw new Error('Not signed in');
 
-    if (error) throw error;
-    btn.textContent = 'Pushed ✓';
+    const text = editorTextarea?.value?.trim();
+    if (!text) throw new Error('No text');
+
+    const mode  = sessionStorage.getItem('bipass_mode')  || 'humanize';
+    const level = sessionStorage.getItem('bipass_level') || 'easy';
+
+    // Try updating the existing saved row first
+    let pushed = false;
+    const resultId = sessionStorage.getItem('bipass_result_id');
+    if (resultId) {
+      const { data } = await window.bipassAuth.client
+        .from('results')
+        .update({ ext_push: true })
+        .eq('id', resultId)
+        .eq('user_id', session.user.id)
+        .select('id');
+      if (data?.length > 0) pushed = true;
+    }
+
+    // Fall back to direct insert if update matched nothing (race condition or save failed)
+    if (!pushed) {
+      const { error } = await window.bipassAuth.client
+        .from('results')
+        .insert({ user_id: session.user.id, text, mode, level, ext_push: true });
+      if (error) throw error;
+    }
+
+    btn.textContent = '✓ Pushed';
     btn.classList.add('editor-btn-pushed');
-  } catch (_) {
+  } catch (err) {
     btn.disabled = false;
-    btn.textContent = 'Push to Extension';
+    btn.textContent = '↻ Retry Push';
   }
 }
 

@@ -286,6 +286,15 @@ async function init() {
       else if (autostart === 'generate') generateNew();
     }, 50);
   }
+
+  // Refresh plan status when user returns to tab
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      window.bipassAuth.refreshSession().then(fresh => {
+        if (fresh) bipassSetupPlanStatus(fresh);
+      }).catch(() => {});
+    }
+  });
 }
 
 async function showWelcomeModal() {
@@ -1050,6 +1059,10 @@ async function callAPIStream(prompt) {
     const data = await res.json().catch(() => ({}));
     const msg = data.error || 'No credits remaining';
     setLoading(false);
+    // Refresh plan status so badge updates immediately
+    window.bipassAuth.refreshSession().then(fresh => {
+      if (fresh) bipassSetupPlanStatus(fresh);
+    }).catch(() => {});
     showCreditWarning(msg);
     throw Object.assign(new Error(msg), { name: 'CreditError' });
   }

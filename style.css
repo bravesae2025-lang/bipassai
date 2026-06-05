@@ -3304,12 +3304,33 @@ body.editor-page { background: var(--bg); }
 
 /* ─────────────────────────────────────────────────────────────
    Responsive
+   Order: largest → smallest so smaller breakpoints win
 ───────────────────────────────────────────────────────────── */
 
-@media (max-width: 1100px) {
-  .workspace { grid-template-columns: 1fr minmax(380px, 480px); }
+/* ── 13" laptops / smaller desktops ─── */
+@media (max-width: 1280px) {
+  .workspace { grid-template-columns: 1fr minmax(400px, 490px); }
+  .app-main { padding: 48px 48px 130px; }
+  .page-right-section-bg { width: 580px; }
+  .right-panel-wrap { padding: 16px 12px 16px 40px; }
 }
 
+/* ── 12" laptops / large tablets landscape ─── */
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: 1fr minmax(320px, 400px); }
+  .app-main { padding: 40px 32px 100px; }
+  .page-right-section-bg { width: 460px; }
+  .right-panel-wrap { padding: 16px 10px 16px 28px; }
+  .right-panel-heading { font-size: 26px; }
+}
+
+/* ── Small tablets landscape / 11" ─── */
+@media (max-width: 960px) {
+  .right-panel-heading { font-size: 22px; }
+  .right-panel-sub { font-size: 11px; }
+}
+
+/* ── Tablet portrait / large phone landscape — single column ─── */
 @media (max-width: 860px) {
   /* Break the viewport-height lock so content can scroll naturally on mobile */
   html { height: auto; }
@@ -3320,6 +3341,8 @@ body.editor-page { background: var(--bg); }
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }
+  /* Let textarea fill naturally instead of forcing 620px in single-column */
+  .textarea-wrap { height: auto; min-height: 300px; }
 }
 
 @media (max-width: 740px) {

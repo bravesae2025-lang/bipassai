@@ -8,9 +8,12 @@ let currentDuration = 0; // 0 = off, else target ms
 let currentMistype  = 0; // 0–4
 
 const states = ['loading', 'login', 'upgrade', 'empty', 'list', 'ready', 'armed'];
+const UNAUTHED_STATES = new Set(['loading', 'login']);
 function showState(name) {
   states.forEach(s => document.getElementById(`state-${s}`).classList.remove('active'));
   document.getElementById(`state-${name}`).classList.add('active');
+  const footer = document.getElementById('account-footer');
+  if (footer) footer.style.display = UNAUTHED_STATES.has(name) ? 'none' : 'flex';
 }
 
 function countWords(str) {
@@ -49,10 +52,8 @@ async function refreshSession() {
 
 function setAccountEmail(email, userId) {
   const display = email || (userId ? userId.slice(0, 8) + '…' : '');
-  const el1 = document.getElementById('account-email');
-  const el2 = document.getElementById('account-email-ready');
-  if (el1) el1.textContent = display;
-  if (el2) el2.textContent = display;
+  const el = document.getElementById('account-email-global');
+  if (el) el.textContent = display;
 }
 
 async function fetchResults(accessToken, userId, tier) {
@@ -193,7 +194,7 @@ async function signOut() {
   showState('login');
 }
 document.getElementById('signout-btn').addEventListener('click', signOut);
-document.getElementById('signout-btn-ready').addEventListener('click', signOut);
+document.getElementById('signout-global').addEventListener('click', signOut);
 
 // ── Back (ready → list) ─────────────────────────────────────────
 document.getElementById('back-btn').addEventListener('click', async () => {

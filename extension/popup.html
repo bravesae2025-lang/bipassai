@@ -234,23 +234,20 @@
 
     .divider { height: 1px; background: #f0f0f0; }
 
-    /* Account display */
-    .account-info { display: flex; align-items: center; gap: 8px; }
-    .account-email {
-      font-size: 9px; font-family: monospace;
-      color: #bbb; max-width: 120px;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .ready-account-bar {
+    /* Persistent account footer */
+    .account-footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 4px 0 6px; border-bottom: 1px solid #f0f0f0;
+      padding: 8px 0 2px; border-top: 1px solid #f0f0f0; margin-top: 4px;
     }
-    .ready-email { font-size: 9px; font-family: monospace; color: #bbb; }
-    .signout-btn-sm {
+    #account-email-global {
+      font-size: 9px; font-family: monospace; color: #bbb;
+      max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .signout-global-btn {
       font-size: 10px; color: #bbb; background: none; border: none;
-      cursor: pointer; transition: color 0.15s; padding: 0;
+      cursor: pointer; transition: color 0.15s; padding: 0; flex-shrink: 0;
     }
-    .signout-btn-sm:hover { color: #0a0a0a; }
+    .signout-global-btn:hover { color: #0a0a0a; }
   </style>
 </head>
 <body>
@@ -324,10 +321,7 @@
     <div class="state" id="state-list">
       <div class="list-header">
         <span class="list-title">Your texts</span>
-        <div class="account-info">
-          <span class="account-email" id="account-email"></span>
-          <button class="signout-btn" id="signout-btn">Sign out</button>
-        </div>
+        <button class="signout-btn" id="signout-btn">Sign out</button>
       </div>
       <div class="result-list" id="result-list"></div>
     </div>
@@ -339,10 +333,6 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Back
         </button>
-      </div>
-      <div class="ready-account-bar">
-        <span class="ready-email" id="account-email-ready"></span>
-        <button class="signout-btn-sm" id="signout-btn-ready" type="button">Sign out</button>
       </div>
       <div>
         <div class="preview-label" style="margin-bottom:6px">Selected text</div>
@@ -422,6 +412,12 @@
         </div>
         <button class="cancel-btn" id="cancel-btn">Cancel</button>
       </div>
+    </div>
+
+    <!-- Persistent account footer — shown in all authenticated states -->
+    <div class="account-footer" id="account-footer" style="display:none">
+      <span id="account-email-global"></span>
+      <button class="signout-global-btn" id="signout-global" type="button">Sign out</button>
     </div>
 
   </div>

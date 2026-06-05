@@ -367,7 +367,7 @@ main {
   display: grid;
   grid-template-columns: 1fr minmax(480px, 600px);
   grid-template-rows: 1fr;
-  gap: 16px;
+  gap: 32px;
   background: transparent;
   flex: 1;
   min-height: 0;
@@ -959,7 +959,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 
 .app-main {
   position: relative;
-  padding: 48px 28px 130px;
+  padding: 48px 56px 130px;
   width: 100%;
   box-sizing: border-box;
   display: flex;

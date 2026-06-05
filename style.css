@@ -4799,31 +4799,39 @@ body.drawer-lock { overflow: hidden; }
   gap: 0;
 }
 
-.style-name-field { display: flex; flex-direction: column; gap: 5px; }
+.style-name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--g150);
+  margin-bottom: 2px;
+}
 .style-name-label {
-  font-family: var(--ff-mono);
+  font-family: var(--ff-ui);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--g400);
 }
 .style-name-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 9px 12px;
   font-family: var(--ff-ui);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--black);
-  background: rgba(0,0,0,0.025);
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: var(--r);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--g150);
+  border-radius: 0;
+  padding: 5px 0 7px;
   outline: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s;
   display: block;
 }
-.style-name-input:focus { background: #fff; border-color: rgba(0,0,0,0.35); }
+.style-name-input:focus { border-bottom-color: var(--black); }
 .style-name-input::placeholder { color: var(--g300); font-weight: 400; font-style: normal; }
 
 #sample-container {
@@ -5056,10 +5064,12 @@ body.drawer-lock { overflow: hidden; }
     0 32px 64px rgba(0,0,0,0.16);
 }
 .col-my-style-box .col-name {
-  font-family: var(--ff-display);
-  font-size: 20px;
-  letter-spacing: 0.06em;
-  color: #0d0d0d;
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--black);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -6321,24 +6331,6 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .col-my-style-box .reanalyze-link:hover { color: #0d0d0d; }
 .col-my-style-box .style-trait-name { color: #555; }
 
-/* ── Style name input ─────────────────────────────────────────── */
-.style-name-input {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: var(--ff-ui);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--black);
-  background: transparent;
-  border: none;
-  border-bottom: 1.5px solid var(--g150);
-  border-radius: 0;
-  padding: 4px 0 6px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.style-name-input:focus { border-bottom-color: var(--black); }
-.style-name-input::placeholder { color: var(--g300); font-weight: 400; }
 
 /* ── Style details accordion ──────────────────────────────────── */
 .style-details { margin: 4px 0 0; }

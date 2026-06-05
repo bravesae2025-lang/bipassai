@@ -444,7 +444,7 @@ main {
 
 .col-main {
   background: var(--bg);
-  align-self: stretch;
+  align-self: start;
   min-height: 0;
 }
 
@@ -580,8 +580,8 @@ main {
 
 .textarea-wrap {
   position: relative;
-  flex: 1;
-  max-height: 200px;
+  height: 200px;
+  flex-shrink: 0;
 }
 
 textarea {

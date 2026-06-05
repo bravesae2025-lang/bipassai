@@ -806,9 +806,10 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
       typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 }
     );
 
+    const styleName = document.getElementById('style-name-input')?.value.trim() || '';
     const newStyle = {
       id: Date.now().toString(),
-      name: '',
+      name: styleName,
       style_summary: JSON.stringify(normTraits),
       style_prompt: json.style_prompt,
     };
@@ -818,6 +819,8 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
     saveStoredStyles();
     document.getElementById('back-to-styles-btn')?.remove();
     renderStyleList();
+    const nameInput = document.getElementById('style-name-input');
+    if (nameInput) nameInput.value = '';
     showToast('Style analyzed');
 
     try {

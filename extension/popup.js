@@ -24,13 +24,15 @@ function formatDate(iso) {
 
 async function storeSession(data) {
   const tier = data.user?.user_metadata?.tier || 'free';
+  const email = data.user?.email || '';
   await chrome.storage.local.set({
     access_token:  data.access_token,
     refresh_token: data.refresh_token,
     user_id:       data.user.id,
     tier,
+    email,
   });
-  return { access_token: data.access_token, user_id: data.user.id, tier };
+  return { access_token: data.access_token, user_id: data.user.id, tier, email };
 }
 
 async function refreshSession() {
@@ -45,7 +47,17 @@ async function refreshSession() {
   return storeSession(await res.json());
 }
 
+function setAccountEmail(email, userId) {
+  const display = email || (userId ? userId.slice(0, 8) + '…' : '');
+  const el1 = document.getElementById('account-email');
+  const el2 = document.getElementById('account-email-ready');
+  if (el1) el1.textContent = display;
+  if (el2) el2.textContent = display;
+}
+
 async function fetchResults(accessToken, userId, tier) {
+  const { email } = await chrome.storage.local.get(['email']);
+  setAccountEmail(email, userId);
 
   let res = await fetch(
     `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&ext_push=eq.true&order=created_at.desc&limit=20`,
@@ -98,7 +110,17 @@ function selectResult(text, mode) {
   showState('ready');
 }
 
+async function checkForUpdate() {
+  try {
+    const res = await fetch('https://bipassai.com/extension-version.json?t=' + Date.now());
+    const { version: latest } = await res.json();
+    const installed = chrome.runtime.getManifest().version;
+    if (latest !== installed) chrome.runtime.reload();
+  } catch {}
+}
+
 async function init() {
+  checkForUpdate();
   showState('loading');
   const { access_token, refresh_token, user_id, tier } = await chrome.storage.local.get(['access_token', 'refresh_token', 'user_id', 'tier']);
   if (!access_token && !refresh_token) { showState('login'); return; }
@@ -166,10 +188,12 @@ document.getElementById('google-btn').addEventListener('click', () => {
 });
 
 // ── Sign out ────────────────────────────────────────────────────
-document.getElementById('signout-btn').addEventListener('click', async () => {
+async function signOut() {
   await chrome.storage.local.clear();
   showState('login');
-});
+}
+document.getElementById('signout-btn').addEventListener('click', signOut);
+document.getElementById('signout-btn-ready').addEventListener('click', signOut);
 
 // ── Back (ready → list) ─────────────────────────────────────────
 document.getElementById('back-btn').addEventListener('click', async () => {

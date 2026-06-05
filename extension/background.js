@@ -56,12 +56,14 @@ async function handleGoogleAuth() {
   const verifyData = await verifyRes.json();
   if (!verifyRes.ok) throw new Error(verifyData.msg || 'Session verification failed.');
 
-  const tier = verifyData.user?.user_metadata?.tier || 'free';
+  const tier  = verifyData.user?.user_metadata?.tier || 'free';
+  const email = verifyData.user?.email || '';
   await chrome.storage.local.set({
     access_token:  verifyData.access_token,
     refresh_token: verifyData.refresh_token,
     user_id:       verifyData.user.id,
     tier,
+    email,
   });
 
   // Flash green badge so user knows to reopen the popup
@@ -69,5 +71,5 @@ async function handleGoogleAuth() {
   chrome.action.setBadgeBackgroundColor({ color: '#22c55e' });
   setTimeout(() => chrome.action.setBadgeText({ text: '' }), 6000);
 
-  return { access_token: verifyData.access_token, user_id: verifyData.user.id, tier };
+  return { access_token: verifyData.access_token, user_id: verifyData.user.id, tier, email };
 }

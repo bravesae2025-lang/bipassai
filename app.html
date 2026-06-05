@@ -332,16 +332,25 @@
               </div>
             </div>
             <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
-            <input
-              class="style-name-input"
-              id="style-name-input"
-              type="text"
-              placeholder="Name this style… (e.g. My Casual Voice)"
-              maxlength="30"
-            />
+            <div class="style-name-field">
+              <label class="style-name-label" for="style-name-input">Style Name</label>
+              <input
+                class="style-name-input"
+                id="style-name-input"
+                type="text"
+                placeholder="e.g. My Casual Voice"
+                maxlength="30"
+              />
+            </div>
             <button class="analyze-btn" id="analyze-style-btn" type="button">
-              <span id="analyze-label">Analyze My Style</span>
-              <span id="analyze-loader" style="display:none">Analyzing…</span>
+              <span class="btn-content">
+                <span id="analyze-label">Analyze My Style</span>
+                <span id="analyze-loader" class="spinner hidden"></span>
+              </span>
+              <span class="btn-arrow" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+              <span class="btn-sweep" aria-hidden="true"></span>
             </button>
           </div>
 

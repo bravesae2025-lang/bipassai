@@ -4799,22 +4799,32 @@ body.drawer-lock { overflow: hidden; }
   gap: 0;
 }
 
+.style-name-field { display: flex; flex-direction: column; gap: 5px; }
+.style-name-label {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--g400);
+}
 .style-name-input {
   width: 100%;
+  box-sizing: border-box;
   padding: 9px 12px;
   font-family: var(--ff-ui);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--black);
   background: rgba(0,0,0,0.025);
-  border: 1px solid var(--g150);
+  border: 1px solid rgba(0,0,0,0.1);
   border-radius: var(--r);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
   display: block;
-  box-sizing: border-box;
 }
-.style-name-input:focus { background: #fff; border-color: var(--g400); }
-.style-name-input::placeholder { color: var(--g300); font-style: italic; }
+.style-name-input:focus { background: #fff; border-color: rgba(0,0,0,0.35); }
+.style-name-input::placeholder { color: var(--g300); font-weight: 400; font-style: normal; }
 
 #sample-container {
   max-height: 220px;
@@ -4880,22 +4890,41 @@ body.drawer-lock { overflow: hidden; }
 .col-customize .add-sample-btn:hover { color: #ccc; border-color: rgba(255,255,255,0.3); }
 
 .analyze-btn {
+  position: relative;
   width: 100%;
-  padding: 10px;
+  height: 50px;
+  background: var(--black);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
   font-family: var(--ff-ui);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #fff;
-  background: var(--black);
-  border: none;
-  border-radius: var(--r);
   cursor: pointer;
-  transition: opacity 0.15s;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  transition: color 0.3s;
+  flex-shrink: 0;
 }
-.analyze-btn:hover:not(:disabled) { opacity: 0.82; }
-.analyze-btn:disabled { opacity: 0.4; cursor: default; }
+.analyze-btn .btn-content { position: relative; z-index: 2; display: flex; align-items: center; gap: 10px; }
+.analyze-btn .btn-arrow { position: relative; z-index: 2; transition: transform 0.25s var(--ease-out); }
+.analyze-btn .btn-sweep {
+  position: absolute; inset: 0;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out);
+  z-index: 1;
+}
+.analyze-btn:not(:disabled):hover { color: var(--black); }
+.analyze-btn:not(:disabled):hover .btn-arrow { transform: translateX(4px); }
+.analyze-btn:not(:disabled):hover .btn-sweep { transform: scaleX(1); }
+.analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Style card — shown after analyzing */
 .my-style-card {
@@ -5003,9 +5032,9 @@ body.drawer-lock { overflow: hidden; }
 .col-my-style-box {
   margin-top: 20px;
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 14px;
-  padding: 22px 24px 24px;
+  border: 1px solid rgba(0,0,0,0.16);
+  border-radius: 16px;
+  padding: 24px 26px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -5026,7 +5055,12 @@ body.drawer-lock { overflow: hidden; }
     0 12px 32px rgba(0,0,0,0.20),
     0 32px 64px rgba(0,0,0,0.16);
 }
-.col-my-style-box .col-name { color: var(--black); font-size: 13px; }
+.col-my-style-box .col-name {
+  font-family: var(--ff-display);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  color: #0d0d0d;
+}
 
 /* ─────────────────────────────────────────────────────────────
    Custom cursor (desktop only)
@@ -6263,19 +6297,16 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   gap: 14px;
 }
 .col-my-style-box .col-label { margin-bottom: 0; }
-.col-my-style-box .col-name { color: #0d0d0d; font-size: 13px; }
 .col-my-style-box .style-sample-textarea {
-  background: #f7f7f5;
-  border-color: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.025);
+  border-color: rgba(0,0,0,0.1);
   color: #0d0d0d;
 }
-.col-my-style-box .style-sample-textarea::placeholder { color: #999; }
+.col-my-style-box .style-sample-textarea::placeholder { color: #aaa; }
 .col-my-style-box .style-sample-textarea:focus {
   background: #fff;
   border-color: rgba(0,0,0,0.3);
 }
-.col-my-style-box .analyze-btn { background: #0d0d0d; color: #fff; }
-.col-my-style-box .analyze-btn:hover { background: #2a2a2a; }
 .col-my-style-box .add-sample-btn { color: #555; border-color: rgba(0,0,0,0.15); }
 .col-my-style-box .add-sample-btn:hover {
   color: #0d0d0d;

@@ -963,8 +963,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: calc(100vh - 60px);
+  flex: none;
+  min-height: auto;
   overflow-y: auto;
   background: #f2f0ec;
 }

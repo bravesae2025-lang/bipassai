@@ -5487,6 +5487,9 @@ body.drawer-lock { overflow: hidden; }
   flex: 1;
   min-width: 0;
   line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -6458,6 +6461,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 12px;
 }
 .trait-slider-val {
   font-family: var(--ff-mono);

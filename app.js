@@ -769,9 +769,9 @@ async function analyzeStyle() {
 Look for personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Ignore sentence length or writing structure — those depend on the topic.
 
 Use this exact format (replace the example values with real findings, keep it on ONE LINE):
-{"traits":[{"name":"Grammar mistakes","intensity":2},{"name":"Missing capitals","intensity":1},{"name":"Word repetition","intensity":2}],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
+{"traits":[{"name":"Grammar mistakes","intensity":7},{"name":"Missing capitals","intensity":4},{"name":"Word repetition","intensity":9}],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
 
-intensity must be 1 (trait appears occasionally) or 2 (trait appears frequently). Include up to 7 traits.
+intensity must be 0–10 where 0=none, 1–2=very subtle, 3–4=subtle, 5–6=moderate, 7–8=strong, 9–10=heavy. Use the full range to accurately reflect how prominently each trait appears in the samples. Include up to 7 traits.
 
 Writing samples:
 ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;

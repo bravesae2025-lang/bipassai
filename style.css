@@ -389,7 +389,7 @@ main {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 700px;
+  width: 660px;
   background: linear-gradient(160deg, #f0f0f0 0%, #e6e6e6 100%);
   border-left: 3px solid #000;
   box-shadow: -6px 0 16px rgba(0,0,0,0.1);
@@ -543,6 +543,8 @@ main {
 .col-main {
   background: #ffffff;
   border-color: rgba(0,0,0,0.18);
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Mode tab switcher ──────────────────────────── */

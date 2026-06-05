@@ -959,7 +959,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 
 .app-main {
   position: relative;
-  padding: 48px 28px 24px;
+  padding: 48px 28px 100px;
   width: 100%;
   box-sizing: border-box;
   display: flex;

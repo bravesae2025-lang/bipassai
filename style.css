@@ -1853,7 +1853,6 @@ body.editor-page { background: var(--bg); }
   -webkit-backdrop-filter: none;
   border: none;
   box-shadow:
-    0 0 0 1px #555,
     0 1px 2px rgba(0,0,0,0.25),
     0 4px 8px rgba(0,0,0,0.22),
     0 16px 32px rgba(0,0,0,0.28),
@@ -5019,7 +5018,7 @@ body.drawer-lock { overflow: hidden; }
 .col-my-style-box {
   margin-top: clamp(8px, 1.5vh, 20px);
   background: #fff;
-  border: 2px solid rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.16);
   border-radius: 16px;
   padding: clamp(10px, 1.4vh, 18px) 26px clamp(10px, 1.4vh, 20px);
   display: flex;

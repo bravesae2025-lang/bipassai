@@ -5056,7 +5056,7 @@ body.drawer-lock { overflow: hidden; }
 ───────────────────────────────────────────────────────────── */
 
 .col-own-text-box {
-  margin-top: clamp(8px, 1.5vh, 20px);
+  margin-top: clamp(18px, 3vh, 36px);
   background: #fff;
   border: 2px solid rgba(0,0,0,0.35);
   border-radius: 16px;

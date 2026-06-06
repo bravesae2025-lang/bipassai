@@ -535,7 +535,7 @@ main {
 
 .textarea-wrap {
   position: relative;
-  height: 620px;
+  height: clamp(300px, calc(100vh - 640px), 620px);
   flex-shrink: 0;
 }
 
@@ -914,7 +914,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 
 .app-main {
   position: relative;
-  padding: 48px clamp(20px, 4vw, 56px) 130px;
+  padding: 48px clamp(20px, 4vw, 56px) clamp(40px, 9vh, 130px);
   width: 100%;
   box-sizing: border-box;
   display: flex;

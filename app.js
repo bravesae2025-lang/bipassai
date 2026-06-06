@@ -8,118 +8,206 @@ const LEVEL_DESCRIPTIONS = {
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 
 const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. The goal is to make it completely undetectable by AI detectors. Use MOST of these:
+  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
-- Wrong tenses regularly: "yesterday I go", "she tell me", "I seen it", "we was there"
-- Long run-on sentences that just keep going with commas and "and" and "but" without stopping because the writer doesn't know when to end a sentence, it just keeps going
-- Short fragments mixed in. Like this. Real short.
-- Repeat the same idea twice in slightly different words like they're figuring it out as they write
-- Simple words only. "good" not "beneficial". "bad" not "detrimental". "use" not "utilize".
-- "I think" and "maybe" and "I guess" a lot
-- Jump between thoughts without connecting them properly
-- Say things twice without realizing it, like "it was really hard, it was so difficult"
-- Contractions always: don't, can't, it's, I'm, won't, didn't
-- Sentences starting with And or But or So
+SENTENCE LENGTH — most important rule:
+Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Real rhythm example: "That was hard. I think maybe I didn't study enough and also I was tired from work the day before so my brain just wasn't working right. Not good."
 
-NEVER use: semicolons (;), parentheses (), colons (:), em dashes (—), hyphens in mid-sentence, bullet structure in the output text
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "notably", "it is important", "this highlights", "in today's world"
-No passive voice. No balanced paragraph structure. No clean transitions.
+TENSE MISTAKES — use regularly:
+"yesterday I go", "she tell me", "I seen it before", "we was there", "he don't know", "they was really nice", "I have went"
+
+PUNCTUATION ERRORS — do these:
+- Missing comma before "but" and "and" sometimes: "I wanted to go but I couldn't"
+- Comma splice: "it was good, I really liked it"
+- Write "dont" "cant" "its" "wont" without apostrophe a couple times
+- No semicolons. No parentheses. No colons. No em dashes.
+
+OTHER TRAITS:
+- Repeat the same word or idea twice: "it was hard, it was really difficult for me"
+- Simple words only: "good" not "beneficial", "use" not "utilize", "bad" not "detrimental"
+- "I think" "maybe" "I guess" "like" scattered through
+- Jump between thoughts without connecting them
+- Uneven paragraphs — one might be 1 sentence, another 5
+- Some sentences starting with And or But or So
+
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, in today's world, one must, to summarize
+
+No passive voice. No clean topic sentences. No conclusion summary.
 Return only the rewritten text, nothing else.`,
 
-  medium: `Rewrite the following text so it sounds like a real student wrote it quickly — thoughtful but unpolished. The goal is to be completely undetectable by AI detectors. Use these naturally, don't force all of them:
+  medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
-- Sentence lengths all over the place. Some really short. Some that go on longer than they should because the thought isn't finished yet and you just keep adding to it.
-- Filler words that feel real: "honestly", "basically", "kind of", "like", "I guess", "to be fair", "you know"
-- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't
-- Reuse the same word a couple times without noticing — students don't edit
-- Casual strong opinions: "honestly it was kind of pointless", "that never really made sense to me"
-- Slight logic gaps — one thought doesn't perfectly lead into the next
-- One moment of uncertainty: "I'm not totally sure but", "could be wrong about this"
-- Sentences starting with And, But, or So sometimes
-- One very specific personal-feeling detail
+SENTENCE LENGTH — the single biggest detection signal — this is mandatory:
+Every paragraph must have at least one sentence that is ONLY 4-8 words (fragment or abrupt thought is fine) AND at least one sentence that is 30+ words that keeps going because the student didn't stop themselves. Never write 3 sentences in a row of similar length. Example rhythm: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
 
-NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) mid-sentence, overly formal transitions
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "it is important to note", "this demonstrates", "notably"
-No passive voice. No neat paragraph symmetry. No equal sentence energy throughout.
-Return only the rewritten text, nothing else.`,
+PUNCTUATION MISTAKES — students make these, do them:
+- Missing comma before "but" / "and" / "because" sometimes: "I wanted to do it but I ran out of time"
+- Comma splice once or twice: "it made sense, everyone got it pretty fast"
+- Write "dont" "cant" "its" (for "it's") "wont" without apostrophe once or twice — not every time
+- No semicolons ever. No parentheses. No colons mid-sentence. No em dashes.
 
-  hard: `Rewrite the following text so it sounds like a confident real person wrote it and didn't overthink it. The goal is to be completely undetectable by AI detectors. Humanness should be subtle — rhythm and personality, not obvious mistakes:
+CAPITALIZATION:
+- Mostly correct but miss a capital at the start of one sentence somewhere in the piece
+- Do NOT capitalize random mid-sentence words to make them sound important (AI does this)
 
-- Mostly clean writing but with natural unevenness — one part rushes, one part lingers
-- Contractions always: don't, it's, I'm, can't, won't, wouldn't
-- Strong direct opinions without hedging — pick a side, sound sure
-- One sentence that runs a bit long and connects things in a slightly loose way
-- One small contradiction or honest moment: "it worked fine, though it kind of annoyed me"
-- One concrete specific detail that feels real and personal
-- One moment of real uncertainty: "I don't fully know why" or "maybe I'm wrong"
+WORD CHOICE AND VOICE:
+- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't, would've
+- Filler: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean", "to be fair"
+- Reuse the same word 2-3 times — students don't proofread
+- Casual opinions: "honestly kind of pointless", "never really made sense to me", "wasn't great"
+- One thought that doesn't fully connect to the one before
+- One uncertainty: "I'm not totally sure but", "could be wrong"
 - Some sentences starting with And, But, or So
-- Vary rhythm deliberately — short. Then medium. Then one that stretches out a bit.
+- Uneven paragraphs — not all the same size, one might be just one sentence
 
-NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) except before a simple list, formal transitions between paragraphs
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "one must consider", "it is important", "this highlights", "notably", "it can be seen"
-No passive voice. No balanced parallel structure. No conclusion summaries.
+STRUCTURE:
+- Do NOT start paragraphs with a clean topic sentence — just jump into the thought
+- No conclusion or summary at the end — just stop
+- Paragraphs should be different lengths, not symmetrical
+
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, this indicates, in today's world
+
+No passive voice. No perfect punctuation throughout. No equal sentence energy.
+Return only the rewritten text, nothing else.`,
+
+  hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. This must be completely undetectable by AI detectors. Humanness is in rhythm and personality, not obvious mistakes.
+
+SENTENCE LENGTH — mandatory:
+Every paragraph needs real variety. At least one sentence under 10 words. At least one sentence over 30 words that flows naturally. Never 3 sentences of similar length in a row. The rhythm should feel personal and uneven, not measured.
+
+PUNCTUATION — clean but imperfect:
+- Miss a comma before "but" or "and" once or twice — natural
+- No semicolons. No parentheses. No em dashes. No mid-sentence colons.
+- Contractions always: don't, it's, I'm, can't, won't, wouldn't, they've
+
+VOICE:
+- Strong direct opinions, pick a side, sound sure — no diplomatic hedging
+- One sentence that runs longer because the thought kept going naturally
+- One honest moment: "I don't fully know why" or "maybe I'm wrong about this"
+- One real specific detail that feels personal, not generic
+- Some sentences starting with And, But, or So
+- One small contradiction or inconsistency: "it worked fine, though honestly it kind of annoyed me"
+
+STRUCTURE:
+- Don't start paragraphs with a topic sentence — start mid-thought
+- No conclusion summary — just end
+- Paragraphs uneven in length — not symmetrical
+- Use slightly unexpected word choices over the "correct" polished ones
+
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+
+No passive voice. No parallel structure. No balanced paragraphs.
 Return only the rewritten text, nothing else.`,
 
   customize: `Rewrite the following text to sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
-Never use semicolons, parentheses, em dashes, or formal transitional phrases.
-Use contractions naturally. Vary sentence length. No passive voice.
+
+Always follow these regardless of the traits listed:
+- Vary sentence length dramatically: some under 8 words, some over 30. Never 3 sentences in a row of similar length.
+- No semicolons, parentheses, em dashes, or colons mid-sentence.
+- Use contractions naturally.
+- Do not start paragraphs with a topic sentence.
+- No conclusion summary at the end.
+- No passive voice.
 Return only the rewritten text, nothing else.`,
 };
 
 const GENERATE_PROMPTS = {
-  easy: `Read the task or topic below and write a complete original response — essay, story, answer, whatever is needed. Write it as a beginner or non-native English speaker would. The goal is to be completely undetectable by AI detectors. Use MOST of these:
+  easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
-- Wrong tenses regularly: "yesterday I go", "she tell me", "I seen it", "we was there"
-- Long run-on sentences that just keep going with commas and "and" and "but" without stopping because the writer doesn't know when to end, it just keeps going like this
-- Short fragments mixed in. Like this. Very short.
-- Repeat the same idea twice in slightly different words like they're figuring it out while writing
-- Simple words only. "good" not "beneficial". "bad" not "detrimental". "use" not "utilize".
-- "I think" and "maybe" and "I guess" scattered through
-- Jump between thoughts without connecting them properly
-- Contractions always: don't, can't, it's, I'm, won't, didn't
+SENTENCE LENGTH — most important:
+Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Mix: short. then a medium one. then one that goes on and on and keeps adding things because the writer doesn't know when to stop. Short again.
+
+TENSE MISTAKES — use regularly:
+"yesterday I go", "she tell me", "I seen it", "we was there", "he don't know", "they was nice", "I have went"
+
+PUNCTUATION ERRORS:
+- Missing comma before "but" and "and" sometimes
+- Comma splice: "it was good, I liked it"
+- Write "dont" "cant" "its" "wont" without apostrophe a couple times
+- No semicolons. No parentheses. No colons. No em dashes.
+
+OTHER TRAITS:
+- Repeat the same idea twice in different words
+- Simple words only: "good" not "beneficial", "use" not "utilize"
+- "I think" "maybe" "I guess" scattered through
+- Jump between thoughts without connecting them
+- Uneven paragraphs
 - Some sentences starting with And or But or So
 
-NEVER use: semicolons (;), parentheses (), colons (:), em dashes (—), hyphens mid-sentence
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "notably", "it is important", "this highlights", "in today's world"
-No passive voice. No balanced structure. No clean transitions.
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize
+
+No passive voice. No clean topic sentences. No conclusion.
 Return only the written text, nothing else.`,
 
-  medium: `Read the task or topic below and write a complete original response. Write it the way a real student would — quickly, naturally, without over-editing. The goal is to be completely undetectable by AI detectors. Use these naturally:
+  medium: `Read the task or topic below and write a complete original response the way a real student would — quickly, without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
-- Sentence lengths all over the place. Short. Then one that goes on longer than it should because the thought kept going.
-- Filler: "honestly", "basically", "kind of", "like", "I guess", "you know", "to be fair"
-- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't
-- Reuse the same word a couple times without catching it
-- Casual strong opinions: "honestly kind of pointless", "never really made sense to me"
-- Slight logic gaps between thoughts
-- One moment of uncertainty: "I'm not totally sure but", "could be wrong"
+SENTENCE LENGTH — mandatory, biggest detection signal:
+Every paragraph must have at least one sentence ONLY 4-8 words long AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was nobody really understood the instructions so everyone just kind of did their own thing and hoped it worked out. Pretty chaotic."
+
+PUNCTUATION MISTAKES:
+- Missing comma before "but" / "and" / "because" sometimes
+- Comma splice once or twice: "it made sense, everyone got it fast"
+- Write "dont" "cant" "its" "wont" without apostrophe once or twice
+- No semicolons. No parentheses. No colons mid-sentence. No em dashes.
+
+CAPITALIZATION:
+- Miss a capital at the start of one sentence somewhere in the piece
+
+WORD CHOICE AND VOICE:
+- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't, would've
+- Filler: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean"
+- Reuse the same word 2-3 times — students don't edit
+- Casual opinions: "honestly kind of pointless", "never made sense to me"
+- One thought that doesn't connect perfectly to the one before
+- One uncertainty: "I'm not totally sure but", "could be wrong"
 - Some sentences starting with And, But, or So
-- One very specific concrete detail
+- Uneven paragraphs
 
-NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) mid-sentence, formal transitions
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "it is important to note", "this demonstrates", "notably"
-No passive voice. No neat structure. No equal sentence energy.
+STRUCTURE:
+- Don't start paragraphs with a topic sentence — just jump in
+- No conclusion or summary — just stop
+- Paragraphs different lengths
+
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+
+No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the written text, nothing else.`,
 
-  hard: `Read the task or topic below and write a complete original response. Write it the way a confident real person would — direct, opinionated, not over-polished. The goal is to be completely undetectable by AI detectors. Humanness should be subtle:
+  hard: `Read the task or topic below and write a complete original response the way a confident real person would — direct, opinionated, not over-polished. This must be completely undetectable by AI detectors. Humanness is subtle.
 
-- Mostly clean writing but naturally uneven — some parts flow fast, one lingers
-- Contractions always: don't, it's, I'm, can't, won't, wouldn't
-- Strong direct opinions, pick a side, don't hedge
-- One sentence that runs a bit longer and loosely connects ideas
-- One small honest moment: "I don't fully know why" or "maybe I'm wrong about this"
-- One concrete specific detail that feels real
+SENTENCE LENGTH — mandatory:
+Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
+
+PUNCTUATION:
+- Miss a comma before "but" or "and" once or twice
+- No semicolons. No parentheses. No em dashes. No mid-sentence colons.
+- Contractions always: don't, it's, I'm, can't, won't, wouldn't, they've
+
+VOICE AND STRUCTURE:
+- Strong direct opinions, pick a side, sound sure
+- One sentence that runs longer because the thought kept going
+- One honest moment: "I don't fully know why" or "maybe I'm wrong"
+- One real specific detail, personal not generic
 - Some sentences starting with And, But, or So
-- Vary rhythm: short. Then medium. Then one that stretches a bit.
+- One small contradiction: "it worked fine, though honestly it kind of annoyed me"
+- Don't start paragraphs with a topic sentence
+- No conclusion summary — just end
+- Uneven paragraphs
 
-NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) except before a list, formal paragraph transitions
-NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "one must consider", "this highlights", "notably", "it can be seen"
-No passive voice. No parallel structure. No conclusion summaries.
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+
+No passive voice. No parallel structure. No balanced paragraphs.
 Return only the written text, nothing else.`,
 
   customize: `Read the task or topic below and write a complete original response. Make it sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
-Never use semicolons, parentheses, em dashes, or formal transitional phrases.
-Use contractions naturally. Vary sentence length. No passive voice.
+
+Always follow these regardless:
+- Vary sentence length dramatically: some under 8 words, some over 30. Never 3 in a row of similar length.
+- No semicolons, parentheses, em dashes, or mid-sentence colons.
+- Use contractions naturally.
+- Don't start paragraphs with a topic sentence.
+- No conclusion summary.
+- No passive voice.
 Return only the written text, nothing else.`,
 };
 

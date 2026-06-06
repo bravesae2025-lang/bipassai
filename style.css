@@ -4790,6 +4790,17 @@ body.drawer-lock { overflow: hidden; }
 .style-name-input:focus { border-color: rgba(0,0,0,0.35); background: #fff; }
 .style-name-input::placeholder { color: var(--g300); font-weight: 400; font-style: normal; }
 
+.style-name-input.field-error,
+.style-sample-textarea.field-error {
+  border-color: #e03737 !important;
+  background: rgba(224,55,55,0.04) !important;
+}
+.style-name-input.field-error:focus,
+.style-sample-textarea.field-error:focus {
+  border-color: #e03737 !important;
+  background: rgba(224,55,55,0.06) !important;
+}
+
 #sample-container {
   max-height: 220px;
   overflow-y: auto;

@@ -504,6 +504,16 @@ function bindEvents() {
 
   analyzeStyleBtn.addEventListener('click', analyzeStyle);
 
+  // Clear error borders as user types
+  document.getElementById('style-name-input')?.addEventListener('input', function () {
+    this.classList.remove('field-error');
+  });
+  sampleContainer.addEventListener('input', (e) => {
+    if (e.target.classList.contains('style-sample-textarea')) {
+      e.target.classList.remove('field-error');
+    }
+  });
+
   // ── Mode tab switching ──────────────────────────
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -784,11 +794,30 @@ async function loadSavedStyle(session) {
 }
 
 async function analyzeStyle() {
-  const samples = Array.from(document.querySelectorAll('.style-sample-textarea'))
-    .map(t => t.value.trim())
-    .filter(v => v.length > 0);
+  let valid = true;
 
-  if (samples.length === 0) { showToast('Paste at least one writing sample'); return; }
+  // Validate style name
+  const nameInput = document.getElementById('style-name-input');
+  if (!nameInput?.value.trim()) {
+    nameInput?.classList.add('field-error');
+    valid = false;
+  }
+
+  // Validate each sample — must have ≥ 50 words
+  const textareas = Array.from(document.querySelectorAll('.style-sample-textarea'));
+  const samples = [];
+  textareas.forEach(ta => {
+    const text = ta.value.trim();
+    const words = text === '' ? 0 : text.split(/\s+/).length;
+    if (words < 50) {
+      ta.classList.add('field-error');
+      valid = false;
+    } else {
+      samples.push(text);
+    }
+  });
+
+  if (!valid) return;
 
   analyzeLabel.style.display  = 'none';
   analyzeLoader.style.display = '';

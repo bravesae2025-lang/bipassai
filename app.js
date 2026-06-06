@@ -71,7 +71,7 @@ CAPITALIZATION:
 
 WORD CHOICE AND VOICE:
 - Contractions throughout: don't, it's, I'm, wasn't, they're, couldn't, would've
-- Filler: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean", "to be fair"
+- Filler: "honestly", "like", "kind of", "I guess", "basically", "I mean", "to be fair"
 - Reuse the same word 2-3 times — students don't proofread
 - Casual opinions: "honestly kind of pointless", "never really made sense to me", "wasn't great"
 - One thought that doesn't connect to the one before — a slight logic jump
@@ -198,7 +198,7 @@ CAPITALIZATION:
 
 WORD CHOICE AND VOICE:
 - Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't, would've
-- Filler: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean"
+- Filler: "honestly", "like", "kind of", "I guess", "basically", "I mean"
 - Reuse the same word 2-3 times — students don't edit
 - Casual opinions: "honestly kind of pointless", "never made sense to me"
 - One thought that doesn't connect perfectly to the one before

@@ -50,6 +50,7 @@
 
     /* Login */
     .auth-title { font-size: 13px; font-weight: 700; color: #0a0a0a; text-align: center; padding-top: 6px; }
+    .auth-sub { font-size: 11px; color: #888; text-align: center; margin: 0; line-height: 1.5; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
     .form-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
     .form-input {
@@ -270,6 +271,7 @@
     <!-- Login -->
     <div class="state" id="state-login">
       <div class="auth-title">Sign in to Bipass AI</div>
+      <p class="auth-sub">Use the same Google account you use on bipassai.com</p>
 
       <button class="google-btn" id="google-btn" type="button">
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -281,20 +283,7 @@
         Continue with Google
       </button>
 
-      <div class="auth-divider">or</div>
-
-      <form id="login-form" style="display:flex;flex-direction:column;gap:8px;">
-        <div class="form-field">
-          <label class="form-label" for="login-email">Email</label>
-          <input class="form-input" type="email" id="login-email" placeholder="you@email.com" required autocomplete="email">
-        </div>
-        <div class="form-field">
-          <label class="form-label" for="login-password">Password</label>
-          <input class="form-input" type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-        <p class="auth-error" id="login-error"></p>
-        <button class="auth-btn" type="submit" id="login-btn">Sign In</button>
-      </form>
+      <p class="auth-error" id="login-error"></p>
     </div>
 
     <!-- Free tier — upgrade needed -->

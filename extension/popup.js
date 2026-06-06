@@ -134,36 +134,6 @@ async function init() {
   await fetchResults(access_token, user_id, tier);
 }
 
-// ── Email / password login ──────────────────────────────────────
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('login-error');
-  const btn      = document.getElementById('login-btn');
-
-  errEl.textContent = '';
-  btn.disabled = true;
-  btn.textContent = 'Signing in…';
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error_description || 'Invalid email or password.'; return; }
-    const session = await storeSession(data);
-    await fetchResults(session.access_token, session.user_id, session.tier);
-  } catch {
-    errEl.textContent = 'Connection error. Try again.';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Sign In';
-  }
-});
-
 // ── Google sign-in (runs in background worker so popup closing doesn't break it) ──
 document.getElementById('google-btn').addEventListener('click', () => {
   const errEl = document.getElementById('login-error');

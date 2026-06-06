@@ -4762,8 +4762,7 @@ body.drawer-lock { overflow: hidden; }
 .style-name-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .style-name-label {
   font-family: var(--ff-ui);
@@ -4999,10 +4998,10 @@ body.drawer-lock { overflow: hidden; }
   background: #fff;
   border: 1px solid rgba(0,0,0,0.16);
   border-radius: 16px;
-  padding: clamp(14px, 2vh, 24px) 26px clamp(14px, 2vh, 26px);
+  padding: clamp(10px, 1.4vh, 18px) 26px clamp(10px, 1.4vh, 20px);
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1.2vh, 14px);
+  gap: clamp(6px, 0.9vh, 10px);
   cursor: pointer;
   opacity: 0.55;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);

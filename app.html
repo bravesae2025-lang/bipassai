@@ -289,98 +289,75 @@
 
             <div class="mistake-row">
               <span class="mistake-label">Grammar</span>
-              <div class="mistake-intensity" data-mistake="grammar">
-                <button class="mint-btn active" data-val="0">None</button>
-                <button class="mint-btn" data-val="1">A little</button>
-                <button class="mint-btn" data-val="2">A lot</button>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="grammar">
               </div>
+              <span class="mistake-slider-val" data-mistake="grammar">0</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Tense</span>
-              <div class="mistake-intensity" data-mistake="tense">
-                <button class="mint-btn active" data-val="0">None</button>
-                <button class="mint-btn" data-val="1">A little</button>
-                <button class="mint-btn" data-val="2">A lot</button>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="tense">
               </div>
+              <span class="mistake-slider-val" data-mistake="tense">0</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Punctuation</span>
-              <div class="mistake-intensity" data-mistake="punct">
-                <button class="mint-btn active" data-val="0">None</button>
-                <button class="mint-btn" data-val="1">A little</button>
-                <button class="mint-btn" data-val="2">A lot</button>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="punct">
               </div>
+              <span class="mistake-slider-val" data-mistake="punct">0</span>
             </div>
 
             <div class="mistake-row">
-              <span class="mistake-label">Capitalization</span>
-              <div class="mistake-intensity" data-mistake="caps">
-                <button class="mint-btn active" data-val="0">None</button>
-                <button class="mint-btn" data-val="1">A little</button>
-                <button class="mint-btn" data-val="2">A lot</button>
+              <span class="mistake-label">Capitals</span>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="caps">
               </div>
+              <span class="mistake-slider-val" data-mistake="caps">0</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Spelling</span>
-              <div class="mistake-intensity" data-mistake="spelling">
-                <button class="mint-btn active" data-val="0">None</button>
-                <button class="mint-btn" data-val="1">A little</button>
-                <button class="mint-btn" data-val="2">A lot</button>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="spelling">
               </div>
+              <span class="mistake-slider-val" data-mistake="spelling">0</span>
             </div>
+
+            <div class="custom-style-divider"><span>My Writing Style</span></div>
+
+            <div id="my-style-inputs">
+              <div class="style-name-field">
+                <input class="style-name-input" id="style-name-input" type="text" placeholder="Name" maxlength="30">
+              </div>
+              <div id="sample-container">
+                <div class="sample-row">
+                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4"></textarea>
+                  <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
+                  <span class="sample-wc">0 / 50</span>
+                </div>
+              </div>
+              <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
+              <button class="analyze-btn" id="analyze-style-btn" type="button">
+                <span class="btn-content">
+                  <span id="analyze-label">Analyze My Writing</span>
+                  <span id="analyze-loader" style="display:none"></span>
+                </span>
+                <span class="btn-arrow" aria-hidden="true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+                <span class="btn-sweep" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div id="style-cards-list" style="display:none"></div>
+
           </div>
 
         </section>
-
-        <div class="panel-or-divider">
-          <span class="panel-or-line"></span>
-          <span class="panel-or-text">or</span>
-          <span class="panel-or-line"></span>
-        </div>
-
-        <!-- My Style — separate white panel below -->
-        <div class="col-my-style-box" id="my-style-block">
-
-          <div class="col-label">
-            <span class="col-name">Use My Writing Style</span>
-          </div>
-
-          <div id="my-style-inputs">
-            <div class="style-name-field">
-              <input
-                class="style-name-input"
-                id="style-name-input"
-                type="text"
-                placeholder="Name"
-                maxlength="30"
-              />
-            </div>
-            <div id="sample-container">
-              <div class="sample-row">
-                <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4"></textarea>
-                <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
-                <span class="sample-wc">0 / 50</span>
-              </div>
-            </div>
-            <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
-            <button class="analyze-btn" id="analyze-style-btn" type="button">
-              <span class="btn-content">
-                <span id="analyze-label">Analyze My Style</span>
-                <span id="analyze-loader" style="display:none"></span>
-              </span>
-              <span class="btn-arrow" aria-hidden="true">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </span>
-              <span class="btn-sweep" aria-hidden="true"></span>
-            </button>
-          </div>
-
-          <div id="style-cards-list" style="display:none"></div>
-
-        </div>
 
         <!-- Own Text — paste custom text and push to extension -->
         <div class="col-own-text-box" id="own-text-block">

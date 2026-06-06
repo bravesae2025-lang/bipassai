@@ -584,11 +584,12 @@ function restoreState() {
 
   for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
     const saved = parseInt(sessionStorage.getItem(`bipass_m_${type}`) || '0');
-    if (saved > 0) {
-      const group = optionsPanel?.querySelector(`.mistake-intensity[data-mistake="${type}"]`);
-      if (group) {
-        group.querySelectorAll('.mint-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) === saved));
-      }
+    const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
+    if (slider && saved > 0) {
+      slider.value = saved;
+      updateSliderFill(slider);
+      const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
+      if (valEl) valEl.textContent = saved;
     }
   }
   const savedMyStyle = sessionStorage.getItem('bipass_my_style');
@@ -597,12 +598,7 @@ function restoreState() {
   } else {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
-  if (myStyleActive) {
-    colCustomize?.classList.add('col-dimmed');
-    myStyleBox?.classList.add('my-style-active');
-  } else {
-    colCustomize?.classList.add('col-active');
-  }
+  colCustomize?.classList.add('col-active');
 }
 
 // ─── Events ───────────────────────────────────────────────────
@@ -628,26 +624,20 @@ function bindEvents() {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
 
-  // Mistake intensity buttons
-  optionsPanel?.querySelectorAll('.mistake-intensity').forEach(group => {
-    group.querySelectorAll('.mint-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        group.querySelectorAll('.mint-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
+  // Mistake sliders
+  optionsPanel?.querySelectorAll('.mistake-slider').forEach(slider => {
+    const type = slider.dataset.mistake;
+    updateSliderFill(slider);
+    slider.addEventListener('input', () => {
+      const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
+      if (valEl) valEl.textContent = slider.value;
+      updateSliderFill(slider);
+      sessionStorage.setItem(`bipass_m_${type}`, slider.value);
     });
   });
 
   generateBtn.addEventListener('click', generateNew);
   humanizeBtn.addEventListener('click', humanize);
-
-  // Mutually exclusive toggle: clicking one pops it out and dims the other
-  myStyleBox?.addEventListener('click', () => {
-    if (!myStyleBox.classList.contains('my-style-active')) activateMyStyle();
-  });
-  colCustomize?.addEventListener('click', () => {
-    if (!colCustomize.classList.contains('col-active')) deactivateMyStyle();
-  });
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
@@ -772,17 +762,11 @@ function selectLevel(level) {
 
 function activateMyStyle() {
   myStyleActive = !!savedStyle;
-  colCustomize?.classList.add('col-dimmed');
-  colCustomize?.classList.remove('col-active');
-  myStyleBox?.classList.add('my-style-active');
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
 }
 
 function deactivateMyStyle() {
   myStyleActive = false;
-  colCustomize?.classList.remove('col-dimmed');
-  colCustomize?.classList.add('col-active');
-  myStyleBox?.classList.remove('my-style-active');
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 
@@ -965,7 +949,11 @@ function renderStyleList() {
       savedStyle = savedStyles.find(s => s.id === id) || null;
       saveStoredStyles();
       renderStyleList();
-      activateMyStyle();
+      // Switch to Custom level so sliders + style section are visible
+      if (selectedLevel !== 'customize') selectLevel('customize');
+      myStyleActive = !!savedStyle;
+      sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+      if (savedStyle) setSlidersFromStyle(savedStyle);
     });
   });
 
@@ -1154,6 +1142,9 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
     const nameInput = document.getElementById('style-name-input');
     if (nameInput) nameInput.value = '';
     showToast('Style analyzed');
+    myStyleActive = true;
+    sessionStorage.setItem('bipass_my_style', 'true');
+    setSlidersFromStyle(newStyle);
 
     try {
       const session = await window.bipassAuth.getSession();
@@ -1250,10 +1241,38 @@ const MISTAKE_PROMPTS = {
 };
 
 function getMistakeLevel(type) {
-  const group = optionsPanel?.querySelector(`.mistake-intensity[data-mistake="${type}"]`);
-  if (!group) return 0;
-  const active = group.querySelector('.mint-btn.active');
-  return active ? parseInt(active.dataset.val) : 0;
+  const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
+  if (!slider) return 0;
+  const val = parseInt(slider.value);
+  if (val <= 2) return 0;
+  if (val <= 6) return 1;
+  return 2;
+}
+
+function setSlidersFromStyle(style) {
+  let traits = [];
+  try { traits = JSON.parse(style.style_summary); } catch (_) {}
+  if (!Array.isArray(traits)) traits = [];
+
+  const KEYWORDS = {
+    grammar:  ['grammar', 'grammatical'],
+    tense:    ['tense', 'verb'],
+    punct:    ['punctuation', 'punct', 'comma', 'period'],
+    caps:     ['capital', 'capitalization'],
+    spelling: ['spelling', 'typo', 'spell'],
+  };
+
+  for (const [type, kws] of Object.entries(KEYWORDS)) {
+    const trait = traits.find(t => kws.some(k => t.name?.toLowerCase().includes(k)));
+    const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
+    if (!slider) continue;
+    const intensity = trait ? Math.round(typeof trait.intensity === 'number' ? trait.intensity : 0) : 0;
+    const mapped = intensity <= 2 ? intensity * 5 : intensity; // migrate old 0/1/2 scale
+    slider.value = Math.min(10, mapped);
+    updateSliderFill(slider);
+    const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
+    if (valEl) valEl.textContent = slider.value;
+  }
 }
 
 function buildMistakeExtras() {
@@ -1281,7 +1300,11 @@ function buildTraitIntensityLine() {
 
 function buildHumanizePrompt(text) {
   if (myStyleActive && savedStyle) {
-    return `${savedStyle.style_prompt}${buildTraitIntensityLine()}\n\nText to rewrite:\n${text}`;
+    // Combined: full style description + specific mistake levels from sliders
+    const extras = buildMistakeExtras();
+    let prompt = savedStyle.style_prompt;
+    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
+    return prompt + `\n\nText to rewrite:\n${text}`;
   }
   let prompt = HUMANIZE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {
@@ -1294,7 +1317,10 @@ function buildHumanizePrompt(text) {
 
 function buildGeneratePrompt(userPrompt) {
   if (myStyleActive && savedStyle) {
-    return `${savedStyle.style_prompt}${buildTraitIntensityLine()}\n\nWhat to write:\n${userPrompt}`;
+    const extras = buildMistakeExtras();
+    let prompt = savedStyle.style_prompt;
+    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
+    return prompt + `\n\nWhat to write:\n${userPrompt}`;
   }
   let prompt = GENERATE_PROMPTS[selectedLevel];
   if (selectedLevel === 'customize') {

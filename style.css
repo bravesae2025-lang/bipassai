@@ -2047,17 +2047,92 @@ body.editor-page { background: var(--bg); }
 .mistake-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 .mistake-label {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--black);
   flex-shrink: 0;
-  min-width: 88px;
+  min-width: 82px;
 }
-.col-customize .mistake-label { color: #fff; }
+.col-customize .mistake-label { color: rgba(255,255,255,0.8); }
+
+/* Mistake sliders (inside dark col-customize) */
+.mistake-slider-track {
+  flex: 1;
+}
+.mistake-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #fff var(--pct, 0%), rgba(255,255,255,0.2) var(--pct, 0%));
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+.mistake-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.mistake-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+.mistake-slider-val {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  min-width: 16px;
+  text-align: right;
+}
+
+/* My Writing Style divider inside options-panel */
+.custom-style-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.custom-style-divider::before,
+.custom-style-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+}
+.custom-style-divider span {
+  font-family: var(--ff-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+/* Style name input inside dark col-customize */
+.col-customize .style-name-input {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
+  color: #fff;
+}
+.col-customize .style-name-input:focus {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.09);
+}
+.col-customize .style-name-input::placeholder { color: rgba(255,255,255,0.28); }
 .mistake-intensity {
   display: flex;
   gap: 4px;
@@ -6388,6 +6463,56 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .col-my-style-box .reanalyze-link:hover { color: #0d0d0d; }
 .col-my-style-box .style-trait-name { color: #555; }
 
+
+/* ── Style section inside dark col-customize (Custom panel) ────── */
+.col-customize .style-sample-textarea {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.col-customize .style-sample-textarea::placeholder { color: rgba(255,255,255,0.28); }
+.col-customize .style-sample-textarea:focus {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+}
+.col-customize .sample-wc { color: rgba(255,255,255,0.3); }
+.col-customize .sample-wc.wc-ok { color: #4ade80; }
+.col-customize .sample-delete-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+.col-customize .sample-delete-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.col-customize .add-sample-btn { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }
+.col-customize .add-sample-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); }
+.col-customize .style-name-field { margin-bottom: 8px; }
+
+/* Style cards inside dark col-customize */
+.col-customize .style-card {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.col-customize .style-card-name {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+.col-customize .style-card-name::placeholder { color: rgba(255,255,255,0.3); }
+.col-customize .style-card-name:focus { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); }
+.col-customize .style-card-active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+.col-customize .style-use-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+.col-customize .style-use-btn:hover { background: #fff; color: #000; border-color: #fff; }
+.col-customize .style-use-btn.active { background: #fff; color: #000; border-color: #fff; }
+.col-customize .style-delete-btn { color: rgba(255,255,255,0.35); }
+.col-customize .style-delete-btn:hover { color: #fff; }
+.col-customize .create-another-btn {
+  color: rgba(255,255,255,0.45);
+  border-color: rgba(255,255,255,0.15);
+  background: transparent;
+}
+.col-customize .create-another-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+.col-customize .style-details-toggle { color: rgba(255,255,255,0.4); }
+.col-customize .style-details-toggle:hover { color: rgba(255,255,255,0.7); }
+.col-customize .trait-slider { background: rgba(255,255,255,0.2); }
+.col-customize .style-trait-name { color: rgba(255,255,255,0.7); }
+.col-customize .trait-slider-val { color: rgba(255,255,255,0.5); }
 
 /* ── Style details accordion ──────────────────────────────────── */
 .style-details { margin: 4px 0 0; }

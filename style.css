@@ -3307,30 +3307,42 @@ body.editor-page { background: var(--bg); }
    Order: largest → smallest so smaller breakpoints win
 ───────────────────────────────────────────────────────────── */
 
-/* ── 13" laptops / smaller desktops ─── */
+/* ── 13" MacBook ─── */
 @media (max-width: 1280px) {
-  .workspace { grid-template-columns: 1fr minmax(400px, 490px); }
-  .app-main { padding: 48px 48px 130px; }
-  .page-right-section-bg { width: 580px; }
+  .workspace { grid-template-columns: 1fr minmax(380px, 460px); }
+  .app-main { padding: 48px 44px 130px; }
+  .page-right-section-bg { width: 550px; }
   .right-panel-wrap { padding: 16px 12px 16px 40px; }
 }
 
-/* ── iPad landscape + smaller → single column ─── */
-@media (max-width: 1200px) {
+/* ── iPad landscape / 12" laptop ─── */
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: 1fr minmax(300px, 380px); gap: 24px; }
+  .app-main { padding: 40px 32px 100px; }
+  .page-right-section-bg { display: none; }
+  .right-panel-wrap { padding: 16px 10px 16px 24px; }
+  .right-panel-heading { font-size: 26px; }
+}
+
+/* ── Small iPad / phone landscape ─── */
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr minmax(260px, 320px); gap: 16px; }
+  .app-main { padding: 28px 20px 80px; }
+  .right-panel-wrap { padding: 12px 8px 12px 16px; }
+  .right-panel-heading { font-size: 20px; }
+}
+
+/* ── Phone — single column ─── */
+@media (max-width: 768px) {
   html { height: auto; }
   body { height: auto; min-height: 100vh; }
-  .app-main { flex: none; padding: 32px 28px 80px; overflow-y: visible; }
-  .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 24px; align-items: start; }
+  .app-main { flex: none; padding: 16px 16px 48px; overflow-y: visible; }
+  .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; align-items: start; }
   .page-right-section-bg { display: none; }
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }
-  .textarea-wrap { height: auto; min-height: 350px; }
-}
-
-/* ── Phone — tighter padding ─── */
-@media (max-width: 860px) {
-  .app-main { padding: 16px 16px 48px; }
+  .textarea-wrap { height: auto; min-height: 300px; }
 }
 
 @media (max-width: 740px) {

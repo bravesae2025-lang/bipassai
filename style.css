@@ -495,7 +495,7 @@ main {
 
 .col-main {
   background: #ffffff;
-  border-color: rgba(0,0,0,0.18);
+  border: 2px solid rgba(0,0,0,0.35);
   position: relative;
   z-index: 1;
 }
@@ -1849,7 +1849,7 @@ body.editor-page { background: var(--bg); }
 .col-customize {
   margin-top: 16px;
   background: linear-gradient(160deg, #1c1c1c 0%, #0d0d0d 100%);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.18);
   box-shadow:
     0 1px 2px rgba(0,0,0,0.25),
     0 4px 8px rgba(0,0,0,0.22),
@@ -5024,7 +5024,7 @@ body.drawer-lock { overflow: hidden; }
 .col-my-style-box {
   margin-top: clamp(8px, 1.5vh, 20px);
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.16);
+  border: 2px solid rgba(0,0,0,0.35);
   border-radius: 16px;
   padding: clamp(10px, 1.4vh, 18px) 26px clamp(10px, 1.4vh, 20px);
   display: flex;

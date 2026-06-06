@@ -930,19 +930,47 @@ function renderStyleList() {
   styleCardsList.querySelectorAll('.style-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
-      savedStyles = savedStyles.filter(s => s.id !== id);
-      if (activeStyleId === id) {
-        activeStyleId = savedStyles[0]?.id || null;
-        savedStyle = savedStyles[0] || null;
-      }
-      saveStoredStyles();
-      if (savedStyles.length === 0) {
-        deactivateMyStyle();
-        styleCardsList.style.display = 'none';
-        myStyleInputs.style.display = '';
-      } else {
-        renderStyleList();
-      }
+
+      // Inline confirm popover
+      const existing = document.querySelector('.style-delete-confirm');
+      if (existing) existing.remove();
+
+      const pop = document.createElement('div');
+      pop.className = 'style-delete-confirm';
+      pop.innerHTML = `
+        <span class="style-delete-confirm-msg">Delete this style?</span>
+        <button class="style-delete-confirm-yes">Delete</button>
+        <button class="style-delete-confirm-no">Cancel</button>
+      `;
+      btn.parentNode.style.position = 'relative';
+      btn.parentNode.appendChild(pop);
+
+      pop.querySelector('.style-delete-confirm-yes').addEventListener('click', () => {
+        pop.remove();
+        savedStyles = savedStyles.filter(s => s.id !== id);
+        if (activeStyleId === id) {
+          activeStyleId = savedStyles[0]?.id || null;
+          savedStyle = savedStyles[0] || null;
+        }
+        saveStoredStyles();
+        if (savedStyles.length === 0) {
+          deactivateMyStyle();
+          styleCardsList.style.display = 'none';
+          myStyleInputs.style.display = '';
+        } else {
+          renderStyleList();
+        }
+      });
+
+      pop.querySelector('.style-delete-confirm-no').addEventListener('click', () => pop.remove());
+
+      // Dismiss if clicking outside
+      setTimeout(() => {
+        document.addEventListener('click', function handler(e) {
+          if (!pop.contains(e.target) && e.target !== btn) { pop.remove(); }
+          document.removeEventListener('click', handler);
+        });
+      }, 0);
     });
   });
 

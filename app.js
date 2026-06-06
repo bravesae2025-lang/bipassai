@@ -139,6 +139,13 @@ const GENERATE_PROMPTS = {
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Mix: short. then a medium one. then one that goes on and on and keeps adding things because the writer doesn't know when to stop. Short again.
 
+SPELLING MISTAKES — scale with length: ~1 per 35 words. Spread evenly, don't cluster:
+"definately", "recieve", "wierd", "beleive", "alot", "occured", "probly" or "prolly"
+Phonetic shortcuts also count: "gonna", "wanna", "cuz", "kinda" — use freely
+
+WRONG PLURAL "S" — ~1 per 60 words:
+"informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks"
+
 TENSE MISTAKES — use regularly:
 "yesterday I go", "she tell me", "I seen it", "we was there", "he don't know", "they was nice", "I have went"
 
@@ -166,11 +173,17 @@ Return only the written text, nothing else.`,
 SENTENCE LENGTH — mandatory, biggest detection signal:
 Every paragraph must have at least one sentence ONLY 4-8 words long AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was nobody really understood the instructions so everyone just kind of did their own thing and hoped it worked out. Pretty chaotic."
 
-COMMAS — use them, but imperfectly:
-Students use commas in lists and after openers normally. What they miss:
-- Missing comma before "but" / "and" / "because" a few times: "she was there and I didn't know what to do"
-- Comma splice once or twice: "it made sense, everyone got it fast" or "I liked it, it was actually pretty good"
-- Chain clauses with commas: "the class ran long, we covered a lot, I didn't follow all of it"
+SPELLING MISTAKES — scale with length: ~1 per 80 words. Spread evenly:
+"definately", "recieve", "seperate", "occured", "wierd"
+Shortcuts also count: "gonna", "wanna", "kinda", "prolly"
+
+WRONG PLURAL "S" — ~1 per 150 words:
+"informations", "advices", "feedbacks", "homeworks", "researches"
+
+COMMAS — use normally, but imperfectly:
+- Missing comma before "but" / "and" / "because" a few times
+- Comma splice once or twice: "it made sense, everyone got it fast"
+- Chain clauses: "the class ran long, we covered a lot, I didn't follow all of it"
 - Do NOT strip commas from lists or after introductory words
 
 OTHER PUNCTUATION:
@@ -204,6 +217,9 @@ Return only the written text, nothing else.`,
 
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
+
+SPELLING — one subtle mistake per ~250 words:
+Pick one that even smart people make: "recieve", "seperate", or "definately" — placed naturally
 
 PUNCTUATION:
 - Miss a comma before "but" or "and" once or twice

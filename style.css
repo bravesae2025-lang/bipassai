@@ -1888,15 +1888,7 @@ body.editor-page { background: var(--bg); }
 }
 
 .col.col-customize:not(.col-active):not(.col-dimmed):hover {
-  transform: translateY(-3px);
-  box-shadow:
-    inset 0 1px 0 transparent,
-    inset 0 -1px 0 rgba(0,0,0,0.5),
-    inset 1px 0 0 transparent,
-    0 2px 4px rgba(0,0,0,0.3),
-    0 8px 16px rgba(0,0,0,0.3),
-    0 24px 48px rgba(0,0,0,0.35),
-    0 56px 112px rgba(0,0,0,0.25);
+  opacity: 0.75;
 }
 
 .col-customize .col-num  { color: #888; }

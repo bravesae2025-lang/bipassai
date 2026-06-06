@@ -831,7 +831,14 @@ async function analyzeStyle() {
 
   analyzeLabel.style.display  = 'none';
   analyzeLoader.style.display = '';
+  analyzeLoader.textContent   = 'Analyzing.';
   analyzeStyleBtn.disabled    = true;
+
+  let _dotCount = 1;
+  const _dotsTimer = setInterval(() => {
+    _dotCount = (_dotCount % 3) + 1;
+    analyzeLoader.textContent = 'Analyzing' + '.'.repeat(_dotCount);
+  }, 450);
 
   const prompt = `Analyze these writing samples. Return ONLY a single-line JSON object — no markdown, no code fences, no line breaks inside the JSON, no explanation before or after.
 
@@ -908,6 +915,7 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
     console.error('analyzeStyle error:', e?.message || e);
     showToast('Could not analyze style — ' + (e?.message?.slice(0, 60) || 'try again'));
   } finally {
+    clearInterval(_dotsTimer);
     analyzeLabel.style.display  = '';
     analyzeLoader.style.display = 'none';
     analyzeStyleBtn.disabled    = false;

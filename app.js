@@ -633,6 +633,23 @@ function bindEvents() {
       if (valEl) valEl.textContent = mistakeLabel(slider.value);
       updateSliderFill(slider);
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
+      // Keep active style in sync with manual slider adjustments
+      if (myStyleActive && savedStyle) {
+        try {
+          const traits = JSON.parse(savedStyle.style_summary);
+          if (Array.isArray(traits)) {
+            const kws = MISTAKE_KEYWORDS[type];
+            const trait = traits.find(t => kws?.some(k => t.name?.toLowerCase().includes(k)));
+            if (trait) {
+              trait.intensity = parseInt(slider.value);
+              savedStyle.style_summary = JSON.stringify(traits);
+              const idx = savedStyles.findIndex(s => s.id === activeStyleId);
+              if (idx !== -1) savedStyles[idx] = savedStyle;
+              saveStoredStyles();
+            }
+          }
+        } catch (_) {}
+      }
     });
   });
 
@@ -935,10 +952,6 @@ function renderStyleList() {
             <button class="style-delete-btn" data-id="${escapeHtml(style.id)}">✕</button>
           </div>
         </div>
-        <details class="style-details">
-          <summary class="style-details-toggle">View details</summary>
-          <div class="style-details-body" data-id="${escapeHtml(style.id)}"></div>
-        </details>
       </div>`;
   }).join('') + `<button class="create-another-btn" id="create-another-btn">+ Create another style</button>`;
 
@@ -988,16 +1001,7 @@ function renderStyleList() {
     });
   });
 
-  styleCardsList.querySelectorAll('.style-details').forEach(details => {
-    details.addEventListener('toggle', () => {
-      if (!details.open) return;
-      const body = details.querySelector('.style-details-body');
-      if (body.innerHTML.trim()) return;
-      const id = body.dataset.id;
-      const s = savedStyles.find(x => x.id === id);
-      if (s) renderTraitSliders(body, s);
-    });
-  });
+
 
   document.getElementById('create-another-btn')?.addEventListener('click', () => {
     styleCardsList.style.display = 'none';
@@ -1221,6 +1225,14 @@ function updateStats() {
 
 // ─── Build prompts ────────────────────────────────────────────
 
+const MISTAKE_KEYWORDS = {
+  grammar:  ['grammar', 'grammatical'],
+  tense:    ['tense', 'verb'],
+  punct:    ['punctuation', 'punct', 'comma', 'period'],
+  caps:     ['capital', 'capitalization'],
+  spelling: ['spelling', 'typo', 'spell'],
+};
+
 const MISTAKE_PROMPTS = {
   grammar: [
     null,
@@ -1263,15 +1275,7 @@ function setSlidersFromStyle(style) {
   try { traits = JSON.parse(style.style_summary); } catch (_) {}
   if (!Array.isArray(traits)) traits = [];
 
-  const KEYWORDS = {
-    grammar:  ['grammar', 'grammatical'],
-    tense:    ['tense', 'verb'],
-    punct:    ['punctuation', 'punct', 'comma', 'period'],
-    caps:     ['capital', 'capitalization'],
-    spelling: ['spelling', 'typo', 'spell'],
-  };
-
-  for (const [type, kws] of Object.entries(KEYWORDS)) {
+  for (const [type, kws] of Object.entries(MISTAKE_KEYWORDS)) {
     const trait = traits.find(t => kws.some(k => t.name?.toLowerCase().includes(k)));
     const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
     if (!slider) continue;

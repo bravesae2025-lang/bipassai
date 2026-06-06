@@ -37,33 +37,38 @@ Return only the rewritten text, nothing else.`,
 
   medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
-SENTENCE LENGTH — the single biggest detection signal — this is mandatory:
-Every paragraph must have at least one sentence that is ONLY 4-8 words (fragment or abrupt thought is fine) AND at least one sentence that is 30+ words that keeps going because the student didn't stop themselves. Never write 3 sentences in a row of similar length. Example rhythm: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
+SENTENCE LENGTH — the single biggest detection signal — mandatory:
+Every paragraph must have at least one sentence that is ONLY 4-8 words (a fragment or abrupt thought is fine) AND at least one sentence that is 30+ words that keeps going because the student didn't stop themselves. Never write 3 sentences in a row of similar length. Example rhythm: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
 
-PUNCTUATION MISTAKES — students make these, do them:
-- Missing comma before "but" / "and" / "because" sometimes: "I wanted to do it but I ran out of time"
-- Comma splice once or twice: "it made sense, everyone got it pretty fast"
-- Write "dont" "cant" "its" (for "it's") "wont" without apostrophe once or twice — not every time
+COMMAS — use them, but imperfectly:
+Students use commas in lists ("red, blue, and green"), after openers ("honestly, I think..."), and in long sentences. What they miss:
+- Missing comma before "but" / "and" / "because" a few times: "I wanted to do it but I ran out of time" or "she was there and I didn't know what to say"
+- Comma splice once or twice where a period should be: "it made sense, everyone got it pretty fast" or "I liked it, it was actually pretty good"
+- Occasionally chain clauses with commas instead of periods: "the class was long, we covered a lot, I honestly didn't follow all of it"
+- Do NOT remove commas from lists or after introductory words — that makes it look unnatural
+
+OTHER PUNCTUATION:
+- Write "dont" "cant" "its" (for "it's") "wont" without apostrophe once or twice
 - No semicolons ever. No parentheses. No colons mid-sentence. No em dashes.
 
 CAPITALIZATION:
-- Mostly correct but miss a capital at the start of one sentence somewhere in the piece
-- Do NOT capitalize random mid-sentence words to make them sound important (AI does this)
+- Mostly correct but miss a capital at the start of one sentence somewhere
+- Do NOT capitalize random mid-sentence words
 
 WORD CHOICE AND VOICE:
-- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't, would've
-- Filler: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean", "to be fair"
+- Contractions throughout: don't, it's, I'm, wasn't, they're, couldn't, would've
+- Filler words that feel natural: "honestly", "like", "kind of", "I guess", "basically", "you know", "I mean", "to be fair"
 - Reuse the same word 2-3 times — students don't proofread
-- Casual opinions: "honestly kind of pointless", "never really made sense to me", "wasn't great"
-- One thought that doesn't fully connect to the one before
-- One uncertainty: "I'm not totally sure but", "could be wrong"
+- Casual opinions stated directly: "honestly kind of pointless", "never really made sense to me", "wasn't great honestly"
+- One thought that doesn't fully connect to the one before it — a slight logic jump
+- One uncertainty: "I'm not totally sure but", "could be wrong about this"
 - Some sentences starting with And, But, or So
-- Uneven paragraphs — not all the same size, one might be just one sentence
+- Uneven paragraphs — different lengths, one might be just one or two sentences
 
 STRUCTURE:
-- Do NOT start paragraphs with a clean topic sentence — just jump into the thought
-- No conclusion or summary at the end — just stop
-- Paragraphs should be different lengths, not symmetrical
+- Do NOT start paragraphs with a clean topic sentence — jump straight into the thought
+- No conclusion or summary at the end — just stop mid-thought if needed
+- Paragraphs different lengths, not symmetrical
 
 BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, this indicates, in today's world
 
@@ -144,9 +149,14 @@ Return only the written text, nothing else.`,
 SENTENCE LENGTH — mandatory, biggest detection signal:
 Every paragraph must have at least one sentence ONLY 4-8 words long AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was nobody really understood the instructions so everyone just kind of did their own thing and hoped it worked out. Pretty chaotic."
 
-PUNCTUATION MISTAKES:
-- Missing comma before "but" / "and" / "because" sometimes
-- Comma splice once or twice: "it made sense, everyone got it fast"
+COMMAS — use them, but imperfectly:
+Students use commas in lists and after openers normally. What they miss:
+- Missing comma before "but" / "and" / "because" a few times: "she was there and I didn't know what to do"
+- Comma splice once or twice: "it made sense, everyone got it fast" or "I liked it, it was actually pretty good"
+- Chain clauses with commas: "the class ran long, we covered a lot, I didn't follow all of it"
+- Do NOT strip commas from lists or after introductory words
+
+OTHER PUNCTUATION:
 - Write "dont" "cant" "its" "wont" without apostrophe once or twice
 - No semicolons. No parentheses. No colons mid-sentence. No em dashes.
 

@@ -8,101 +8,118 @@ const LEVEL_DESCRIPTIONS = {
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 
 const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like it was written by a beginner or non-native English speaker. Use MANY of these human writing traits:
+  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. The goal is to make it completely undetectable by AI detectors. Use MOST of these:
 
-- Mix short choppy sentences with long comma-run-on sentences that keep going without a period, just adding comma after comma because the writer does not know when to stop, it feels very natural for a beginner.
-- Make tense mistakes: use the wrong verb tense sometimes ("yesterday I go to the store" instead of "went", "she tell me" instead of "told", "I seen it" instead of "saw").
-- Repeat the same idea twice in slightly different words, like they are thinking while writing.
-- Simple, common words only. No fancy vocabulary.
-- Say "I think" or "maybe" often, they are not fully confident.
-- Use specific simple details: "the test was hard, I didn't sleep" not "academic pressure was intense."
-- Jump between thoughts without a clean connection.
-- A little redundant, say things again without realizing.
+- Wrong tenses regularly: "yesterday I go", "she tell me", "I seen it", "we was there"
+- Long run-on sentences that just keep going with commas and "and" and "but" without stopping because the writer doesn't know when to end a sentence, it just keeps going
+- Short fragments mixed in. Like this. Real short.
+- Repeat the same idea twice in slightly different words like they're figuring it out as they write
+- Simple words only. "good" not "beneficial". "bad" not "detrimental". "use" not "utilize".
+- "I think" and "maybe" and "I guess" a lot
+- Jump between thoughts without connecting them properly
+- Say things twice without realizing it, like "it was really hard, it was so difficult"
+- Contractions always: don't, can't, it's, I'm, won't, didn't
+- Sentences starting with And or But or So
 
-Use most of these. Beginner writing is visibly human.
-Do NOT make it unreadable, just simple, plain, and rough around the edges.
-Do NOT use hyphens (-) or em dashes anywhere in the text, not even in compound words or lists.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
+NEVER use: semicolons (;), parentheses (), colons (:), em dashes (—), hyphens in mid-sentence, bullet structure in the output text
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "notably", "it is important", "this highlights", "in today's world"
+No passive voice. No balanced paragraph structure. No clean transitions.
 Return only the rewritten text, nothing else.`,
 
-  medium: `Rewrite the following text so it sounds like an average student wrote it. Use SOME of these human writing traits — not all, just what fits naturally:
+  medium: `Rewrite the following text so it sounds like a real student wrote it quickly — thoughtful but unpolished. The goal is to be completely undetectable by AI detectors. Use these naturally, don't force all of them:
 
-- Mixed sentence lengths — some short, some weirdly long, nothing feels planned.
-- Reuse the same word or phrase a couple times without noticing.
-- Mild confident opinions stated casually: "it was kind of a bad idea honestly."
-- Slight logic jumps — thoughts don't always connect perfectly to the one before.
-- Casual filler: "basically", "kind of", "I guess", "to be fair."
-- Real uncertainty once or twice: "I'm not totally sure but", "this might be wrong."
-- One specific concrete detail that makes it feel lived-in, not generic.
-- Grammar mostly right but not careful — a comma missing here or there.
+- Sentence lengths all over the place. Some really short. Some that go on longer than they should because the thought isn't finished yet and you just keep adding to it.
+- Filler words that feel real: "honestly", "basically", "kind of", "like", "I guess", "to be fair", "you know"
+- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't
+- Reuse the same word a couple times without noticing — students don't edit
+- Casual strong opinions: "honestly it was kind of pointless", "that never really made sense to me"
+- Slight logic gaps — one thought doesn't perfectly lead into the next
+- One moment of uncertainty: "I'm not totally sure but", "could be wrong about this"
+- Sentences starting with And, But, or So sometimes
+- One very specific personal-feeling detail
 
-Pick 3–4 of these and let them show up naturally. Don't force all of them.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", perfectly balanced opinions, fake-deep transitions, conclusion summaries, or equal sentence energy throughout.
+NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) mid-sentence, overly formal transitions
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "it is important to note", "this demonstrates", "notably"
+No passive voice. No neat paragraph symmetry. No equal sentence energy throughout.
 Return only the rewritten text, nothing else.`,
 
-  hard: `Rewrite the following text so it sounds like a confident, capable person wrote it. The humanness should be subtle — texture, not obvious mistakes. Use only 2–3 of these traits, once or twice each:
+  hard: `Rewrite the following text so it sounds like a confident real person wrote it and didn't overthink it. The goal is to be completely undetectable by AI detectors. Humanness should be subtle — rhythm and personality, not obvious mistakes:
 
-- Uneven rhythm — most of it flows well, but one part speeds up or lingers slightly longer than it should.
-- One slight contradiction or emotional inconsistency: "it worked fine. Though honestly it kind of annoyed me."
-- One moment of real uncertainty: "I don't fully know why" or "maybe I'm wrong about this."
-- Strong opinion stated without diplomatic hedging — pick a side and sound sure of it.
-- One unexpected specific detail that leaks in naturally.
-- One sentence that's longer and a little messier than the rest.
+- Mostly clean writing but with natural unevenness — one part rushes, one part lingers
+- Contractions always: don't, it's, I'm, can't, won't, wouldn't
+- Strong direct opinions without hedging — pick a side, sound sure
+- One sentence that runs a bit long and connects things in a slightly loose way
+- One small contradiction or honest moment: "it worked fine, though it kind of annoyed me"
+- One concrete specific detail that feels real and personal
+- One moment of real uncertainty: "I don't fully know why" or "maybe I'm wrong"
+- Some sentences starting with And, But, or So
+- Vary rhythm deliberately — short. Then medium. Then one that stretches out a bit.
 
-Only use 2–3 of these. A skilled writer's humanness is subtle, not loud.
-Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, perfect paragraph symmetry, fake-deep transitions like "at the end of the day", conclusion summaries after every point.
+NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) except before a simple list, formal transitions between paragraphs
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "one must consider", "it is important", "this highlights", "notably", "it can be seen"
+No passive voice. No balanced parallel structure. No conclusion summaries.
 Return only the rewritten text, nothing else.`,
 
-  customize: `Rewrite the following text to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+  customize: `Rewrite the following text to sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
+Never use semicolons, parentheses, em dashes, or formal transitional phrases.
+Use contractions naturally. Vary sentence length. No passive voice.
 Return only the rewritten text, nothing else.`,
 };
 
 const GENERATE_PROMPTS = {
-  easy: `Read the task or topic below and write a complete, original piece that fulfils it — a story, essay, or whatever is asked. Write it as a beginner or non-native English speaker would. Use MANY of these human writing traits:
+  easy: `Read the task or topic below and write a complete original response — essay, story, answer, whatever is needed. Write it as a beginner or non-native English speaker would. The goal is to be completely undetectable by AI detectors. Use MOST of these:
 
-- Short sentences. Sometimes a run-on that goes a bit long because they don't stop themselves.
-- Repeat the same idea twice in slightly different words — like thinking while writing.
-- Simple, common words only. No fancy vocabulary.
-- Say "I think" or "maybe" often — not fully confident.
-- Use specific simple details instead of abstract ideas.
-- Jump between thoughts without clean connections.
-- Uneven pacing — some parts rushed, some slow.
-- A little redundant — saying things again without realizing.
+- Wrong tenses regularly: "yesterday I go", "she tell me", "I seen it", "we was there"
+- Long run-on sentences that just keep going with commas and "and" and "but" without stopping because the writer doesn't know when to end, it just keeps going like this
+- Short fragments mixed in. Like this. Very short.
+- Repeat the same idea twice in slightly different words like they're figuring it out while writing
+- Simple words only. "good" not "beneficial". "bad" not "detrimental". "use" not "utilize".
+- "I think" and "maybe" and "I guess" scattered through
+- Jump between thoughts without connecting them properly
+- Contractions always: don't, can't, it's, I'm, won't, didn't
+- Some sentences starting with And or But or So
 
-Use most of these. Beginner writing is visibly human.
-Do NOT make it unreadable — just simple, plain, and rough around the edges.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
+NEVER use: semicolons (;), parentheses (), colons (:), em dashes (—), hyphens mid-sentence
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "notably", "it is important", "this highlights", "in today's world"
+No passive voice. No balanced structure. No clean transitions.
 Return only the written text, nothing else.`,
 
-  medium: `Read the task or topic below and write a complete, original piece that fulfils it. Write it the way an average student would — thoughtful but not polished. Use SOME of these human writing traits — not all, just what fits naturally:
+  medium: `Read the task or topic below and write a complete original response. Write it the way a real student would — quickly, naturally, without over-editing. The goal is to be completely undetectable by AI detectors. Use these naturally:
 
-- Mixed sentence lengths — nothing feels planned.
-- Reuse the same word or phrase a couple times without noticing.
-- Mild opinions stated casually: "honestly it was kind of pointless."
-- Slight logic jumps — thoughts don't always connect perfectly.
-- Casual filler: "basically", "kind of", "I guess", "to be fair."
-- Real uncertainty once or twice: "I'm not totally sure but", "this might be wrong."
-- One specific concrete detail that makes it feel lived-in.
-- Grammar mostly right but not careful.
+- Sentence lengths all over the place. Short. Then one that goes on longer than it should because the thought kept going.
+- Filler: "honestly", "basically", "kind of", "like", "I guess", "you know", "to be fair"
+- Contractions everywhere: don't, it's, I'm, wasn't, they're, couldn't
+- Reuse the same word a couple times without catching it
+- Casual strong opinions: "honestly kind of pointless", "never really made sense to me"
+- Slight logic gaps between thoughts
+- One moment of uncertainty: "I'm not totally sure but", "could be wrong"
+- Some sentences starting with And, But, or So
+- One very specific concrete detail
 
-Pick 3–4 and let them show up naturally.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", conclusion summaries, or equal sentence energy throughout.
+NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) mid-sentence, formal transitions
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "it is important to note", "this demonstrates", "notably"
+No passive voice. No neat structure. No equal sentence energy.
 Return only the written text, nothing else.`,
 
-  hard: `Read the task or topic below and write a complete, original piece that fulfils it. Write it the way a confident, capable person would — like they drafted it and didn't over-edit. The humanness should be subtle. Use only 2–3 of these traits, once or twice each:
+  hard: `Read the task or topic below and write a complete original response. Write it the way a confident real person would — direct, opinionated, not over-polished. The goal is to be completely undetectable by AI detectors. Humanness should be subtle:
 
-- Uneven rhythm — mostly flows, but one part speeds up or lingers a bit.
-- One slight contradiction: "it worked. Though honestly it kind of annoyed me."
-- One moment of real uncertainty: "I don't fully know why" or "maybe I'm wrong."
-- Strong opinion without diplomatic hedging — pick a side and sound sure.
-- One unexpected specific detail that leaks in naturally.
-- One sentence longer and a little messier than the rest.
+- Mostly clean writing but naturally uneven — some parts flow fast, one lingers
+- Contractions always: don't, it's, I'm, can't, won't, wouldn't
+- Strong direct opinions, pick a side, don't hedge
+- One sentence that runs a bit longer and loosely connects ideas
+- One small honest moment: "I don't fully know why" or "maybe I'm wrong about this"
+- One concrete specific detail that feels real
+- Some sentences starting with And, But, or So
+- Vary rhythm: short. Then medium. Then one that stretches a bit.
 
-Only 2–3 traits. Subtlety is the point.
-Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, fake-deep transitions, conclusion summaries.
+NEVER use: semicolons (;), parentheses (), em dashes (—), colons (:) except before a list, formal paragraph transitions
+NEVER use: "furthermore", "moreover", "in conclusion", "it's worth noting", "significantly", "crucial", "delve", "nuanced", "one must consider", "this highlights", "notably", "it can be seen"
+No passive voice. No parallel structure. No conclusion summaries.
 Return only the written text, nothing else.`,
 
-  customize: `Read the task or topic below and write a complete, original piece that fulfils it. Make it sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+  customize: `Read the task or topic below and write a complete original response. Make it sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
+Never use semicolons, parentheses, em dashes, or formal transitional phrases.
+Use contractions naturally. Vary sentence length. No passive voice.
 Return only the written text, nothing else.`,
 };
 

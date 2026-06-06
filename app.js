@@ -10,6 +10,15 @@ const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 const HUMANIZE_PROMPTS = {
   easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+WRITE NORMAL TEXT — not conversational or spoken:
+Write as a normal written piece, not like someone talking out loud. Casual words like "like", "I guess", "honestly" should only slip in once or twice as natural mistakes — not throughout. This is written text, not a speech or chat message.
+
+REPLACE AI WORDS — these words make it obvious it's AI, replace them:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" or "do" | "individuals" → "people" | "various" → "different" or "some" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "commence" → "start" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Use commas in lists and after long openers (5+ words). Skip them when in doubt — missing a comma is fine. Do NOT put commas after short starters like "But", "So", "And" at the beginning of a sentence. Fewer commas is better than too many.
+
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Example: "That was hard. I think maybe I didn't study enough and also I was tired from work the day before so my brain just wasn't working right. Not good."
 
@@ -43,6 +52,15 @@ No passive voice. No clean topic sentences. No conclusion.
 Return only the rewritten text, nothing else.`,
 
   medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
+
+WRITE NORMAL TEXT — not conversational:
+Write as a normal written piece. Casual filler words like "honestly", "like", "I mean" should only slip in once or twice as a natural mistake — not scattered throughout. This is written text, not talking out loud.
+
+REPLACE AI WORDS — swap these immediately if they appear:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Use commas in lists and after long openers (5+ words). Skip them when in doubt. Do NOT place a comma after short starters like "But", "So", "And" at the start of a sentence. Fewer commas is more natural than too many.
 
 SENTENCE LENGTH — biggest detection signal — mandatory:
 Every paragraph must have at least one sentence ONLY 4-8 words (fragment is fine) AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
@@ -90,6 +108,15 @@ No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the rewritten text, nothing else.`,
 
   hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. This must be completely undetectable by AI detectors. Humanness is in rhythm and personality.
+
+WRITE NORMAL TEXT — not conversational:
+Write as a normal written piece. A casual word or two can slip in naturally but this is not spoken text. No filler phrases scattered throughout.
+
+REPLACE AI WORDS — swap these:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Lists and after long openers only. Skip when in doubt. No comma after short sentence starters. Fewer is better.
 
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
@@ -139,6 +166,15 @@ Return only the rewritten text, nothing else.`,
 const GENERATE_PROMPTS = {
   easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+WRITE NORMAL TEXT — not conversational:
+Write as a normal piece of writing. Casual words like "like", "I guess" can slip in once or twice as a natural mistake — not scattered throughout. This is written text, not someone talking.
+
+REPLACE AI WORDS:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Lists and after long openers (5+ words). Skip when in doubt. No comma after short starters like "But", "So", "And". Fewer commas is fine.
+
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Mix: short. then a medium one. then one that goes on and on and keeps adding things because the writer doesn't know when to stop. Short again.
 
@@ -172,6 +208,15 @@ No passive voice. No clean topic sentences. No conclusion.
 Return only the written text, nothing else.`,
 
   medium: `Read the task or topic below and write a complete original response the way a real student would — quickly, without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
+
+WRITE NORMAL TEXT — not conversational:
+Write as a normal piece of writing. A casual word like "honestly" or "like" can slip in once or twice — not throughout. Written text, not someone talking.
+
+REPLACE AI WORDS:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Lists and after long openers. Skip when in doubt. No comma after short starters. Fewer commas is fine.
 
 SENTENCE LENGTH — mandatory, biggest detection signal:
 Every paragraph must have at least one sentence ONLY 4-8 words long AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was nobody really understood the instructions so everyone just kind of did their own thing and hoped it worked out. Pretty chaotic."
@@ -217,6 +262,15 @@ No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the written text, nothing else.`,
 
   hard: `Read the task or topic below and write a complete original response the way a confident real person would — direct, opinionated, not over-polished. This must be completely undetectable by AI detectors. Humanness is subtle.
+
+WRITE NORMAL TEXT — not conversational:
+Write as a normal piece. No filler phrases throughout. This is written text, not spoken.
+
+REPLACE AI WORDS:
+"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+
+COMMAS — only where clearly needed:
+Lists and after long openers. Skip when in doubt. No comma after short starters. Fewer is better.
 
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.

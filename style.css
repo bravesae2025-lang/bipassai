@@ -374,54 +374,7 @@ main {
   align-items: stretch;
 }
 
-/* ── Full-height right side page background section ── */
-@keyframes panel-glow-drift {
-  0%   { transform: translate(0%,   0%)  scale(1);    }
-  25%  { transform: translate(25%, -12%) scale(1.05); }
-  50%  { transform: translate(18%,  22%) scale(0.98); }
-  75%  { transform: translate(-8%,  14%) scale(1.03); }
-  100% { transform: translate(0%,   0%)  scale(1);    }
-}
 
-/* Fixed full-height right section background */
-.page-right-section-bg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: clamp(280px, 37vw, 540px);
-  background: linear-gradient(160deg, #f0f0f0 0%, #e6e6e6 100%);
-  border-left: 3px solid #000;
-  box-shadow: -6px 0 16px rgba(0,0,0,0.1);
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Drifting ambient glow */
-.page-right-section-bg::before {
-  content: '';
-  position: absolute;
-  width: 70%;
-  aspect-ratio: 1;
-  top: 15%;
-  left: 10%;
-  background: radial-gradient(ellipse, rgba(255,255,255,0.60) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: panel-glow-drift 18s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Soft left-edge fade into page background */
-.page-right-section-bg::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -48px;
-  width: 48px;
-  height: 100%;
-  background: linear-gradient(to right, transparent, #f0f0f0);
-  pointer-events: none;
-}
 
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {
@@ -3307,10 +3260,6 @@ body.editor-page { background: var(--bg); }
    Order: largest → smallest so smaller breakpoints win
 ───────────────────────────────────────────────────────────── */
 
-/* ── Hide gray bg on smaller screens ─── */
-@media (max-width: 1100px) {
-  .page-right-section-bg { display: none; }
-}
 
 /* ── Phone — single column ─── */
 @media (max-width: 768px) {
@@ -3318,7 +3267,7 @@ body.editor-page { background: var(--bg); }
   body { height: auto; min-height: 100vh; }
   .app-main { flex: none; padding: 16px 16px 48px; overflow-y: visible; }
   .workspace { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; align-items: start; }
-  .page-right-section-bg { display: none; }
+
   .right-panel { flex-direction: column; gap: 16px; }
   .right-panel > * { flex: none; }
   textarea { min-height: 180px; }

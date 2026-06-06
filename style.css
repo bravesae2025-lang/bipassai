@@ -1856,6 +1856,8 @@ body.editor-page { background: var(--bg); }
     0 16px 32px rgba(0,0,0,0.28),
     0 40px 80px rgba(0,0,0,0.22);
   transition: opacity 0.3s ease, transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+  padding-top: clamp(16px, 2.5vh, 32px);
+  padding-bottom: clamp(14px, 2vh, 24px);
 }
 
 /* Permanently cancel data-reveal on this element so it never restarts and makes the box invisible */
@@ -4719,7 +4721,8 @@ body.drawer-lock { overflow: hidden; }
 
 .style-sample-textarea {
   width: 100%;
-  min-height: 90px;
+  height: clamp(60px, 8vh, 100px);
+  min-height: 0;
   padding: 10px 12px;
   font-family: var(--ff-mono);
   font-size: 12px;
@@ -4992,14 +4995,14 @@ body.drawer-lock { overflow: hidden; }
 
 /* ── My Style separate panel ─────────────────────────────────── */
 .col-my-style-box {
-  margin-top: 20px;
+  margin-top: clamp(8px, 1.5vh, 20px);
   background: #fff;
   border: 1px solid rgba(0,0,0,0.16);
   border-radius: 16px;
-  padding: 24px 26px 26px;
+  padding: clamp(14px, 2vh, 24px) 26px clamp(14px, 2vh, 26px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: clamp(8px, 1.2vh, 14px);
   cursor: pointer;
   opacity: 0.55;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);

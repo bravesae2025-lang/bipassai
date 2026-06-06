@@ -5063,7 +5063,7 @@ body.drawer-lock { overflow: hidden; }
 .col-own-text-box {
   margin-top: clamp(8px, 1.5vh, 20px);
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.16);
+  border: 2px solid rgba(0,0,0,0.75);
   border-radius: 16px;
   padding: clamp(10px, 1.4vh, 18px) 26px clamp(12px, 1.6vh, 22px);
   display: flex;

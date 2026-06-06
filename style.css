@@ -4814,7 +4814,24 @@ body.drawer-lock { overflow: hidden; }
   position: relative;
   margin-bottom: 8px;
 }
-.sample-row .style-sample-textarea { margin-bottom: 0; }
+.sample-row .style-sample-textarea {
+  margin-bottom: 0;
+  padding-bottom: 22px;
+}
+.sample-wc {
+  position: absolute;
+  bottom: 6px;
+  right: 34px;
+  font-family: var(--ff-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--g300);
+  pointer-events: none;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.sample-wc.wc-ok { color: #16a34a; }
 .sample-delete-btn {
   position: absolute;
   top: 7px;

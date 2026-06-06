@@ -497,6 +497,10 @@ function bindEvents() {
     ta.rows = 4;
     row.appendChild(ta);
     row.appendChild(makeSampleDeleteBtn(row));
+    const wc = document.createElement('span');
+    wc.className = 'sample-wc';
+    wc.textContent = '0 / 50';
+    row.appendChild(wc);
     sampleContainer.appendChild(row);
     if (sampleCount >= 5) addSampleBtn.style.display = 'none';
     updateDeleteVisibility();
@@ -509,8 +513,14 @@ function bindEvents() {
     this.classList.remove('field-error');
   });
   sampleContainer.addEventListener('input', (e) => {
-    if (e.target.classList.contains('style-sample-textarea')) {
-      e.target.classList.remove('field-error');
+    if (!e.target.classList.contains('style-sample-textarea')) return;
+    const ta = e.target;
+    ta.classList.remove('field-error');
+    const words = ta.value.trim() === '' ? 0 : ta.value.trim().split(/\s+/).length;
+    const wc = ta.closest('.sample-row')?.querySelector('.sample-wc');
+    if (wc) {
+      wc.textContent = `${words} / 50`;
+      wc.classList.toggle('wc-ok', words >= 50);
     }
   });
 

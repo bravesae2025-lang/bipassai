@@ -397,7 +397,7 @@ main {
 
 .col-main {
   background: var(--bg);
-  align-self: start;
+  align-self: stretch;
   min-height: 0;
 }
 
@@ -535,8 +535,8 @@ main {
 
 .textarea-wrap {
   position: relative;
-  height: clamp(300px, calc(100vh - 640px), 620px);
-  flex-shrink: 0;
+  flex: 1;
+  min-height: clamp(300px, calc(100vh - 640px), 620px);
 }
 
 textarea {

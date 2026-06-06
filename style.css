@@ -389,7 +389,7 @@ main {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 660px;
+  width: clamp(450px, 46vw, 660px);
   background: linear-gradient(160deg, #f0f0f0 0%, #e6e6e6 100%);
   border-left: 3px solid #000;
   box-shadow: -6px 0 16px rgba(0,0,0,0.1);
@@ -426,7 +426,7 @@ main {
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {
   position: relative;
-  padding: 16px 16px 16px 48px;
+  padding: 16px 16px 16px clamp(20px, 3.5vw, 48px);
 }
 
 .right-panel {
@@ -3307,14 +3307,9 @@ body.editor-page { background: var(--bg); }
    Order: largest → smallest so smaller breakpoints win
 ───────────────────────────────────────────────────────────── */
 
-/* ── Gray bg: shrink at 1280px, hide at 1100px ─── */
-@media (max-width: 1280px) {
-  .page-right-section-bg { width: 520px; }
-  .right-panel-wrap { padding: 16px 12px 16px 36px; }
-}
+/* ── Hide gray bg on smaller screens ─── */
 @media (max-width: 1100px) {
   .page-right-section-bg { display: none; }
-  .right-panel-wrap { padding: 16px 10px 16px 20px; }
 }
 
 /* ── Phone — single column ─── */

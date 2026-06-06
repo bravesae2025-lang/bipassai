@@ -6500,54 +6500,96 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .style-card-active .style-delete-btn { color: rgba(255,255,255,0.25); }
 .style-card-active .style-delete-btn:hover { color: #fff; }
 
-.style-delete-confirm {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.14);
-  border-radius: 10px;
-  padding: 10px 12px;
+.style-delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  z-index: 100;
-  white-space: nowrap;
+  justify-content: center;
+  z-index: 9999;
+  transition: background 0.2s ease, backdrop-filter 0.2s ease;
 }
-.style-delete-confirm-msg {
-  font-size: 11px;
-  color: var(--g600);
+.style-delete-modal-overlay.open {
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.style-delete-modal-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 28px 24px;
+  width: clamp(280px, 90vw, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+  transform: scale(0.94);
+  transition: transform 0.2s var(--ease-out, cubic-bezier(0.16,1,0.3,1));
+}
+.style-delete-modal-overlay.open .style-delete-modal-card {
+  transform: scale(1);
+}
+.style-delete-modal-icon {
+  width: 48px; height: 48px;
+  background: #fef2f2;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #dc2626;
+  margin-bottom: 4px;
+}
+.style-delete-modal-title {
   font-family: var(--ff-ui);
-}
-.style-delete-confirm-yes {
-  font-size: 10px;
+  font-size: 16px;
   font-weight: 700;
+  color: var(--black);
+  letter-spacing: 0.01em;
+}
+.style-delete-modal-sub {
   font-family: var(--ff-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: #dc2626;
+  font-size: 12px;
+  color: var(--g400);
+  text-align: center;
+  line-height: 1.55;
+}
+.style-delete-modal-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+.style-delete-modal-cancel {
+  flex: 1;
+  padding: 11px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g500);
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.style-delete-modal-cancel:hover { background: var(--g100); color: var(--black); }
+.style-delete-modal-confirm {
+  flex: 1;
+  padding: 11px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #fff;
+  background: #dc2626;
   border: none;
-  border-radius: 6px;
-  padding: 5px 10px;
+  border-radius: 10px;
   cursor: pointer;
   transition: opacity 0.15s;
 }
-.style-delete-confirm-yes:hover { opacity: 0.85; }
-.style-delete-confirm-no {
-  font-size: 10px;
-  font-weight: 600;
-  font-family: var(--ff-ui);
-  color: var(--g400);
-  background: none;
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-.style-delete-confirm-no:hover { color: var(--black); border-color: var(--black); }
+.style-delete-modal-confirm:hover { opacity: 0.88; }
 
 /* style-details inside a style-card */
 .style-card .style-details { margin: 4px 0 0; }

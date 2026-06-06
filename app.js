@@ -881,6 +881,48 @@ function renderTraitSliders(container, style) {
   });
 }
 
+function showStyleDeleteModal(styleName, onConfirm) {
+  const existing = document.getElementById('style-delete-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'style-delete-modal';
+  modal.className = 'style-delete-modal-overlay';
+  modal.innerHTML = `
+    <div class="style-delete-modal-card">
+      <div class="style-delete-modal-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </div>
+      <div class="style-delete-modal-title">Delete style?</div>
+      <div class="style-delete-modal-sub">
+        "${escapeHtml(styleName)}" will be permanently removed.
+      </div>
+      <div class="style-delete-modal-actions">
+        <button class="style-delete-modal-cancel">Cancel</button>
+        <button class="style-delete-modal-confirm">Delete</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('open'));
+
+  const close = () => {
+    modal.classList.remove('open');
+    setTimeout(() => modal.remove(), 200);
+  };
+
+  modal.querySelector('.style-delete-modal-confirm').addEventListener('click', () => {
+    close();
+    onConfirm();
+  });
+  modal.querySelector('.style-delete-modal-cancel').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+}
+
 function renderStyleList() {
   myStyleInputs.style.display = 'none';
   styleCardsList.style.display = 'flex';
@@ -930,23 +972,8 @@ function renderStyleList() {
   styleCardsList.querySelectorAll('.style-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
-
-      // Inline confirm popover
-      const existing = document.querySelector('.style-delete-confirm');
-      if (existing) existing.remove();
-
-      const pop = document.createElement('div');
-      pop.className = 'style-delete-confirm';
-      pop.innerHTML = `
-        <span class="style-delete-confirm-msg">Delete this style?</span>
-        <button class="style-delete-confirm-yes">Delete</button>
-        <button class="style-delete-confirm-no">Cancel</button>
-      `;
-      btn.parentNode.style.position = 'relative';
-      btn.parentNode.appendChild(pop);
-
-      pop.querySelector('.style-delete-confirm-yes').addEventListener('click', () => {
-        pop.remove();
+      const styleName = savedStyles.find(s => s.id === id)?.name || 'this style';
+      showStyleDeleteModal(styleName, () => {
         savedStyles = savedStyles.filter(s => s.id !== id);
         if (activeStyleId === id) {
           activeStyleId = savedStyles[0]?.id || null;
@@ -961,16 +988,6 @@ function renderStyleList() {
           renderStyleList();
         }
       });
-
-      pop.querySelector('.style-delete-confirm-no').addEventListener('click', () => pop.remove());
-
-      // Dismiss if clicking outside
-      setTimeout(() => {
-        document.addEventListener('click', function handler(e) {
-          if (!pop.contains(e.target) && e.target !== btn) { pop.remove(); }
-          document.removeEventListener('click', handler);
-        });
-      }, 0);
     });
   });
 

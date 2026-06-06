@@ -589,7 +589,7 @@ function restoreState() {
       slider.value = saved;
       updateSliderFill(slider);
       const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
-      if (valEl) valEl.textContent = saved;
+      if (valEl) valEl.textContent = mistakeLabel(saved);
     }
   }
   const savedMyStyle = sessionStorage.getItem('bipass_my_style');
@@ -630,7 +630,7 @@ function bindEvents() {
     updateSliderFill(slider);
     slider.addEventListener('input', () => {
       const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
-      if (valEl) valEl.textContent = slider.value;
+      if (valEl) valEl.textContent = mistakeLabel(slider.value);
       updateSliderFill(slider);
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
     });
@@ -810,6 +810,15 @@ function getTraits() {
 function updateSliderFill(slider) {
   const pct = (parseInt(slider.value) / 10) * 100;
   slider.style.setProperty('--pct', `${pct}%`);
+}
+
+function mistakeLabel(v) {
+  v = parseInt(v);
+  if (v === 0) return 'None';
+  if (v <= 2) return 'Subtle';
+  if (v <= 5) return 'Moderate';
+  if (v <= 8) return 'Strong';
+  return 'Heavy';
 }
 
 function traitIntensityLabel(val) {
@@ -1271,7 +1280,7 @@ function setSlidersFromStyle(style) {
     slider.value = Math.min(10, mapped);
     updateSliderFill(slider);
     const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
-    if (valEl) valEl.textContent = slider.value;
+    if (valEl) valEl.textContent = mistakeLabel(slider.value);
   }
 }
 

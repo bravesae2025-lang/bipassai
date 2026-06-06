@@ -1849,10 +1849,10 @@ body.editor-page { background: var(--bg); }
 
 .col.col-customize {
   margin-top: 16px;
-  background: linear-gradient(160deg, #1c1c1c 0%, #0d0d0d 100%);
+  background: linear-gradient(160deg, #1e2028 0%, #131318 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.07);
   box-shadow:
     0 1px 2px rgba(0,0,0,0.25),
     0 4px 8px rgba(0,0,0,0.22),
@@ -1954,9 +1954,10 @@ body.editor-page { background: var(--bg); }
 }
 
 .col-customize .control-head {
-  color: rgba(255,255,255,0.88);
+  color: rgba(255,255,255,0.92);
   border-bottom: none;
   font-size: 13px;
+  letter-spacing: 0.13em;
 }
 
 .control-sub {
@@ -2046,17 +2047,35 @@ body.editor-page { background: var(--bg); }
 /* ── Mistake intensity rows ──────────────────────────────────── */
 .mistake-row {
   display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mistake-row-head {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+}
+.mistake-slider-body {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 .mistake-label {
   font-size: 11px;
   font-weight: 600;
   color: var(--black);
   flex-shrink: 0;
-  min-width: 82px;
 }
-.col-customize .mistake-label { color: rgba(255,255,255,0.8); }
+.col-customize .mistake-label { color: rgba(255,255,255,0.85); }
+
+.mistake-edge-label {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.28);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
 /* Mistake sliders (inside dark col-customize) */
 .mistake-slider-track {
@@ -2065,9 +2084,15 @@ body.editor-page { background: var(--bg); }
 .mistake-slider {
   width: 100%;
   -webkit-appearance: none;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(to right, #fff var(--pct, 0%), rgba(255,255,255,0.2) var(--pct, 0%));
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.9) 0%,
+    rgba(255,255,255,0.9) var(--pct, 0%),
+    rgba(255,255,255,0.13) var(--pct, 0%),
+    rgba(255,255,255,0.13) 100%
+  );
   outline: none;
   cursor: pointer;
   display: block;
@@ -2078,24 +2103,37 @@ body.editor-page { background: var(--bg); }
   height: 14px;
   border-radius: 50%;
   background: #fff;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  border: 2.5px solid rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18), 0 2px 6px rgba(0,0,0,0.35);
+  cursor: grab;
+  transition: transform 0.12s var(--ease-snappy);
+}
+.mistake-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.mistake-slider:active::-webkit-slider-thumb,
+.mistake-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.14), 0 2px 6px rgba(0,0,0,0.35);
 }
 .mistake-slider::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: #fff;
-  border: none;
-  cursor: pointer;
+  border: 2.5px solid rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18), 0 2px 6px rgba(0,0,0,0.35);
+  cursor: grab;
 }
 .mistake-slider-val {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.55);
-  min-width: 16px;
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.02em;
   text-align: right;
+  min-width: 58px;
 }
 
 /* My Writing Style divider inside options-panel */

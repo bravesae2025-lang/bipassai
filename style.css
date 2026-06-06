@@ -5029,6 +5029,84 @@ body.drawer-lock { overflow: hidden; }
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Own Text → Extension box
+───────────────────────────────────────────────────────────── */
+
+.col-own-text-box {
+  margin-top: clamp(8px, 1.5vh, 20px);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.16);
+  border-radius: 16px;
+  padding: clamp(10px, 1.4vh, 18px) 26px clamp(12px, 1.6vh, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.9vh, 10px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.col-own-text-name {
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+
+.own-text-sub {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  color: var(--g400);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.own-text-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  height: clamp(72px, 9vh, 130px);
+  resize: none;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--black);
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.own-text-textarea:focus {
+  border-color: rgba(0,0,0,0.32);
+  background: #fff;
+}
+.own-text-textarea::placeholder { color: var(--g300); }
+
+.own-text-push-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 16px;
+  background: #0d0d0d;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.2s;
+}
+.own-text-push-btn:hover:not(:disabled) { opacity: 0.85; }
+.own-text-push-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.own-text-push-btn.pushed { background: #16a34a; opacity: 1; }
+
+/* ─────────────────────────────────────────────────────────────
    Custom cursor (desktop only)
 ───────────────────────────────────────────────────────────── */
 @media (pointer: fine) {

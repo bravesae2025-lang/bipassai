@@ -1355,6 +1355,45 @@ function showToast(msg) {
   }
 })();
 
+// ─── Own Text → Extension ────────────────────────────────────
+
+(function () {
+  const btn      = document.getElementById('own-text-push-btn');
+  const textarea = document.getElementById('own-text-textarea');
+  const label    = document.getElementById('own-text-btn-label');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    const text = textarea?.value?.trim();
+    if (!text) { textarea?.focus(); return; }
+
+    btn.disabled = true;
+    label.textContent = 'Pushing…';
+
+    try {
+      const session = await window.bipassAuth.getSession();
+      if (!session) throw new Error('Not signed in');
+
+      const { error } = await window.bipassAuth.client
+        .from('results')
+        .insert({ user_id: session.user.id, text, mode: 'humanize', level: 'easy', ext_push: true });
+      if (error) throw error;
+
+      label.textContent = '✓ Pushed to Extension';
+      btn.classList.add('pushed');
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('pushed');
+        label.textContent = 'Push to Extension';
+      }, 3000);
+    } catch {
+      btn.disabled = false;
+      label.textContent = '↻ Try Again';
+      setTimeout(() => { label.textContent = 'Push to Extension'; }, 2500);
+    }
+  });
+})();
+
 // ─── Start ────────────────────────────────────────────────────
 
 init();

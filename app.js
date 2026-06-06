@@ -17,7 +17,7 @@ SPELLING MISTAKES — scale with text length: roughly 1 mistake per 35 words. Sh
 - "definately" (definitely), "recieve" (receive), "wierd" (weird), "beleive" (believe), "alot" (a lot), "occured" (occurred), "probly" or "prolly" (probably), "teh" (the) once in a while
 - Phonetic shortcuts count too: "gonna", "wanna", "cuz", "kinda" — use these freely
 
-WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 60 words. Short text = 1-2, long text = many more:
+WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 20 words. Short text = several, long text = many. Use them freely:
 "informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks", "researches", "works" (meaning homework)
 
 TENSE MISTAKES — use regularly:
@@ -51,7 +51,7 @@ SPELLING MISTAKES — scale with text length: roughly 1 mistake per 80 words. Sh
 "definately" (definitely), "recieve" (receive), "seperate" (separate), "occured" (occurred), "wierd" (weird)
 Casual shortcuts also count: "gonna", "wanna", "kinda", "prolly" — use them where they fit
 
-WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 150 words. Short text = 1, long text = several:
+WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 35 words. Spread naturally:
 "informations", "advices", "feedbacks", "homeworks", "researches"
 
 COMMAS — use them normally, but imperfectly:
@@ -94,8 +94,11 @@ Return only the rewritten text, nothing else.`,
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
 
-SPELLING — one subtle mistake is enough at this level:
-Pick one common one that even smart people make: "recieve" (receive) or "seperate" (separate) or "definately" (definitely) — just once, naturally placed
+SPELLING — one subtle mistake per ~250 words, placed naturally:
+"recieve", "seperate", or "definately" — even smart people make these
+
+WRONG PLURAL "S" — ~1 per 80 words:
+"informations", "advices", "feedbacks", "researches"
 
 PUNCTUATION — clean but imperfect:
 - Miss a comma before "but" or "and" once or twice — natural
@@ -143,7 +146,7 @@ SPELLING MISTAKES — scale with length: ~1 per 35 words. Spread evenly, don't c
 "definately", "recieve", "wierd", "beleive", "alot", "occured", "probly" or "prolly"
 Phonetic shortcuts also count: "gonna", "wanna", "cuz", "kinda" — use freely
 
-WRONG PLURAL "S" — ~1 per 60 words:
+WRONG PLURAL "S" — ~1 per 20 words:
 "informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks"
 
 TENSE MISTAKES — use regularly:
@@ -177,7 +180,7 @@ SPELLING MISTAKES — scale with length: ~1 per 80 words. Spread evenly:
 "definately", "recieve", "seperate", "occured", "wierd"
 Shortcuts also count: "gonna", "wanna", "kinda", "prolly"
 
-WRONG PLURAL "S" — ~1 per 150 words:
+WRONG PLURAL "S" — ~1 per 35 words:
 "informations", "advices", "feedbacks", "homeworks", "researches"
 
 COMMAS — use normally, but imperfectly:
@@ -218,8 +221,11 @@ Return only the written text, nothing else.`,
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
 
-SPELLING — one subtle mistake per ~250 words:
-Pick one that even smart people make: "recieve", "seperate", or "definately" — placed naturally
+SPELLING — one subtle mistake per ~250 words, placed naturally:
+"recieve", "seperate", or "definately"
+
+WRONG PLURAL "S" — ~1 per 80 words:
+"informations", "advices", "feedbacks", "researches"
 
 PUNCTUATION:
 - Miss a comma before "but" or "and" once or twice

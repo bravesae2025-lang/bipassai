@@ -2047,55 +2047,60 @@ body.editor-page { background: var(--bg); }
 /* ── Mistake intensity rows ──────────────────────────────────── */
 .mistake-row {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.mistake-row-head {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-.mistake-slider-body {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+  gap: 10px;
 }
 .mistake-label {
+  font-family: var(--ff-ui);
   font-size: 11px;
   font-weight: 600;
   color: var(--black);
   flex-shrink: 0;
+  min-width: 82px;
 }
 .col-customize .mistake-label { color: rgba(255,255,255,0.85); }
 
-.mistake-edge-label {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.28);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* Mistake sliders (inside dark col-customize) */
+/* Track wrapper — slider + hint labels stacked */
 .mistake-slider-track {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
+
+/* Tiny None / A lot hints below track */
+.mistake-range-hints {
+  display: flex;
+  justify-content: space-between;
+}
+.mistake-range-hint {
+  font-family: var(--ff-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ── Slider — styled via runnable-track (not direct background) ── */
 .mistake-slider {
   width: 100%;
   -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  display: block;
+  padding: 0;
+  margin: 0;
+}
+.mistake-slider::-webkit-slider-runnable-track {
   height: 2px;
   border-radius: 99px;
   background: linear-gradient(
     to right,
-    rgba(255,255,255,0.9) 0%,
-    rgba(255,255,255,0.9) var(--pct, 0%),
-    rgba(255,255,255,0.13) var(--pct, 0%),
-    rgba(255,255,255,0.13) 100%
+    rgba(255,255,255,0.88) var(--pct, 0%),
+    rgba(255,255,255,0.14) var(--pct, 0%)
   );
-  outline: none;
-  cursor: pointer;
-  display: block;
 }
 .mistake-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -2103,37 +2108,44 @@ body.editor-page { background: var(--bg); }
   height: 14px;
   border-radius: 50%;
   background: #fff;
-  border: 2.5px solid rgba(0,0,0,0.15);
-  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18), 0 2px 6px rgba(0,0,0,0.35);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.2), 0 2px 6px rgba(0,0,0,0.4);
   cursor: grab;
   transition: transform 0.12s var(--ease-snappy);
+  margin-top: -6px;
 }
-.mistake-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-.mistake-slider:active::-webkit-slider-thumb,
-.mistake-slider::-webkit-slider-thumb:active {
+.mistake-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.mistake-slider:active::-webkit-slider-thumb {
+  transform: scale(1.22);
   cursor: grabbing;
-  transform: scale(1.25);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.14), 0 2px 6px rgba(0,0,0,0.35);
+}
+.mistake-slider::-moz-range-track {
+  height: 2px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.14);
+}
+.mistake-slider::-moz-range-progress {
+  height: 2px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.88);
 }
 .mistake-slider::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: #fff;
-  border: 2.5px solid rgba(0,0,0,0.15);
-  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.18), 0 2px 6px rgba(0,0,0,0.35);
+  border: none;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.2), 0 2px 6px rgba(0,0,0,0.4);
   cursor: grab;
 }
 .mistake-slider-val {
   font-family: var(--ff-ui);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255,255,255,0.62);
   letter-spacing: 0.02em;
   text-align: right;
-  min-width: 58px;
+  min-width: 52px;
+  flex-shrink: 0;
 }
 
 /* My Writing Style divider inside options-panel */

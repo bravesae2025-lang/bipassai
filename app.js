@@ -13,12 +13,12 @@ const HUMANIZE_PROMPTS = {
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Example: "That was hard. I think maybe I didn't study enough and also I was tired from work the day before so my brain just wasn't working right. Not good."
 
-SPELLING MISTAKES — use 4-6 of these throughout the piece, spread naturally:
-- "definately" (definitely), "recieve" (receive), "wierd" (weird), "beleive" (believe), "alot" (a lot), "occured" (occurred), "probly" or "prolly" (probably), "teh" (the) once
-- Phonetic shortcuts: "gonna" (going to), "wanna" (want to), "cuz" (because), "kinda"
+SPELLING MISTAKES — scale with text length: roughly 1 mistake per 35 words. Short text = 2-3, long text = many more. Spread them evenly, don't cluster:
+- "definately" (definitely), "recieve" (receive), "wierd" (weird), "beleive" (believe), "alot" (a lot), "occured" (occurred), "probly" or "prolly" (probably), "teh" (the) once in a while
+- Phonetic shortcuts count too: "gonna", "wanna", "cuz", "kinda" — use these freely
 
-WRONG PLURAL "S" — beginners add "s" to words that don't take it:
-Use 3-4 of these: "informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks", "researches", "works" (for homework/work)
+WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 60 words. Short text = 1-2, long text = many more:
+"informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks", "researches", "works" (meaning homework)
 
 TENSE MISTAKES — use regularly:
 "yesterday I go", "she tell me", "I seen it", "we was there", "he don't know", "I have went"
@@ -47,11 +47,11 @@ Return only the rewritten text, nothing else.`,
 SENTENCE LENGTH — biggest detection signal — mandatory:
 Every paragraph must have at least one sentence ONLY 4-8 words (fragment is fine) AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
 
-SPELLING MISTAKES — use 2-3 spread through the piece:
-These are the ones everyone gets wrong: "definately" (definitely), "recieve" (receive), "seperate" (separate), "occured" (occurred), "wierd" (weird)
-Casual shortcuts once or twice: "gonna", "wanna", "kinda", "prolly"
+SPELLING MISTAKES — scale with text length: roughly 1 mistake per 80 words. Short text = 1-2, long text = more. Spread evenly:
+"definately" (definitely), "recieve" (receive), "seperate" (separate), "occured" (occurred), "wierd" (weird)
+Casual shortcuts also count: "gonna", "wanna", "kinda", "prolly" — use them where they fit
 
-WRONG PLURAL "S" — students do this with uncountable nouns, use 1-2:
+WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 150 words. Short text = 1, long text = several:
 "informations", "advices", "feedbacks", "homeworks", "researches"
 
 COMMAS — use them normally, but imperfectly:

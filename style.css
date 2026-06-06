@@ -379,7 +379,7 @@ main {
 /* Right panel wrapper — transparent structural spacing */
 .right-panel-wrap {
   position: relative;
-  padding: 16px 16px 16px clamp(20px, 3.5vw, 48px);
+  padding: 0 16px 16px clamp(20px, 3.5vw, 48px);
 }
 
 .right-panel {
@@ -914,7 +914,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 
 .app-main {
   position: relative;
-  padding: 48px clamp(20px, 4vw, 56px) clamp(40px, 9vh, 130px);
+  padding: 32px clamp(20px, 4vw, 56px) clamp(40px, 9vh, 130px);
   width: 100%;
   box-sizing: border-box;
   display: flex;

@@ -740,12 +740,15 @@ function bindEvents() {
       btn.classList.add('mode-tab-active');
       const genSection = document.getElementById('generate-section');
       const humSection = document.getElementById('humanize-section');
+      const levelHeading = document.getElementById('level-heading');
       if (mode === 'generate') {
         genSection.classList.remove('mode-hidden');
         humSection.classList.add('mode-hidden');
+        if (levelHeading) levelHeading.textContent = 'Generate Level';
       } else {
         humSection.classList.remove('mode-hidden');
         genSection.classList.add('mode-hidden');
+        if (levelHeading) levelHeading.textContent = 'Humanize Level';
       }
     });
   });

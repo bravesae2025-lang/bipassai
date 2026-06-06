@@ -450,6 +450,11 @@ function bindEvents() {
   // My Style events
   let sampleCount = 1;
 
+  function updateDeleteVisibility() {
+    const btns = sampleContainer.querySelectorAll('.sample-delete-btn');
+    btns.forEach(b => { b.style.visibility = sampleCount <= 1 ? 'hidden' : ''; });
+  }
+
   function makeSampleDeleteBtn(row) {
     const del = document.createElement('button');
     del.className = 'sample-delete-btn';
@@ -457,9 +462,11 @@ function bindEvents() {
     del.setAttribute('aria-label', 'Remove sample');
     del.textContent = '×';
     del.addEventListener('click', () => {
+      if (sampleCount <= 1) return;
       row.remove();
       sampleCount--;
       addSampleBtn.style.display = '';
+      updateDeleteVisibility();
     });
     return del;
   }
@@ -467,11 +474,16 @@ function bindEvents() {
   // Wire delete on the initial first sample
   document.querySelectorAll('.sample-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (sampleCount <= 1) return;
       btn.closest('.sample-row').remove();
       sampleCount--;
       addSampleBtn.style.display = '';
+      updateDeleteVisibility();
     });
   });
+
+  // Hide the single initial delete button on load
+  updateDeleteVisibility();
 
   addSampleBtn.addEventListener('click', () => {
     if (sampleCount >= 5) return;
@@ -487,6 +499,7 @@ function bindEvents() {
     row.appendChild(makeSampleDeleteBtn(row));
     sampleContainer.appendChild(row);
     if (sampleCount >= 5) addSampleBtn.style.display = 'none';
+    updateDeleteVisibility();
   });
 
   analyzeStyleBtn.addEventListener('click', analyzeStyle);

@@ -21,6 +21,10 @@ Use commas in lists and after long openers (5+ words). Skip them when in doubt �
 
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Example: "That was hard. I think maybe I didn't study enough and also I was tired from work the day before so my brain just wasn't working right. Not good."
+Never open two sentences in a row with the same word. Mix sentence types within each paragraph: a fragment, a run-on, a normal one — not three normal declarative sentences in a row.
+
+WORD CHOICE — PERPLEXITY:
+Pick the simplest first-instinct word even if slightly imprecise: "the whole thing broke" not "the system failed entirely", "it went bad fast" not "it deteriorated rapidly", "it was pretty hard" not "it proved significantly challenging". First instinct beats the correct polished choice.
 
 SPELLING MISTAKES — scale with text length: roughly 1 mistake per 35 words. Short text = 2-3, long text = many more. Spread them evenly, don't cluster:
 - "definately" (definitely), "recieve" (receive), "wierd" (weird), "beleive" (believe), "alot" (a lot), "occured" (occurred), "probly" or "prolly" (probably), "teh" (the) once in a while
@@ -64,6 +68,10 @@ Use commas in lists and after long openers (5+ words). Skip them when in doubt. 
 
 SENTENCE LENGTH — biggest detection signal — mandatory:
 Every paragraph must have at least one sentence ONLY 4-8 words (fragment is fine) AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
+Never open two consecutive sentences with the same word or same grammatical structure. Within each paragraph mix at least two sentence types: fragment, run-on, or normal declarative — not all the same type.
+
+WORD CHOICE — PERPLEXITY:
+Use the first natural word you'd actually think of, not the most precise one: "the idea kind of worked" not "the approach proved partially effective", "it got messy" not "it became increasingly complex", "the whole point was" not "the fundamental objective was". Students don't agonise over word choice.
 
 SPELLING MISTAKES — scale with text length: roughly 1 mistake per 80 words. Short text = 1-2, long text = more. Spread evenly:
 "definately" (definitely), "recieve" (receive), "seperate" (separate), "occured" (occurred), "wierd" (weird)
@@ -120,6 +128,10 @@ Lists and after long openers only. Skip when in doubt. No comma after short sent
 
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
+Never open two consecutive sentences with the same word or same grammatical structure (avoid "The X... The Y... The Z..."). Mix sentence types: fragment, run-on, normal — vary the shape, not just the length.
+
+WORD CHOICE — PERPLEXITY:
+Occasionally choose a slightly unexpected but fitting word over the obvious polished one: "the whole thing collapsed" not "the situation deteriorated significantly", "honestly strange" not "notably unusual", "it just didn't work" not "it proved ineffective". Real writers do this naturally — it signals a person chose the words, not a probability engine.
 
 SPELLING — one subtle mistake per ~250 words, placed naturally:
 "recieve", "seperate", or "definately" — even smart people make these
@@ -155,6 +167,8 @@ Return only the rewritten text, nothing else.`,
 
 Always follow these regardless of the traits listed:
 - Vary sentence length dramatically: some under 8 words, some over 30. Never 3 sentences in a row of similar length.
+- Never open two consecutive sentences with the same word or same grammatical structure.
+- Choose slightly unexpected but natural words over the safe, obvious polished ones.
 - No semicolons, parentheses, em dashes, or colons mid-sentence.
 - Use contractions naturally.
 - Do not start paragraphs with a topic sentence.
@@ -177,6 +191,10 @@ Lists and after long openers (5+ words). Skip when in doubt. No comma after shor
 
 SENTENCE LENGTH — most important:
 Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Mix: short. then a medium one. then one that goes on and on and keeps adding things because the writer doesn't know when to stop. Short again.
+Never open two sentences in a row with the same word. Mix sentence types within each paragraph: a fragment, a run-on, a normal one — not three normal declarative sentences in a row.
+
+WORD CHOICE — PERPLEXITY:
+Pick the simplest first-instinct word even if slightly imprecise: "the whole thing broke" not "the system failed entirely", "it went bad fast" not "it deteriorated rapidly", "it was pretty hard" not "it proved significantly challenging". First instinct beats the correct polished choice.
 
 SPELLING MISTAKES — scale with length: ~1 per 35 words. Spread evenly, don't cluster:
 "definately", "recieve", "wierd", "beleive", "alot", "occured", "probly" or "prolly"
@@ -220,6 +238,10 @@ Lists and after long openers. Skip when in doubt. No comma after short starters.
 
 SENTENCE LENGTH — mandatory, biggest detection signal:
 Every paragraph must have at least one sentence ONLY 4-8 words long AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was nobody really understood the instructions so everyone just kind of did their own thing and hoped it worked out. Pretty chaotic."
+Never open two consecutive sentences with the same word or same grammatical structure. Within each paragraph mix at least two sentence types: fragment, run-on, or normal declarative — not all the same type.
+
+WORD CHOICE — PERPLEXITY:
+Use the first natural word you'd actually think of, not the most precise one: "the idea kind of worked" not "the approach proved partially effective", "it got messy" not "it became increasingly complex", "the whole point was" not "the fundamental objective was". Students don't agonise over word choice.
 
 SPELLING MISTAKES — scale with length: ~1 per 80 words. Spread evenly:
 "definately", "recieve", "seperate", "occured", "wierd"
@@ -274,6 +296,10 @@ Lists and after long openers. Skip when in doubt. No comma after short starters.
 
 SENTENCE LENGTH — mandatory:
 Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
+Never open two consecutive sentences with the same word or same grammatical structure (avoid "The X... The Y... The Z..."). Mix sentence types: fragment, run-on, normal — vary the shape, not just the length.
+
+WORD CHOICE — PERPLEXITY:
+Occasionally choose a slightly unexpected but fitting word over the obvious polished one: "the whole thing collapsed" not "the situation deteriorated significantly", "honestly strange" not "notably unusual", "it just didn't work" not "it proved ineffective". Real writers do this naturally — it signals a person chose the words, not a probability engine.
 
 SPELLING — one subtle mistake per ~250 words, placed naturally:
 "recieve", "seperate", or "definately"
@@ -306,6 +332,8 @@ Return only the written text, nothing else.`,
 
 Always follow these regardless:
 - Vary sentence length dramatically: some under 8 words, some over 30. Never 3 in a row of similar length.
+- Never open two consecutive sentences with the same word or same grammatical structure.
+- Choose slightly unexpected but natural words over the safe, obvious polished ones.
 - No semicolons, parentheses, em dashes, or mid-sentence colons.
 - Use contractions naturally.
 - Don't start paragraphs with a topic sentence.

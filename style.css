@@ -7741,6 +7741,50 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 
 /* ── Humanize hint cards (Humanize tab) ──────────────────────── */
+/* ── File upload ─────────────────────────────── */
+.file-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.file-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g400);
+  background: var(--g050);
+  border: 1.5px solid var(--g150);
+  border-radius: 7px;
+  padding: 6px 11px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.file-upload-btn:hover { background: var(--g100); border-color: var(--g300); color: var(--black); }
+.file-upload-hint {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g250);
+  letter-spacing: 0.04em;
+}
+.file-upload-name {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g400);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+}
+
 .humanize-hints {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

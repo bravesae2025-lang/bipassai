@@ -233,6 +233,16 @@
             <span class="box-wc" id="humanize-wc">0 words</span>
           </div>
 
+          <div class="file-upload-row">
+            <label class="file-upload-btn" for="file-upload-input">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload file
+            </label>
+            <input id="file-upload-input" type="file" accept=".pdf,.docx,.txt" style="display:none">
+            <span class="file-upload-hint">PDF, DOCX or TXT</span>
+            <span class="file-upload-name hidden" id="file-upload-name"></span>
+          </div>
+
           <div class="textarea-wrap">
             <textarea
               id="input-text"
@@ -572,6 +582,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=2"></script>
   <script src="app.js?v=2"></script>
   <script src="cursor.js?v=2"></script>

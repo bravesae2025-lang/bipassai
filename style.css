@@ -6658,7 +6658,11 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   background: #fff;
   color: var(--black);
   border-color: rgba(255,255,255,0.3);
-  cursor: default;
+  cursor: pointer;
+}
+.style-use-btn.active:hover {
+  background: rgba(255,255,255,0.72);
+  border-color: rgba(255,255,255,0.55);
 }
 
 .style-delete-btn {

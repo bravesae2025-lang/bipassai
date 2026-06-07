@@ -633,22 +633,11 @@ function bindEvents() {
       if (valEl) valEl.textContent = mistakeLabel(slider.value);
       updateSliderFill(slider);
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
-      // Keep active style in sync with manual slider adjustments
-      if (myStyleActive && savedStyle) {
-        try {
-          const traits = JSON.parse(savedStyle.style_summary);
-          if (Array.isArray(traits)) {
-            const kws = MISTAKE_KEYWORDS[type];
-            const trait = traits.find(t => kws?.some(k => t.name?.toLowerCase().includes(k)));
-            if (trait) {
-              trait.intensity = parseInt(slider.value);
-              savedStyle.style_summary = JSON.stringify(traits);
-              const idx = savedStyles.findIndex(s => s.id === activeStyleId);
-              if (idx !== -1) savedStyles[idx] = savedStyle;
-              saveStoredStyles();
-            }
-          }
-        } catch (_) {}
+      // Auto-detach from style on manual adjustment — fires once per drag
+      if (myStyleActive) {
+        myStyleActive = false;
+        sessionStorage.setItem('bipass_my_style', 'false');
+        renderStyleList();
       }
     });
   });
@@ -938,7 +927,7 @@ function renderStyleList() {
   styleCardsList.style.display = 'flex';
 
   styleCardsList.innerHTML = savedStyles.map(style => {
-    const isActive = style.id === activeStyleId;
+    const isActive = style.id === activeStyleId && myStyleActive;
     return `
       <div class="style-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
         <div class="style-card-header">
@@ -968,19 +957,25 @@ function renderStyleList() {
       const id = btn.dataset.id;
       const isAlreadyActive = btn.classList.contains('active');
 
-      activeStyleId = id;
-      savedStyle = savedStyles.find(s => s.id === id) || null;
-
-      if (!isAlreadyActive) {
+      if (isAlreadyActive) {
+        // Full deactivate — reset sliders to None
+        myStyleActive = false;
+        sessionStorage.setItem('bipass_my_style', 'false');
+        saveStoredStyles();
+        renderStyleList();
+        resetSlidersToNone();
+      } else {
+        // Activate — load style into sliders
+        activeStyleId = id;
+        savedStyle = savedStyles.find(s => s.id === id) || null;
         saveStoredStyles();
         renderStyleList();
         // Switch to Custom level so sliders + style section are visible
         if (selectedLevel !== 'customize') selectLevel('customize');
+        myStyleActive = !!savedStyle;
+        sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+        if (savedStyle) setSlidersFromStyle(savedStyle);
       }
-
-      myStyleActive = !!savedStyle;
-      sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
-      if (savedStyle) setSlidersFromStyle(savedStyle);
     });
   });
 
@@ -1276,6 +1271,18 @@ function getMistakeLevel(type) {
   if (val <= 2) return 0;
   if (val <= 6) return 1;
   return 2;
+}
+
+function resetSlidersToNone() {
+  for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
+    const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
+    if (!slider) continue;
+    slider.value = 0;
+    updateSliderFill(slider);
+    const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
+    if (valEl) valEl.textContent = 'None';
+    sessionStorage.setItem(`bipass_m_${type}`, '0');
+  }
 }
 
 function setSlidersFromStyle(style) {

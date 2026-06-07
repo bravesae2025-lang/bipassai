@@ -6549,7 +6549,8 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .col-customize .style-card-active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
 .col-customize .style-use-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
 .col-customize .style-use-btn:hover { background: #fff; color: #000; border-color: #fff; }
-.col-customize .style-use-btn.active { background: #fff; color: #000; border-color: #fff; }
+.col-customize .style-use-btn.active { background: #22c55e; color: #fff; border-color: #22c55e; cursor: pointer; }
+.col-customize .style-use-btn.active:hover { background: #16a34a; border-color: #16a34a; }
 .col-customize .style-delete-btn { color: rgba(255,255,255,0.35); }
 .col-customize .style-delete-btn:hover { color: #fff; }
 .col-customize .create-another-btn {

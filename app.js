@@ -442,6 +442,49 @@ document.getElementById('file-upload-input')?.addEventListener('change', async (
   e.target.value = '';
 });
 
+document.getElementById('file-upload-input-generate')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const nameEl = document.getElementById('file-upload-name-generate');
+  nameEl.textContent = file.name;
+  nameEl.classList.remove('hidden');
+
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  try {
+    let text = '';
+    if (ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'pdf') {
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(item => item.str).join(' '));
+      }
+      text = pages.join('\n\n');
+    } else if (ext === 'docx') {
+      const buffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+      text = result.value;
+    }
+
+    if (text.trim()) {
+      promptText.value = text.trim();
+      promptText.dispatchEvent(new Event('input'));
+    } else {
+      showToast('No text found in file');
+    }
+  } catch {
+    showToast('Could not read file — try copy-pasting instead');
+  }
+
+  e.target.value = '';
+});
+
 // ─── Nav user ─────────────────────────────────────────────────
 
 async function setupNavUser() {

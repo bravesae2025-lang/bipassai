@@ -7726,6 +7726,20 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   border-color: var(--black);
 }
 
+.label-optional {
+  font-weight: 400;
+  opacity: 0.45;
+  letter-spacing: 0.04em;
+}
+.generate-options-hint {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g300);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* ── Humanize hint cards (Humanize tab) ──────────────────────── */
 .humanize-hints {
   display: grid;

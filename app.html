@@ -183,7 +183,7 @@
           <div class="cost-preview hidden" id="generate-cost" aria-live="polite"></div>
 
           <div class="writing-type-wrap" id="writing-type-wrap">
-            <span class="writing-type-label">Writing type</span>
+            <span class="writing-type-label">Writing type <span class="label-optional">· optional</span></span>
             <div class="writing-type-pills">
               <button class="wt-pill" type="button" data-type="essay">Essay</button>
               <button class="wt-pill" type="button" data-type="email">Email</button>
@@ -195,7 +195,7 @@
           </div>
 
           <div class="quick-starts" id="quick-starts">
-            <span class="quick-starts-label">Quick start</span>
+            <span class="quick-starts-label">Quick start <span class="label-optional">· optional</span></span>
             <div class="quick-start-pills">
               <button class="qs-pill" type="button" data-prompt="Write a compelling essay introduction about ">Essay intro</button>
               <button class="qs-pill" type="button" data-prompt="Write a professional email in response to ">Email reply</button>
@@ -205,6 +205,8 @@
               <button class="qs-pill" type="button" data-prompt="Write a conclusion paragraph for an essay about ">Conclusion</button>
             </div>
           </div>
+
+          <p class="generate-options-hint">These are optional — just type your prompt and hit Generate. Selecting them usually gives better results.</p>
 
           <button id="generate-btn" class="btn-generate" aria-label="Generate text">
             <span class="btn-content">

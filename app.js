@@ -965,14 +965,19 @@ function renderStyleList() {
 
   styleCardsList.querySelectorAll('.style-use-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.classList.contains('active')) return;
       const id = btn.dataset.id;
+      const isAlreadyActive = btn.classList.contains('active');
+
       activeStyleId = id;
       savedStyle = savedStyles.find(s => s.id === id) || null;
-      saveStoredStyles();
-      renderStyleList();
-      // Switch to Custom level so sliders + style section are visible
-      if (selectedLevel !== 'customize') selectLevel('customize');
+
+      if (!isAlreadyActive) {
+        saveStoredStyles();
+        renderStyleList();
+        // Switch to Custom level so sliders + style section are visible
+        if (selectedLevel !== 'customize') selectLevel('customize');
+      }
+
       myStyleActive = !!savedStyle;
       sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
       if (savedStyle) setSlidersFromStyle(savedStyle);
@@ -1036,7 +1041,10 @@ async function loadSavedStyle(session) {
   if (loadedFromStorage) {
     if (savedStyles.length > 0) {
       renderStyleList();
-      if (myStyleActive && savedStyle) activateMyStyle();
+      if (myStyleActive && savedStyle) {
+        activateMyStyle();
+        setSlidersFromStyle(savedStyle);
+      }
     }
     return;
   }

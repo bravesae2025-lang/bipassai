@@ -314,9 +314,19 @@ Always follow these regardless:
 Return only the written text, nothing else.`,
 };
 
+const WRITING_TYPE_PROMPTS = {
+  essay:      '\nFORMAT: Structure this as a written essay — flowing paragraphs, consistent voice, no bullet points or lists.',
+  email:      '\nFORMAT: Write this as an email — natural greeting, clear body, appropriate sign-off. Direct and purposeful.',
+  story:      '\nFORMAT: Write this as a short narrative or story — descriptive language, show through action, build to a moment.',
+  casual:     '\nFORMAT: Write this very casually — like texting or talking to a friend. Short sentences, informal, contractions throughout.',
+  business:   '\nFORMAT: Write this for a professional context — clear, organised, no slang. Respectful and direct tone.',
+  discussion: '\nFORMAT: Write this as a class or forum discussion post — engage directly with the topic, share a clear personal take.',
+};
+
 // ─── State ────────────────────────────────────────────────────
 
 let selectedLevel          = 'easy';
+let selectedWritingType    = null;
 let myStyleActive          = false;
 let savedStyle             = null; // points to the active style in savedStyles
 let savedStyles            = [];   // array of {id, name, style_summary, style_prompt}
@@ -365,6 +375,20 @@ document.querySelectorAll('.qs-pill').forEach(pill => {
     promptText.value = pill.dataset.prompt;
     promptText.focus();
     promptText.dispatchEvent(new Event('input'));
+  });
+});
+
+document.querySelectorAll('.wt-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const type = pill.dataset.type;
+    if (selectedWritingType === type) {
+      selectedWritingType = null;
+      pill.classList.remove('active');
+    } else {
+      document.querySelectorAll('.wt-pill').forEach(p => p.classList.remove('active'));
+      selectedWritingType = type;
+      pill.classList.add('active');
+    }
   });
 });
 
@@ -1346,10 +1370,12 @@ function buildHumanizePrompt(text) {
 }
 
 function buildGeneratePrompt(userPrompt) {
+  const typeModifier = selectedWritingType ? WRITING_TYPE_PROMPTS[selectedWritingType] : '';
   if (myStyleActive && savedStyle) {
     const extras = buildMistakeExtras();
     let prompt = savedStyle.style_prompt;
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
+    if (typeModifier) prompt += typeModifier;
     return prompt + `\n\nWhat to write:\n${userPrompt}`;
   }
   let prompt = GENERATE_PROMPTS[selectedLevel];
@@ -1357,6 +1383,7 @@ function buildGeneratePrompt(userPrompt) {
     const extras = buildMistakeExtras();
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
   }
+  if (typeModifier) prompt += typeModifier;
   prompt += `\n\nWhat to write:\n${userPrompt}`;
   return prompt;
 }

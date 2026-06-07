@@ -7684,6 +7684,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .qs-pill:hover { background: var(--black); color: #fff; border-color: var(--black); }
+.qs-pill.selected { background: var(--black); color: #fff; border-color: var(--black); }
 
 /* ── Humanize hint cards (Humanize tab) ──────────────────────── */
 .humanize-hints {

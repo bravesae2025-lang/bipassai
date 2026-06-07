@@ -360,6 +360,8 @@ const styleCardsList   = document.getElementById('style-cards-list');
 
 document.querySelectorAll('.qs-pill').forEach(pill => {
   pill.addEventListener('click', () => {
+    document.querySelectorAll('.qs-pill').forEach(p => p.classList.remove('selected'));
+    pill.classList.add('selected');
     promptText.value = pill.dataset.prompt;
     promptText.focus();
     promptText.dispatchEvent(new Event('input'));

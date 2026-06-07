@@ -6655,14 +6655,14 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .style-use-btn:hover { background: var(--black); color: #fff; border-color: var(--black); }
 .style-use-btn.active {
-  background: #fff;
-  color: var(--black);
-  border-color: rgba(255,255,255,0.3);
+  background: #22c55e;
+  color: #fff;
+  border-color: #22c55e;
   cursor: pointer;
 }
 .style-use-btn.active:hover {
-  background: rgba(255,255,255,0.72);
-  border-color: rgba(255,255,255,0.55);
+  background: #16a34a;
+  border-color: #16a34a;
 }
 
 .style-delete-btn {

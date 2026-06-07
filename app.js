@@ -936,7 +936,7 @@ function renderStyleList() {
                  placeholder="Name this style…" maxlength="30" />
           <div class="style-card-btns">
             <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}">
-              ${isActive ? 'Active' : 'Use'}
+              ${isActive ? 'Using' : 'Use'}
             </button>
             <button class="style-delete-btn" data-id="${escapeHtml(style.id)}">✕</button>
           </div>
@@ -969,11 +969,11 @@ function renderStyleList() {
         activeStyleId = id;
         savedStyle = savedStyles.find(s => s.id === id) || null;
         saveStoredStyles();
-        renderStyleList();
-        // Switch to Custom level so sliders + style section are visible
+        // selectLevel calls deactivateMyStyle, so it must come before we set myStyleActive
         if (selectedLevel !== 'customize') selectLevel('customize');
         myStyleActive = !!savedStyle;
         sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+        renderStyleList();
         if (savedStyle) setSlidersFromStyle(savedStyle);
       }
     });

@@ -7346,23 +7346,6 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   margin-top: -4px;
 }
 
-.ext-popup-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 10px;
-}
-.ext-popup-feature-chip {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 20px;
-  padding: 3px 8px;
-}
-
 .ext-popup-steps { display: flex; flex-direction: column; gap: 0; }
 .ext-popup-step {
   display: flex;
@@ -7518,6 +7501,41 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .ext-mock-float-icon { font-size: 6px; color: #fff; }
 .ext-mock-float-label { font-size: 7px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+.ext-mock-mistake {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 52px;
+}
+.ext-mock-mis-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+.ext-mock-mis-wrong {
+  color: rgba(255,100,100,0.85);
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,100,100,0.5);
+}
+.ext-mock-mis-arr {
+  font-family: var(--ff-ui);
+  font-size: 8px;
+  color: rgba(255,255,255,0.2);
+}
+.ext-mock-mis-right { color: rgba(100,220,130,0.9); }
+.ext-mock-mis-sub {
+  font-family: var(--ff-mono);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.28);
+  text-align: center;
+}
 .ext-mock-pick { padding: 0; }
 .ext-mock-selected-card {
   margin: 6px;

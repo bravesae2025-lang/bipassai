@@ -391,9 +391,58 @@ const WRITING_TYPE_PROMPTS = {
   discussion: '\nFORMAT: Write this as a class or forum discussion post — engage directly with the topic, share a clear personal take.',
 };
 
+// ─── Post-process AI output ───────────────────────────────────
+
+function postProcessOutput(text) {
+  text = text.replace(/\s*—\s*/g, ', ');
+  text = text.replace(/\s*–\s*/g, ', ');
+  text = text.replace(/ - /g, ', ');
+
+  const swaps = {
+    'utilize': 'use', 'utilizes': 'uses', 'utilized': 'used', 'utilizing': 'using',
+    'assist': 'help', 'assists': 'helps', 'assisted': 'helped', 'assisting': 'helping',
+    'individuals': 'people', 'individual': 'person',
+    'various': 'different', 'numerous': 'many',
+    'ensure': 'make sure', 'ensures': 'makes sure', 'ensured': 'made sure',
+    'obtain': 'get', 'obtains': 'gets', 'obtained': 'got',
+    'regarding': 'about',
+    'hence': 'so', 'thus': 'so', 'furthermore': 'also', 'moreover': 'also',
+    'nevertheless': 'but', 'nonetheless': 'but',
+    'whilst': 'while', 'purchase': 'buy', 'purchases': 'buys', 'purchased': 'bought',
+    'commence': 'start', 'commences': 'starts', 'commenced': 'started',
+    'leverage': 'use', 'leverages': 'uses', 'leveraged': 'used', 'leveraging': 'using',
+    'facilitate': 'help', 'facilitates': 'helps', 'facilitated': 'helped',
+    'constitute': 'make up', 'constitutes': 'makes up',
+    'mitigate': 'reduce', 'mitigates': 'reduces', 'mitigated': 'reduced',
+    'foster': 'build', 'fosters': 'builds', 'fostered': 'built',
+    'harness': 'use', 'harnessing': 'using',
+    'empower': 'help', 'empowers': 'helps',
+    'encompass': 'include', 'encompasses': 'includes',
+    'crucial': 'really important', 'pivotal': 'key', 'paramount': 'most important',
+    'meticulous': 'careful', 'meticulously': 'carefully',
+    'comprehensive': 'complete', 'robust': 'strong', 'versatile': 'flexible',
+    'seamless': 'smooth', 'seamlessly': 'smoothly',
+    'transformative': 'life-changing', 'methodology': 'method',
+    'realm': 'area', 'ultimately': 'in the end',
+    'fundamental': 'basic', 'intricate': 'complex',
+    'bolster': 'strengthen', 'bolsters': 'strengthens',
+  };
+
+  for (const [ai, human] of Object.entries(swaps)) {
+    const re = new RegExp(`\\b${ai}\\b`, 'gi');
+    text = text.replace(re, m =>
+      m[0] === m[0].toUpperCase() && m[0] !== m[0].toLowerCase()
+        ? human.charAt(0).toUpperCase() + human.slice(1)
+        : human
+    );
+  }
+  return text;
+}
+
 // ─── State ────────────────────────────────────────────────────
 
 let selectedLevel          = 'easy';
+let selectedModel          = localStorage.getItem('bipass_model') || 'gemini';
 let selectedWritingType    = null;
 let myStyleActive          = false;
 let savedStyle             = null; // points to the active style in savedStyles
@@ -435,6 +484,26 @@ const analyzeLabel     = document.getElementById('analyze-label');
 const analyzeLoader    = document.getElementById('analyze-loader');
 const myStyleInputs    = document.getElementById('my-style-inputs');
 const styleCardsList   = document.getElementById('style-cards-list');
+
+// ─── Model toggle ─────────────────────────────────────────────
+
+(function () {
+  function syncModelButtons() {
+    document.querySelectorAll('.model-btn').forEach(btn => {
+      btn.classList.toggle('model-btn-active', btn.dataset.model === selectedModel);
+    });
+  }
+
+  syncModelButtons();
+
+  document.querySelectorAll('.model-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedModel = btn.dataset.model;
+      localStorage.setItem('bipass_model', selectedModel);
+      syncModelButtons();
+    });
+  });
+})();
 
 document.querySelectorAll('.qs-pill').forEach(pill => {
   pill.addEventListener('click', () => {
@@ -1560,7 +1629,7 @@ async function generateNew() {
   setLoading(true, 'Generating your text…');
 
   try {
-    const result = await callAPIStream(buildGeneratePrompt(prompt));
+    const result = postProcessOutput(await callAPIStream(buildGeneratePrompt(prompt)));
     await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'generate');
@@ -1584,7 +1653,7 @@ async function humanize() {
   setLoading(true, 'Humanizing your text…');
 
   try {
-    const result = await callAPIStream(buildHumanizePrompt(text));
+    const result = postProcessOutput(await callAPIStream(buildHumanizePrompt(text)));
     await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'humanize');
@@ -1619,7 +1688,7 @@ async function callAPIStream(prompt) {
   const res = await fetch('/api/stream', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body:    JSON.stringify({ prompt }),
+    body:    JSON.stringify({ prompt, model: selectedModel }),
     signal:  currentAbortController.signal,
   });
 

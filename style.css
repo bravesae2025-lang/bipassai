@@ -7821,3 +7821,48 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   color: var(--g400);
   line-height: 1.4;
 }
+
+/* ── Model toggle ────────────────────────────────────────────── */
+.model-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.model-toggle-label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g400);
+  white-space: nowrap;
+}
+.model-toggle {
+  display: flex;
+  gap: 6px;
+}
+.model-btn {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 7px;
+  border: 1.5px solid var(--g150);
+  background: var(--g050);
+  color: var(--g400);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.model-btn:hover {
+  background: var(--g100);
+  border-color: var(--g300);
+  color: var(--black);
+}
+.model-btn.model-btn-active {
+  background: var(--black);
+  border-color: var(--black);
+  color: #fff;
+}

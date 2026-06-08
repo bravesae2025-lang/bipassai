@@ -1,3 +1,51 @@
+// ─── Post-process AI output ───────────────────────────────────
+
+function postProcessOutput(text) {
+  text = text.replace(/\s*—\s*/g, ', ');
+  text = text.replace(/\s*–\s*/g, ', ');
+  text = text.replace(/ - /g, ', ');
+
+  const swaps = {
+    'utilize': 'use', 'utilizes': 'uses', 'utilized': 'used', 'utilizing': 'using',
+    'assist': 'help', 'assists': 'helps', 'assisted': 'helped', 'assisting': 'helping',
+    'individuals': 'people', 'individual': 'person',
+    'various': 'different', 'numerous': 'many',
+    'ensure': 'make sure', 'ensures': 'makes sure', 'ensured': 'made sure',
+    'obtain': 'get', 'obtains': 'gets', 'obtained': 'got',
+    'regarding': 'about',
+    'hence': 'so', 'thus': 'so', 'furthermore': 'also', 'moreover': 'also',
+    'nevertheless': 'but', 'nonetheless': 'but',
+    'whilst': 'while', 'purchase': 'buy', 'purchases': 'buys', 'purchased': 'bought',
+    'commence': 'start', 'commences': 'starts', 'commenced': 'started',
+    'leverage': 'use', 'leverages': 'uses', 'leveraged': 'used', 'leveraging': 'using',
+    'facilitate': 'help', 'facilitates': 'helps', 'facilitated': 'helped',
+    'constitute': 'make up', 'constitutes': 'makes up',
+    'mitigate': 'reduce', 'mitigates': 'reduces', 'mitigated': 'reduced',
+    'foster': 'build', 'fosters': 'builds', 'fostered': 'built',
+    'harness': 'use', 'harnessing': 'using',
+    'empower': 'help', 'empowers': 'helps',
+    'encompass': 'include', 'encompasses': 'includes',
+    'crucial': 'really important', 'pivotal': 'key', 'paramount': 'most important',
+    'meticulous': 'careful', 'meticulously': 'carefully',
+    'comprehensive': 'complete', 'robust': 'strong', 'versatile': 'flexible',
+    'seamless': 'smooth', 'seamlessly': 'smoothly',
+    'transformative': 'life-changing', 'methodology': 'method',
+    'realm': 'area', 'ultimately': 'in the end',
+    'fundamental': 'basic', 'intricate': 'complex',
+    'bolster': 'strengthen', 'bolsters': 'strengthens',
+  };
+
+  for (const [ai, human] of Object.entries(swaps)) {
+    const re = new RegExp(`\\b${ai}\\b`, 'gi');
+    text = text.replace(re, m =>
+      m[0] === m[0].toUpperCase() && m[0] !== m[0].toLowerCase()
+        ? human.charAt(0).toUpperCase() + human.slice(1)
+        : human
+    );
+  }
+  return text;
+}
+
 // ─── Nav user ─────────────────────────────────────────────────
 
 async function setupNavUser() {
@@ -341,7 +389,7 @@ Text:
 ${text}`;
 
   try {
-    const result = await callEditorStream(prompt);
+    const result = postProcessOutput(await callEditorStream(prompt));
     editorTextarea.value = result;
     sessionStorage.setItem('bipass_result', result);
     updateWc();

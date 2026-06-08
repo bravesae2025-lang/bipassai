@@ -15,6 +15,26 @@ const GEMINI_ENDPOINT =
 const GEMINI_STREAM_ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
 
+const CLAUDE_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL    = 'claude-sonnet-4-6';
+
+async function callClaude(prompt, stream = false) {
+  return fetch(CLAUDE_ENDPOINT, {
+    method:  'POST',
+    headers: {
+      'Content-Type':      'application/json',
+      'x-api-key':         process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model:      CLAUDE_MODEL,
+      max_tokens: 8192,
+      stream,
+      messages:   [{ role: 'user', content: prompt }],
+    }),
+  });
+}
+
 const SUPABASE_URL     = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
@@ -363,7 +383,7 @@ app.post('/api/analyze', async (req, res) => {
 // ─── POST /api/humanize ────────────────────────────────────────
 
 app.post('/api/humanize', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, model = 'gemini' } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'No prompt provided' });
@@ -405,28 +425,35 @@ app.post('/api/humanize', async (req, res) => {
   req.on('close', () => { cancelled = true; });
 
   try {
-    const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature:     1.0,
-          topP:            0.95,
-          maxOutputTokens: 8192,
-        },
-      }),
-    });
+    let result;
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.json().catch(() => ({}));
-      return res.status(geminiRes.status).json({ error: err?.error?.message || 'Gemini error' });
+    if (model === 'claude') {
+      if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'Claude not configured' });
+      const claudeRes = await callClaude(prompt);
+      if (!claudeRes.ok) {
+        const err = await claudeRes.json().catch(() => ({}));
+        return res.status(claudeRes.status).json({ error: err?.error?.message || 'Claude error' });
+      }
+      const data = await claudeRes.json();
+      result = data?.content?.[0]?.text;
+    } else {
+      const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
+        }),
+      });
+      if (!geminiRes.ok) {
+        const err = await geminiRes.json().catch(() => ({}));
+        return res.status(geminiRes.status).json({ error: err?.error?.message || 'Gemini error' });
+      }
+      const data = await geminiRes.json();
+      result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     }
 
-    const data   = await geminiRes.json();
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!result) return res.status(500).json({ error: 'No output from Gemini' });
+    if (!result) return res.status(500).json({ error: 'No output from model' });
 
     // ── Deduct credits (only on success, only if client didn't cancel) ───
     const resultText  = result.trim();
@@ -447,7 +474,7 @@ app.post('/api/humanize', async (req, res) => {
 // ─── POST /api/stream ─────────────────────────────────────────
 
 app.post('/api/stream', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, model = 'gemini' } = req.body;
   if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -486,47 +513,97 @@ app.post('/api/stream', async (req, res) => {
   res.flushHeaders();
 
   try {
-    const geminiRes = await fetch(`${GEMINI_STREAM_ENDPOINT}?key=${apiKey}&alt=sse`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
-      }),
-    });
+    let fullText     = '';
+    let inputTokens  = 0;
+    let outputTokens = 0;
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.json().catch(() => ({}));
-      res.write(`data: ${JSON.stringify({ error: err?.error?.message || 'Gemini error' })}\n\n`);
-      return res.end();
-    }
-
-    const reader  = geminiRes.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText  = '';
-    let buffer    = '';
-    let lastUsage = null;
-
-    while (!cancelled) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        try {
-          const json = JSON.parse(line.slice(6));
-          const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (text) {
-            fullText += text;
-            res.write(`data: ${JSON.stringify({ chunk: text, chars: fullText.length })}\n\n`);
-          }
-          if (json.usageMetadata) lastUsage = json.usageMetadata;
-        } catch {}
+    if (model === 'claude') {
+      if (!process.env.ANTHROPIC_API_KEY) {
+        res.write(`data: ${JSON.stringify({ error: 'Claude not configured' })}\n\n`);
+        return res.end();
       }
+
+      const claudeRes = await callClaude(prompt, true);
+      if (!claudeRes.ok) {
+        const err = await claudeRes.json().catch(() => ({}));
+        res.write(`data: ${JSON.stringify({ error: err?.error?.message || 'Claude error' })}\n\n`);
+        return res.end();
+      }
+
+      const reader  = claudeRes.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer    = '';
+
+      while (!cancelled) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            if (json.type === 'content_block_delta' && json.delta?.text) {
+              fullText += json.delta.text;
+              res.write(`data: ${JSON.stringify({ chunk: json.delta.text, chars: fullText.length })}\n\n`);
+            }
+            if (json.type === 'message_start' && json.message?.usage) {
+              inputTokens = json.message.usage.input_tokens || 0;
+            }
+            if (json.type === 'message_delta' && json.usage) {
+              outputTokens = json.usage.output_tokens || 0;
+            }
+          } catch {}
+        }
+      }
+    } else {
+      const geminiRes = await fetch(`${GEMINI_STREAM_ENDPOINT}?key=${apiKey}&alt=sse`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
+        }),
+      });
+
+      if (!geminiRes.ok) {
+        const err = await geminiRes.json().catch(() => ({}));
+        res.write(`data: ${JSON.stringify({ error: err?.error?.message || 'Gemini error' })}\n\n`);
+        return res.end();
+      }
+
+      const reader  = geminiRes.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer    = '';
+      let lastUsage = null;
+
+      while (!cancelled) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (text) {
+              fullText += text;
+              res.write(`data: ${JSON.stringify({ chunk: text, chars: fullText.length })}\n\n`);
+            }
+            if (json.usageMetadata) lastUsage = json.usageMetadata;
+          } catch {}
+        }
+      }
+
+      inputTokens  = lastUsage?.promptTokenCount     || 0;
+      outputTokens = lastUsage?.candidatesTokenCount || 0;
     }
 
     if (!cancelled && fullText) {
@@ -536,8 +613,7 @@ app.post('/api/stream', async (req, res) => {
       await updateUserCredits(user.id, newCredits);
       res.write(`data: ${JSON.stringify({
         done: true, result: resultText, creditsUsed, creditsRemaining: newCredits,
-        inputTokens:  lastUsage?.promptTokenCount     || 0,
-        outputTokens: lastUsage?.candidatesTokenCount || 0,
+        inputTokens, outputTokens,
       })}\n\n`);
     }
 

@@ -218,6 +218,14 @@
 
           <p class="generate-options-hint">These are optional — just type your prompt and hit Generate. Selecting them usually gives better results.</p>
 
+          <div class="model-toggle-wrap" id="model-toggle-generate">
+            <span class="model-toggle-label">Model</span>
+            <div class="model-toggle">
+              <button class="model-btn model-btn-active" data-model="gemini">⚡ Gemini</button>
+              <button class="model-btn" data-model="claude">✦ Claude</button>
+            </div>
+          </div>
+
           <button id="generate-btn" class="btn-generate" aria-label="Generate text">
             <span class="btn-content">
               <span id="generate-label">Generate</span>
@@ -282,6 +290,14 @@
               <span class="h-hint-icon">✓</span>
               <span class="h-hint-title">Human Score</span>
               <span class="h-hint-sub">Passes AI detectors</span>
+            </div>
+          </div>
+
+          <div class="model-toggle-wrap" id="model-toggle-humanize">
+            <span class="model-toggle-label">Model</span>
+            <div class="model-toggle">
+              <button class="model-btn model-btn-active" data-model="gemini">⚡ Gemini</button>
+              <button class="model-btn" data-model="claude">✦ Claude</button>
             </div>
           </div>
 

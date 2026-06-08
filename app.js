@@ -10,11 +10,17 @@ const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 const HUMANIZE_PROMPTS = {
   easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational or spoken:
 Write as a normal written piece, not like someone talking out loud. Casual words like "like", "I guess", "honestly" should only slip in once or twice as natural mistakes — not throughout. This is written text, not a speech or chat message.
 
-REPLACE AI WORDS — these words make it obvious it's AI, replace them:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" or "do" | "individuals" → "people" | "various" → "different" or "some" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "commence" → "start" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Use commas in lists and after long openers (5+ words). Skip them when in doubt — missing a comma is fine. Do NOT put commas after short starters like "But", "So", "And" at the beginning of a sentence. Fewer commas is better than too many.
@@ -50,18 +56,24 @@ OTHER TRAITS:
 - Uneven paragraphs — one might be 1 sentence, another 5
 - Some sentences starting with And or But or So
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No clean topic sentences. No conclusion.
 Return only the rewritten text, nothing else.`,
 
   medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational:
 Write as a normal written piece. Casual filler words like "honestly", "like", "I mean" should only slip in once or twice as a natural mistake — not scattered throughout. This is written text, not talking out loud.
 
-REPLACE AI WORDS — swap these immediately if they appear:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Use commas in lists and after long openers (5+ words). Skip them when in doubt. Do NOT place a comma after short starters like "But", "So", "And" at the start of a sentence. Fewer commas is more natural than too many.
@@ -110,18 +122,24 @@ STRUCTURE:
 - No conclusion or summary — just stop
 - Paragraphs different lengths, not symmetrical
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the rewritten text, nothing else.`,
 
   hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. This must be completely undetectable by AI detectors. Humanness is in rhythm and personality.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational:
 Write as a normal written piece. A casual word or two can slip in naturally but this is not spoken text. No filler phrases scattered throughout.
 
-REPLACE AI WORDS — swap these:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Lists and after long openers only. Skip when in doubt. No comma after short sentence starters. Fewer is better.
@@ -158,7 +176,7 @@ STRUCTURE:
 - Paragraphs uneven in length
 - Use slightly unexpected word choices over the polished "correct" ones
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No parallel structure. No balanced paragraphs.
 Return only the rewritten text, nothing else.`,
@@ -166,10 +184,12 @@ Return only the rewritten text, nothing else.`,
   customize: `Rewrite the following text to sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
 
 Always follow these regardless of the traits listed:
+- NO DASHES: Never write em dashes (—) or use hyphens as em dashes (word - word). Biggest AI tell. Use a comma or new sentence instead.
+- Replace AI words: "utilize"→"use", "leverage"→"use", "crucial"→"really important", "significant"→"big", "robust"→"strong", "individuals"→"people", "comprehensive"→"complete", "furthermore"→"also", "realm"→"area", "severity"→"how bad it is", "methodology"→"method", "facilitate"→"help", "paramount"→"most important", "groundbreaking"→"new", "ultimately"→"in the end"
 - Vary sentence length dramatically: some under 8 words, some over 30. Never 3 sentences in a row of similar length.
 - Never open two consecutive sentences with the same word or same grammatical structure.
 - Choose slightly unexpected but natural words over the safe, obvious polished ones.
-- No semicolons, parentheses, em dashes, or colons mid-sentence.
+- No semicolons, parentheses, or colons mid-sentence.
 - Use contractions naturally.
 - Do not start paragraphs with a topic sentence.
 - No conclusion summary at the end.
@@ -180,11 +200,17 @@ Return only the rewritten text, nothing else.`,
 const GENERATE_PROMPTS = {
   easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational:
 Write as a normal piece of writing. Casual words like "like", "I guess" can slip in once or twice as a natural mistake — not scattered throughout. This is written text, not someone talking.
 
-REPLACE AI WORDS:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Lists and after long openers (5+ words). Skip when in doubt. No comma after short starters like "But", "So", "And". Fewer commas is fine.
@@ -220,18 +246,24 @@ OTHER TRAITS:
 - Uneven paragraphs
 - Some sentences starting with And or But or So
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No clean topic sentences. No conclusion.
 Return only the written text, nothing else.`,
 
   medium: `Read the task or topic below and write a complete original response the way a real student would — quickly, without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational:
 Write as a normal piece of writing. A casual word like "honestly" or "like" can slip in once or twice — not throughout. Written text, not someone talking.
 
-REPLACE AI WORDS:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Lists and after long openers. Skip when in doubt. No comma after short starters. Fewer commas is fine.
@@ -278,18 +310,24 @@ STRUCTURE:
 - No conclusion or summary — just stop
 - Paragraphs different lengths
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the written text, nothing else.`,
 
   hard: `Read the task or topic below and write a complete original response the way a confident real person would — direct, opinionated, not over-polished. This must be completely undetectable by AI detectors. Humanness is subtle.
 
+NO DASHES — #1 AI tell:
+NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
+
 WRITE NORMAL TEXT — not conversational:
 Write as a normal piece. No filler phrases throughout. This is written text, not spoken.
 
-REPLACE AI WORDS:
-"sorts" → "type" or "kind" | "utilize" → "use" | "assist" → "help" | "purchase" → "buy" | "demonstrate" → "show" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "whilst" → "while"
+REPLACE AI WORDS — statistically proven AI signals, swap every one:
+"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
+"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
+"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
+"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
 
 COMMAS — only where clearly needed:
 Lists and after long openers. Skip when in doubt. No comma after short starters. Fewer is better.
@@ -323,7 +361,7 @@ VOICE AND STRUCTURE:
 - No conclusion summary — just end
 - Uneven paragraphs
 
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world
+BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No parallel structure. No balanced paragraphs.
 Return only the written text, nothing else.`,
@@ -331,10 +369,12 @@ Return only the written text, nothing else.`,
   customize: `Read the task or topic below and write a complete original response. Make it sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
 
 Always follow these regardless:
+- NO DASHES: Never write em dashes (—) or use hyphens as em dashes (word - word). Biggest AI tell. Use a comma or new sentence instead.
+- Replace AI words: "utilize"→"use", "leverage"→"use", "crucial"→"really important", "significant"→"big", "robust"→"strong", "individuals"→"people", "comprehensive"→"complete", "furthermore"→"also", "realm"→"area", "severity"→"how bad it is", "methodology"→"method", "facilitate"→"help", "paramount"→"most important", "groundbreaking"→"new", "ultimately"→"in the end"
 - Vary sentence length dramatically: some under 8 words, some over 30. Never 3 in a row of similar length.
 - Never open two consecutive sentences with the same word or same grammatical structure.
 - Choose slightly unexpected but natural words over the safe, obvious polished ones.
-- No semicolons, parentheses, em dashes, or mid-sentence colons.
+- No semicolons, parentheses, or mid-sentence colons.
 - Use contractions naturally.
 - Don't start paragraphs with a topic sentence.
 - No conclusion summary.

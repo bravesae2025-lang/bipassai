@@ -21,8 +21,9 @@ const HUMANIZE_PROMPTS = {
 
 Use most of these. Beginner writing is visibly human.
 Do NOT make it unreadable, just simple, plain, and rough around the edges.
-Do NOT use hyphens (-) or em dashes anywhere in the text, not even in compound words or lists.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
+Do NOT use hyphens (-) or em dashes anywhere in the text — this is the #1 AI tell. Zero dashes, full stop.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", or conclusion summaries.
 Return only the rewritten text, nothing else.`,
 
   medium: `Rewrite the following text so it sounds like an average student wrote it. Use SOME of these human writing traits — not all, just what fits naturally:
@@ -37,7 +38,9 @@ Return only the rewritten text, nothing else.`,
 - Grammar mostly right but not careful — a comma missing here or there.
 
 Pick 3–4 of these and let them show up naturally. Don't force all of them.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", perfectly balanced opinions, fake-deep transitions, conclusion summaries, or equal sentence energy throughout.
+Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Never use: "it's worth noting", "certainly", "in conclusion", "delve", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", perfectly balanced opinions, fake-deep transitions, conclusion summaries, or equal sentence energy throughout.
 Return only the rewritten text, nothing else.`,
 
   hard: `Rewrite the following text so it sounds like a confident, capable person wrote it. The humanness should be subtle — texture, not obvious mistakes. Use only 2–3 of these traits, once or twice each:
@@ -50,10 +53,14 @@ Return only the rewritten text, nothing else.`,
 - One sentence that's longer and a little messier than the rest.
 
 Only use 2–3 of these. A skilled writer's humanness is subtle, not loud.
-Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, perfect paragraph symmetry, fake-deep transitions like "at the end of the day", conclusion summaries after every point.
+Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes anywhere.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", perfect paragraph symmetry, fake-deep transitions like "at the end of the day", conclusion summaries after every point.
 Return only the rewritten text, nothing else.`,
 
   customize: `Rewrite the following text to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+Never use em dashes (—) or hyphens as em dashes (word - word) — #1 AI tell. Zero dashes.
+Replace AI words: "utilize"→"use", "leverage"→"use", "crucial"→"really important", "significant"→"big", "robust"→"strong", "individuals"→"people", "comprehensive"→"complete", "furthermore"→"also", "realm"→"area", "severity"→"how bad it is", "methodology"→"method", "facilitate"→"help", "paramount"→"most important", "groundbreaking"→"new", "ultimately"→"in the end", "scarcity/scarcities"→"shortage"
 Return only the rewritten text, nothing else.`,
 };
 
@@ -71,7 +78,9 @@ const GENERATE_PROMPTS = {
 
 Use most of these. Beginner writing is visibly human.
 Do NOT make it unreadable — just simple, plain, and rough around the edges.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", or conclusion summaries.
+Do NOT use em dashes (—) or hyphens as em dashes (word - word) — #1 AI tell. Zero dashes anywhere.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", or conclusion summaries.
 Return only the written text, nothing else.`,
 
   medium: `Write the following the way an average student would. Use SOME of these human writing traits — not all, just what fits naturally:
@@ -86,7 +95,9 @@ Return only the written text, nothing else.`,
 - Grammar mostly right but not careful.
 
 Pick 3–4 and let them show up naturally.
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", conclusion summaries, or equal sentence energy throughout.
+Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Never use: "it's worth noting", "certainly", "in conclusion", "delve", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", conclusion summaries, or equal sentence energy throughout.
 Return only the written text, nothing else.`,
 
   hard: `Write the following the way a confident, capable person would — like they wrote it quickly and didn't over-edit. The humanness should be subtle. Use only 2–3 of these traits, once or twice each:
@@ -99,10 +110,14 @@ Return only the written text, nothing else.`,
 - One sentence longer and a little messier than the rest.
 
 Only 2–3 traits. Subtlety is the point.
-Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", em dashes more than once, fake-deep transitions, conclusion summaries.
+Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes anywhere.
+Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
+Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", fake-deep transitions, conclusion summaries.
 Return only the written text, nothing else.`,
 
   customize: `Write the following to sound naturally human-written. Apply only the specific human traits listed below — do not add any other changes beyond what is listed.
+Never use em dashes (—) or hyphens as em dashes (word - word) — #1 AI tell. Zero dashes.
+Replace AI words: "utilize"→"use", "leverage"→"use", "crucial"→"really important", "significant"→"big", "robust"→"strong", "individuals"→"people", "comprehensive"→"complete", "furthermore"→"also", "realm"→"area", "severity"→"how bad it is", "methodology"→"method", "facilitate"→"help", "paramount"→"most important", "groundbreaking"→"new", "ultimately"→"in the end", "scarcity/scarcities"→"shortage"
 Return only the written text, nothing else.`,
 };
 

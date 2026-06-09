@@ -2026,6 +2026,9 @@ body.editor-page { background: var(--bg); }
   letter-spacing: 0;
   cursor: pointer;
   transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .level-btn.active { color: #fff; }
@@ -6458,6 +6461,12 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .col-customize .level-btn-custom { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom.active { background: #fff; color: #000; border-color: #fff; }
+
+@media (max-width: 900px) {
+  .level-track-wrap { flex-wrap: wrap; }
+  .level-track-wrap .level-track { flex: 1 1 100%; width: 100%; }
+  .level-btn-custom { flex: 1 1 100%; width: 100%; text-align: center; padding: 0; }
+}
 
 /* Responsive */
 @media (max-width: 768px) {

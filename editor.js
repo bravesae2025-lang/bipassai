@@ -577,7 +577,7 @@ async function pushToExtension() {
   if (!btn || btn.classList.contains('editor-btn-pushed')) return;
 
   btn.disabled = true;
-  btn.textContent = 'Pushing…';
+  btn.textContent = 'Uploading…';
 
   try {
     const session = await window.bipassAuth.getSession();
@@ -610,11 +610,11 @@ async function pushToExtension() {
       if (error) throw error;
     }
 
-    btn.textContent = '✓ Pushed';
+    btn.textContent = '✓ Uploaded';
     btn.classList.add('editor-btn-pushed');
   } catch (err) {
     btn.disabled = false;
-    btn.textContent = '↻ Retry Push';
+    btn.textContent = '↻ Retry Upload';
   }
 }
 

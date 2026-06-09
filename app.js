@@ -1,7 +1,7 @@
 const LEVEL_DESCRIPTIONS = {
-  easy:      'Beginner — simple words, mixed sentences, tense mistakes like a non-native speaker',
-  medium:    'Student — average voice, decent grammar, nothing too fancy',
-  hard:      'Expert — confident and fluent, strong vocabulary, varied sentences',
+  easy:      'Beginner — most aggressive simplification, missing apostrophes, wrong plurals, casual shortcuts',
+  medium:    'Student — moderate simplification, occasional missing comma or apostrophe',
+  hard:      'Academic — light touch, removes obvious AI words only',
   customize: 'Custom — pick exactly which human traits to add',
 };
 
@@ -423,50 +423,246 @@ const WRITING_TYPE_PROMPTS = {
 
 // ─── Post-process AI output ───────────────────────────────────
 
-function postProcessOutput(text) {
+// ─── Level Adjust (client-side, no API) ──────────────────────
+
+function _swapCase(original, replacement) {
+  return original[0] === original[0].toUpperCase() && original[0] !== original[0].toLowerCase()
+    ? replacement.charAt(0).toUpperCase() + replacement.slice(1)
+    : replacement;
+}
+
+function _applySwaps(text, swaps) {
+  for (const [ai, human] of Object.entries(swaps)) {
+    const escaped = ai.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+    text = text.replace(re, m => _swapCase(m, human));
+  }
+  return text;
+}
+
+function _applyPhrases(text, phrases) {
+  for (const [phrase, replacement] of phrases) {
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+    const re = new RegExp(escaped, 'gi');
+    text = text.replace(re, m => _swapCase(m, replacement));
+  }
+  return text;
+}
+
+function _removeApostrophes(text, rate) {
+  const pairs = [
+    ["don't","dont"],["can't","cant"],["won't","wont"],["it's","its"],
+    ["I'm","Im"],["i'm","im"],["didn't","didnt"],["couldn't","couldnt"],
+    ["isn't","isnt"],["wasn't","wasnt"],["aren't","arent"],["weren't","werent"],
+    ["haven't","havent"],["hasn't","hasnt"],["wouldn't","wouldnt"],
+    ["shouldn't","shouldnt"],["they're","theyre"],["we're","were"],
+    ["you're","youre"],["I've","Ive"],["they've","theyve"],["we've","weve"],
+    ["I'll","Ill"],["they'll","theyll"],["that's","thats"],["there's","theres"],
+    ["what's","whats"],["who's","whos"],["he's","hes"],["she's","shes"],
+  ];
+  for (const [w, wo] of pairs) {
+    const re = new RegExp(w.replace(/'/g, "'"), 'g');
+    text = text.replace(re, m => Math.random() < rate ? _swapCase(m, wo) : m);
+  }
+  return text;
+}
+
+function _addWrongPlurals(text, rate) {
+  const pairs = [
+    [/\binformation\b/g,'informations'],[/\badvice\b/g,'advices'],
+    [/\bfeedback\b/g,'feedbacks'],[/\bknowledge\b/g,'knowledges'],
+    [/\bequipment\b/g,'equipments'],[/\bhomework\b/g,'homeworks'],
+    [/\bresearch\b/g,'researches'],
+  ];
+  for (const [re, rep] of pairs) {
+    text = text.replace(re, m => Math.random() < rate ? rep : m);
+  }
+  return text;
+}
+
+const _BASE_SWAPS = {
+  'utilize':'use','utilizes':'uses','utilized':'used','utilizing':'using',
+  'assist':'help','assists':'helps','assisted':'helped','assisting':'helping',
+  'individuals':'people','individual':'person',
+  'various':'different','numerous':'many',
+  'ensure':'make sure','ensures':'makes sure','ensured':'made sure',
+  'obtain':'get','obtains':'gets','obtained':'got',
+  'regarding':'about',
+  'hence':'so','thus':'so','furthermore':'also','moreover':'also',
+  'nevertheless':'but','nonetheless':'but',
+  'whilst':'while','purchase':'buy','purchases':'buys','purchased':'bought',
+  'commence':'start','commences':'starts','commenced':'started',
+  'leverage':'use','leverages':'uses','leveraged':'used','leveraging':'using',
+  'facilitate':'help','facilitates':'helps','facilitated':'helped',
+  'constitute':'make up','constitutes':'makes up',
+  'mitigate':'reduce','mitigates':'reduces','mitigated':'reduced',
+  'foster':'build','fosters':'builds','fostered':'built',
+  'harness':'use','harnessing':'using',
+  'empower':'help','empowers':'helps',
+  'encompass':'include','encompasses':'includes',
+  'crucial':'really important','pivotal':'key','paramount':'most important',
+  'meticulous':'careful','meticulously':'carefully',
+  'comprehensive':'complete','robust':'strong','versatile':'flexible',
+  'seamless':'smooth','seamlessly':'smoothly',
+  'transformative':'life-changing','methodology':'method',
+  'realm':'area','ultimately':'in the end',
+  'fundamental':'basic','intricate':'complex',
+  'bolster':'strengthen','bolsters':'strengthens',
+  'demonstrate':'show','demonstrates':'shows','demonstrated':'showed',
+  'indicate':'show','indicates':'shows','indicated':'showed',
+  'illuminate':'show','illuminates':'shows',
+  'spearhead':'lead','spearheads':'leads',
+  'underscore':'show','underscores':'shows',
+  'palpable':'real','groundbreaking':'new',
+  'severity':'how bad it is','scarcity':'shortage','prevalence':'how common it is',
+  'magnitude':'how big it is','tapestry':'mix',
+  'multifaceted':'complicated','nuanced':'complex',
+};
+
+const _STUDENT_SWAPS = {
+  'analyze':'look at','analyzes':'looks at','analyzed':'looked at',
+  'evaluate':'judge','evaluates':'judges','evaluated':'judged',
+  'establish':'set up','establishes':'sets up','established':'set up',
+  'significant':'big','significantly':'a lot',
+  'primary':'main','secondary':'second',
+  'component':'part','components':'parts',
+  'factor':'thing','factors':'things',
+  'impact':'effect','impacts':'effects',
+  'approach':'way','approaches':'ways',
+  'develop':'build','develops':'builds','developed':'built',
+  'identify':'find','identifies':'finds','identified':'found',
+  'maintain':'keep','maintains':'keeps','maintained':'kept',
+  'contribute':'add to','contributes':'adds to',
+  'enhance':'improve','enhances':'improves','enhanced':'improved',
+  'achieve':'get','achieves':'gets','achieved':'got',
+  'implement':'use','implements':'uses','implemented':'used',
+  'transform':'change','transforms':'changes','transformed':'changed',
+  'examine':'look at','examines':'looks at','examined':'looked at',
+  'investigate':'look into','investigates':'looks into',
+  'determine':'figure out','determines':'figures out','determined':'figured out',
+  'acknowledge':'admit','acknowledges':'admits','acknowledged':'admitted',
+  'possess':'have','possesses':'has','possessed':'had',
+  'acquire':'get','acquires':'gets','acquired':'got',
+  'provide':'give','provides':'gives','provided':'gave',
+  'require':'need','requires':'needs','required':'needed',
+  'approximately':'about','typically':'usually','generally':'usually',
+  'specifically':'exactly','particularly':'especially','essentially':'basically',
+  'effectively':'well','efficiently':'well','successfully':'well',
+  'collaborate':'work together','collaborates':'works together',
+  'participate':'take part','participates':'takes part',
+  'incorporate':'add','incorporates':'adds','incorporated':'added',
+  'eliminate':'get rid of','eliminates':'gets rid of',
+  'consequently':'so','subsequently':'then','previously':'before',
+  'currently':'now',
+};
+
+const _BEGINNER_SWAPS = {
+  'however':'but',
+  'therefore':'so',
+  'observe':'see','observes':'sees','observed':'saw',
+  'consider':'think about','considers':'thinks about','considered':'thought about',
+  'respond':'answer','responds':'answers','responded':'answered',
+  'inquire':'ask','inquires':'asks','inquired':'asked',
+  'attempt':'try','attempts':'tries','attempted':'tried',
+  'initiate':'start','initiates':'starts','initiated':'started',
+  'terminate':'end','terminates':'ends','terminated':'ended',
+  'perceive':'see','perceives':'sees','perceived':'saw',
+  'comprehend':'understand','comprehends':'understands',
+  'request':'ask for','requests':'asks for',
+  'allow':'let','allows':'lets','allowed':'let',
+  'prevent':'stop','prevents':'stops','prevented':'stopped',
+  'reduce':'cut down','reduces':'cuts down',
+  'expand':'grow','expands':'grows','expanded':'grew',
+  'combine':'mix','combines':'mixes','combined':'mixed',
+  'organize':'sort','organizes':'sorts','organized':'sorted',
+  'design':'make','designs':'makes','designed':'made',
+  'produce':'make','produces':'makes','produced':'made',
+  'discover':'find','discovers':'finds','discovered':'found',
+  'communicate':'talk about',
+};
+
+const _BASE_PHRASES = [
+  ['in order to','to'],
+  ['due to the fact that','because'],
+  ['at this point in time','now'],
+  ['in the event that','if'],
+  ['with regard to','about'],
+  ['in terms of','about'],
+  ['as a result of','because of'],
+  ['in spite of','even though'],
+  ['with respect to','about'],
+  ['on the basis of','based on'],
+  ['at the present time','now'],
+  ['a large number of','many'],
+  ['a significant number of','many'],
+  ['the majority of','most'],
+  ['in conjunction with','with'],
+  ['in addition to','plus'],
+  ['as well as','and'],
+  ['it is important to note that','note that'],
+  ['it is worth noting that','note that'],
+  ['it can be seen that','we can see that'],
+  ['in conclusion','to sum up'],
+  ['in summary','to sum up'],
+  ['to summarize','to sum up'],
+  ['plays a crucial role','is really important'],
+  ['plays a key role','is important'],
+  ['serves as a testament','shows'],
+  ['in today\'s world','today'],
+  ['in today\'s society','today'],
+];
+
+function adjustLevelOutput(text, level) {
+  // Strip dashes first
   text = text.replace(/\s*—\s*/g, ', ');
   text = text.replace(/\s*–\s*/g, ', ');
   text = text.replace(/ - /g, ', ');
 
-  const swaps = {
-    'utilize': 'use', 'utilizes': 'uses', 'utilized': 'used', 'utilizing': 'using',
-    'assist': 'help', 'assists': 'helps', 'assisted': 'helped', 'assisting': 'helping',
-    'individuals': 'people', 'individual': 'person',
-    'various': 'different', 'numerous': 'many',
-    'ensure': 'make sure', 'ensures': 'makes sure', 'ensured': 'made sure',
-    'obtain': 'get', 'obtains': 'gets', 'obtained': 'got',
-    'regarding': 'about',
-    'hence': 'so', 'thus': 'so', 'furthermore': 'also', 'moreover': 'also',
-    'nevertheless': 'but', 'nonetheless': 'but',
-    'whilst': 'while', 'purchase': 'buy', 'purchases': 'buys', 'purchased': 'bought',
-    'commence': 'start', 'commences': 'starts', 'commenced': 'started',
-    'leverage': 'use', 'leverages': 'uses', 'leveraged': 'used', 'leveraging': 'using',
-    'facilitate': 'help', 'facilitates': 'helps', 'facilitated': 'helped',
-    'constitute': 'make up', 'constitutes': 'makes up',
-    'mitigate': 'reduce', 'mitigates': 'reduces', 'mitigated': 'reduced',
-    'foster': 'build', 'fosters': 'builds', 'fostered': 'built',
-    'harness': 'use', 'harnessing': 'using',
-    'empower': 'help', 'empowers': 'helps',
-    'encompass': 'include', 'encompasses': 'includes',
-    'crucial': 'really important', 'pivotal': 'key', 'paramount': 'most important',
-    'meticulous': 'careful', 'meticulously': 'carefully',
-    'comprehensive': 'complete', 'robust': 'strong', 'versatile': 'flexible',
-    'seamless': 'smooth', 'seamlessly': 'smoothly',
-    'transformative': 'life-changing', 'methodology': 'method',
-    'realm': 'area', 'ultimately': 'in the end',
-    'fundamental': 'basic', 'intricate': 'complex',
-    'bolster': 'strengthen', 'bolsters': 'strengthens',
-  };
+  // Apply phrases (multi-word, do before single-word swaps)
+  text = _applyPhrases(text, _BASE_PHRASES);
 
-  for (const [ai, human] of Object.entries(swaps)) {
-    const re = new RegExp(`\\b${ai}\\b`, 'gi');
-    text = text.replace(re, m =>
-      m[0] === m[0].toUpperCase() && m[0] !== m[0].toLowerCase()
-        ? human.charAt(0).toUpperCase() + human.slice(1)
-        : human
-    );
+  // Build word swap dict for this level
+  let swaps = { ..._BASE_SWAPS };
+  if (level === 'easy' || level === 'medium') Object.assign(swaps, _STUDENT_SWAPS);
+  if (level === 'easy') Object.assign(swaps, _BEGINNER_SWAPS);
+
+  text = _applySwaps(text, swaps);
+
+  // Punctuation rules by level
+  if (level === 'easy') {
+    text = text.replace(/, (but|and|or|so)\b/gi, (m, w) => Math.random() < 0.70 ? ' ' + w : m);
+    text = _removeApostrophes(text, 0.50);
+    text = _addWrongPlurals(text, 0.30);
+  } else if (level === 'medium') {
+    text = text.replace(/, (but)\b/gi, (m, w) => Math.random() < 0.30 ? ' ' + w : m);
+    text = _removeApostrophes(text, 0.20);
+  } else if (level === 'hard') {
+    text = _removeApostrophes(text, 0.08);
   }
+
   return text;
+}
+
+// Keep postProcessOutput as a thin wrapper for anything still calling it
+function postProcessOutput(text) {
+  return adjustLevelOutput(text, selectedLevel || 'medium');
+}
+
+// ─── Adjust Level (main action, client-side) ──────────────────
+
+async function adjustLevel() {
+  const text = inputText.value.trim();
+  if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
+
+  setLoading(true, 'Adjusting level…');
+  await new Promise(r => setTimeout(r, 500));
+
+  const result = adjustLevelOutput(text, selectedLevel);
+
+  sessionStorage.setItem('bipass_result', result);
+  sessionStorage.setItem('bipass_mode', 'humanize');
+  setLoading(false);
+  window.location.href = 'editor.html';
 }
 
 // ─── State ────────────────────────────────────────────────────
@@ -783,10 +979,7 @@ async function init() {
   const autostart = sessionStorage.getItem('bipass_autostart');
   if (autostart) {
     sessionStorage.removeItem('bipass_autostart');
-    setTimeout(() => {
-      if (autostart === 'humanize') humanize();
-      else if (autostart === 'generate') generateNew();
-    }, 50);
+    setTimeout(() => { adjustLevel(); }, 50);
   }
 
   // Refresh plan status when user returns to tab
@@ -893,19 +1086,6 @@ function bindEvents() {
   inputText.addEventListener('input', updateStats);
   inputText.addEventListener('paste', () => setTimeout(updateStats, 0));
 
-  promptText.addEventListener('input', () => {
-    const w = countWords(promptText.value);
-    promptWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
-    updateCostPreview('generate-cost', estimateGenerateCost(promptText.value));
-  });
-  promptText.addEventListener('paste', () => {
-    setTimeout(() => {
-      const w = countWords(promptText.value);
-      promptWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
-      updateCostPreview('generate-cost', estimateGenerateCost(promptText.value));
-    }, 0);
-  });
-
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
@@ -928,8 +1108,7 @@ function bindEvents() {
     });
   });
 
-  generateBtn.addEventListener('click', generateNew);
-  humanizeBtn.addEventListener('click', humanize);
+  humanizeBtn.addEventListener('click', adjustLevel);
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
@@ -1014,28 +1193,6 @@ function bindEvents() {
     }
   });
 
-  // ── Mode tab switching ──────────────────────────
-  document.querySelectorAll('.mode-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = btn.dataset.mode;
-      document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('mode-tab-active'));
-      btn.classList.add('mode-tab-active');
-      const genSection = document.getElementById('generate-section');
-      const humSection = document.getElementById('humanize-section');
-      const levelHeading = document.getElementById('level-heading');
-      if (mode === 'generate') {
-        genSection.classList.remove('mode-hidden');
-        humSection.classList.add('mode-hidden');
-        if (levelHeading) levelHeading.textContent = 'Generate Level';
-      } else {
-        humSection.classList.remove('mode-hidden');
-        genSection.classList.add('mode-hidden');
-        if (levelHeading) levelHeading.textContent = 'Humanize Level';
-      }
-    });
-  });
-  // Start with humanize hidden
-  document.getElementById('humanize-section').classList.add('mode-hidden');
 }
 
 // ─── Level selection ──────────────────────────────────────────
@@ -1892,7 +2049,7 @@ function showCreditWarning(msg) {
 }
 
 function setLoading(on, text) {
-  generateBtn.disabled = on;
+  if (generateBtn) generateBtn.disabled = on;
   humanizeBtn.disabled = on;
 
   if (on) {

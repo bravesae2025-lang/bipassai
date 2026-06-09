@@ -156,98 +156,9 @@
       <!-- ── 01 GENERATE / 02 HUMANIZE ────────────────────── -->
       <section class="col col-main" data-reveal>
 
-        <div class="mode-tabs" id="mode-tabs">
-          <button class="mode-tab mode-tab-active" id="tab-generate" data-mode="generate">Generate</button>
-          <button class="mode-tab" id="tab-humanize" data-mode="humanize">Humanize</button>
-        </div>
-
-        <div id="generate-section">
-          <div class="col-label">
-            <span class="col-num">01</span>
-            <span class="col-name">Generate</span>
-            <span class="box-wc" id="prompt-wc">0 words</span>
-          </div>
-
-          <div class="file-upload-row">
-            <label class="file-upload-btn" for="file-upload-input-generate">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload file
-            </label>
-            <input id="file-upload-input-generate" type="file" accept=".pdf,.docx,.txt" style="display:none">
-            <span class="file-upload-hint">PDF, DOCX or TXT</span>
-            <span class="file-upload-name hidden" id="file-upload-name-generate"></span>
-          </div>
-
-          <div class="textarea-wrap">
-            <textarea
-              id="prompt-text"
-              placeholder="What do you want written? e.g. 'Write a 300 word essay about climate change'"
-              spellcheck="false"
-            ></textarea>
-            <div class="textarea-corner tl"></div>
-            <div class="textarea-corner tr"></div>
-            <div class="textarea-corner bl"></div>
-            <div class="textarea-corner br"></div>
-          </div>
-
-          <div class="cost-preview hidden" id="generate-cost" aria-live="polite"></div>
-
-          <div class="writing-type-wrap" id="writing-type-wrap">
-            <span class="writing-type-label">Writing type <span class="label-optional">· optional</span></span>
-            <div class="writing-type-pills">
-              <button class="wt-pill" type="button" data-type="essay">Essay</button>
-              <button class="wt-pill" type="button" data-type="email">Email</button>
-              <button class="wt-pill" type="button" data-type="story">Story</button>
-              <button class="wt-pill" type="button" data-type="casual">Casual</button>
-              <button class="wt-pill" type="button" data-type="business">Business</button>
-              <button class="wt-pill" type="button" data-type="discussion">Discussion</button>
-            </div>
-          </div>
-
-          <div class="quick-starts" id="quick-starts">
-            <span class="quick-starts-label">Quick start <span class="label-optional">· optional</span></span>
-            <div class="quick-start-pills">
-              <button class="qs-pill" type="button" data-prompt="Write a compelling essay introduction about ">Essay intro</button>
-              <button class="qs-pill" type="button" data-prompt="Write a professional email in response to ">Email reply</button>
-              <button class="qs-pill" type="button" data-prompt="Write a persuasive essay arguing that ">Persuasive essay</button>
-              <button class="qs-pill" type="button" data-prompt="Write concise study notes on ">Study notes</button>
-              <button class="qs-pill" type="button" data-prompt="Write a discussion post responding to the prompt: ">Discussion post</button>
-              <button class="qs-pill" type="button" data-prompt="Write a conclusion paragraph for an essay about ">Conclusion</button>
-            </div>
-          </div>
-
-          <p class="generate-options-hint">These are optional — just type your prompt and hit Generate. Selecting them usually gives better results.</p>
-
-          <div class="model-toggle-wrap" id="model-toggle-generate">
-            <span class="model-toggle-label">Model</span>
-            <div class="model-toggle">
-              <button class="model-btn model-btn-active" data-model="gemini">⚡ Gemini</button>
-              <button class="model-btn" data-model="claude">✦ Claude</button>
-            </div>
-          </div>
-
-          <button id="generate-btn" class="btn-generate" aria-label="Generate text">
-            <span class="btn-content">
-              <span id="generate-label">Generate</span>
-              <span id="generate-loader" class="spinner hidden"></span>
-            </span>
-            <span class="btn-arrow" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </span>
-            <span class="btn-sweep" aria-hidden="true"></span>
-          </button>
-        </div>
-
-        <div class="input-divider" id="divider" aria-hidden="true" style="display:none">
-          <span>or paste existing AI text</span>
-        </div>
-
         <div id="humanize-section">
           <div class="col-label">
-            <span class="col-num">02</span>
-            <span class="col-name">Humanize</span>
+            <span class="col-name">Level Adjust</span>
             <span class="box-wc" id="humanize-wc">0 words</span>
           </div>
 
@@ -264,7 +175,7 @@
           <div class="textarea-wrap">
             <textarea
               id="input-text"
-              placeholder="Paste your AI-generated text here…"
+              placeholder="Paste your text here — AI-generated or your own…"
               spellcheck="false"
             ></textarea>
             <div class="textarea-corner tl"></div>
@@ -273,37 +184,27 @@
             <div class="textarea-corner br"></div>
           </div>
 
-          <div class="cost-preview hidden" id="humanize-cost" aria-live="polite"></div>
-
           <div class="humanize-hints">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
-              <span class="h-hint-title">AI Patterns</span>
-              <span class="h-hint-sub">Strips GPT-style phrasing</span>
+              <span class="h-hint-title">Word Swap</span>
+              <span class="h-hint-sub">Replaces AI vocabulary</span>
             </div>
             <div class="h-hint">
               <span class="h-hint-icon">≈</span>
               <span class="h-hint-title">Your Meaning</span>
-              <span class="h-hint-sub">Keeps your original intent</span>
+              <span class="h-hint-sub">Keeps original intent</span>
             </div>
             <div class="h-hint">
               <span class="h-hint-icon">✓</span>
-              <span class="h-hint-title">Human Score</span>
-              <span class="h-hint-sub">Passes AI detectors</span>
+              <span class="h-hint-title">Level Match</span>
+              <span class="h-hint-sub">Sounds like your level</span>
             </div>
           </div>
 
-          <div class="model-toggle-wrap" id="model-toggle-humanize">
-            <span class="model-toggle-label">Model</span>
-            <div class="model-toggle">
-              <button class="model-btn model-btn-active" data-model="gemini">⚡ Gemini</button>
-              <button class="model-btn" data-model="claude">✦ Claude</button>
-            </div>
-          </div>
-
-          <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Humanize text">
+          <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Adjust level">
             <span class="btn-content">
-              <span id="humanize-label">Humanize</span>
+              <span id="humanize-label">Adjust Level</span>
               <span id="humanize-loader" class="spinner hidden"></span>
             </span>
             <span class="btn-arrow" aria-hidden="true">
@@ -325,14 +226,14 @@
         <section class="col col-customize" data-reveal data-reveal-delay="1">
 
           <div class="control-block">
-            <div class="control-head" id="level-heading">Humanize Level</div>
+            <div class="control-head" id="level-heading">Adjust Level</div>
             <div class="level-presets-label">Presets</div>
             <div class="level-track-wrap">
               <div class="level-track" role="group" aria-label="Level">
                 <div class="level-glider" id="level-glider"></div>
                 <button class="level-btn active" data-level="easy">Beginner</button>
                 <button class="level-btn" data-level="medium">Student</button>
-                <button class="level-btn" data-level="hard">Expert</button>
+                <button class="level-btn" data-level="hard">Academic</button>
               </div>
               <button class="level-btn level-btn-custom" data-level="customize">Custom</button>
             </div>

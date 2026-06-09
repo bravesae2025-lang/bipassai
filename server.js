@@ -27,10 +27,11 @@ async function callClaude(prompt, stream = false) {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model:      CLAUDE_MODEL,
-      max_tokens: 8192,
+      model:       CLAUDE_MODEL,
+      max_tokens:  8192,
+      temperature: 1.0,
       stream,
-      messages:   [{ role: 'user', content: prompt }],
+      messages:    [{ role: 'user', content: prompt }],
     }),
   });
 }
@@ -442,7 +443,7 @@ app.post('/api/humanize', async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
+          generationConfig: { temperature: 2.0, topP: 0.95, maxOutputTokens: 8192 },
         }),
       });
       if (!geminiRes.ok) {
@@ -454,6 +455,24 @@ app.post('/api/humanize', async (req, res) => {
     }
 
     if (!result) return res.status(500).json({ error: 'No output from model' });
+
+    // ── Second pass: perplexity boost (replace predictable words) ─────────
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        const boostPrompt = `Take the text below and go through each sentence. For each predictable "safe" word choice, replace it with a less expected but still fitting alternative. Do NOT change sentence structure. Do NOT change meaning. Do NOT add words. Just swap words that feel like the obvious safe choice with something slightly surprising or concrete. Prefer specific over general, physical over abstract, action verbs over state verbs.
+
+Return only the final text, no explanation.
+
+TEXT:
+${result}`;
+        const boostedRes = await callClaude(boostPrompt);
+        if (boostedRes.ok) {
+          const boostedData = await boostedRes.json();
+          const boostedText = boostedData?.content?.[0]?.text;
+          if (boostedText) result = boostedText;
+        }
+      } catch {}
+    }
 
     // ── Deduct credits (only on success, only if client didn't cancel) ───
     const resultText  = result.trim();
@@ -565,7 +584,7 @@ app.post('/api/stream', async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 8192 },
+          generationConfig: { temperature: 2.0, topP: 0.95, maxOutputTokens: 8192 },
         }),
       });
 

@@ -122,6 +122,21 @@ STRUCTURE:
 - No conclusion or summary — just stop
 - Paragraphs different lengths, not symmetrical
 
+BURSTINESS — what GPTZero actually measures, this is critical:
+Every ~150 words you MUST do this: place a dead-simple sentence (under 6 words, just subject+verb) RIGHT NEXT TO a sentence that runs 50+ words piling clause on clause with "and", "because", "so", "but". The contrast must be jarring. Example: "It didn't work. I remember thinking at the time that maybe if we had actually paid attention earlier in the semester and done the readings instead of just skimming them the night before it all would've gone differently, but honestly who knows." Consistent complexity = instant AI detection. Variance is the human signal.
+
+ONE HYPER-SPECIFIC DETAIL:
+Include one detail that sounds genuinely personal: a real-sounding name (not "John"), a specific number, a place, a time. "my teacher Mr. Peterson" not "my teacher". "like 17 of us" not "most of us". "last Tuesday" not "recently". Specific details spike GPTZero's perplexity score because they're rare in AI writing patterns.
+
+WORD REPETITION:
+Pick one content word from the topic and use it 4-5 times throughout — don't replace it with synonyms. Students repeat words they like without noticing.
+
+ONE OFF-TOPIC DRIFT:
+Somewhere in the middle, 1-2 sentences drift away from the main point — a side thought, a memory, something that just came to mind — then return to the topic. Real students' minds wander. AI never drifts.
+
+ONE REGISTER DROP:
+Once, switch from your normal writing level to noticeably more casual for 1-2 sentences, then come back. Example: going from "this presents a challenge" to "honestly I still dont get why anyone thought this was a good idea" then back to normal.
+
 BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 
 No passive voice. No perfect punctuation. No equal sentence energy.
@@ -309,6 +324,21 @@ STRUCTURE:
 - Don't start paragraphs with a topic sentence — just jump in
 - No conclusion or summary — just stop
 - Paragraphs different lengths
+
+BURSTINESS — what GPTZero actually measures, this is critical:
+Every ~150 words you MUST do this: place a dead-simple sentence (under 6 words, just subject+verb) RIGHT NEXT TO a sentence that runs 50+ words piling clause on clause with "and", "because", "so", "but". The contrast must be jarring. Example: "It didn't work. I remember thinking at the time that maybe if we had actually paid attention earlier in the semester and done the readings instead of just skimming them the night before it all would've gone differently, but honestly who knows." Consistent complexity = instant AI detection. Variance is the human signal.
+
+ONE HYPER-SPECIFIC DETAIL:
+Include one detail that sounds genuinely personal: a real-sounding name (not "John"), a specific number, a place, a time. "my teacher Mr. Peterson" not "my teacher". "like 17 of us" not "most of us". "last Tuesday" not "recently". Specific details spike GPTZero's perplexity score because they're rare in AI writing patterns.
+
+WORD REPETITION:
+Pick one content word from the topic and use it 4-5 times throughout — don't replace it with synonyms. Students repeat words they like without noticing.
+
+ONE OFF-TOPIC DRIFT:
+Somewhere in the middle, 1-2 sentences drift away from the main point — a side thought, a memory, something that just came to mind — then return to the topic. Real students' minds wander. AI never drifts.
+
+ONE REGISTER DROP:
+Once, switch from your normal writing level to noticeably more casual for 1-2 sentences, then come back. Example: going from "this presents a challenge" to "honestly I still dont get why anyone thought this was a good idea" then back to normal.
 
 BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
 

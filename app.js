@@ -1762,6 +1762,9 @@ async function callAPIStream(prompt) {
         if (json.chunk) {
           accumulated += json.chunk;
         }
+        if (json.polishing) {
+          setLoading(true, 'Polishing to reduce AI detection…');
+        }
         if (json.done) {
           finalResult = json.result;
           creditsData = { creditsUsed: json.creditsUsed, creditsRemaining: json.creditsRemaining };

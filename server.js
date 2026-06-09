@@ -456,20 +456,24 @@ app.post('/api/humanize', async (req, res) => {
 
     if (!result) return res.status(500).json({ error: 'No output from model' });
 
-    // ── Second pass: perplexity boost (replace predictable words) ─────────
+    // ── Self-detection pass: find + rewrite most AI-sounding sentences ───
     if (process.env.ANTHROPIC_API_KEY) {
       try {
-        const boostPrompt = `Take the text below and go through each sentence. For each predictable "safe" word choice, replace it with a less expected but still fitting alternative. Do NOT change sentence structure. Do NOT change meaning. Do NOT add words. Just swap words that feel like the obvious safe choice with something slightly surprising or concrete. Prefer specific over general, physical over abstract, action verbs over state verbs.
+        const detectPrompt = `You are reviewing this text to help it pass AI detectors like GPTZero.
 
-Return only the final text, no explanation.
+Find the 8-10 sentences that sound most AI-generated: overly formal phrasing, predictable structure, academic vocabulary, generic statements, or sentences that follow typical AI patterns.
+
+Rewrite ONLY those sentences to sound more natural and human: casual phrasing, specific concrete details, unexpected word choices, natural speech patterns. Keep the meaning the same.
+
+Return the COMPLETE text with those sentences replaced. Do not change anything else. Return only the final text, no explanation.
 
 TEXT:
 ${result}`;
-        const boostedRes = await callClaude(boostPrompt);
-        if (boostedRes.ok) {
-          const boostedData = await boostedRes.json();
-          const boostedText = boostedData?.content?.[0]?.text;
-          if (boostedText) result = boostedText;
+        const detectRes = await callClaude(detectPrompt);
+        if (detectRes.ok) {
+          const detectData = await detectRes.json();
+          const improved = detectData?.content?.[0]?.text?.trim();
+          if (improved) result = improved;
         }
       } catch {}
     }
@@ -626,7 +630,32 @@ app.post('/api/stream', async (req, res) => {
     }
 
     if (!cancelled && fullText) {
-      const resultText  = fullText.trim();
+      // Signal client to update loading message
+      res.write(`data: ${JSON.stringify({ polishing: true })}\n\n`);
+
+      // Self-detection pass: find + rewrite the most AI-sounding sentences
+      let resultText = fullText.trim();
+      if (process.env.ANTHROPIC_API_KEY) {
+        try {
+          const detectPrompt = `You are reviewing this text to help it pass AI detectors like GPTZero.
+
+Find the 8-10 sentences that sound most AI-generated: overly formal phrasing, predictable structure, academic vocabulary, generic statements, or sentences that follow typical AI patterns.
+
+Rewrite ONLY those sentences to sound more natural and human: casual phrasing, specific concrete details, unexpected word choices, natural speech patterns. Keep the meaning the same.
+
+Return the COMPLETE text with those sentences replaced. Do not change anything else. Return only the final text, no explanation.
+
+TEXT:
+${resultText}`;
+          const detectRes = await callClaude(detectPrompt);
+          if (detectRes.ok) {
+            const detectData = await detectRes.json();
+            const improved = detectData?.content?.[0]?.text?.trim();
+            if (improved) resultText = improved;
+          }
+        } catch {}
+      }
+
       const creditsUsed = resultText.length;
       const newCredits  = Math.max(0, credits - creditsUsed);
       await updateUserCredits(user.id, newCredits);

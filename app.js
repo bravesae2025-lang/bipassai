@@ -662,31 +662,57 @@ const _BASE_PHRASES = [
 ];
 
 function _buildDiffHtml(original, result) {
-  const origTokens   = original.split(/(\s+)/);
-  const resultTokens = result.split(/(\s+)/);
-  let html = '';
-  for (let i = 0; i < resultTokens.length; i++) {
-    const tok = resultTokens[i];
+  const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
+  // Split into alternating [word, whitespace, word, ...] tokens
+  const allToks  = s => s.match(/\S+|\s+/g) || [];
+  const wordOnly = toks => toks.filter(t => !/^\s+$/.test(t));
+
+  const rToks = allToks(result);
+  const O = wordOnly(allToks(original));
+  const R = wordOnly(rToks);
+
+  // LCS DP (O(m*n)) — fine for typical essay lengths
+  const m = O.length, n = R.length;
+  const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+  for (let i = m - 1; i >= 0; i--)
+    for (let j = n - 1; j >= 0; j--)
+      dp[i][j] = norm(O[i]) === norm(R[j])
+        ? 1 + dp[i + 1][j + 1]
+        : Math.max(dp[i + 1][j], dp[i][j + 1]);
+
+  // Walk back: collect which result-word indices are NOT in LCS (= changed)
+  const changed = new Set();
+  let i = 0, j = 0;
+  while (i < m && j < n) {
+    if (norm(O[i]) === norm(R[j])) { i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else { changed.add(j); j++; }
+  }
+  while (j < n) { changed.add(j++); }
+
+  // Build HTML from result tokens
+  let wordIdx = 0, html = '';
+  for (const tok of rToks) {
     if (/^\s+$/.test(tok)) { html += tok; continue; }
-    const safe = tok.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const origTok = (origTokens[i] || '').replace(/[.,!?;:'"()\[\]]/g,'').toLowerCase();
-    const curTok  = tok.replace(/[.,!?;:'"()\[\]]/g,'').toLowerCase();
-    html += origTok !== curTok
-      ? `<mark class="word-changed">${safe}</mark>`
-      : safe;
+    const safe = tok.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    html += changed.has(wordIdx) ? `<mark class="word-changed">${safe}</mark>` : safe;
+    wordIdx++;
   }
   return html.replace(/\n/g, '<br>\n');
 }
 
 function _countChanges(original, result) {
-  const o = original.split(/\s+/);
-  const r = result.split(/\s+/);
-  let n = 0;
-  const len = Math.min(o.length, r.length);
-  for (let i = 0; i < len; i++) {
-    if (o[i].toLowerCase() !== r[i].toLowerCase()) n++;
-  }
-  return n + Math.abs(o.length - r.length);
+  const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
+  const words = s => (s.match(/\S+/g) || []);
+  const O = words(original), R = words(result);
+  const m = O.length, n = R.length;
+  const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+  for (let i = m - 1; i >= 0; i--)
+    for (let j = n - 1; j >= 0; j--)
+      dp[i][j] = norm(O[i]) === norm(R[j])
+        ? 1 + dp[i + 1][j + 1]
+        : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  return (m + n) - 2 * dp[0][0];
 }
 
 function _buildChangesHtml(original, level) {

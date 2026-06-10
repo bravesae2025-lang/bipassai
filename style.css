@@ -8790,3 +8790,73 @@ body.noir-plans { background: #0a0a0a; }
     rgba(255,255,255,0.08), transparent 65%);
 }
 .login-brand .login-brand-headline { font-size: clamp(48px, 6.5vw, 100px); }
+
+/* ═══ NOIR SETTINGS / HISTORY / PRIVACY ═══ */
+body.noir-settings, body.noir-hist, body.noir-priv { background: #0a0a0a; }
+
+.noir-settings .navbar.nav-at-top,
+.noir-hist .navbar.nav-at-top,
+.noir-priv .navbar.nav-at-top {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.noir-settings .settings-main,
+.noir-hist .history-main,
+.noir-priv .privacy-main {
+  position: relative;
+  isolation: isolate;
+}
+.noir-settings .settings-main::before,
+.noir-hist .history-main::before,
+.noir-priv .privacy-main::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.noir-settings .settings-main[data-spotlight]::after,
+.noir-hist .history-main[data-spotlight]::after,
+.noir-priv .privacy-main[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(600px circle at var(--sx, 50%) var(--sy, 25%),
+    rgba(255,255,255,0.06), transparent 65%);
+}
+
+/* Settings: white section cards on the black deck */
+.noir-settings .settings-title { color: #fff; }
+.noir-settings .settings-sub { color: rgba(255,255,255,0.5); }
+.noir-settings .settings-section {
+  background: #fff;
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+/* History: glowing title, white item cards */
+.noir-hist .history-title { color: #fff; }
+.noir-hist .history-sub { color: rgba(255,255,255,0.5); }
+.noir-hist .history-item {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.noir-hist .history-item:hover {
+  box-shadow: 0 0 50px rgba(255,255,255,0.07), 0 16px 48px rgba(0,0,0,0.6);
+}
+.noir-hist .history-search-wrap { border-color: rgba(255,255,255,0.15); }
+.noir-hist .history-mode-pills { border-color: rgba(255,255,255,0.15); }
+.noir-hist .history-empty-search { color: rgba(255,255,255,0.5); }
+
+/* Privacy: editorial white-on-black document */
+.noir-priv .privacy-title { color: #fff; font-size: clamp(52px, 10vw, 96px); }
+.noir-priv .privacy-date { color: rgba(255,255,255,0.4); }
+.noir-priv .privacy-section h2 { color: #fff; }
+.noir-priv .privacy-section p,
+.noir-priv .privacy-section li { color: rgba(255,255,255,0.55); }
+.noir-priv .privacy-section a { color: #fff; }

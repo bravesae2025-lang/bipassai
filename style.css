@@ -8113,3 +8113,47 @@ mark.word-changed {
   transition: transform 0.25s var(--ease-out);
 }
 .hero-stat:hover .hero-stat-val { transform: translateY(-2px); }
+
+/* ── How It Works: card glow, slower entrance, live connectors ──
+   Step cards keep their snappy .22s hover transition, so their
+   entrance uses an animation (not the [data-anim] transition). */
+.hiw-step[data-anim].revealed {
+  animation: hiw-reveal 0.8s var(--ease-out) backwards;
+}
+.hiw-step[data-anim-delay="2"].revealed { animation-delay: 160ms; }
+.hiw-step[data-anim-delay="4"].revealed { animation-delay: 320ms; }
+
+@keyframes hiw-reveal {
+  from { opacity: 0; transform: translateY(44px); }
+}
+
+.hiw-step-dark:hover { transform: translateY(-4px) scale(1.01); }
+
+/* Connector arrows: gentle forward nudge once revealed */
+.hiw-connector { color: var(--g300); }
+
+.hiw-connector.revealed {
+  animation: connector-nudge 2.2s ease-in-out 0.8s infinite;
+}
+
+@keyframes connector-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(6px); }
+}
+
+@media (max-width: 900px) {
+  /* stacked layout: keep the 90° rotation, fade-only reveal, no nudge */
+  .hiw-connector[data-anim],
+  .hiw-connector[data-anim].revealed {
+    transform: rotate(90deg);
+    animation: none;
+  }
+}
+
+.hiw-footer-card {
+  transition: transform 0.25s var(--ease-out), border-color 0.25s ease;
+}
+.hiw-footer-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--g300);
+}

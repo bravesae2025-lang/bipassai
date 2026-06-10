@@ -265,6 +265,11 @@ function setupViewToggle(result, mode) {
       btnOrig.classList.remove('active');
       if (aiBox) aiBox.style.display = 'none';
     });
+
+    // Default to changes view when diff HTML is available
+    if (hasHtml) {
+      btnChanges.click();
+    }
   }
 }
 

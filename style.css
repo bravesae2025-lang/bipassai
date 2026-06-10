@@ -8689,3 +8689,104 @@ body.noir-tool { background: #0a0a0a; }
   background: rgba(255,255,255,0.85);
   border-color: rgba(255,255,255,0.85);
 }
+
+.noir-tool .editor-btn-push {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+.noir-tool .editor-btn-push:hover:not(:disabled) { border-color: #fff; }
+.noir-tool .editor-btn-regen {
+  color: rgba(255,255,255,0.6);
+  border-color: rgba(255,255,255,0.2);
+}
+.noir-tool .editor-btn-regen:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+
+/* ═══ NOIR PLANS — full dark storefront ═══ */
+body.noir-plans { background: #0a0a0a; }
+
+.noir-plans .navbar.nav-at-top {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.noir-plans .plans-main {
+  position: relative;
+  isolation: isolate;
+  max-width: none;
+}
+.noir-plans .plans-wrap,
+.noir-plans .plans-head,
+.noir-plans .plans-trust,
+.noir-plans .pricing-grid,
+.noir-plans .credits-section { max-width: 1200px; margin-left: auto; margin-right: auto; }
+.noir-plans .plans-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.noir-plans .plans-main[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(700px circle at var(--sx, 50%) var(--sy, 25%),
+    rgba(255,255,255,0.07), transparent 65%);
+}
+
+.noir-plans .plans-title { color: #fff; font-size: clamp(52px, 11vw, 120px); }
+.noir-plans .plans-sub { color: rgba(255,255,255,0.5); }
+.noir-plans .plans-current-plan { color: rgba(255,255,255,0.6); }
+.noir-plans .plans-trust-item { color: rgba(255,255,255,0.6); }
+.noir-plans .plans-trust-sep { color: rgba(255,255,255,0.2); }
+
+.noir-plans .pricing-card {
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.noir-plans .pricing-card.glow-rim:hover {
+  box-shadow: 0 0 60px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6);
+}
+.noir-plans .pricing-card-featured::after {
+  background: radial-gradient(60% 60% at 50% 45%,
+    rgba(255,255,255,0.16), transparent 70%);
+}
+
+.noir-plans .credits-title { color: #fff; }
+.noir-plans .credits-sub { color: rgba(255,255,255,0.5); }
+.noir-plans .credit-card {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.noir-plans .credit-card-best {
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 0 50px rgba(255,255,255,0.08), 0 16px 48px rgba(0,0,0,0.6);
+}
+
+/* ═══ NOIR HOWTO — black hero card ═══ */
+.howto-head.noir-panel {
+  border-radius: 28px;
+  padding: clamp(64px, 10vw, 110px) 24px;
+  margin-bottom: 80px;
+}
+.howto-head.noir-panel .howto-title {
+  color: #fff;
+  font-size: clamp(60px, 12vw, 140px);
+}
+.howto-head.noir-panel .howto-eyebrow { color: rgba(255,255,255,0.55); }
+.howto-head.noir-panel .howto-sub { color: rgba(255,255,255,0.5); }
+
+/* ═══ NOIR LOGIN — spotlight brand panel ═══ */
+.login-brand[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(560px circle at var(--sx, 30%) var(--sy, 60%),
+    rgba(255,255,255,0.08), transparent 65%);
+}
+.login-brand .login-brand-headline { font-size: clamp(48px, 6.5vw, 100px); }

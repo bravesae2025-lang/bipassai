@@ -26,7 +26,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="style.css?v=5">
 </head>
-<body class="editor-page">
+<body class="editor-page noir-plans">
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -70,7 +70,7 @@
     </div>
   </aside>
 
-  <main class="plans-main">
+  <main class="plans-main" data-spotlight>
     <div class="plans-wrap">
 
       <div class="plans-head">
@@ -97,7 +97,7 @@
 
       <div class="pricing-grid">
 
-        <div class="pricing-card pricing-card-day glow-rim" data-anim="scale-up">
+        <div class="pricing-card pricing-card-day glow-rim" data-tilt="4" data-anim="scale-up">
           <div class="pricing-card-top">
             <div class="pricing-plan">Day Pass</div>
             <div class="pricing-price">
@@ -113,10 +113,10 @@
             <li>Cloud storage for texts</li>
             <li>Good for a single assignment</li>
           </ul>
-          <button class="pricing-btn pricing-btn-featured" data-plan="day" onclick="activatePlan('day')">Get Day Pass</button>
+          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="day" onclick="activatePlan('day')">Get Day Pass</button>
         </div>
 
-        <div class="pricing-card pricing-card-weekly glow-rim" data-anim="scale-up" data-anim-delay="1">
+        <div class="pricing-card pricing-card-weekly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="1">
           <div class="pricing-card-top">
             <div class="pricing-plan">Weekly Pass</div>
             <div class="pricing-price">
@@ -132,10 +132,10 @@
             <li>Cloud storage for texts</li>
             <li>Great for exam week</li>
           </ul>
-          <button class="pricing-btn pricing-btn-featured" data-plan="weekly" onclick="activatePlan('weekly')">Get Weekly</button>
+          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="weekly" onclick="activatePlan('weekly')">Get Weekly</button>
         </div>
 
-        <div class="pricing-card pricing-card-featured glow-rim" data-anim="scale-up" data-anim-delay="2">
+        <div class="pricing-card pricing-card-featured glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="2">
           <div class="pricing-badge-top">Best Value</div>
           <div class="pricing-card-top">
             <div class="pricing-plan">Annual Pass</div>
@@ -152,10 +152,10 @@
             <li>Priority access to new features</li>
             <li>Just $0.38/day — 62% cheaper than daily passes</li>
           </ul>
-          <button class="pricing-btn pricing-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Get Annual</button>
+          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Get Annual</button>
         </div>
 
-        <div class="pricing-card pricing-card-monthly glow-rim" data-anim="scale-up" data-anim-delay="3">
+        <div class="pricing-card pricing-card-monthly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="3">
           <div class="pricing-card-top">
             <div class="pricing-plan">Monthly Pass</div>
             <div class="pricing-price">
@@ -171,7 +171,7 @@
             <li>Cloud storage for texts</li>
             <li>Priority access to new features</li>
           </ul>
-          <button class="pricing-btn pricing-btn-featured" data-plan="monthly" onclick="activatePlan('monthly')">Get Monthly</button>
+          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="monthly" onclick="activatePlan('monthly')">Get Monthly</button>
         </div>
 
       </div>

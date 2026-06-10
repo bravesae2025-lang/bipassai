@@ -65,6 +65,13 @@
   <!-- ── HERO ──────────────────────────────────────────────── -->
   <section class="hero-section">
 
+    <!-- Drifting graphite orbs (decorative) -->
+    <div class="hero-orbs" aria-hidden="true">
+      <span class="orb orb-a" data-parallax="-0.05"></span>
+      <span class="orb orb-b" data-parallax="-0.09"></span>
+      <span class="orb orb-c" data-parallax="-0.03"></span>
+    </div>
+
     <!-- Headline + sub -->
     <div class="hero-head">
       <h2 class="hero-title">Your AI text,<br>made undetectable.</h2>
@@ -530,6 +537,8 @@
         }).join(' ');
       }).join('');
       title.innerHTML = rebuilt;
+      // After the last word lands, hand the title over to the shimmer sheen
+      setTimeout(() => title.classList.add('shimmer'), 1500);
     })();
 
     // ── Scroll reveal — Intersection Observer ─────────────────

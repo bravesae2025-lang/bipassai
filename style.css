@@ -8391,3 +8391,150 @@ mark.word-changed {
 
 /* Tilt targets need their own 3D context */
 [data-tilt] { transform-style: preserve-3d; will-change: transform; }
+
+/* ═══ NOIR HOME (index) ═══ */
+
+/* Navbar over the black hero: solid black until scrolled */
+.noir-home .navbar.nav-at-top {
+  background: #0a0a0a;
+  border-bottom-color: transparent;
+}
+.noir-home .navbar.nav-at-top .nav-logo { color: #fff; }
+.noir-home .navbar.nav-at-top .nav-link { color: rgba(255,255,255,0.62); }
+.noir-home .navbar.nav-at-top .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.noir-home .navbar.nav-at-top .nav-user-email { color: rgba(255,255,255,0.5); }
+.noir-home .navbar.nav-at-top .nav-signout { color: rgba(255,255,255,0.62); }
+.noir-home .navbar.nav-at-top .nav-cta { background: #fff; color: var(--black); }
+
+/* Ticker joins the dark masthead */
+.noir-home .ticker-wrap {
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  height: 34px;
+}
+.noir-home .ticker-track { color: rgba(255,255,255,0.55); }
+.noir-home .tick-dot { color: rgba(255,255,255,0.25); }
+
+/* ── Hero: full-bleed black, colossal type ── */
+.noir-home .hero-section {
+  max-width: none;
+  padding: clamp(72px, 10vh, 120px) 24px clamp(80px, 11vh, 130px);
+  align-items: center;
+}
+.noir-home .hero-head,
+.noir-home .typeshow,
+.noir-home .hero-stats,
+.noir-home .hero-cta {
+  width: min(840px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.noir-home .hero-title {
+  font-size: clamp(64px, 12.5vw, 184px);
+  line-height: 0.88;
+  color: #fff;
+}
+@supports (-webkit-background-clip: text) {
+  .noir-home .hero-title.shimmer {
+    background: linear-gradient(110deg, #ffffff 42%, #8a8a8a 50%, #ffffff 58%);
+    background-size: 220% 100%;
+  }
+}
+.noir-home .hero-desc { color: rgba(255,255,255,0.55); }
+
+/* Orbs glow white on black */
+.noir-home .orb-a::before {
+  background: radial-gradient(circle at 35% 35%,
+    rgba(255,255,255,0.14), rgba(255,255,255,0.06) 45%, transparent 70%);
+}
+.noir-home .orb-b::before {
+  background: radial-gradient(circle at 60% 40%,
+    rgba(255,255,255,0.11), rgba(255,255,255,0.05) 45%, transparent 70%);
+}
+.noir-home .orb-c::before {
+  background: radial-gradient(circle at 50% 45%,
+    rgba(255,255,255,0.09), rgba(255,255,255,0.04) 48%, transparent 70%);
+}
+
+/* Typeshow pops with white ambient glow */
+.noir-home .typeshow {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 0 90px rgba(255,255,255,0.10),
+    0 32px 80px rgba(0,0,0,0.6);
+}
+
+/* Stats become dark glass */
+.noir-home .hero-stats {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.14);
+}
+.noir-home .hero-stat-val { color: #fff; }
+.noir-home .hero-stat-lbl { color: rgba(255,255,255,0.42); }
+.noir-home .hero-stat-div { background: rgba(255,255,255,0.12); }
+
+/* CTA inverts: white slab, black sweep */
+.noir-home .hero-cta-btn {
+  background: #fff;
+  color: var(--black);
+  box-shadow: 0 0 50px rgba(255,255,255,0.18), 0 10px 36px rgba(0,0,0,0.5);
+}
+.noir-home .hero-cta-sweep { background: var(--black); }
+.noir-home .hero-cta-btn:hover { color: #fff; }
+.noir-home .hero-cta-sub { color: rgba(255,255,255,0.4); }
+
+/* ── Sections: enormous editorial titles + ghost numbers ── */
+.hiw-section, .faq-section { position: relative; }
+
+.noir-home .hiw-title   { font-size: clamp(44px, 7vw, 104px); }
+.noir-home .faq-title   { font-size: clamp(40px, 6vw, 88px); }
+.noir-home .about-title { font-size: clamp(36px, 5.5vw, 76px); }
+
+/* ── Pricing: full-bleed black band ── */
+.noir-home .pricing-section { max-width: none; padding: 110px 48px 120px; }
+.noir-home .pricing-grid,
+.noir-home .pricing-header { max-width: 1320px; margin-left: auto; margin-right: auto; }
+.noir-home .pricing-header { margin-bottom: 56px; }
+
+.pricing-section.noir-panel .pricing-title { color: #fff; font-size: clamp(44px, 7vw, 104px); }
+.pricing-section.noir-panel .pricing-sub { color: rgba(255,255,255,0.5); }
+.pricing-section.noir-panel .pricing-label {
+  color: rgba(255,255,255,0.6);
+  border-color: rgba(255,255,255,0.2);
+}
+.pricing-section.noir-panel .pricing-card {
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.pricing-section.noir-panel .pricing-card.glow-rim:hover {
+  box-shadow: 0 0 60px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6);
+}
+.pricing-section.noir-panel .pricing-card-featured::after {
+  background: radial-gradient(60% 60% at 50% 45%,
+    rgba(255,255,255,0.16), transparent 70%);
+}
+
+/* ── Contact: dark spotlight panel, giant email ── */
+.noir-home .contact-section { max-width: none; padding: 110px 24px; }
+.contact-section.noir-panel .contact-title { color: #fff; font-size: clamp(48px, 8vw, 120px); line-height: 0.9; }
+.contact-section.noir-panel .contact-label { color: rgba(255,255,255,0.55); }
+.contact-section.noir-panel .contact-sub { color: rgba(255,255,255,0.45); }
+.contact-section.noir-panel .contact-email {
+  color: #fff;
+  border-bottom-color: #fff;
+  font-size: clamp(18px, 2.6vw, 30px);
+}
+.contact-section.noir-panel .contact-email:hover { opacity: 0.7; }
+
+/* ── Footer: black band with giant marquee ── */
+.noir-footer-band { padding: 30px 0 0; }
+.noir-footer-band .mq-strip { padding: 10px 0 26px; }
+
+.noir-home .site-footer {
+  background: #0a0a0a;
+  color: rgba(255,255,255,0.35);
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.noir-home .site-footer a { color: rgba(255,255,255,0.5); }
+.noir-home .site-footer a:hover { color: #fff; }

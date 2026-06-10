@@ -7909,3 +7909,21 @@ mark.word-changed {
   border-color: var(--black);
   color: #fff;
 }
+
+/* ── Word-change pair: strikethrough original above yellow highlight ── */
+.word-change-pair {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: bottom;
+  margin: 0 1px;
+}
+.word-original {
+  font-size: 0.72em;
+  line-height: 1.3;
+  color: #aaa;
+  text-decoration: line-through;
+  text-decoration-color: #d44;
+  white-space: nowrap;
+  pointer-events: none;
+}

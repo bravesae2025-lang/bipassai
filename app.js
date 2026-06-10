@@ -680,22 +680,41 @@ function _buildDiffHtml(original, result) {
         ? 1 + dp[i + 1][j + 1]
         : Math.max(dp[i + 1][j], dp[i][j + 1]);
 
-  // Walk back: collect which result-word indices are NOT in LCS (= changed)
+  // Walk back: collect changed result words + which originals they replaced
   const changed = new Set();
+  const origFor = new Map();
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let pending = [];
   let i = 0, j = 0;
   while (i < m && j < n) {
-    if (norm(O[i]) === norm(R[j])) { i++; j++; }
-    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
-    else { changed.add(j); j++; }
+    if (norm(O[i]) === norm(R[j])) { i++; j++; pending = []; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { pending.push(O[i]); i++; }
+    else {
+      changed.add(j);
+      if (pending.length) { origFor.set(j, pending.map(esc).join(' ')); pending = []; }
+      j++;
+    }
   }
-  while (j < n) { changed.add(j++); }
+  let firstTrailing = true;
+  while (j < n) {
+    changed.add(j);
+    if (firstTrailing && pending.length) { origFor.set(j, pending.map(esc).join(' ')); firstTrailing = false; pending = []; }
+    j++;
+  }
 
   // Build HTML from result tokens
   let wordIdx = 0, html = '';
   for (const tok of rToks) {
     if (/^\s+$/.test(tok)) { html += tok; continue; }
     const safe = tok.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    html += changed.has(wordIdx) ? `<mark class="word-changed">${safe}</mark>` : safe;
+    if (changed.has(wordIdx)) {
+      const orig = origFor.get(wordIdx);
+      html += orig
+        ? `<span class="word-change-pair"><del class="word-original">${orig}</del><mark class="word-changed">${safe}</mark></span>`
+        : `<mark class="word-changed">${safe}</mark>`;
+    } else {
+      html += safe;
+    }
     wordIdx++;
   }
   return html.replace(/\n/g, '<br>\n');

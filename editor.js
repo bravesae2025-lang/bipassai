@@ -166,7 +166,14 @@ async function init() {
     return;
   }
 
-  editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+  editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Adjusted';
+
+  const changeCount = parseInt(sessionStorage.getItem('bipass_change_count') || '0');
+  const changeEl = document.getElementById('editor-change-count');
+  if (changeEl && changeCount > 0) {
+    changeEl.textContent = `${changeCount} word${changeCount !== 1 ? 's' : ''} changed`;
+    changeEl.classList.remove('hidden');
+  }
 
   const tokensRaw = sessionStorage.getItem('bipass_tokens');
   if (tokensRaw) {
@@ -209,8 +216,11 @@ function setupViewToggle(result, mode) {
   const original    = sessionStorage.getItem('bipass_input') || '';
   const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
 
-  if (mode !== 'humanize' || !original.trim()) return;
+  const hasHtml     = !!resultHtml.trim();
+  const hasOriginal = !!original.trim();
+  if (mode !== 'humanize' || (!hasHtml && !hasOriginal)) return;
   toggle.classList.remove('hidden');
+  if (!hasOriginal) btnOrig.style.display = 'none';
 
   function showTextarea() {
     editorTextarea.classList.remove('hidden');

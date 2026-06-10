@@ -1608,6 +1608,14 @@ body.editor-page { background: var(--bg); }
   font-size: 11px;
   color: var(--g300);
 }
+.editor-change-count {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: #b07800;
+  background: rgba(255, 210, 0, 0.18);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
 
 .editor-copy-btn {
   font-family: var(--ff-ui);

@@ -517,6 +517,55 @@ const _BASE_SWAPS = {
   'severity':'how bad it is','scarcity':'shortage','prevalence':'how common it is',
   'magnitude':'how big it is','tapestry':'mix',
   'multifaceted':'complicated','nuanced':'complex',
+  // Common AI overuse words
+  'delve':'explore','delves':'explores','delved':'explored','delving':'exploring',
+  'notably':'importantly','note that':'keep in mind',
+  'innovative':'new','innovation':'new idea','innovations':'new ideas',
+  'rapidly':'quickly','rapidly evolving':'fast changing',
+  'unprecedented':'unheard of',
+  'sophisticated':'advanced',
+  'invaluable':'very useful',
+  'thriving':'growing','vibrant':'lively',
+  'scalable':'flexible',
+  'reimagine':'rethink','reimagines':'rethinks','reimagined':'rethought',
+  'holistic':'complete',
+  'actionable':'practical',
+  'streamline':'simplify','streamlines':'simplifies','streamlined':'simplified','streamlining':'simplifying',
+  'navigate':'handle','navigates':'handles','navigated':'handled','navigating':'handling',
+  'landscape':'area',
+  'ecosystem':'environment',
+  'framework':'system','frameworks':'systems',
+  'dynamic':'active',
+  'shed light on':'explain','sheds light on':'explains',
+  'thought-provoking':'interesting',
+  'cutting-edge':'advanced',
+  'state-of-the-art':'advanced',
+  'game-changing':'important',
+  'ever-evolving':'always changing','ever-changing':'always changing',
+  'in-depth':'detailed',
+  'leverage the power':'use the power',
+  'harness the power':'use the power',
+  'unlock':'open up','unlocks':'opens up','unlocked':'opened up',
+  'empower individuals':'help people',
+  'skyrocket':'shoot up','skyrockets':'shoots up',
+  'unprecedented levels':'record levels',
+  'pave the way':'open the door','paves the way':'opens the door',
+  'at the forefront':'leading',
+  'in the realm of':'in',
+  'it is worth noting':'note that',
+  'it should be noted':'note that',
+  'needless to say':'obviously',
+  'as previously mentioned':'as mentioned',
+  'in light of':'because of',
+  'rest assured':'don\'t worry',
+  'pivotal role':'key role',
+  'crucial role':'important role',
+  'key takeaway':'main point','key takeaways':'main points',
+  'dive into':'look at','dives into':'looks at','diving into':'looking at',
+  'unpack':'break down','unpacks':'breaks down',
+  'foster innovation':'encourage new ideas',
+  'drive innovation':'push new ideas',
+  'robust solution':'strong solution','robust solutions':'strong solutions',
 };
 
 const _STUDENT_SWAPS = {
@@ -682,13 +731,24 @@ async function adjustLevel() {
   setLoading(true, 'Adjusting level…');
   await new Promise(r => setTimeout(r, 500));
 
-  const result  = adjustLevelOutput(text, selectedLevel);
+  const result   = adjustLevelOutput(text, selectedLevel);
   const htmlDiff = _buildChangesHtml(text, selectedLevel);
 
-  sessionStorage.setItem('bipass_input',       text);
-  sessionStorage.setItem('bipass_result',      result);
-  sessionStorage.setItem('bipass_result_html', htmlDiff);
-  sessionStorage.setItem('bipass_mode',        'humanize');
+  // Count changed words by comparing original vs result token by token
+  const origWords   = text.trim().split(/\s+/);
+  const resultWords = result.trim().split(/\s+/);
+  let changed = 0;
+  const len = Math.min(origWords.length, resultWords.length);
+  for (let i = 0; i < len; i++) {
+    if (origWords[i].toLowerCase() !== resultWords[i].toLowerCase()) changed++;
+  }
+  changed += Math.abs(origWords.length - resultWords.length);
+
+  sessionStorage.setItem('bipass_input',        text);
+  sessionStorage.setItem('bipass_result',       result);
+  sessionStorage.setItem('bipass_result_html',  htmlDiff);
+  sessionStorage.setItem('bipass_mode',         'humanize');
+  sessionStorage.setItem('bipass_change_count', String(changed));
   setLoading(false);
   window.location.href = 'editor.html';
 }

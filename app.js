@@ -612,6 +612,31 @@ const _BASE_PHRASES = [
   ['in today\'s society','today'],
 ];
 
+function _buildChangesHtml(original, level) {
+  let h = original
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  h = h.replace(/\s*—\s*/g, ', ').replace(/\s*–\s*/g, ', ').replace(/ - /g, ', ');
+
+  for (const [phrase, replacement] of _BASE_PHRASES) {
+    const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+    h = h.replace(new RegExp(esc, 'gi'), m =>
+      `<mark class="word-changed">${_swapCase(m, replacement)}</mark>`);
+  }
+
+  let swaps = { ..._BASE_SWAPS };
+  if (level === 'easy' || level === 'medium') Object.assign(swaps, _STUDENT_SWAPS);
+  if (level === 'easy') Object.assign(swaps, _BEGINNER_SWAPS);
+
+  for (const [ai, human] of Object.entries(swaps)) {
+    const esc = ai.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    h = h.replace(new RegExp(`\\b${esc}\\b`, 'gi'), m =>
+      `<mark class="word-changed">${_swapCase(m, human)}</mark>`);
+  }
+
+  return h.replace(/\n/g, '<br>\n');
+}
+
 function adjustLevelOutput(text, level) {
   // Strip dashes first
   text = text.replace(/\s*—\s*/g, ', ');
@@ -657,10 +682,13 @@ async function adjustLevel() {
   setLoading(true, 'Adjusting level…');
   await new Promise(r => setTimeout(r, 500));
 
-  const result = adjustLevelOutput(text, selectedLevel);
+  const result  = adjustLevelOutput(text, selectedLevel);
+  const htmlDiff = _buildChangesHtml(text, selectedLevel);
 
-  sessionStorage.setItem('bipass_result', result);
-  sessionStorage.setItem('bipass_mode', 'humanize');
+  sessionStorage.setItem('bipass_input',       text);
+  sessionStorage.setItem('bipass_result',      result);
+  sessionStorage.setItem('bipass_result_html', htmlDiff);
+  sessionStorage.setItem('bipass_mode',        'humanize');
   setLoading(false);
   window.location.href = 'editor.html';
 }

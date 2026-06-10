@@ -200,38 +200,62 @@ async function init() {
 let viewingOriginal = false;
 
 function setupViewToggle(result, mode) {
-  const toggle    = document.getElementById('editor-view-toggle');
-  const btnResult = document.getElementById('toggle-result');
-  const btnOrig   = document.getElementById('toggle-original');
-  const aiBox     = document.getElementById('ai-prompt-box');
-  const original  = sessionStorage.getItem('bipass_input') || '';
+  const toggle      = document.getElementById('editor-view-toggle');
+  const btnResult   = document.getElementById('toggle-result');
+  const btnOrig     = document.getElementById('toggle-original');
+  const btnChanges  = document.getElementById('toggle-changes');
+  const changesView = document.getElementById('changes-view');
+  const aiBox       = document.getElementById('ai-prompt-box');
+  const original    = sessionStorage.getItem('bipass_input') || '';
+  const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
 
   if (mode !== 'humanize' || !original.trim()) return;
   toggle.classList.remove('hidden');
 
+  function showTextarea() {
+    editorTextarea.classList.remove('hidden');
+    if (changesView) changesView.classList.add('hidden');
+  }
+  function showChanges() {
+    editorTextarea.classList.add('hidden');
+    if (changesView) { changesView.classList.remove('hidden'); changesView.innerHTML = resultHtml; }
+  }
+
   btnResult.addEventListener('click', () => {
-    if (!viewingOriginal) return;
     viewingOriginal = false;
+    showTextarea();
     editorTextarea.value = result;
     editorTextarea.readOnly = false;
-    editorBadge.textContent = 'Humanized';
+    editorBadge.textContent = 'Adjusted';
     btnResult.classList.add('active');
     btnOrig.classList.remove('active');
+    if (btnChanges) btnChanges.classList.remove('active');
     if (aiBox) aiBox.style.display = '';
     updateWc();
   });
 
   btnOrig.addEventListener('click', () => {
-    if (viewingOriginal) return;
     viewingOriginal = true;
+    showTextarea();
     editorTextarea.value = original;
     editorTextarea.readOnly = true;
     editorBadge.textContent = 'Original';
     btnOrig.classList.add('active');
     btnResult.classList.remove('active');
+    if (btnChanges) btnChanges.classList.remove('active');
     if (aiBox) aiBox.style.display = 'none';
     updateWc();
   });
+
+  if (btnChanges) {
+    btnChanges.addEventListener('click', () => {
+      showChanges();
+      btnChanges.classList.add('active');
+      btnResult.classList.remove('active');
+      btnOrig.classList.remove('active');
+      if (aiBox) aiBox.style.display = 'none';
+    });
+  }
 }
 
 async function saveResult(text, mode, session) {

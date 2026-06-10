@@ -7239,7 +7239,33 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .view-toggle-btn + .view-toggle-btn { border-left: 1px solid var(--g150); }
 .view-toggle-btn.active { background: var(--black); color: #fff; }
 .view-toggle-btn:not(.active):hover { color: var(--black); background: var(--g050); }
+.view-toggle-btn--changes { color: #b07800; }
+.view-toggle-btn--changes.active { background: #ffe066; color: #7a5000; }
+.view-toggle-btn--changes:not(.active):hover { background: #fff8d6; color: #7a5000; }
 .editor-textarea[readonly] { opacity: 0.7; cursor: default; }
+
+mark.word-changed {
+  background: rgba(255, 210, 0, 0.38);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-style: normal;
+}
+.changes-view {
+  width: 100%;
+  min-height: 260px;
+  padding: 14px 16px;
+  font-family: var(--ff-body, inherit);
+  font-size: 15px;
+  line-height: 1.75;
+  border: 1px solid var(--g150);
+  border-radius: var(--r, 8px);
+  background: var(--bg, #fff);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.changes-view.hidden { display: none; }
 
 /* Credit cost preview */
 .cost-preview {

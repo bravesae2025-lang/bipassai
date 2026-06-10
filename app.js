@@ -735,9 +735,7 @@ document.querySelectorAll('.qs-pill').forEach(pill => {
   pill.addEventListener('click', () => {
     document.querySelectorAll('.qs-pill').forEach(p => p.classList.remove('selected'));
     pill.classList.add('selected');
-    promptText.value = pill.dataset.prompt;
-    promptText.focus();
-    promptText.dispatchEvent(new Event('input'));
+    if (promptText) { promptText.value = pill.dataset.prompt; promptText.focus(); promptText.dispatchEvent(new Event('input')); }
   });
 });
 
@@ -836,8 +834,7 @@ document.getElementById('file-upload-input-generate')?.addEventListener('change'
     }
 
     if (text.trim()) {
-      promptText.value = text.trim();
-      promptText.dispatchEvent(new Event('input'));
+      if (promptText) { promptText.value = text.trim(); promptText.dispatchEvent(new Event('input')); }
     } else {
       showToast('No text found in file');
     }
@@ -1058,8 +1055,8 @@ function restoreState() {
 
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
   const savedInput  = sessionStorage.getItem('bipass_input');
-  if (savedPrompt) { promptText.value = savedPrompt; updateCostPreview('generate-cost', estimateGenerateCost(savedPrompt)); }
-  if (savedInput)  { inputText.value  = savedInput;  updateCostPreview('humanize-cost', savedInput.length || null); }
+  if (savedPrompt && promptText) { promptText.value = savedPrompt; }
+  if (savedInput)  { inputText.value  = savedInput; }
 
   for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
     const saved = parseInt(sessionStorage.getItem(`bipass_m_${type}`) || '0');

@@ -7927,3 +7927,27 @@ mark.word-changed {
   white-space: nowrap;
   pointer-events: none;
 }
+
+/* ── Word-change pair v2: absolute-float original, no layout disruption ── */
+.changes-view {
+  line-height: 2.5 !important;
+}
+.word-change-pair {
+  position: relative;
+  display: inline;
+}
+.word-original {
+  position: absolute;
+  bottom: 1.05em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65em;
+  color: #bbb;
+  text-decoration: line-through;
+  text-decoration-color: #d44;
+  white-space: nowrap;
+  pointer-events: none;
+  display: block;
+  line-height: 1;
+  margin: 0;
+}

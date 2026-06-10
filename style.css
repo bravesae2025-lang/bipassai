@@ -8538,3 +8538,154 @@ mark.word-changed {
 }
 .noir-home .site-footer a { color: rgba(255,255,255,0.5); }
 .noir-home .site-footer a:hover { color: #fff; }
+
+/* ═══ NOIR APP — command deck ═══ */
+body.noir-app { background: #0a0a0a; }
+
+/* Navbar stays a clean white slab over the dark deck */
+.noir-app .navbar.nav-at-top {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.noir-app .app-statsbar {
+  background: #0a0a0a;
+  border-color: rgba(255,255,255,0.1);
+}
+.noir-app .ticker-item { color: rgba(255,255,255,0.65); }
+.noir-app .ticker-sep  { color: rgba(255,255,255,0.25); }
+.noir-app .ticker-close-btn { color: rgba(255,255,255,0.5); }
+
+.noir-app .app-main {
+  background: #0a0a0a;
+  isolation: isolate;
+}
+.noir-app .app-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.noir-app .app-main[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(700px circle at var(--sx, 50%) var(--sy, 30%),
+    rgba(255,255,255,0.06), transparent 65%);
+}
+
+/* White cards float on the black deck */
+.noir-app .col {
+  border-color: rgba(255,255,255,0.10);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 2px 8px rgba(0,0,0,0.5),
+    0 30px 80px rgba(0,0,0,0.55);
+}
+.noir-app .col:hover {
+  border-color: rgba(255,255,255,0.18);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.10),
+    0 0 70px rgba(255,255,255,0.06),
+    0 36px 90px rgba(0,0,0,0.65);
+}
+.noir-app .col-customize {
+  border-color: rgba(255,255,255,0.18);
+}
+.noir-app .col-own-text-box {
+  border-color: rgba(255,255,255,0.25);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+}
+
+/* ═══ NOIR EDITOR — result reveal deck ═══ */
+body.noir-tool { background: #0a0a0a; }
+
+.noir-tool .navbar.nav-at-top {
+  background: rgba(255,255,255,0.92);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.noir-tool .editor-main {
+  position: relative;
+  isolation: isolate;
+}
+.noir-tool .editor-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.noir-tool .editor-main[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(620px circle at var(--sx, 50%) var(--sy, 30%),
+    rgba(255,255,255,0.06), transparent 65%);
+}
+
+.noir-tool .editor-badge { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.2); }
+.noir-tool .editor-wc,
+.noir-tool .editor-tokens { color: rgba(255,255,255,0.4); }
+
+.noir-tool .editor-copy-btn {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+.noir-tool .editor-copy-btn:hover { background: #fff; border-color: #fff; color: var(--black); }
+
+.noir-tool .view-toggle-btn { color: rgba(255,255,255,0.5); }
+.noir-tool .view-toggle-btn.active { background: #fff; color: var(--black); }
+.noir-tool .view-toggle-btn:not(.active):hover { color: #fff; background: rgba(255,255,255,0.1); }
+.noir-tool .view-toggle-btn--changes { color: #e8c34a; }
+.noir-tool .view-toggle-btn--changes.active { background: #ffe066; color: #7a5000; }
+.noir-tool .view-toggle-btn + .view-toggle-btn { border-left-color: rgba(255,255,255,0.15); }
+.noir-tool .editor-view-toggle { border-color: rgba(255,255,255,0.15); }
+
+.noir-tool .editor-textarea {
+  background: rgba(255,255,255,0.96);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 28px 80px rgba(0,0,0,0.6);
+}
+.noir-tool .changes-view {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 28px 80px rgba(0,0,0,0.6);
+}
+
+.noir-tool .editor-feature-badge {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55);
+}
+
+.noir-tool .ai-prompt-box {
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 0 50px rgba(255,255,255,0.05);
+}
+
+.noir-tool .editor-btn-back {
+  color: rgba(255,255,255,0.55);
+  border-color: rgba(255,255,255,0.2);
+}
+.noir-tool .editor-btn-back:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+.noir-tool .cost-preview { color: rgba(255,255,255,0.4); }
+
+/* AI/primary editor buttons invert to white on the dark deck */
+.noir-tool .editor-btn-ai {
+  color: var(--black);
+  background: #fff;
+  border-color: #fff;
+}
+.noir-tool .editor-btn-ai:hover {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.85);
+}

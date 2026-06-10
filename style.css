@@ -8860,3 +8860,13 @@ body.noir-settings, body.noir-hist, body.noir-priv { background: #0a0a0a; }
 .noir-priv .privacy-section p,
 .noir-priv .privacy-section li { color: rgba(255,255,255,0.55); }
 .noir-priv .privacy-section a { color: #fff; }
+
+/* ── NOIR mobile guardrails ── */
+@media (max-width: 740px) {
+  .noir-home .pricing-section { padding: 72px 20px 80px; }
+  .noir-home .contact-section { padding: 80px 20px; }
+  .noir-home .hero-section { padding: 56px 16px 72px; }
+  .mq-strip span { font-size: clamp(40px, 11vw, 64px); padding: 0 16px; }
+  .ghost-num { font-size: clamp(120px, 34vw, 200px); right: 0; }
+  .howto-head.noir-panel { padding: 56px 18px; border-radius: 20px; }
+}

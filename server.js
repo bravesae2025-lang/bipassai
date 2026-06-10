@@ -381,6 +381,55 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
+// ─── POST /api/adjust-level ───────────────────────────────────
+
+app.post('/api/adjust-level', async (req, res) => {
+  const { text, level } = req.body;
+  if (!text) return res.status(400).json({ error: 'No text provided' });
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
+
+  const PROMPTS = {
+    easy: `Simplify this text for a beginner English learner. Replace every complex, formal, or academic word with the simplest everyday word that keeps the same meaning. STRICT RULES: only change individual words or short phrases (2–4 words max), never rewrite whole sentences, keep all punctuation and sentence structure exactly the same, keep proper nouns and numbers unchanged. Return ONLY the modified text with no explanation or commentary.`,
+    medium: `Simplify this text for a high school student. Replace academic buzzwords and overly formal vocabulary with clear plain words a teenager would use. STRICT RULES: only change individual words or short phrases, keep sentence structure and punctuation identical, keep proper nouns and numbers unchanged. Return ONLY the modified text with no explanation.`,
+    hard: `In this text, replace only the most obvious AI-writing buzzwords (such as utilize→use, leverage→use, facilitate→help, comprehensive→complete, paramount→most important, meticulous→careful, groundbreaking→new, transformative→life-changing) with simpler equivalents. Leave all other vocabulary unchanged. STRICT RULES: only change individual words, keep sentence structure and punctuation identical. Return ONLY the modified text with no explanation.`,
+  };
+
+  const systemPrompt = PROMPTS[level] || PROMPTS.medium;
+  const fullPrompt = `${systemPrompt}\n\nText:\n${text}`;
+
+  try {
+    const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { temperature: 0.3, topP: 0.95, maxOutputTokens: 8192 },
+      }),
+    });
+
+    if (!geminiRes.ok) {
+      const err = await geminiRes.json().catch(() => ({}));
+      return res.status(geminiRes.status).json({ error: err?.error?.message || 'Gemini error' });
+    }
+
+    const data   = await geminiRes.json();
+    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!result) return res.status(500).json({ error: 'No output from Gemini' });
+
+    return res.json({ result: result.trim() });
+  } catch (err) {
+    console.error('/api/adjust-level error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ─── POST /api/humanize ────────────────────────────────────────
 
 app.post('/api/humanize', async (req, res) => {

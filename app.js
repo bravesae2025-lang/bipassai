@@ -661,6 +661,34 @@ const _BASE_PHRASES = [
   ['in today\'s society','today'],
 ];
 
+function _buildDiffHtml(original, result) {
+  const origTokens   = original.split(/(\s+)/);
+  const resultTokens = result.split(/(\s+)/);
+  let html = '';
+  for (let i = 0; i < resultTokens.length; i++) {
+    const tok = resultTokens[i];
+    if (/^\s+$/.test(tok)) { html += tok; continue; }
+    const safe = tok.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const origTok = (origTokens[i] || '').replace(/[.,!?;:'"()\[\]]/g,'').toLowerCase();
+    const curTok  = tok.replace(/[.,!?;:'"()\[\]]/g,'').toLowerCase();
+    html += origTok !== curTok
+      ? `<mark class="word-changed">${safe}</mark>`
+      : safe;
+  }
+  return html.replace(/\n/g, '<br>\n');
+}
+
+function _countChanges(original, result) {
+  const o = original.split(/\s+/);
+  const r = result.split(/\s+/);
+  let n = 0;
+  const len = Math.min(o.length, r.length);
+  for (let i = 0; i < len; i++) {
+    if (o[i].toLowerCase() !== r[i].toLowerCase()) n++;
+  }
+  return n + Math.abs(o.length - r.length);
+}
+
 function _buildChangesHtml(original, level) {
   let h = original
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -729,28 +757,35 @@ async function adjustLevel() {
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
   setLoading(true, 'Adjusting level…');
-  await new Promise(r => setTimeout(r, 500));
+  try {
+    const token  = await window.bipassAuth.getToken();
+    const res    = await fetch('/api/adjust-level', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ text, level: selectedLevel }),
+    });
+    if (!res.ok) throw new Error('API error');
+    const { result } = await res.json();
 
-  const result   = adjustLevelOutput(text, selectedLevel);
-  const htmlDiff = _buildChangesHtml(text, selectedLevel);
+    const htmlDiff = _buildDiffHtml(text, result);
+    const changed  = _countChanges(text, result);
 
-  // Count changed words by comparing original vs result token by token
-  const origWords   = text.trim().split(/\s+/);
-  const resultWords = result.trim().split(/\s+/);
-  let changed = 0;
-  const len = Math.min(origWords.length, resultWords.length);
-  for (let i = 0; i < len; i++) {
-    if (origWords[i].toLowerCase() !== resultWords[i].toLowerCase()) changed++;
+    sessionStorage.setItem('bipass_input',        text);
+    sessionStorage.setItem('bipass_result',       result);
+    sessionStorage.setItem('bipass_result_html',  htmlDiff);
+    sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_change_count', String(changed));
+    window.location.href = 'editor.html';
+  } catch {
+    // Fallback to client-side dictionary if API fails
+    const result = adjustLevelOutput(text, selectedLevel);
+    sessionStorage.setItem('bipass_input',  text);
+    sessionStorage.setItem('bipass_result', result);
+    sessionStorage.setItem('bipass_mode',   'humanize');
+    window.location.href = 'editor.html';
+  } finally {
+    setLoading(false);
   }
-  changed += Math.abs(origWords.length - resultWords.length);
-
-  sessionStorage.setItem('bipass_input',        text);
-  sessionStorage.setItem('bipass_result',       result);
-  sessionStorage.setItem('bipass_result_html',  htmlDiff);
-  sessionStorage.setItem('bipass_mode',         'humanize');
-  sessionStorage.setItem('bipass_change_count', String(changed));
-  setLoading(false);
-  window.location.href = 'editor.html';
 }
 
 // ─── State ────────────────────────────────────────────────────

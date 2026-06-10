@@ -8278,3 +8278,12 @@ mark.word-changed {
 }
 .h-hint-icon { transition: transform 0.25s var(--ease-out); }
 .h-hint:hover .h-hint-icon { transform: translateY(2px); }
+
+/* ── Global hover refinements ── */
+.faq-q:hover .faq-chevron { transform: translateY(2px); }
+.faq-item.open .faq-q:hover .faq-chevron { transform: rotate(180deg) translateY(-2px); }
+
+.contact-email {
+  transition: opacity 0.2s ease, transform 0.25s var(--ease-out);
+}
+.contact-email:hover { transform: translateY(-2px); }

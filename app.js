@@ -710,7 +710,7 @@ function _buildDiffHtml(original, result) {
     if (changed.has(wordIdx)) {
       const orig = origFor.get(wordIdx);
       html += orig
-        ? `<span class="word-change-pair"><del class="word-original">${orig}</del><mark class="word-changed">${safe}</mark></span>`
+        ? `<ruby class="word-change-pair"><mark class="word-changed">${safe}</mark><rt class="word-original">${orig}</rt></ruby>`
         : `<mark class="word-changed">${safe}</mark>`;
     } else {
       html += safe;

@@ -24,9 +24,9 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
-<body class="noir-home">
+<body>
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
     </div>
   </nav>
 
-  <div class="ticker-wrap" aria-hidden="true" data-parallax="0.04">
+  <div class="ticker-wrap" aria-hidden="true">
     <div class="ticker-track">
       <span>BYPASS AI DETECTION</span><span class="tick-dot">·</span>
       <span>SOUND HUMAN</span><span class="tick-dot">·</span>
@@ -63,19 +63,12 @@
   </div>
 
   <!-- ── HERO ──────────────────────────────────────────────── -->
-  <section class="hero-section noir-panel" data-spotlight>
-
-    <!-- Drifting graphite orbs (decorative) -->
-    <div class="hero-orbs" aria-hidden="true">
-      <span class="orb orb-a" data-parallax="-0.05"></span>
-      <span class="orb orb-b" data-parallax="-0.09"></span>
-      <span class="orb orb-c" data-parallax="-0.03"></span>
-    </div>
+  <section class="hero-section">
 
     <!-- Headline + sub -->
     <div class="hero-head">
       <h2 class="hero-title">Your AI text,<br>made undetectable.</h2>
-      <p class="hero-desc" data-scramble>Paste it in. Pick a level. Get human-sounding text in seconds — no detector can catch it.</p>
+      <p class="hero-desc">Paste it in. Pick a level. Get human-sounding text in seconds — no detector can catch it.</p>
     </div>
 
     <!-- Typing showcase -->
@@ -112,7 +105,7 @@
 
     <!-- Action -->
     <div class="hero-cta" data-anim="slide-up" data-anim-delay="2">
-      <button id="hero-humanize-btn" class="hero-cta-btn" data-magnetic="0.15">
+      <button id="hero-humanize-btn" class="hero-cta-btn">
         <span class="hero-cta-label">Try Bipass AI Now</span>
         <span class="hero-cta-arrow" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -124,24 +117,17 @@
 
   </section>
 
-
-  <!-- Giant marquee divider -->
-  <div class="mq-strip" aria-hidden="true">
-    <div class="mq-strip-track"><span>Made Undetectable</span><span class="mq-fill">Bipass AI</span><span>Sound Human</span><span class="mq-fill">No Detector</span><span>Made Undetectable</span><span class="mq-fill">Bipass AI</span><span>Sound Human</span><span class="mq-fill">No Detector</span></div>
-  </div>
-
   <!-- ── HOW IT WORKS ──────────────────────────────────────── -->
   <section id="how-it-works" class="hiw-section">
-    <span class="ghost-num" aria-hidden="true">01</span>
     <div class="hiw-header">
-      <div class="hiw-label" data-anim="slide-up" data-scramble>HOW IT WORKS</div>
+      <div class="hiw-label" data-anim="slide-up">HOW IT WORKS</div>
       <h2 class="hiw-title" data-anim="slide-up" data-anim-delay="1">Three steps to undetectable text</h2>
       <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">From AI-generated to human-sounding in under a minute.</p>
     </div>
 
     <div class="hiw-steps">
 
-      <div class="hiw-step glow-rim-dark" data-anim="slide-up" data-tilt="5">
+      <div class="hiw-step" data-anim="slide-up">
         <div class="step-num">01</div>
         <div class="step-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -154,9 +140,9 @@
         <p class="step-desc">Pick your level — Easy sounds like a beginner English speaker, Medium like an average student, Hard like a confident writer.</p>
       </div>
 
-      <div class="hiw-connector" aria-hidden="true" data-anim="slide-up" data-anim-delay="1">→</div>
+      <div class="hiw-connector" aria-hidden="true">→</div>
 
-      <div class="hiw-step hiw-step-dark glow-rim" data-anim="slide-up" data-anim-delay="2" data-tilt="5">
+      <div class="hiw-step hiw-step-dark" data-anim="slide-up" data-anim-delay="2">
         <div class="step-num">02</div>
         <div class="step-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -167,9 +153,9 @@
         <p class="step-desc">Gemini rewrites your text to sound natural and human — no AI patterns, no robotic phrasing, no "certainly".</p>
       </div>
 
-      <div class="hiw-connector" aria-hidden="true" data-anim="slide-up" data-anim-delay="3">→</div>
+      <div class="hiw-connector" aria-hidden="true">→</div>
 
-      <div class="hiw-step glow-rim-dark" data-anim="slide-up" data-anim-delay="4" data-tilt="5">
+      <div class="hiw-step" data-anim="slide-up" data-anim-delay="4">
         <div class="step-num">03</div>
         <div class="step-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -200,8 +186,7 @@
   </section>
 
   <!-- ── PRICING ─────────────────────────────────────────────── -->
-  <section id="pricing" class="pricing-section noir-panel" data-spotlight>
-    <span class="ghost-num" aria-hidden="true">02</span>
+  <section id="pricing" class="pricing-section">
     <div class="pricing-header">
       <div class="pricing-label" data-anim="slide-up">PRICING</div>
       <h2 class="pricing-title" data-anim="slide-up" data-anim-delay="1">Pick your pass</h2>
@@ -210,7 +195,7 @@
 
     <div class="pricing-grid">
 
-      <div class="pricing-card pricing-card-day glow-rim" data-tilt="4" data-anim="scale-up">
+      <div class="pricing-card pricing-card-day" data-anim="scale-up">
         <div class="pricing-card-top">
           <div class="pricing-plan">Day Pass</div>
           <div class="pricing-price">
@@ -225,10 +210,10 @@
           <li>Custom mistake controls</li>
           <li>Perfect for a single deadline</li>
         </ul>
-        <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Day Pass</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Day Pass</button>
       </div>
 
-      <div class="pricing-card pricing-card-weekly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="1">
+      <div class="pricing-card pricing-card-weekly" data-anim="scale-up" data-anim-delay="1">
         <div class="pricing-card-top">
           <div class="pricing-plan">Weekly Pass</div>
           <div class="pricing-price">
@@ -244,10 +229,10 @@
           <li>History &amp; cloud storage</li>
           <li>Ideal for exam week</li>
         </ul>
-        <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Weekly</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Weekly</button>
       </div>
 
-      <div class="pricing-card pricing-card-monthly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="2">
+      <div class="pricing-card pricing-card-monthly" data-anim="scale-up" data-anim-delay="2">
         <div class="pricing-card-top">
           <div class="pricing-plan">Monthly Pass</div>
           <div class="pricing-price">
@@ -263,10 +248,10 @@
           <li>Auto Typer extension included</li>
           <li>Best for ongoing coursework</li>
         </ul>
-        <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Monthly</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Monthly</button>
       </div>
 
-      <div class="pricing-card pricing-card-featured glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="3">
+      <div class="pricing-card pricing-card-featured" data-anim="scale-up" data-anim-delay="3">
         <div class="pricing-badge-top">Best Value</div>
         <div class="pricing-card-top">
           <div class="pricing-plan">Annual Pass</div>
@@ -283,7 +268,7 @@
           <li>Just $0.55/day — cheapest per credit</li>
           <li>Lock in the price for a full year</li>
         </ul>
-        <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Annual</button>
+        <button class="pricing-btn pricing-btn-featured" onclick="goToPricing()">Get Annual</button>
       </div>
 
     </div>
@@ -305,7 +290,6 @@
 
   <!-- ── FAQ ──────────────────────────────────────────────────── -->
   <section id="faq" class="faq-section">
-    <span class="ghost-num" aria-hidden="true">03</span>
     <div class="faq-header">
       <div class="faq-label" data-anim="slide-up">FAQ</div>
       <h2 class="faq-title" data-anim="slide-up" data-anim-delay="1">Common questions</h2>
@@ -377,12 +361,12 @@
   </section>
 
   <!-- ── CONTACT ───────────────────────────────────────────────── -->
-  <section id="contact" class="contact-section noir-panel" data-spotlight>
+  <section id="contact" class="contact-section">
     <div class="contact-inner">
-      <div class="contact-label" data-anim="slide-up" data-scramble>CONTACT</div>
+      <div class="contact-label" data-anim="slide-up">CONTACT</div>
       <h2 class="contact-title" data-anim="slide-up" data-anim-delay="1">Get in touch</h2>
       <p class="contact-sub" data-anim="slide-up" data-anim-delay="2">Questions, feedback, or just want to say hi?</p>
-      <a data-magnetic="0.1" class="contact-email" href="mailto:bipassaiofficial@gmail.com" data-anim="slide-up" data-anim-delay="3">bipassaiofficial@gmail.com</a>
+      <a class="contact-email" href="mailto:bipassaiofficial@gmail.com" data-anim="slide-up" data-anim-delay="3">bipassaiofficial@gmail.com</a>
     </div>
   </section>
 
@@ -546,8 +530,6 @@
         }).join(' ');
       }).join('');
       title.innerHTML = rebuilt;
-      // After the last word lands, hand the title over to the shimmer sheen
-      setTimeout(() => title.classList.add('shimmer'), 1500);
     })();
 
     // ── Scroll reveal — Intersection Observer ─────────────────
@@ -621,14 +603,8 @@
       });
     });
   </script>
-  <script src="motion.js?v=2" defer></script>
   <script src="cursor.js?v=2"></script>
 
-  <div class="noir-panel noir-footer-band">
-    <div class="mq-strip mq-strip-dark" aria-hidden="true">
-      <div class="mq-strip-track"><span>Bipass AI</span><span class="mq-fill">Your AI Text</span><span>Made Undetectable</span><span class="mq-fill">Bipass AI</span><span>Bipass AI</span><span class="mq-fill">Your AI Text</span><span>Made Undetectable</span><span class="mq-fill">Bipass AI</span></div>
-    </div>
-  </div>
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>
     <span class="site-footer-sep">·</span>

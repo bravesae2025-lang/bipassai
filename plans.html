@@ -24,9 +24,9 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
-<body class="editor-page noir-plans">
+<body class="editor-page">
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -70,7 +70,7 @@
     </div>
   </aside>
 
-  <main class="plans-main" data-spotlight>
+  <main class="plans-main">
     <div class="plans-wrap">
 
       <div class="plans-head">
@@ -97,7 +97,7 @@
 
       <div class="pricing-grid">
 
-        <div class="pricing-card pricing-card-day glow-rim" data-tilt="4" data-anim="scale-up">
+        <div class="pricing-card pricing-card-day" data-anim="scale-up">
           <div class="pricing-card-top">
             <div class="pricing-plan">Day Pass</div>
             <div class="pricing-price">
@@ -113,10 +113,10 @@
             <li>Cloud storage for texts</li>
             <li>Good for a single assignment</li>
           </ul>
-          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="day" onclick="activatePlan('day')">Get Day Pass</button>
+          <button class="pricing-btn pricing-btn-featured" data-plan="day" onclick="activatePlan('day')">Get Day Pass</button>
         </div>
 
-        <div class="pricing-card pricing-card-weekly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="1">
+        <div class="pricing-card pricing-card-weekly" data-anim="scale-up" data-anim-delay="1">
           <div class="pricing-card-top">
             <div class="pricing-plan">Weekly Pass</div>
             <div class="pricing-price">
@@ -132,10 +132,10 @@
             <li>Cloud storage for texts</li>
             <li>Great for exam week</li>
           </ul>
-          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="weekly" onclick="activatePlan('weekly')">Get Weekly</button>
+          <button class="pricing-btn pricing-btn-featured" data-plan="weekly" onclick="activatePlan('weekly')">Get Weekly</button>
         </div>
 
-        <div class="pricing-card pricing-card-featured glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="2">
+        <div class="pricing-card pricing-card-featured" data-anim="scale-up" data-anim-delay="2">
           <div class="pricing-badge-top">Best Value</div>
           <div class="pricing-card-top">
             <div class="pricing-plan">Annual Pass</div>
@@ -152,10 +152,10 @@
             <li>Priority access to new features</li>
             <li>Just $0.38/day — 62% cheaper than daily passes</li>
           </ul>
-          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Get Annual</button>
+          <button class="pricing-btn pricing-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Get Annual</button>
         </div>
 
-        <div class="pricing-card pricing-card-monthly glow-rim" data-tilt="4" data-anim="scale-up" data-anim-delay="3">
+        <div class="pricing-card pricing-card-monthly" data-anim="scale-up" data-anim-delay="3">
           <div class="pricing-card-top">
             <div class="pricing-plan">Monthly Pass</div>
             <div class="pricing-price">
@@ -171,7 +171,7 @@
             <li>Cloud storage for texts</li>
             <li>Priority access to new features</li>
           </ul>
-          <button data-magnetic="0.12" class="pricing-btn pricing-btn-featured" data-plan="monthly" onclick="activatePlan('monthly')">Get Monthly</button>
+          <button class="pricing-btn pricing-btn-featured" data-plan="monthly" onclick="activatePlan('monthly')">Get Monthly</button>
         </div>
 
       </div>
@@ -184,28 +184,28 @@
         </div>
 
         <div class="credits-grid">
-          <div class="credit-card" data-anim="slide-up">
+          <div class="credit-card">
             <div class="credit-amount">5,000</div>
             <div class="credit-unit">credits</div>
             <div class="credit-price">$1.99</div>
             <div class="credit-value-line">$0.40 per 1,000</div>
             <button class="credit-btn" data-credits="c5000" onclick="buyCredits('c5000')">Buy</button>
           </div>
-          <div class="credit-card" data-anim="slide-up" data-anim-delay="1">
+          <div class="credit-card">
             <div class="credit-amount">20,000</div>
             <div class="credit-unit">credits</div>
             <div class="credit-price">$4.99</div>
             <div class="credit-value-line">$0.25 per 1,000</div>
             <button class="credit-btn" data-credits="c20000" onclick="buyCredits('c20000')">Buy</button>
           </div>
-          <div class="credit-card" data-anim="slide-up" data-anim-delay="2">
+          <div class="credit-card">
             <div class="credit-amount">50,000</div>
             <div class="credit-unit">credits</div>
             <div class="credit-price">$9.99</div>
             <div class="credit-value-line">$0.20 per 1,000</div>
             <button class="credit-btn" data-credits="c50000" onclick="buyCredits('c50000')">Buy</button>
           </div>
-          <div class="credit-card credit-card-best" data-anim="slide-up" data-anim-delay="3">
+          <div class="credit-card credit-card-best">
             <div class="credit-badge-best">Best Value</div>
             <div class="credit-amount">100,000</div>
             <div class="credit-unit">credits</div>
@@ -228,7 +228,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=2"></script>
   <script src="plans.js?v=2"></script>
-  <script src="motion.js?v=2" defer></script>
   <script src="cursor.js?v=2"></script>
 
   <footer class="site-footer">

@@ -239,19 +239,30 @@ function setupViewToggle(result, mode) {
     if (changesView) changesView.classList.add('hidden');
     if (filter) filter.classList.add('hidden');
   }
+  function refreshCounts() {
+    if (!filter || !changesView) return;
+    ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'].forEach(cat => {
+      const n = changesView.querySelectorAll(`[data-cat="${cat}"]`).length;
+      const cEl = filter.querySelector(`[data-count="${cat}"]`);
+      if (cEl) cEl.textContent = n;
+      const row = filter.querySelector(`.cf-row[data-cat="${cat}"]`);
+      if (row) row.classList.toggle('cf-empty', n === 0);
+    });
+  }
   function showChanges() {
     editorTextarea.classList.add('hidden');
     if (changesView) { changesView.classList.remove('hidden'); changesView.innerHTML = resultHtml; }
     if (filter) filter.classList.remove('hidden');
+    refreshCounts();
   }
 
-  // Wire category filter checkboxes (once)
-  filter?.querySelectorAll('.cf-chip input').forEach(box => {
+  // Wire category filter toggles (once)
+  filter?.querySelectorAll('.cf-row input').forEach(box => {
     box.addEventListener('change', () => {
-      const chip = box.closest('.cf-chip');
-      const cat  = chip.dataset.cat;
+      const row = box.closest('.cf-row');
+      const cat = row.dataset.cat;
       changesView.classList.toggle(`cat-off-${cat}`, !box.checked);
-      chip.classList.toggle('cf-off', !box.checked);
+      row.classList.toggle('cf-off', !box.checked);
     });
   });
 

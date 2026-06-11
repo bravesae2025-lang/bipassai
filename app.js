@@ -730,17 +730,17 @@ function _editDistance(a, b) {
 }
 
 function _classifyChange(orig, repl) {
-  if (!orig) return 'grammar';                       // pure insertion
-  const stripP = s => s.replace(/[.,!?;:"()\[\]]/g, '');
-  const o = stripP(orig), r = stripP(repl);
-  const ol = o.toLowerCase(), rl = r.toLowerCase();
-  if (o !== r && ol === rl) return 'caps';           // only case differs
-  if (o !== r && ol.replace(/'/g, '') === rl.replace(/'/g, '')) return 'punct'; // apostrophe/punct
-  if (_TENSE_MAP[ol] === rl) return 'tense';         // known tense swap
-  const base = ol.replace(/'/g, ''), rbase = rl.replace(/'/g, '');
-  if (base[0] === rbase[0] && Math.abs(base.length - rbase.length) <= 1
-      && base !== rbase && _editDistance(base, rbase) <= 2) return 'spelling';
-  return 'word';                                     // vocabulary swap
+  if (!orig) return 'grammar';                         // pure insertion / structural
+  const ol = orig.toLowerCase(), rl = repl.toLowerCase();
+  const letters = s => s.toLowerCase().replace(/[^a-z]/g, '');
+  const oL = letters(orig), rL = letters(repl);
+  if (orig !== repl && ol === rl) return 'caps';       // identical except CASE
+  if (orig !== repl && oL === rL) return 'punct';      // identical letters, punct/apostrophe differs
+  if (_TENSE_MAP[oL] === rL) return 'tense';           // known tense swap
+  if (oL && rL && oL[0] === rL[0] && oL !== rL
+      && Math.abs(oL.length - rL.length) <= 1
+      && _editDistance(oL, rL) <= 2) return 'spelling';// small typo
+  return 'word';                                       // vocabulary swap (default)
 }
 
 function _buildDiffHtml(original, result) {
@@ -770,7 +770,14 @@ function _buildDiffHtml(original, result) {
   let pending = [];
   let i = 0, j = 0;
   while (i < m && j < n) {
-    if (norm(O[i]) === norm(R[j])) { i++; j++; pending = []; }
+    if (norm(O[i]) === norm(R[j])) {
+      if (O[i] !== R[j]) {                 // same word, only case/punctuation differs
+        changed.add(j);
+        origFor.set(j, esc(O[i]));
+        origRawFor.set(j, O[i]);
+      }
+      i++; j++; pending = [];
+    }
     else if (dp[i + 1][j] >= dp[i][j + 1]) { pending.push(O[i]); i++; }
     else {
       changed.add(j);

@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body class="editor-page">
 
@@ -81,13 +81,15 @@
         placeholder="Your result will appear here…"
       ></textarea>
       <div class="changes-filter hidden" id="changes-filter">
-        <span class="changes-filter-title">Show changes:</span>
-        <label class="cf-chip" data-cat="word"><input type="checkbox" checked><span class="cf-dot"></span>Vocabulary</label>
-        <label class="cf-chip" data-cat="caps"><input type="checkbox" checked><span class="cf-dot"></span>Capitals</label>
-        <label class="cf-chip" data-cat="punct"><input type="checkbox" checked><span class="cf-dot"></span>Punctuation</label>
-        <label class="cf-chip" data-cat="spelling"><input type="checkbox" checked><span class="cf-dot"></span>Spelling</label>
-        <label class="cf-chip" data-cat="tense"><input type="checkbox" checked><span class="cf-dot"></span>Tense</label>
-        <label class="cf-chip" data-cat="grammar"><input type="checkbox" checked><span class="cf-dot"></span>Grammar</label>
+        <div class="cf-head">Filter changes</div>
+        <div class="cf-rows">
+          <label class="cf-row" data-cat="word"><span class="cf-dot"></span><span class="cf-name">Vocabulary</span><span class="cf-count" data-count="word">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+          <label class="cf-row" data-cat="caps"><span class="cf-dot"></span><span class="cf-name">Capitals</span><span class="cf-count" data-count="caps">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+          <label class="cf-row" data-cat="punct"><span class="cf-dot"></span><span class="cf-name">Punctuation</span><span class="cf-count" data-count="punct">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+          <label class="cf-row" data-cat="spelling"><span class="cf-dot"></span><span class="cf-name">Spelling</span><span class="cf-count" data-count="spelling">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+          <label class="cf-row" data-cat="tense"><span class="cf-dot"></span><span class="cf-name">Tense</span><span class="cf-count" data-count="tense">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+          <label class="cf-row" data-cat="grammar"><span class="cf-dot"></span><span class="cf-name">Grammar</span><span class="cf-count" data-count="grammar">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+        </div>
       </div>
       <div class="changes-view hidden" id="changes-view"></div>
 
@@ -134,7 +136,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="editor.js?v=2"></script>
+  <script src="editor.js?v=3"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

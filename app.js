@@ -480,6 +480,57 @@ function _addWrongPlurals(text, rate) {
   return text;
 }
 
+function _applyGrammarMistakes(text, rate) {
+  // Remove comma before but/and/or at given rate
+  text = text.replace(/, (but|and|or)\b/gi, (m, w) =>
+    Math.random() < rate ? ' ' + w : m);
+  // Comma splice: turn some ". " into ", " (only between lowercase-continuing sentences)
+  if (rate >= 0.25) {
+    text = text.replace(/\. ([a-z])/g, (m, ch) =>
+      Math.random() < rate * 0.3 ? ', ' + ch : m);
+  }
+  return text;
+}
+
+function _applyTenseMistakes(text, rate) {
+  const swaps = [
+    [/\bwent\b/g, 'go'], [/\bsaid\b/g, 'say'], [/\btold\b/g, 'tell'],
+    [/\bwas\b/g, 'is'],  [/\bwere\b/g, 'are'], [/\bdid\b/g, 'do'],
+    [/\bhad\b/g, 'have'],[/\bsaw\b/g, 'see'],  [/\bgot\b/g, 'get'],
+    [/\bcame\b/g,'come'],[/\bmade\b/g,'make'], [/\btook\b/g,'take'],
+    [/\bknew\b/g,'know'],[/\bthought\b/g,'think'],[/\bfound\b/g,'find'],
+  ];
+  for (const [re, rep] of swaps) {
+    text = text.replace(re, m => Math.random() < rate ? _swapCase(m, rep) : m);
+  }
+  return text;
+}
+
+function _applyCapsMistakes(text, rate) {
+  // Lowercase the first letter of some sentences after sentence-ending punctuation
+  return text.replace(/([.?!] )([A-Z])/g, (m, punct, letter) =>
+    Math.random() < rate ? punct + letter.toLowerCase() : m);
+}
+
+function _applySpellingMistakes(text, rate) {
+  const pairs = [
+    [/\bdefinitely\b/gi, 'definately'],
+    [/\breceive\b/gi,    'recieve'],
+    [/\bseparate\b/gi,   'seperate'],
+    [/\boccurred\b/gi,   'occured'],
+    [/\bweird\b/gi,      'wierd'],
+    [/\bbelieve\b/gi,    'beleive'],
+    [/\ba lot\b/gi,      'alot'],
+    [/\buntil\b/gi,      'untill'],
+    [/\bbeginning\b/gi,  'begining'],
+    [/\bexistence\b/gi,  'existance'],
+  ];
+  for (const [re, rep] of pairs) {
+    text = text.replace(re, m => Math.random() < rate ? _swapCase(m, rep) : m);
+  }
+  return text;
+}
+
 const _BASE_SWAPS = {
   'utilize':'use','utilizes':'uses','utilized':'used','utilizing':'using',
   'assist':'help','assists':'helps','assisted':'helped','assisting':'helping',
@@ -790,6 +841,38 @@ function adjustLevelOutput(text, level) {
   return text;
 }
 
+function adjustLevelCustom(text) {
+  text = adjustLevelOutput(text, 'customize');
+
+  const sliderRate = v => {
+    const n = parseInt(v);
+    if (n <= 2) return 0;
+    if (n <= 4) return 0.12;
+    if (n <= 6) return 0.25;
+    if (n <= 8) return 0.40;
+    return 0.55;
+  };
+
+  const getVal = type => {
+    const el = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
+    return el ? parseInt(el.value) : 0;
+  };
+
+  const gr = sliderRate(getVal('grammar'));
+  const te = sliderRate(getVal('tense'));
+  const pu = sliderRate(getVal('punct'));
+  const ca = sliderRate(getVal('caps'));
+  const sp = sliderRate(getVal('spelling'));
+
+  if (gr > 0) text = _applyGrammarMistakes(text, gr);
+  if (te > 0) text = _applyTenseMistakes(text, te);
+  if (pu > 0) text = _removeApostrophes(text, pu);
+  if (ca > 0) text = _applyCapsMistakes(text, ca);
+  if (sp > 0) text = _applySpellingMistakes(text, sp);
+
+  return text;
+}
+
 // Keep postProcessOutput as a thin wrapper for anything still calling it
 function postProcessOutput(text) {
   return adjustLevelOutput(text, selectedLevel || 'medium');
@@ -800,6 +883,19 @@ function postProcessOutput(text) {
 async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
+
+  if (selectedLevel === 'customize') {
+    const result   = adjustLevelCustom(text);
+    const htmlDiff = _buildDiffHtml(text, result);
+    const changed  = _countChanges(text, result);
+    sessionStorage.setItem('bipass_input',        text);
+    sessionStorage.setItem('bipass_result',       result);
+    sessionStorage.setItem('bipass_result_html',  htmlDiff);
+    sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_change_count', String(changed));
+    window.location.href = 'editor.html';
+    return;
+  }
 
   setLoading(true, 'Adjusting level…');
   try {

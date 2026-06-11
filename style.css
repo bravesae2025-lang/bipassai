@@ -7943,7 +7943,7 @@ ruby.word-change-pair > rt.word-original {
   font-weight: 500;
   color: var(--g400, #5a5a5a);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.2s, transform 0.2s;
   user-select: none;
 }
 .lock-structure-btn:hover {
@@ -7952,11 +7952,11 @@ ruby.word-change-pair > rt.word-original {
   background: var(--g050, #f7f7f5);
 }
 .lock-structure-btn.active {
-  border: 2px solid #000;
+  border-color: #000;
   background: #000;
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 0 0 2px #000, 0 3px 8px rgba(0,0,0,0.18);
   transform: translateY(-2px);
 }
 .lock-structure-btn.active:hover {

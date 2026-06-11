@@ -7952,14 +7952,14 @@ ruby.word-change-pair > rt.word-original {
 }
 .lock-structure-btn.active {
   border-color: #fff;
-  background: #fff;
-  color: #000;
+  background: #000;
+  color: #fff;
   font-weight: 600;
-  box-shadow: 0 0 0 2px #000, 0 3px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
   transform: translateY(-2px);
 }
 .lock-structure-btn.active:hover {
-  background: var(--g050, #f7f7f5);
+  background: #1a1a1a;
 }
 .lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }
 /* Show/hide correct padlock icon based on state */

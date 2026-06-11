@@ -1616,6 +1616,15 @@ body.editor-page { background: var(--bg); }
   border-radius: 4px;
   padding: 2px 7px;
 }
+.editor-score {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.editor-score[data-level="high"]   { color: #1a7a3a; background: rgba(40, 200, 100, 0.15); }
+.editor-score[data-level="medium"] { color: #b07800; background: rgba(255, 210, 0, 0.18); }
+.editor-score[data-level="low"]    { color: #a02020; background: rgba(220, 60, 60, 0.15); }
 
 .editor-copy-btn {
   font-family: var(--ff-ui);

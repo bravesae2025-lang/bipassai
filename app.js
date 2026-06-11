@@ -884,18 +884,13 @@ async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
-  if (selectedLevel === 'customize') {
-    const result   = adjustLevelCustom(text);
-    const htmlDiff = _buildDiffHtml(text, result);
-    const changed  = _countChanges(text, result);
-    sessionStorage.setItem('bipass_input',        text);
-    sessionStorage.setItem('bipass_result',       result);
-    sessionStorage.setItem('bipass_result_html',  htmlDiff);
-    sessionStorage.setItem('bipass_mode',         'humanize');
-    sessionStorage.setItem('bipass_change_count', String(changed));
-    window.location.href = 'editor.html';
-    return;
-  }
+  const getMistakes = () => ({
+    grammar:  parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value  || 0),
+    tense:    parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value    || 0),
+    punct:    parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value    || 0),
+    caps:     parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value     || 0),
+    spelling: parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value || 0),
+  });
 
   setLoading(true, 'Adjusting level…');
   try {
@@ -903,7 +898,12 @@ async function adjustLevel() {
     const res    = await fetch('/api/adjust-level', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ text, level: selectedLevel, lockSentenceStructure }),
+      body:    JSON.stringify({
+        text,
+        level: selectedLevel,
+        lockSentenceStructure,
+        mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+      }),
     });
     if (!res.ok) throw new Error('API error');
     const { result } = await res.json();
@@ -916,13 +916,19 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
     sessionStorage.setItem('bipass_mode',         'humanize');
     sessionStorage.setItem('bipass_change_count', String(changed));
+    sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     window.location.href = 'editor.html';
   } catch {
     // Fallback to client-side dictionary if API fails
-    const result = adjustLevelOutput(text, selectedLevel);
-    sessionStorage.setItem('bipass_input',  text);
-    sessionStorage.setItem('bipass_result', result);
-    sessionStorage.setItem('bipass_mode',   'humanize');
+    const result = selectedLevel === 'customize' ? adjustLevelCustom(text) : adjustLevelOutput(text, selectedLevel);
+    const htmlDiff = _buildDiffHtml(text, result);
+    const changed  = _countChanges(text, result);
+    sessionStorage.setItem('bipass_input',        text);
+    sessionStorage.setItem('bipass_result',       result);
+    sessionStorage.setItem('bipass_result_html',  htmlDiff);
+    sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_change_count', String(changed));
+    sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     window.location.href = 'editor.html';
   } finally {
     setLoading(false);

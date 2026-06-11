@@ -383,8 +383,37 @@ app.post('/api/analyze', async (req, res) => {
 
 // ─── POST /api/adjust-level ───────────────────────────────────
 
+function buildCustomizePrompt(mistakes, lockSentenceStructure) {
+  const label = v => v <= 2 ? null : v <= 4 ? 'once or twice' : v <= 6 ? 'several times' : v <= 8 ? 'frequently' : 'very frequently';
+  const mistakeLines = [];
+  if (label(mistakes.grammar))  mistakeLines.push(`Grammar: introduce subject-verb disagreements or missing articles ${label(mistakes.grammar)}.`);
+  if (label(mistakes.tense))    mistakeLines.push(`Tense: switch past-tense verbs to present tense ${label(mistakes.tense)} (e.g. "went"→"go", "said"→"say", "was"→"is").`);
+  if (label(mistakes.punct))    mistakeLines.push(`Punctuation: drop apostrophes on contractions ${label(mistakes.punct)} (dont, cant, its, wont).`);
+  if (label(mistakes.caps))     mistakeLines.push(`Capitals: miss a capital letter at the start of a sentence ${label(mistakes.caps)}.`);
+  if (label(mistakes.spelling)) mistakeLines.push(`Spelling: introduce common spelling mistakes ${label(mistakes.spelling)} (definately, recieve, seperate, occured, wierd).`);
+  const mistakeBlock = mistakeLines.length ? `\n\nMISTAKES TO APPLY:\n${mistakeLines.join('\n')}` : '';
+  const lockLine = lockSentenceStructure
+    ? '\n- STRUCTURE LOCK: every sentence must stay one sentence — word count per sentence must be identical or differ by at most one word.'
+    : '';
+  return `Scan this text for AI-detection signals and fix them word by word. Your job is word-level replacement only — no sentence restructuring, no paraphrasing.
+
+WHAT TO FIX:
+1. AI buzzwords: utilize→use, leverage→use, facilitate→help, comprehensive→complete, robust→strong, individuals→people, crucial→really important, significant→big, furthermore→also, moreover→also, nevertheless→but, paramount→most important, groundbreaking→new, transformative→life-changing, seamless→smooth, meticulous→careful, realm→area, methodology→method, ultimately→in the end, delve→explore, innovative→new, sophisticated→advanced, invaluable→very useful, streamline→simplify, navigate→handle, ecosystem→environment, framework→system, cutting-edge→advanced, state-of-the-art→advanced
+2. Overly formal multi-word phrases: "in order to"→"to", "due to the fact that"→"because", "in the event that"→"if", "with regard to"→"about", "a large number of"→"many", "in terms of"→"about", "plays a crucial role"→"is really important", "serves as a testament"→"shows"
+3. Any word that sounds unusually polished or formal for a human writer — swap it for the simpler first-instinct word${mistakeBlock}
+
+STRICT RULES:
+- Only change individual words or short phrases (2–4 words max)
+- Keep ALL sentence structure, punctuation positions, and paragraph breaks IDENTICAL
+- Keep proper nouns, numbers, and technical terms unchanged
+- Never expand one word into a full phrase that changes sentence rhythm${lockLine}
+- No em dashes — replace any with a comma
+
+Return ONLY the modified text, no explanation.`;
+}
+
 app.post('/api/adjust-level', async (req, res) => {
-  const { text, level, lockSentenceStructure } = req.body;
+  const { text, level, lockSentenceStructure, mistakes } = req.body;
   if (!text) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -407,7 +436,9 @@ app.post('/api/adjust-level', async (req, res) => {
     hard: `In this text, replace only the most obvious AI-writing buzzwords (such as utilize→use, leverage→use, facilitate→help, comprehensive→complete, paramount→most important, meticulous→careful, groundbreaking→new, transformative→life-changing) with simpler equivalents. Leave all other vocabulary unchanged. STRICT RULES: only change individual words, keep sentence structure and punctuation identical.${LOCK}${COHERENCE} Return ONLY the modified text with no explanation.`,
   };
 
-  const systemPrompt = PROMPTS[level] || PROMPTS.medium;
+  const systemPrompt = level === 'customize'
+    ? buildCustomizePrompt(mistakes || {}, lockSentenceStructure)
+    : (PROMPTS[level] || PROMPTS.medium);
 
   const stripDashes = s => s
     .replace(/\s*—\s*/g, ', ')

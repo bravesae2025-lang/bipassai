@@ -175,6 +175,17 @@ async function init() {
     changeEl.classList.remove('hidden');
   }
 
+  const totalWords = parseInt(sessionStorage.getItem('bipass_wc') || '1');
+  const scoreEl = document.getElementById('editor-score');
+  if (scoreEl && changeCount > 0 && totalWords > 0) {
+    const rawPct = Math.min(changeCount / totalWords, 1);
+    const score  = Math.round(40 + rawPct * 60);
+    const label  = score >= 80 ? 'High' : score >= 60 ? 'Medium' : 'Low';
+    scoreEl.textContent = `Humanness: ${label}`;
+    scoreEl.dataset.level = label.toLowerCase();
+    scoreEl.classList.remove('hidden');
+  }
+
   const tokensRaw = sessionStorage.getItem('bipass_tokens');
   if (tokensRaw) {
     try {

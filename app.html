@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -238,6 +238,15 @@
               <button class="level-btn level-btn-custom" data-level="customize">Custom</button>
             </div>
             <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
+          </div>
+
+          <div class="control-block lock-structure-block">
+            <button class="lock-structure-btn" id="lock-structure-btn" aria-pressed="false">
+              <span class="lock-structure-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+              </span>
+              <span class="lock-structure-label" id="lock-structure-label">Free rewrite</span>
+            </button>
           </div>
 
           <div class="control-block" id="options-panel" style="display:none">
@@ -512,7 +521,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=2"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
   <script src="cursor.js?v=2"></script>
 
   <footer class="site-footer">

@@ -384,7 +384,7 @@ app.post('/api/analyze', async (req, res) => {
 // ─── POST /api/adjust-level ───────────────────────────────────
 
 app.post('/api/adjust-level', async (req, res) => {
-  const { text, level } = req.body;
+  const { text, level, lockSentenceStructure } = req.body;
   if (!text) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -397,10 +397,14 @@ app.post('/api/adjust-level', async (req, res) => {
 
   const COHERENCE = ` COHERENCE CHECK (do this before returning): re-read the entire text with your replacements in place. Every replaced word must fit its sentence naturally and be grammatically correct. If any replacement creates a word repeated next to itself (like "new new"), a wrong-grammar fit, or an awkward phrase, fix it — pick a better-fitting word of the same meaning, or minimally adjust only the single adjacent word needed so it reads correctly. Do NOT restructure or rewrite whole sentences. The final text must read smoothly, as if a careful person wrote it.`;
 
+  const LOCK = lockSentenceStructure
+    ? ` STRUCTURE LOCK: every sentence in the input must become exactly one sentence in the output. Full stops, question marks, and exclamation points must appear at the same positions as in the input. Replace each word one-for-one — never expand one word into a phrase, never merge two words into one. Word count per sentence must be identical or differ by at most one word.`
+    : '';
+
   const PROMPTS = {
-    easy: `Simplify this text for a beginner English learner. Replace every complex, formal, or academic word with the simplest everyday word that keeps the same meaning. STRICT RULES: only change individual words or short phrases (2–4 words max), never rewrite whole sentences, keep all punctuation and sentence structure exactly the same, keep proper nouns and numbers unchanged.${COHERENCE} Return ONLY the modified text with no explanation or commentary.`,
-    medium: `Simplify this text for a high school student. Replace academic buzzwords and overly formal vocabulary with clear plain words a teenager would use. STRICT RULES: only change individual words or short phrases, keep sentence structure and punctuation identical, keep proper nouns and numbers unchanged.${COHERENCE} Return ONLY the modified text with no explanation.`,
-    hard: `In this text, replace only the most obvious AI-writing buzzwords (such as utilize→use, leverage→use, facilitate→help, comprehensive→complete, paramount→most important, meticulous→careful, groundbreaking→new, transformative→life-changing) with simpler equivalents. Leave all other vocabulary unchanged. STRICT RULES: only change individual words, keep sentence structure and punctuation identical.${COHERENCE} Return ONLY the modified text with no explanation.`,
+    easy: `Simplify this text for a beginner English learner. Replace every complex, formal, or academic word with the simplest everyday word that keeps the same meaning. STRICT RULES: only change individual words or short phrases (2–4 words max), never rewrite whole sentences, keep all punctuation and sentence structure exactly the same, keep proper nouns and numbers unchanged.${LOCK}${COHERENCE} Return ONLY the modified text with no explanation or commentary.`,
+    medium: `Simplify this text for a high school student. Replace academic buzzwords and overly formal vocabulary with clear plain words a teenager would use. STRICT RULES: only change individual words or short phrases, keep sentence structure and punctuation identical, keep proper nouns and numbers unchanged.${LOCK}${COHERENCE} Return ONLY the modified text with no explanation.`,
+    hard: `In this text, replace only the most obvious AI-writing buzzwords (such as utilize→use, leverage→use, facilitate→help, comprehensive→complete, paramount→most important, meticulous→careful, groundbreaking→new, transformative→life-changing) with simpler equivalents. Leave all other vocabulary unchanged. STRICT RULES: only change individual words, keep sentence structure and punctuation identical.${LOCK}${COHERENCE} Return ONLY the modified text with no explanation.`,
   };
 
   const systemPrompt = PROMPTS[level] || PROMPTS.medium;

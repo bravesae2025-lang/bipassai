@@ -807,7 +807,7 @@ async function adjustLevel() {
     const res    = await fetch('/api/adjust-level', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ text, level: selectedLevel }),
+      body:    JSON.stringify({ text, level: selectedLevel, lockSentenceStructure }),
     });
     if (!res.ok) throw new Error('API error');
     const { result } = await res.json();
@@ -837,6 +837,7 @@ async function adjustLevel() {
 
 let selectedLevel          = 'easy';
 let selectedModel          = localStorage.getItem('bipass_model') || 'gemini';
+let lockSentenceStructure  = localStorage.getItem('bipass_lock_structure') === 'true';
 let selectedWritingType    = null;
 let myStyleActive          = false;
 let savedStyle             = null; // points to the active style in savedStyles
@@ -1254,6 +1255,23 @@ function bindEvents() {
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
+
+  // Lock sentence structure toggle
+  const lockBtn   = document.getElementById('lock-structure-btn');
+  const lockLabel = document.getElementById('lock-structure-label');
+  if (lockBtn) {
+    function syncLockBtn() {
+      lockBtn.classList.toggle('active', lockSentenceStructure);
+      lockBtn.setAttribute('aria-pressed', String(lockSentenceStructure));
+      lockLabel.textContent = lockSentenceStructure ? 'Structure locked' : 'Free rewrite';
+    }
+    syncLockBtn();
+    lockBtn.addEventListener('click', () => {
+      lockSentenceStructure = !lockSentenceStructure;
+      localStorage.setItem('bipass_lock_structure', lockSentenceStructure ? 'true' : 'false');
+      syncLockBtn();
+    });
+  }
 
   // Mistake sliders
   optionsPanel?.querySelectorAll('.mistake-slider').forEach(slider => {

@@ -7927,3 +7927,32 @@ ruby.word-change-pair > rt.word-original {
   user-select: none;
   padding-bottom: 2px;       /* breathing room above the yellow word */
 }
+
+/* ── Lock sentence structure toggle ── */
+.lock-structure-block { margin-top: 10px; }
+.lock-structure-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px 6px 10px;
+  border: 1.5px solid var(--g200, #ddd);
+  border-radius: 20px;
+  background: transparent;
+  font-family: var(--ff-ui, inherit);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--g400, #999);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  user-select: none;
+}
+.lock-structure-btn:hover {
+  border-color: var(--black, #111);
+  color: var(--black, #111);
+}
+.lock-structure-btn.active {
+  border-color: var(--black, #111);
+  background: var(--black, #111);
+  color: #fff;
+}
+.lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }

@@ -7292,32 +7292,51 @@ ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
   font-weight: 700;
 }
 
-/* ── Hide rules: an unticked category renders as plain text ── */
+/* ── Hide rules: unticked category → show original word, hide the changed word ── */
+
+/* 1. Make the ruby wrapper flow inline so the rt renders as plain text */
+.changes-view.cat-off-word     ruby[data-cat="word"],
+.changes-view.cat-off-caps     ruby[data-cat="caps"],
+.changes-view.cat-off-punct    ruby[data-cat="punct"],
+.changes-view.cat-off-spelling ruby[data-cat="spelling"],
+.changes-view.cat-off-tense    ruby[data-cat="tense"],
+.changes-view.cat-off-grammar  ruby[data-cat="grammar"] { display: inline; }
+
+/* 2. Hide the changed (highlighted) word inside a ruby pair */
 .changes-view.cat-off-word     ruby[data-cat="word"]     > mark.word-changed,
-.changes-view.cat-off-word     mark.word-changed[data-cat="word"],
 .changes-view.cat-off-caps     ruby[data-cat="caps"]     > mark.word-changed,
-.changes-view.cat-off-caps     mark.word-changed[data-cat="caps"],
 .changes-view.cat-off-punct    ruby[data-cat="punct"]    > mark.word-changed,
-.changes-view.cat-off-punct    mark.word-changed[data-cat="punct"],
 .changes-view.cat-off-spelling ruby[data-cat="spelling"] > mark.word-changed,
-.changes-view.cat-off-spelling mark.word-changed[data-cat="spelling"],
 .changes-view.cat-off-tense    ruby[data-cat="tense"]    > mark.word-changed,
-.changes-view.cat-off-tense    mark.word-changed[data-cat="tense"],
-.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > mark.word-changed,
-.changes-view.cat-off-grammar  mark.word-changed[data-cat="grammar"] {
-  background: none;
-  box-shadow: none;
-  color: inherit;
-  font-weight: inherit;
-}
+.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > mark.word-changed { display: none; }
+
+/* 3. Show the original word as normal inline text */
 .changes-view.cat-off-word     ruby[data-cat="word"]     > rt.word-original,
 .changes-view.cat-off-caps     ruby[data-cat="caps"]     > rt.word-original,
 .changes-view.cat-off-punct    ruby[data-cat="punct"]    > rt.word-original,
 .changes-view.cat-off-spelling ruby[data-cat="spelling"] > rt.word-original,
 .changes-view.cat-off-tense    ruby[data-cat="tense"]    > rt.word-original,
 .changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > rt.word-original {
-  display: none;
+  display: inline;
+  position: static;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  white-space: normal;
+  top: auto;
+  padding-bottom: 0;
+  user-select: auto;
 }
+
+/* 4. Standalone marks (pure insertions — no original to revert to): hide entirely */
+.changes-view.cat-off-word     mark.word-changed[data-cat="word"],
+.changes-view.cat-off-caps     mark.word-changed[data-cat="caps"],
+.changes-view.cat-off-punct    mark.word-changed[data-cat="punct"],
+.changes-view.cat-off-spelling mark.word-changed[data-cat="spelling"],
+.changes-view.cat-off-tense    mark.word-changed[data-cat="tense"],
+.changes-view.cat-off-grammar  mark.word-changed[data-cat="grammar"] { display: none; }
 
 /* ── Changes layout: diff text (left) + filter panel (right) ── */
 .changes-layout {

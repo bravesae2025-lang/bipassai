@@ -7951,7 +7951,7 @@ ruby.word-change-pair > rt.word-original {
   border-color: #1a1a1a;
 }
 .lock-structure-btn.active {
-  border-color: #000;
+  border-color: #fff;
   background: #fff;
   color: #000;
   font-weight: 600;

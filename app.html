@@ -253,7 +253,21 @@
           </div>
 
           <div class="control-block" id="options-panel" style="display:none">
-            <div class="control-head">Human Mistakes</div>
+            <div class="control-head">Word Level</div>
+
+            <div class="mistake-row">
+              <span class="mistake-label">Vocabulary</span>
+              <div class="mistake-slider-track">
+                <input class="mistake-slider" type="range" min="0" max="10" value="5" step="1" data-mistake="wordlevel">
+                <div class="mistake-range-hints">
+                  <span class="mistake-range-hint">Simple</span>
+                  <span class="mistake-range-hint">Hard</span>
+                </div>
+              </div>
+              <span class="mistake-slider-val" data-mistake="wordlevel">Student</span>
+            </div>
+
+            <div class="control-head" style="margin-top:14px">Human Mistakes</div>
 
             <div class="mistake-row">
               <span class="mistake-label">Grammar</span>

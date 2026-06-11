@@ -842,7 +842,9 @@ function adjustLevelOutput(text, level) {
 }
 
 function adjustLevelCustom(text) {
-  text = adjustLevelOutput(text, 'customize');
+  const wlVal = parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5);
+  const fallbackLevel = wlVal <= 3 ? 'easy' : wlVal <= 6 ? 'medium' : 'hard';
+  text = adjustLevelOutput(text, fallbackLevel);
 
   const sliderRate = v => {
     const n = parseInt(v);
@@ -885,11 +887,12 @@ async function adjustLevel() {
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
   const getMistakes = () => ({
-    grammar:  parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value  || 0),
-    tense:    parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value    || 0),
-    punct:    parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value    || 0),
-    caps:     parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value     || 0),
-    spelling: parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value || 0),
+    grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
+    tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
+    punct:     parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value     || 0),
+    caps:      parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value      || 0),
+    spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
+    wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
   });
 
   setLoading(true, 'Adjusting level…');
@@ -1339,6 +1342,14 @@ function restoreState() {
       if (valEl) valEl.textContent = mistakeLabel(saved);
     }
   }
+  const savedWL = parseInt(sessionStorage.getItem('bipass_m_wordlevel') || '5');
+  const wlSlider = optionsPanel?.querySelector('input.mistake-slider[data-mistake="wordlevel"]');
+  if (wlSlider) {
+    wlSlider.value = savedWL;
+    updateSliderFill(wlSlider);
+    const wlVal = optionsPanel?.querySelector('.mistake-slider-val[data-mistake="wordlevel"]');
+    if (wlVal) wlVal.textContent = wordLevelLabel(savedWL);
+  }
   const savedMyStyle = sessionStorage.getItem('bipass_my_style');
   if (savedMyStyle !== null) {
     myStyleActive = savedMyStyle === 'true';
@@ -1381,7 +1392,7 @@ function bindEvents() {
     updateSliderFill(slider);
     slider.addEventListener('input', () => {
       const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
-      if (valEl) valEl.textContent = mistakeLabel(slider.value);
+      if (valEl) valEl.textContent = type === 'wordlevel' ? wordLevelLabel(slider.value) : mistakeLabel(slider.value);
       updateSliderFill(slider);
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
       // Auto-detach from style on manual adjustment — fires once per drag
@@ -1553,6 +1564,15 @@ function mistakeLabel(v) {
   if (v <= 5) return 'Moderate';
   if (v <= 8) return 'Strong';
   return 'Heavy';
+}
+
+function wordLevelLabel(v) {
+  v = parseInt(v);
+  if (v <= 1) return 'Elementary';
+  if (v <= 3) return 'Beginner';
+  if (v <= 6) return 'Student';
+  if (v <= 8) return 'Academic';
+  return 'Expert';
 }
 
 function traitIntensityLabel(val) {

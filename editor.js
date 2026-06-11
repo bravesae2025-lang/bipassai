@@ -223,6 +223,7 @@ function setupViewToggle(result, mode) {
   const btnOrig     = document.getElementById('toggle-original');
   const btnChanges  = document.getElementById('toggle-changes');
   const changesView = document.getElementById('changes-view');
+  const filter      = document.getElementById('changes-filter');
   const aiBox       = document.getElementById('ai-prompt-box');
   const original    = sessionStorage.getItem('bipass_input') || '';
   const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
@@ -236,11 +237,23 @@ function setupViewToggle(result, mode) {
   function showTextarea() {
     editorTextarea.classList.remove('hidden');
     if (changesView) changesView.classList.add('hidden');
+    if (filter) filter.classList.add('hidden');
   }
   function showChanges() {
     editorTextarea.classList.add('hidden');
     if (changesView) { changesView.classList.remove('hidden'); changesView.innerHTML = resultHtml; }
+    if (filter) filter.classList.remove('hidden');
   }
+
+  // Wire category filter checkboxes (once)
+  filter?.querySelectorAll('.cf-chip input').forEach(box => {
+    box.addEventListener('change', () => {
+      const chip = box.closest('.cf-chip');
+      const cat  = chip.dataset.cat;
+      changesView.classList.toggle(`cat-off-${cat}`, !box.checked);
+      chip.classList.toggle('cf-off', !box.checked);
+    });
+  });
 
   btnResult.addEventListener('click', () => {
     viewingOriginal = false;

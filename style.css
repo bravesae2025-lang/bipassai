@@ -7262,11 +7262,117 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .editor-textarea[readonly] { opacity: 0.7; cursor: default; }
 
 mark.word-changed {
-  background: rgba(255, 210, 0, 0.38);
   border-radius: 3px;
   padding: 0 2px;
   font-style: normal;
 }
+
+/* ── Per-category change colors (var --cc drives highlight + strike) ── */
+[data-cat="word"]     { --cc: #e8a317; }
+[data-cat="caps"]     { --cc: #2f6df6; }
+[data-cat="punct"]    { --cc: #8b5cf6; }
+[data-cat="spelling"] { --cc: #e0533d; }
+[data-cat="tense"]    { --cc: #1aa564; }
+[data-cat="grammar"]  { --cc: #d6336c; }
+
+ruby.word-change-pair[data-cat] > mark.word-changed,
+mark.word-changed[data-cat] {
+  background: color-mix(in srgb, var(--cc) 24%, transparent);
+  box-shadow: inset 0 -2px 0 var(--cc);
+}
+ruby.word-change-pair[data-cat] > rt.word-original {
+  text-decoration-color: var(--cc);
+}
+/* Capitals: recolor the letter rather than box it */
+mark.word-changed[data-cat="caps"],
+ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
+  background: none;
+  box-shadow: none;
+  color: var(--cc);
+  font-weight: 700;
+}
+
+/* ── Hide rules: an unticked category renders as plain text ── */
+.changes-view.cat-off-word     ruby[data-cat="word"]     > mark.word-changed,
+.changes-view.cat-off-word     mark.word-changed[data-cat="word"],
+.changes-view.cat-off-caps     ruby[data-cat="caps"]     > mark.word-changed,
+.changes-view.cat-off-caps     mark.word-changed[data-cat="caps"],
+.changes-view.cat-off-punct    ruby[data-cat="punct"]    > mark.word-changed,
+.changes-view.cat-off-punct    mark.word-changed[data-cat="punct"],
+.changes-view.cat-off-spelling ruby[data-cat="spelling"] > mark.word-changed,
+.changes-view.cat-off-spelling mark.word-changed[data-cat="spelling"],
+.changes-view.cat-off-tense    ruby[data-cat="tense"]    > mark.word-changed,
+.changes-view.cat-off-tense    mark.word-changed[data-cat="tense"],
+.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > mark.word-changed,
+.changes-view.cat-off-grammar  mark.word-changed[data-cat="grammar"] {
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-weight: inherit;
+}
+.changes-view.cat-off-word     ruby[data-cat="word"]     > rt.word-original,
+.changes-view.cat-off-caps     ruby[data-cat="caps"]     > rt.word-original,
+.changes-view.cat-off-punct    ruby[data-cat="punct"]    > rt.word-original,
+.changes-view.cat-off-spelling ruby[data-cat="spelling"] > rt.word-original,
+.changes-view.cat-off-tense    ruby[data-cat="tense"]    > rt.word-original,
+.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > rt.word-original {
+  display: none;
+}
+
+/* ── Changes filter panel ── */
+.changes-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--g150);
+  border-radius: var(--r, 8px);
+  background: var(--bg, #fff);
+}
+.changes-filter.hidden { display: none; }
+.changes-filter-title {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+}
+.cf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border: 1px solid var(--g150);
+  border-radius: 20px;
+  user-select: none;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.cf-chip:hover { border-color: var(--cc); }
+.cf-chip input { display: none; }
+.cf-chip .cf-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cc);
+  flex-shrink: 0;
+}
+.cf-chip[data-cat="word"]     { --cc: #e8a317; }
+.cf-chip[data-cat="caps"]     { --cc: #2f6df6; }
+.cf-chip[data-cat="punct"]    { --cc: #8b5cf6; }
+.cf-chip[data-cat="spelling"] { --cc: #e0533d; }
+.cf-chip[data-cat="tense"]    { --cc: #1aa564; }
+.cf-chip[data-cat="grammar"]  { --cc: #d6336c; }
+.cf-chip.cf-off {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
 .changes-view {
   width: 100%;
   min-height: 260px;
@@ -7930,7 +8036,7 @@ ruby.word-change-pair > rt.word-original {
   font-size: 0.62em;
   color: #9a9a9a;
   text-decoration: line-through;
-  text-decoration-color: #c0392b;
+  text-decoration-color: var(--cc, #c0392b);
   font-weight: 400;
   white-space: nowrap;
   user-select: none;

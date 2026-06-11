@@ -712,6 +712,37 @@ const _BASE_PHRASES = [
   ['in today\'s society','today'],
 ];
 
+const _TENSE_MAP = {
+  went:'go', said:'say', told:'tell', was:'is', were:'are', did:'do',
+  had:'have', saw:'see', got:'get', came:'come', made:'make', took:'take',
+  knew:'know', thought:'think', found:'find', gave:'give', wrote:'write',
+  ran:'run', began:'begin', became:'become',
+};
+
+function _editDistance(a, b) {
+  const m = a.length, n = b.length;
+  const d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return d[m][n];
+}
+
+function _classifyChange(orig, repl) {
+  if (!orig) return 'grammar';                       // pure insertion
+  const stripP = s => s.replace(/[.,!?;:"()\[\]]/g, '');
+  const o = stripP(orig), r = stripP(repl);
+  const ol = o.toLowerCase(), rl = r.toLowerCase();
+  if (o !== r && ol === rl) return 'caps';           // only case differs
+  if (o !== r && ol.replace(/'/g, '') === rl.replace(/'/g, '')) return 'punct'; // apostrophe/punct
+  if (_TENSE_MAP[ol] === rl) return 'tense';         // known tense swap
+  const base = ol.replace(/'/g, ''), rbase = rl.replace(/'/g, '');
+  if (base[0] === rbase[0] && Math.abs(base.length - rbase.length) <= 1
+      && base !== rbase && _editDistance(base, rbase) <= 2) return 'spelling';
+  return 'word';                                     // vocabulary swap
+}
+
 function _buildDiffHtml(original, result) {
   const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
   // Split into alternating [word, whitespace, word, ...] tokens
@@ -734,6 +765,7 @@ function _buildDiffHtml(original, result) {
   // Walk back: collect changed result words + which originals they replaced
   const changed = new Set();
   const origFor = new Map();
+  const origRawFor = new Map();
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   let pending = [];
   let i = 0, j = 0;
@@ -742,14 +774,14 @@ function _buildDiffHtml(original, result) {
     else if (dp[i + 1][j] >= dp[i][j + 1]) { pending.push(O[i]); i++; }
     else {
       changed.add(j);
-      if (pending.length) { origFor.set(j, pending.map(esc).join(' ')); pending = []; }
+      if (pending.length) { origFor.set(j, pending.map(esc).join(' ')); origRawFor.set(j, pending.join(' ')); pending = []; }
       j++;
     }
   }
   let firstTrailing = true;
   while (j < n) {
     changed.add(j);
-    if (firstTrailing && pending.length) { origFor.set(j, pending.map(esc).join(' ')); firstTrailing = false; pending = []; }
+    if (firstTrailing && pending.length) { origFor.set(j, pending.map(esc).join(' ')); origRawFor.set(j, pending.join(' ')); firstTrailing = false; pending = []; }
     j++;
   }
 
@@ -759,10 +791,12 @@ function _buildDiffHtml(original, result) {
     if (/^\s+$/.test(tok)) { html += tok; continue; }
     const safe = tok.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     if (changed.has(wordIdx)) {
-      const orig = origFor.get(wordIdx);
+      const orig    = origFor.get(wordIdx);
+      const origRaw = origRawFor.get(wordIdx) || '';
+      const cat     = _classifyChange(origRaw, tok);
       html += orig
-        ? `<ruby class="word-change-pair"><mark class="word-changed">${safe}</mark><rt class="word-original">${orig}</rt></ruby>`
-        : `<mark class="word-changed">${safe}</mark>`;
+        ? `<ruby class="word-change-pair" data-cat="${cat}"><mark class="word-changed">${safe}</mark><rt class="word-original">${orig}</rt></ruby>`
+        : `<mark class="word-changed" data-cat="${cat}">${safe}</mark>`;
     } else {
       html += safe;
     }

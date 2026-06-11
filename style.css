@@ -7929,21 +7929,21 @@ ruby.word-change-pair > rt.word-original {
 }
 
 /* ── Lock sentence structure toggle ── */
-.lock-structure-block { margin-top: 10px; }
+.lock-structure-block { margin-top: 12px; }
 .lock-structure-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 14px 6px 10px;
+  gap: 8px;
+  padding: 8px 16px 8px 12px;
   border: 1.5px solid var(--g200, #d4d4d4);
   border-radius: 20px;
   background: #fff;
   font-family: var(--ff-ui, inherit);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--g400, #5a5a5a);
   cursor: pointer;
-  transition: border-color 0.18s, color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.12s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
 }
 .lock-structure-btn:hover {
@@ -7955,13 +7955,17 @@ ruby.word-change-pair > rt.word-original {
   border: 2px solid #000;
   background: #000;
   color: #fff;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.22);
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 18px 9px 13px;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.32);
+  transform: scale(1.05);
+  letter-spacing: 0.02em;
 }
 .lock-structure-btn.active:hover {
-  background: var(--g900, #1a1a1a);
-  border-color: var(--g900, #1a1a1a);
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  transform: scale(1.07);
 }
 .lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }
 /* Show/hide correct padlock icon based on state */

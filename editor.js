@@ -224,6 +224,7 @@ function setupViewToggle(result, mode) {
   const btnChanges  = document.getElementById('toggle-changes');
   const changesView = document.getElementById('changes-view');
   const filter      = document.getElementById('changes-filter');
+  const layout      = document.getElementById('changes-layout');
   const aiBox       = document.getElementById('ai-prompt-box');
   const original    = sessionStorage.getItem('bipass_input') || '';
   const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
@@ -236,8 +237,7 @@ function setupViewToggle(result, mode) {
 
   function showTextarea() {
     editorTextarea.classList.remove('hidden');
-    if (changesView) changesView.classList.add('hidden');
-    if (filter) filter.classList.add('hidden');
+    if (layout) layout.classList.add('hidden');
   }
   function refreshCounts() {
     if (!filter || !changesView) return;
@@ -251,8 +251,8 @@ function setupViewToggle(result, mode) {
   }
   function showChanges() {
     editorTextarea.classList.add('hidden');
-    if (changesView) { changesView.classList.remove('hidden'); changesView.innerHTML = resultHtml; }
-    if (filter) filter.classList.remove('hidden');
+    if (layout) layout.classList.remove('hidden');
+    if (changesView) changesView.innerHTML = resultHtml;
     refreshCounts();
   }
 

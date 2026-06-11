@@ -7955,17 +7955,13 @@ ruby.word-change-pair > rt.word-original {
   border: 2px solid #000;
   background: #000;
   color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 9px 18px 9px 13px;
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.32);
-  transform: scale(1.05);
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
 }
 .lock-structure-btn.active:hover {
   background: #1a1a1a;
   border-color: #1a1a1a;
-  transform: scale(1.07);
 }
 .lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }
 /* Show/hide correct padlock icon based on state */

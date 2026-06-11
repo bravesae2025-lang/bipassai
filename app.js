@@ -1263,7 +1263,7 @@ function bindEvents() {
     function syncLockBtn() {
       lockBtn.classList.toggle('active', lockSentenceStructure);
       lockBtn.setAttribute('aria-pressed', String(lockSentenceStructure));
-      lockLabel.textContent = lockSentenceStructure ? 'Structure locked' : 'Free rewrite';
+      lockLabel.textContent = lockSentenceStructure ? 'Structure locked' : 'Lock sentence structure';
     }
     syncLockBtn();
     lockBtn.addEventListener('click', () => {

@@ -7934,25 +7934,26 @@ ruby.word-change-pair > rt.word-original {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 13px 6px 10px;
-  border: 1.5px solid var(--g200, #ddd);
+  padding: 6px 14px 6px 10px;
+  border: 1.5px solid var(--g200, #d4d4d4);
   border-radius: 20px;
-  background: transparent;
+  background: #fff;
   font-family: var(--ff-ui, inherit);
   font-size: 12px;
   font-weight: 500;
-  color: var(--g400, #999);
+  color: var(--g400, #5a5a5a);
   cursor: pointer;
-  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  transition: border-color 0.18s, color 0.18s, background 0.18s, box-shadow 0.18s;
   user-select: none;
 }
 .lock-structure-btn:hover {
-  border-color: var(--black, #111);
-  color: var(--black, #111);
+  border-color: var(--g400, #5a5a5a);
+  color: var(--g800, #2a2a2a);
+  background: var(--g050, #f7f7f5);
 }
 .lock-structure-btn.active {
-  border-color: var(--black, #111);
-  background: var(--black, #111);
+  border-color: var(--g700, #3d3d3d);
+  background: var(--g900, #1a1a1a);
   color: #fff;
 }
 .lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }

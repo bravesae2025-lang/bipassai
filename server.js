@@ -404,7 +404,14 @@ app.post('/api/adjust-level', async (req, res) => {
   };
 
   const systemPrompt = PROMPTS[level] || PROMPTS.medium;
-  const fullPrompt = `${systemPrompt}\n\nText:\n${text}`;
+
+  const stripDashes = s => s
+    .replace(/\s*—\s*/g, ', ')
+    .replace(/\s*–\s*/g, ', ')
+    .replace(/ - /g, ', ');
+
+  const processedText = level === 'easy' ? stripDashes(text) : text;
+  const fullPrompt = `${systemPrompt}\n\nText:\n${processedText}`;
 
   try {
     const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
@@ -425,7 +432,8 @@ app.post('/api/adjust-level', async (req, res) => {
     const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!result) return res.status(500).json({ error: 'No output from Gemini' });
 
-    return res.json({ result: result.trim() });
+    const finalResult = level === 'easy' ? stripDashes(result.trim()) : result.trim();
+    return res.json({ result: finalResult });
   } catch (err) {
     console.error('/api/adjust-level error:', err);
     return res.status(500).json({ error: 'Server error' });

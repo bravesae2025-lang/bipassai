@@ -7275,17 +7275,17 @@ mark.word-changed {
 [data-cat="tense"]    { --cc: #1aa564; }
 [data-cat="grammar"]  { --cc: #d6336c; }
 
-ruby.word-change-pair[data-cat] > mark.word-changed,
+.word-change-pair[data-cat] > mark.word-changed,
 mark.word-changed[data-cat] {
   background: color-mix(in srgb, var(--cc) 24%, transparent);
   box-shadow: inset 0 -2px 0 var(--cc);
 }
-ruby.word-change-pair[data-cat] > rt.word-original {
+.word-change-pair[data-cat] > .word-original {
   text-decoration-color: var(--cc);
 }
 /* Capitals: recolor the letter rather than box it */
 mark.word-changed[data-cat="caps"],
-ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
+.word-change-pair[data-cat="caps"] > mark.word-changed {
   background: none;
   box-shadow: none;
   color: var(--cc);
@@ -7294,29 +7294,32 @@ ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
 
 /* ── Hide rules: unticked category → show original word, hide the changed word ── */
 
-/* 1. Make the ruby wrapper flow inline so the rt renders as plain text */
-.changes-view.cat-off-word     ruby[data-cat="word"],
-.changes-view.cat-off-caps     ruby[data-cat="caps"],
-.changes-view.cat-off-punct    ruby[data-cat="punct"],
-.changes-view.cat-off-spelling ruby[data-cat="spelling"],
-.changes-view.cat-off-tense    ruby[data-cat="tense"],
-.changes-view.cat-off-grammar  ruby[data-cat="grammar"] { display: inline; }
+/* 1. Collapse the pair wrapper to inline so the original span flows as plain text */
+.changes-view.cat-off-word     .word-change-pair[data-cat="word"],
+.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"],
+.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"],
+.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"],
+.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"],
+.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"] {
+  display: inline;
+  position: static;
+}
 
-/* 2. Hide the changed (highlighted) word inside a ruby pair */
-.changes-view.cat-off-word     ruby[data-cat="word"]     > mark.word-changed,
-.changes-view.cat-off-caps     ruby[data-cat="caps"]     > mark.word-changed,
-.changes-view.cat-off-punct    ruby[data-cat="punct"]    > mark.word-changed,
-.changes-view.cat-off-spelling ruby[data-cat="spelling"] > mark.word-changed,
-.changes-view.cat-off-tense    ruby[data-cat="tense"]    > mark.word-changed,
-.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > mark.word-changed { display: none; }
+/* 2. Hide the changed (highlighted) word */
+.changes-view.cat-off-word     .word-change-pair[data-cat="word"]     > mark.word-changed,
+.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"]     > mark.word-changed,
+.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"]    > mark.word-changed,
+.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"] > mark.word-changed,
+.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"]    > mark.word-changed,
+.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"]  > mark.word-changed { display: none; }
 
 /* 3. Show the original word as normal inline text */
-.changes-view.cat-off-word     ruby[data-cat="word"]     > rt.word-original,
-.changes-view.cat-off-caps     ruby[data-cat="caps"]     > rt.word-original,
-.changes-view.cat-off-punct    ruby[data-cat="punct"]    > rt.word-original,
-.changes-view.cat-off-spelling ruby[data-cat="spelling"] > rt.word-original,
-.changes-view.cat-off-tense    ruby[data-cat="tense"]    > rt.word-original,
-.changes-view.cat-off-grammar  ruby[data-cat="grammar"]  > rt.word-original {
+.changes-view.cat-off-word     .word-change-pair[data-cat="word"]     > .word-original,
+.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"]     > .word-original,
+.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"]    > .word-original,
+.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"] > .word-original,
+.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"]    > .word-original,
+.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"]  > .word-original {
   display: inline;
   position: static;
   font-size: inherit;
@@ -7325,7 +7328,7 @@ ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
   font-weight: inherit;
   text-decoration: none;
   white-space: normal;
-  top: auto;
+  transform: none;
   padding-bottom: 0;
   user-select: auto;
 }
@@ -8103,13 +8106,18 @@ ruby.word-change-pair[data-cat="caps"] > mark.word-changed {
 }
 
 /* ── Redline: original word (strikethrough) shown above its replacement ── */
-.changes-view { line-height: 2.35; }
-ruby.word-change-pair {
-  ruby-align: center;
-  ruby-position: over;       /* annotation sits above the base */
+.changes-view { line-height: 2.6; overflow-x: clip; }
+.word-change-pair {
+  display: inline-block;     /* never splits across lines */
+  position: relative;
+  vertical-align: baseline;
   margin: 0 1px;
 }
-ruby.word-change-pair > rt.word-original {
+.word-change-pair > .word-original {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.62em;
   color: #9a9a9a;
   text-decoration: line-through;
@@ -8117,7 +8125,8 @@ ruby.word-change-pair > rt.word-original {
   font-weight: 400;
   white-space: nowrap;
   user-select: none;
-  padding-bottom: 2px;       /* breathing room above the yellow word */
+  padding-bottom: 2px;
+  pointer-events: none;
 }
 
 /* ── Lock sentence structure toggle ── */

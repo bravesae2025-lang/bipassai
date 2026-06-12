@@ -802,7 +802,7 @@ function _buildDiffHtml(original, result) {
       const origRaw = origRawFor.get(wordIdx) || '';
       const cat     = _classifyChange(origRaw, tok);
       html += orig
-        ? `<ruby class="word-change-pair" data-cat="${cat}"><mark class="word-changed">${safe}</mark><rt class="word-original">${orig}</rt></ruby>`
+        ? `<span class="word-change-pair" data-cat="${cat}"><mark class="word-changed">${safe}</mark><span class="word-original">${orig}</span></span>`
         : `<mark class="word-changed" data-cat="${cat}">${safe}</mark>`;
     } else {
       html += safe;

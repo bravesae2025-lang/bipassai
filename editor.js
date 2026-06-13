@@ -204,30 +204,30 @@ async function init() {
   saveResult(result, mode, session);
 }
 
-let viewingOriginal = false;
+// Fall back to the plain editable text (e.g. after Regenerate, which has no diff)
+function showPlainResult(text) {
+  const layout = document.getElementById('changes-layout');
+  if (layout) layout.classList.add('hidden');
+  editorTextarea.classList.remove('hidden');
+  editorTextarea.value = text;
+  editorTextarea.readOnly = false;
+  const aiBox = document.getElementById('ai-prompt-box');
+  if (aiBox) aiBox.style.display = '';
+  updateWc();
+}
 
 function setupViewToggle(result, mode) {
-  const toggle      = document.getElementById('editor-view-toggle');
-  const btnResult   = document.getElementById('toggle-result');
-  const btnOrig     = document.getElementById('toggle-original');
-  const btnChanges  = document.getElementById('toggle-changes');
   const changesView = document.getElementById('changes-view');
   const filter      = document.getElementById('changes-filter');
   const layout      = document.getElementById('changes-layout');
   const aiBox       = document.getElementById('ai-prompt-box');
-  const original    = sessionStorage.getItem('bipass_input') || '';
   const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
-
   const hasHtml     = !!resultHtml.trim();
-  const hasOriginal = !!original.trim();
-  if (mode !== 'humanize' || (!hasHtml && !hasOriginal)) return;
-  toggle.classList.remove('hidden');
-  if (!hasOriginal) btnOrig.style.display = 'none';
 
-  function showTextarea() {
-    editorTextarea.classList.remove('hidden');
-    if (layout) layout.classList.add('hidden');
-  }
+  // Only the Changes view remains. Without diff HTML (e.g. generate mode),
+  // leave the plain textarea showing as-is.
+  if (mode !== 'humanize' || !hasHtml) return;
+
   function refreshCounts() {
     if (!filter || !changesView) return;
     ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'].forEach(cat => {
@@ -238,14 +238,8 @@ function setupViewToggle(result, mode) {
       if (row) row.classList.toggle('cf-empty', n === 0);
     });
   }
-  function showChanges() {
-    editorTextarea.classList.add('hidden');
-    if (layout) layout.classList.remove('hidden');
-    if (changesView) changesView.innerHTML = resultHtml;
-    refreshCounts();
-  }
 
-  // Wire category filter toggles (once)
+  // Wire category filter toggles
   filter?.querySelectorAll('.cf-row input').forEach(box => {
     box.addEventListener('change', () => {
       const row = box.closest('.cf-row');
@@ -255,46 +249,12 @@ function setupViewToggle(result, mode) {
     });
   });
 
-  btnResult.addEventListener('click', () => {
-    viewingOriginal = false;
-    showTextarea();
-    editorTextarea.value = result;
-    editorTextarea.readOnly = false;
-    editorBadge.textContent = 'Adjusted';
-    btnResult.classList.add('active');
-    btnOrig.classList.remove('active');
-    if (btnChanges) btnChanges.classList.remove('active');
-    if (aiBox) aiBox.style.display = '';
-    updateWc();
-  });
-
-  btnOrig.addEventListener('click', () => {
-    viewingOriginal = true;
-    showTextarea();
-    editorTextarea.value = original;
-    editorTextarea.readOnly = true;
-    editorBadge.textContent = 'Original';
-    btnOrig.classList.add('active');
-    btnResult.classList.remove('active');
-    if (btnChanges) btnChanges.classList.remove('active');
-    if (aiBox) aiBox.style.display = 'none';
-    updateWc();
-  });
-
-  if (btnChanges) {
-    btnChanges.addEventListener('click', () => {
-      showChanges();
-      btnChanges.classList.add('active');
-      btnResult.classList.remove('active');
-      btnOrig.classList.remove('active');
-      if (aiBox) aiBox.style.display = 'none';
-    });
-
-    // Default to changes view when diff HTML is available
-    if (hasHtml) {
-      btnChanges.click();
-    }
-  }
+  // Show the Changes view only
+  editorTextarea.classList.add('hidden');
+  if (aiBox) aiBox.style.display = 'none';
+  if (layout) layout.classList.remove('hidden');
+  if (changesView) changesView.innerHTML = resultHtml;
+  refreshCounts();
 }
 
 async function saveResult(text, mode, session) {
@@ -586,7 +546,7 @@ async function regenerate() {
   try {
     const result = await callEditorStream(prompt);
     sessionStorage.setItem('bipass_result', result);
-    document.getElementById('toggle-result')?.click();
+    showPlainResult(result);   // regenerated text has no diff — show it plainly
     showToast('Regenerated');
   } catch (err) {
     showToast(err.message || 'Something went wrong');

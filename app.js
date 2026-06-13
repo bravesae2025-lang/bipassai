@@ -729,6 +729,19 @@ function _editDistance(a, b) {
   return d[m][n];
 }
 
+// Regular past↔present tense: walk↔walked, change↔changed, study↔studied, stop↔stopped
+function _isRegularTense(a, b) {
+  const pair = (past, pres) => {
+    if (!past || !pres || past === pres) return false;
+    if (past === pres + 'ed') return true;                             // walk→walked
+    if (past === pres + 'd') return true;                              // change→changed
+    if (pres.endsWith('y') && past === pres.slice(0, -1) + 'ied') return true; // study→studied
+    if (past === pres + pres.slice(-1) + 'ed') return true;            // stop→stopped
+    return false;
+  };
+  return pair(a, b) || pair(b, a);
+}
+
 function _classifyChange(orig, repl) {
   if (!orig) return 'grammar';                         // pure insertion / structural
   const ol = orig.toLowerCase(), rl = repl.toLowerCase();
@@ -736,7 +749,8 @@ function _classifyChange(orig, repl) {
   const oL = letters(orig), rL = letters(repl);
   if (orig !== repl && ol === rl) return 'caps';       // identical except CASE
   if (orig !== repl && oL === rL) return 'punct';      // identical letters, punct/apostrophe differs
-  if (_TENSE_MAP[oL] === rL) return 'tense';           // known tense swap
+  if (_TENSE_MAP[oL] === rL || _TENSE_MAP[rL] === oL || _isRegularTense(oL, rL))
+    return 'tense';                                    // tense swap (irregular map or regular -ed)
   if (oL && rL && oL[0] === rL[0] && oL !== rL
       && Math.abs(oL.length - rL.length) <= 1
       && _editDistance(oL, rL) <= 2) return 'spelling';// small typo

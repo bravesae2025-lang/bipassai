@@ -384,32 +384,46 @@ app.post('/api/analyze', async (req, res) => {
 // ─── POST /api/adjust-level ───────────────────────────────────
 
 function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) {
-  // Slider 0 = off. Otherwise scale the target to the text length so a short
-  // paragraph gets a few and a long essay gets proportionally more — and the
-  // model treats it as a required count, not an optional suggestion.
-  const rate = v => {
+  // Slider 0 = off. Tense / punctuation / capitals have a LIMITED pool of
+  // eligible words (only so many past-tense verbs, contractions, sentence
+  // starts), so target them as a share of that pool — not of total words —
+  // otherwise they get starved while grammar/vocab (which can hit any word)
+  // eat the whole budget.
+  const pctLabel = v => {
     v = parseInt(v) || 0;
-    if (v <= 0) return null;            // off
-    if (v <= 2) return 0.02;            // a touch
-    if (v <= 4) return 0.05;
-    if (v <= 6) return 0.09;
-    if (v <= 8) return 0.15;
-    return 0.25;                        // nearly everywhere it applies
+    if (v <= 0) return null;
+    if (v <= 2) return 'about 25% of';
+    if (v <= 4) return 'about 45% of';
+    if (v <= 6) return 'about 65% of';
+    if (v <= 8) return 'about 85% of';
+    return 'nearly all of';
   };
-  const label = v => {
-    const r = rate(v);
-    if (r === null) return null;
-    const n = Math.max(2, Math.round(wordCount * r));
-    return `about ${n} time${n !== 1 ? 's' : ''} across the text (wherever it naturally applies)`;
+  // Spelling/grammar can apply to any word — give a count, but CAP it low so
+  // they don't crowd out the limited categories above.
+  const countLabel = (v, capFrac) => {
+    v = parseInt(v) || 0;
+    if (v <= 0) return null;
+    const r = v <= 2 ? 0.02 : v <= 4 ? 0.04 : v <= 6 ? 0.06 : v <= 8 ? 0.08 : 0.10;
+    const n = Math.min(Math.round(wordCount * capFrac), Math.max(2, Math.round(wordCount * r)));
+    return `about ${n}`;
   };
+
   const mistakeLines = [];
-  if (label(mistakes.grammar))  mistakeLines.push(`- Grammar: introduce subject-verb disagreements or missing/wrong articles ${label(mistakes.grammar)}.`);
-  if (label(mistakes.tense))    mistakeLines.push(`- Tense: switch past-tense verbs to present tense ${label(mistakes.tense)} (e.g. "went"→"go", "said"→"say", "was"→"is", "made"→"make").`);
-  if (label(mistakes.punct))    mistakeLines.push(`- Punctuation: drop apostrophes on contractions ${label(mistakes.punct)} (dont, cant, its, wont, didnt).`);
-  if (label(mistakes.caps))     mistakeLines.push(`- Capitals: lowercase a letter that should be capital (sentence starts, the word "I") ${label(mistakes.caps)}.`);
-  if (label(mistakes.spelling)) mistakeLines.push(`- Spelling: misspell common words ${label(mistakes.spelling)} (definately, recieve, seperate, occured, wierd, alot, untill).`);
+  // Limited-pool categories FIRST so the model spends budget on them before
+  // moving to the easy high-volume ones.
+  if (pctLabel(mistakes.tense))
+    mistakeLines.push(`- Tense (DO THIS FIRST): find EVERY past-tense verb in the text, then switch ${pctLabel(mistakes.tense)} them to present tense — e.g. "went"→"go", "said"→"say", "was"→"is", "were"→"are", "made"→"make", "changed"→"change", "showed"→"show", "had"→"have", "became"→"become". This category must NOT come out as zero.`);
+  if (pctLabel(mistakes.punct))
+    mistakeLines.push(`- Punctuation (DO THIS EARLY): find EVERY contraction and drop the apostrophe on ${pctLabel(mistakes.punct)} them — don't→dont, can't→cant, it's→its, won't→wont, didn't→didnt, that's→thats, I'm→im. If there are few contractions, contract a couple of "is not"/"do not"/"it is" pairs and drop their apostrophes too. This category must NOT come out as zero.`);
+  if (pctLabel(mistakes.caps))
+    mistakeLines.push(`- Capitals (DO THIS EARLY): lowercase the first letter of ${pctLabel(mistakes.caps)} the sentences, and lowercase any standalone "I". This category must NOT come out as zero.`);
+  if (countLabel(mistakes.spelling, 0.12))
+    mistakeLines.push(`- Spelling: misspell ${countLabel(mistakes.spelling, 0.12)} words the way a real person slips up (definately, recieve, seperate, occured, wierd, alot, untill, becuase, thier, wich).`);
+  if (countLabel(mistakes.grammar, 0.10))
+    mistakeLines.push(`- Grammar: introduce ${countLabel(mistakes.grammar, 0.10)} subject-verb disagreement or wrong/missing-article errors — do NOT exceed this count; grammar must not swallow the budget the other categories need.`);
+
   const mistakeBlock = mistakeLines.length
-    ? `\n\nMISTAKES YOU MUST APPLY — THIS IS REQUIRED, NOT OPTIONAL:\nThe output MUST visibly contain each of the following errors at the stated frequency. These are deliberate human imperfections — do NOT "fix" or clean them up, and do not skip any line. If a category asks for more than the text can fit, apply it everywhere it possibly can.\n${mistakeLines.join('\n')}\nBefore returning, count your changes for each category above and confirm you met the minimum. If you fell short on any, add more until you do.`
+    ? `\n\nMISTAKES YOU MUST APPLY — REQUIRED, NOT OPTIONAL:\nApply the lines below IN ORDER. The limited categories (tense, punctuation, capitals) come first on purpose — fully apply them BEFORE doing spelling/grammar, because those easy categories will otherwise eat all the changes and leave the others at zero. These are deliberate human imperfections: do NOT "fix" or clean them up.\n${mistakeLines.join('\n')}\nFINAL CHECK before returning: go category by category and confirm EVERY line above actually appears in your output. If tense, punctuation, or capitals is missing or near zero, STOP and add them — never return with an enabled category at zero. Spread changes across the WHOLE text, not just the first paragraph.`
     : '';
 
   const wl = parseInt(mistakes.wordLevel ?? 5);

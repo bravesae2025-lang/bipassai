@@ -8118,11 +8118,11 @@ mark.word-changed[data-cat="caps"],
 .word-change-pair > .word-original {
   font-size: 0.66em;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   color: #9a9a9a;
   text-decoration: line-through;
   text-decoration-color: var(--cc, #c0392b);
-  text-decoration-thickness: 1.5px;
+  text-decoration-thickness: 1px;
   font-weight: 500;
   white-space: nowrap;
   user-select: none;

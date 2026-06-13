@@ -383,17 +383,24 @@ app.post('/api/analyze', async (req, res) => {
 
 // ─── POST /api/adjust-level ───────────────────────────────────
 
-function buildCustomizePrompt(mistakes, lockSentenceStructure) {
-  // Slider 0 = off. Otherwise give an explicit minimum count so the model
-  // actually applies the mistake instead of treating it as optional.
-  const label = v => {
+function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) {
+  // Slider 0 = off. Otherwise scale the target to the text length so a short
+  // paragraph gets a few and a long essay gets proportionally more — and the
+  // model treats it as a required count, not an optional suggestion.
+  const rate = v => {
     v = parseInt(v) || 0;
-    if (v <= 0) return null;
-    if (v <= 2) return 'at least 2 times';
-    if (v <= 4) return 'at least 3-4 times';
-    if (v <= 6) return 'at least 5-7 times';
-    if (v <= 8) return 'at least 8-12 times';
-    return 'on nearly every place it can apply (15+ times if the text is long enough)';
+    if (v <= 0) return null;            // off
+    if (v <= 2) return 0.02;            // a touch
+    if (v <= 4) return 0.05;
+    if (v <= 6) return 0.09;
+    if (v <= 8) return 0.15;
+    return 0.25;                        // nearly everywhere it applies
+  };
+  const label = v => {
+    const r = rate(v);
+    if (r === null) return null;
+    const n = Math.max(2, Math.round(wordCount * r));
+    return `about ${n} time${n !== 1 ? 's' : ''} across the text (wherever it naturally applies)`;
   };
   const mistakeLines = [];
   if (label(mistakes.grammar))  mistakeLines.push(`- Grammar: introduce subject-verb disagreements or missing/wrong articles ${label(mistakes.grammar)}.`);
@@ -461,7 +468,7 @@ app.post('/api/adjust-level', async (req, res) => {
   };
 
   const systemPrompt = level === 'customize'
-    ? buildCustomizePrompt(mistakes || {}, lockSentenceStructure)
+    ? buildCustomizePrompt(mistakes || {}, lockSentenceStructure, (text.trim().match(/\S+/g) || []).length)
     : (PROMPTS[level] || PROMPTS.medium);
 
   const stripDashes = s => s

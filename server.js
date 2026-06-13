@@ -384,14 +384,26 @@ app.post('/api/analyze', async (req, res) => {
 // ─── POST /api/adjust-level ───────────────────────────────────
 
 function buildCustomizePrompt(mistakes, lockSentenceStructure) {
-  const label = v => v <= 2 ? null : v <= 4 ? 'once or twice' : v <= 6 ? 'several times' : v <= 8 ? 'frequently' : 'very frequently';
+  // Slider 0 = off. Otherwise give an explicit minimum count so the model
+  // actually applies the mistake instead of treating it as optional.
+  const label = v => {
+    v = parseInt(v) || 0;
+    if (v <= 0) return null;
+    if (v <= 2) return 'at least 2 times';
+    if (v <= 4) return 'at least 3-4 times';
+    if (v <= 6) return 'at least 5-7 times';
+    if (v <= 8) return 'at least 8-12 times';
+    return 'on nearly every place it can apply (15+ times if the text is long enough)';
+  };
   const mistakeLines = [];
-  if (label(mistakes.grammar))  mistakeLines.push(`Grammar: introduce subject-verb disagreements or missing articles ${label(mistakes.grammar)}.`);
-  if (label(mistakes.tense))    mistakeLines.push(`Tense: switch past-tense verbs to present tense ${label(mistakes.tense)} (e.g. "went"→"go", "said"→"say", "was"→"is").`);
-  if (label(mistakes.punct))    mistakeLines.push(`Punctuation: drop apostrophes on contractions ${label(mistakes.punct)} (dont, cant, its, wont).`);
-  if (label(mistakes.caps))     mistakeLines.push(`Capitals: miss a capital letter at the start of a sentence ${label(mistakes.caps)}.`);
-  if (label(mistakes.spelling)) mistakeLines.push(`Spelling: introduce common spelling mistakes ${label(mistakes.spelling)} (definately, recieve, seperate, occured, wierd).`);
-  const mistakeBlock = mistakeLines.length ? `\n\nMISTAKES TO APPLY:\n${mistakeLines.join('\n')}` : '';
+  if (label(mistakes.grammar))  mistakeLines.push(`- Grammar: introduce subject-verb disagreements or missing/wrong articles ${label(mistakes.grammar)}.`);
+  if (label(mistakes.tense))    mistakeLines.push(`- Tense: switch past-tense verbs to present tense ${label(mistakes.tense)} (e.g. "went"→"go", "said"→"say", "was"→"is", "made"→"make").`);
+  if (label(mistakes.punct))    mistakeLines.push(`- Punctuation: drop apostrophes on contractions ${label(mistakes.punct)} (dont, cant, its, wont, didnt).`);
+  if (label(mistakes.caps))     mistakeLines.push(`- Capitals: lowercase a letter that should be capital (sentence starts, the word "I") ${label(mistakes.caps)}.`);
+  if (label(mistakes.spelling)) mistakeLines.push(`- Spelling: misspell common words ${label(mistakes.spelling)} (definately, recieve, seperate, occured, wierd, alot, untill).`);
+  const mistakeBlock = mistakeLines.length
+    ? `\n\nMISTAKES YOU MUST APPLY — THIS IS REQUIRED, NOT OPTIONAL:\nThe output MUST visibly contain each of the following errors at the stated frequency. These are deliberate human imperfections — do NOT "fix" or clean them up, and do not skip any line. If a category asks for more than the text can fit, apply it everywhere it possibly can.\n${mistakeLines.join('\n')}\nBefore returning, count your changes for each category above and confirm you met the minimum. If you fell short on any, add more until you do.`
+    : '';
 
   const wl = parseInt(mistakes.wordLevel ?? 5);
   const vocabInstruction = wl <= 1

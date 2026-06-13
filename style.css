@@ -8104,21 +8104,21 @@ mark.word-changed[data-cat="caps"],
   color: #fff;
 }
 
-/* ── Redline: change box sits on the text baseline; struck original floats above ── */
+/* ── Redline: original word (struck) stacked neatly above its replacement ── */
 .changes-view { line-height: 2.9; overflow-x: clip; }
 .word-change-pair {
-  display: inline-block;         /* a self-contained unit — never splits */
-  position: relative;
-  vertical-align: baseline;      /* box lines up with surrounding words */
+  display: inline-flex;          /* a self-contained unit — never splits */
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  vertical-align: middle;
+  line-height: 1.15;
   margin: 0 2px;
 }
 .word-change-pair > .word-original {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 4px);      /* hovers just above the box */
-  transform: translateX(-50%);
   font-size: 0.66em;
   line-height: 1;
+  margin-bottom: 5px;
   color: #9a9a9a;
   text-decoration: line-through;
   text-decoration-color: var(--cc, #c0392b);

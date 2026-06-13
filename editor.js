@@ -71,7 +71,6 @@ const loadingText     = document.getElementById('loading-text');
 const toast           = document.getElementById('toast');
 const aiPromptInput   = document.getElementById('ai-prompt-input');
 const aiPromptApply   = document.getElementById('ai-prompt-apply');
-const editorBadgesEl  = document.getElementById('editor-badges');
 
 // ─── Drawer ───────────────────────────────────────────────────
 
@@ -197,7 +196,6 @@ async function init() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editWithAI(); }
   });
 
-  renderBadges();
   setupSpeedButtons();
   setupViewToggle(result, mode);
   document.getElementById('regen-btn')?.addEventListener('click', regenerate);
@@ -431,25 +429,6 @@ ${text}`;
 }
 
 // ─── Feature badges ───────────────────────────────────────────
-
-function renderBadges() {
-  const level   = sessionStorage.getItem('bipass_level') || 'easy';
-  const grammar = sessionStorage.getItem('bipass_grammar') === 'true';
-  const punct   = sessionStorage.getItem('bipass_punct')   === 'true';
-
-  const badges = [
-    { label: level.charAt(0).toUpperCase() + level.slice(1) + ' mode', active: true },
-    { label: 'Grammar mistakes', active: grammar },
-    { label: 'Punctuation mistakes', active: punct },
-  ];
-
-  editorBadgesEl.innerHTML = badges.map(b => `
-    <span class="editor-feature-badge ${b.active ? 'active' : ''}">
-      <span class="editor-feature-tick">${b.active ? '✓' : '○'}</span>
-      ${b.label}
-    </span>
-  `).join('');
-}
 
 // ─── Build humanize prompt (mirrors app.js) ───────────────────
 

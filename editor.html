@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body class="editor-page">
 
@@ -76,18 +76,37 @@
       ></textarea>
       <div class="changes-layout hidden" id="changes-layout">
         <div class="changes-view" id="changes-view"></div>
-        <aside class="changes-filter" id="changes-filter">
-          <div class="cf-head">Filter changes</div>
-          <div class="cf-rows">
-            <label class="cf-row" data-cat="word"><span class="cf-dot"></span><span class="cf-name">Vocabulary</span><span class="cf-count" data-count="word">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
-            <label class="cf-row" data-cat="caps"><span class="cf-dot"></span><span class="cf-name">Capitals</span><span class="cf-count" data-count="caps">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
-            <label class="cf-row" data-cat="punct"><span class="cf-dot"></span><span class="cf-name">Punctuation</span><span class="cf-count" data-count="punct">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
-            <label class="cf-row" data-cat="spelling"><span class="cf-dot"></span><span class="cf-name">Spelling</span><span class="cf-count" data-count="spelling">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
-            <label class="cf-row" data-cat="tense"><span class="cf-dot"></span><span class="cf-name">Tense</span><span class="cf-count" data-count="tense">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
-            <label class="cf-row" data-cat="grammar"><span class="cf-dot"></span><span class="cf-name">Grammar</span><span class="cf-count" data-count="grammar">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+        <div class="changes-side" id="changes-side">
+          <aside class="changes-filter" id="changes-filter">
+            <div class="cf-head">Filter changes</div>
+            <div class="cf-rows">
+              <label class="cf-row" data-cat="word"><span class="cf-dot"></span><span class="cf-name">Vocabulary</span><span class="cf-count" data-count="word">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+              <label class="cf-row" data-cat="caps"><span class="cf-dot"></span><span class="cf-name">Capitals</span><span class="cf-count" data-count="caps">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+              <label class="cf-row" data-cat="punct"><span class="cf-dot"></span><span class="cf-name">Punctuation</span><span class="cf-count" data-count="punct">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+              <label class="cf-row" data-cat="spelling"><span class="cf-dot"></span><span class="cf-name">Spelling</span><span class="cf-count" data-count="spelling">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+              <label class="cf-row" data-cat="tense"><span class="cf-dot"></span><span class="cf-name">Tense</span><span class="cf-count" data-count="tense">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+              <label class="cf-row" data-cat="grammar"><span class="cf-dot"></span><span class="cf-name">Grammar</span><span class="cf-count" data-count="grammar">0</span><input type="checkbox" checked><span class="cf-switch"></span></label>
+            </div>
+          </aside>
+
+          <div class="editor-actions" id="editor-actions">
+            <button class="editor-btn editor-btn-push" id="push-ext-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.5 2.5 0 0 1 0 5H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.5 2.5 0 0 1 5 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/></svg>
+              Upload to Extension
+            </button>
+            <button class="editor-btn editor-btn-regen" id="regen-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Regenerate
+            </button>
+            <button class="editor-btn editor-btn-back" id="back-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Back
+            </button>
           </div>
-        </aside>
+        </div>
       </div>
+
+      <div id="actions-bottom-mount"></div>
 
       <!-- AI edit prompt box -->
       <div class="ai-prompt-box" id="ai-prompt-box">
@@ -107,29 +126,36 @@
         </div>
       </div>
 
-      <div class="editor-actions">
-        <a href="/home" class="editor-btn editor-btn-back">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Back
-        </a>
-        <button class="editor-btn editor-btn-push" id="push-ext-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.5 2.5 0 0 1 0 5H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.5 2.5 0 0 1 5 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/></svg>
-          Upload to Extension
-        </button>
-        <button class="editor-btn editor-btn-regen" id="regen-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Regenerate
-        </button>
-      </div>
-
     </div>
   </main>
+
+  <!-- Leave confirmation modal -->
+  <div class="confirm-overlay hidden" id="leave-confirm" role="dialog" aria-modal="true">
+    <div class="confirm-card">
+      <button class="confirm-x" id="leave-x" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="confirm-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3 class="confirm-title">Leave without saving?</h3>
+      <p class="confirm-text">Your result lives only on this page. Upload it to the extension first so you don't lose your work.</p>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-btn-primary" id="leave-upload">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.5 2.5 0 0 1 0 5H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.5 2.5 0 0 1 5 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/></svg>
+          Upload &amp; Leave
+        </button>
+        <button class="confirm-btn confirm-btn-ghost" id="leave-stay">Stay here</button>
+        <button class="confirm-btn confirm-btn-text" id="leave-anyway">Leave anyway, I don't need it</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="editor.js?v=6"></script>
+  <script src="editor.js?v=7"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

@@ -206,6 +206,7 @@ async function init() {
 function showPlainResult(text) {
   const layout = document.getElementById('changes-layout');
   if (layout) layout.classList.add('hidden');
+  mountActionsBottom();
   editorTextarea.classList.remove('hidden');
   editorTextarea.value = text;
   editorTextarea.readOnly = false;
@@ -223,8 +224,8 @@ function setupViewToggle(result, mode) {
   const hasHtml     = !!resultHtml.trim();
 
   // Only the Changes view remains. Without diff HTML (e.g. generate mode),
-  // leave the plain textarea showing as-is.
-  if (mode !== 'humanize' || !hasHtml) return;
+  // leave the plain textarea showing as-is and drop the buttons to the bottom.
+  if (mode !== 'humanize' || !hasHtml) { mountActionsBottom(); return; }
 
   function refreshCounts() {
     if (!filter || !changesView) return;
@@ -248,6 +249,7 @@ function setupViewToggle(result, mode) {
   });
 
   // Show the Changes view only
+  mountActionsSide();
   editorTextarea.classList.add('hidden');
   if (aiBox) aiBox.style.display = 'none';
   if (layout) layout.classList.remove('hidden');
@@ -576,7 +578,8 @@ function showToast(msg) {
 
 async function pushToExtension() {
   const btn = document.getElementById('push-ext-btn');
-  if (!btn || btn.classList.contains('editor-btn-pushed')) return;
+  if (!btn) return false;
+  if (btn.classList.contains('editor-btn-pushed')) return true;
 
   btn.disabled = true;
   btn.textContent = 'Uploading…';
@@ -614,13 +617,62 @@ async function pushToExtension() {
 
     btn.textContent = '✓ Uploaded';
     btn.classList.add('editor-btn-pushed');
+    return true;
   } catch (err) {
     btn.disabled = false;
     btn.textContent = '↻ Retry Upload';
+    return false;
   }
 }
 
 document.getElementById('push-ext-btn')?.addEventListener('click', pushToExtension);
+
+// ─── Relocate action buttons: side column (changes view) vs bottom (plain) ───
+function mountActionsSide() {
+  const actions = document.getElementById('editor-actions');
+  const side    = document.getElementById('changes-side');
+  if (actions && side && actions.parentElement !== side) side.appendChild(actions);
+}
+function mountActionsBottom() {
+  const actions = document.getElementById('editor-actions');
+  const mount   = document.getElementById('actions-bottom-mount');
+  if (actions && mount && actions.parentElement !== mount) mount.appendChild(actions);
+}
+
+// ─── Leave confirmation modal ─────────────────────────────────
+function setupLeaveConfirm() {
+  const modal     = document.getElementById('leave-confirm');
+  const backBtn   = document.getElementById('back-btn');
+  const uploadBtn = document.getElementById('leave-upload');
+  const stayBtn   = document.getElementById('leave-stay');
+  const anywayBtn = document.getElementById('leave-anyway');
+  const xBtn      = document.getElementById('leave-x');
+  if (!modal || !backBtn) return;
+
+  const open  = () => modal.classList.remove('hidden');
+  const close = () => modal.classList.add('hidden');
+
+  backBtn.addEventListener('click', e => { e.preventDefault(); open(); });
+  stayBtn?.addEventListener('click', close);
+  xBtn?.addEventListener('click', close);
+  anywayBtn?.addEventListener('click', () => { window.location.href = '/home'; });
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) close();
+  });
+
+  uploadBtn?.addEventListener('click', async () => {
+    uploadBtn.disabled = true;
+    const ok = await pushToExtension();
+    if (ok) {
+      window.location.href = '/home';
+    } else {
+      uploadBtn.disabled = false;
+      showToast('Upload failed — try again or leave anyway');
+    }
+  });
+}
+setupLeaveConfirm();
 
 // ─── Start ────────────────────────────────────────────────────
 

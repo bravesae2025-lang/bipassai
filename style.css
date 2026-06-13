@@ -8112,6 +8112,8 @@ mark.word-changed[data-cat="caps"],
   align-items: center;
   justify-content: flex-end;
   vertical-align: middle;
+  position: relative;
+  top: 6px;                      /* drop the whole pair down to sit level with the text */
   line-height: 1.15;
   margin: 0 2px;
 }

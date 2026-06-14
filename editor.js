@@ -644,17 +644,13 @@ function setupLeaveConfirm() {
   const modal     = document.getElementById('leave-confirm');
   const backBtn   = document.getElementById('back-btn');
   const uploadBtn = document.getElementById('leave-upload');
-  const stayBtn   = document.getElementById('leave-stay');
   const anywayBtn = document.getElementById('leave-anyway');
-  const xBtn      = document.getElementById('leave-x');
   if (!modal || !backBtn) return;
 
   const open  = () => modal.classList.remove('hidden');
   const close = () => modal.classList.add('hidden');
 
   backBtn.addEventListener('click', e => { e.preventDefault(); open(); });
-  stayBtn?.addEventListener('click', close);
-  xBtn?.addEventListener('click', close);
   anywayBtn?.addEventListener('click', () => { window.location.href = '/home'; });
   modal.addEventListener('click', e => { if (e.target === modal) close(); });
   document.addEventListener('keydown', e => {

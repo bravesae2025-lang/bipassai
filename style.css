@@ -1853,12 +1853,12 @@ body.editor-page { background: var(--bg); }
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: #d6336c;
+  background: #e11d1d;
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 0.4s var(--ease-out);
 }
-.editor-btn-back:hover { border-color: #d6336c; }
+.editor-btn-back:hover { border-color: #e11d1d; }
 .editor-btn-back:hover .back-sweep { transform: scaleX(1); }
 .editor-btn-back:hover .back-label { color: #fff; }
 

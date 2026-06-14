@@ -516,7 +516,15 @@ app.post('/api/adjust-level', async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: fullPrompt }] }],
-        generationConfig: { temperature: 0.3, topP: 0.95, maxOutputTokens: 8192 },
+        // maxOutputTokens is ONE pool shared by thinking + the answer. Give it big
+        // headroom and cap thinking so reasoning can't starve the output (was 8192,
+        // which thinking consumed → ~80-word truncations on annotated essays).
+        generationConfig: {
+          temperature: 0.3,
+          topP: 0.95,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: 8192 },
+        },
       }),
     });
 
@@ -528,6 +536,8 @@ app.post('/api/adjust-level', async (req, res) => {
     const data   = await geminiRes.json();
     const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!result) return res.status(500).json({ error: 'No output from Gemini' });
+    if (data?.candidates?.[0]?.finishReason === 'MAX_TOKENS')
+      console.warn('[adjust-level] output hit MAX_TOKENS — result may be truncated');
 
     const finalResult = level === 'easy' ? stripDashes(result.trim()) : result.trim();
     return res.json({ result: finalResult });

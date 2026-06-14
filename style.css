@@ -1175,6 +1175,93 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .typeshow { user-select: none; }
 
 /* ─────────────────────────────────────────────────────────────
+   Hero interactive background + level-adjust showcase
+───────────────────────────────────────────────────────────── */
+
+.hero-section { isolation: isolate; }
+.hero-head,
+.hero-section .typeshow,
+.hero-stats,
+.hero-cta { position: relative; z-index: 1; }
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: 26px;
+}
+
+.hero-orb {
+  position: absolute;
+  width: 46%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  will-change: transform;
+  transition: transform 0.6s var(--ease-out);
+}
+.hero-orb-1 { top: -14%; left: -2%;  width: 48%; background: radial-gradient(circle at 50% 50%, rgba(232,163,23,0.55), transparent 70%); animation: hero-orb-drift 19s ease-in-out infinite; }
+.hero-orb-2 { top: 26%;  left: 60%;  width: 44%; background: radial-gradient(circle at 50% 50%, rgba(26,165,100,0.46), transparent 70%); animation: hero-orb-drift 24s ease-in-out infinite reverse; }
+.hero-orb-3 { top: 50%;  left: 2%;   width: 40%; background: radial-gradient(circle at 50% 50%, rgba(139,92,246,0.44), transparent 70%); animation: hero-orb-drift 21s ease-in-out infinite; }
+.hero-orb-4 { top: -8%;  left: 56%;  width: 38%; background: radial-gradient(circle at 50% 50%, rgba(47,109,246,0.36), transparent 70%); animation: hero-orb-drift 27s ease-in-out infinite reverse; }
+.hero-orb-5 { top: 58%;  left: 40%;  width: 36%; background: radial-gradient(circle at 50% 50%, rgba(214,51,108,0.32), transparent 70%); animation: hero-orb-drift 17s ease-in-out infinite; }
+
+@keyframes hero-orb-drift {
+  0%, 100% { translate: 0 0; }
+  33%      { translate: 4% -5%; }
+  66%      { translate: -4% 4%; }
+}
+
+.hero-spotlight {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 40%), rgba(255,255,255,0.6), transparent 62%);
+}
+
+/* Level-adjust showcase (reuses .typeshow shell) */
+.leveldemo-body {
+  height: auto;
+  min-height: 172px;
+  overflow: visible;
+  line-height: 2.7;
+  font-size: 14px;
+  color: var(--g700);
+  transition: opacity 0.45s var(--ease-out);
+}
+.leveldemo-body.ld-fade { opacity: 0; }
+.leveldemo-body::after { content: none; }
+
+.ld-count {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--g400);
+  background: var(--g100);
+  border-radius: 20px;
+  padding: 3px 11px;
+}
+
+.leveldemo .typeshow-header { user-select: none; }
+
+@keyframes ld-pop {
+  0%   { opacity: 0; transform: translateY(5px) scale(0.94); }
+  100% { opacity: 1; transform: none; }
+}
+.leveldemo-body .word-change-pair.ld-pop { animation: ld-pop 0.42s var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb { animation: none; }
+  .hero-spotlight { display: none; }
+  .leveldemo-body, .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
    Hero CTA block
 ───────────────────────────────────────────────────────────── */
 

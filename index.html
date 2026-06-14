@@ -41,7 +41,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=29">
 </head>
 <body>
 
@@ -80,21 +80,31 @@
   </div>
 
   <!-- ── HERO ──────────────────────────────────────────────── -->
-  <section class="hero-section">
+  <section class="hero-section" id="hero-section">
+
+    <!-- Interactive background -->
+    <div class="hero-bg" aria-hidden="true">
+      <span class="hero-orb hero-orb-1"></span>
+      <span class="hero-orb hero-orb-2"></span>
+      <span class="hero-orb hero-orb-3"></span>
+      <span class="hero-orb hero-orb-4"></span>
+      <span class="hero-orb hero-orb-5"></span>
+      <span class="hero-spotlight" id="hero-spotlight"></span>
+    </div>
 
     <!-- Headline + sub -->
     <div class="hero-head">
       <h2 class="hero-title">Your AI text,<br>at the right level.</h2>
-      <p class="hero-desc">Paste your ChatGPT or Gemini essay, pick a level, and Bipass AI rewrites it to read like a real student wrote it — natural, imperfect, human. So your teacher doesn't clock it as AI.</p>
+      <p class="hero-desc">Paste your AI essay, pick a level, and Bipass AI rewrites it to read like a real student — so it doesn't sound like AI.</p>
     </div>
 
-    <!-- Typing showcase -->
-    <div class="typeshow" data-anim="slide-up">
+    <!-- Level-adjust showcase -->
+    <div class="typeshow leveldemo" id="leveldemo" data-anim="slide-up">
       <div class="typeshow-header">
-        <span class="typeshow-badge" id="typeshow-badge">DISCUSSION · EASY</span>
-        <div class="typeshow-dots" id="typeshow-dots"></div>
+        <span class="typeshow-badge" id="ld-badge">LEVEL · STUDENT</span>
+        <span class="ld-count" id="ld-count">0 edits</span>
       </div>
-      <div class="typeshow-body" id="typeshow-body"></div>
+      <div class="typeshow-body leveldemo-body" id="ld-body"></div>
     </div>
 
     <!-- Stats -->
@@ -409,116 +419,117 @@
       window.location.href = session ? 'plans.html' : 'login.html';
     }
 
-    // ── Typing showcase ───────────────────────────────────────
+    // ── Level-adjust showcase ─────────────────────────────────
     (function () {
-      const SLIDES = [
-        {
-          badge: 'DISCUSSION · EASY',
-          text: 'I think climate change is really bad and I feel like not enough people actually care about it. Last summer was so hot my grandma couldn\'t even go outside, which was kind of scary.\n\nThe main problem I think is people not realizing how serious it already is. A lot of my friends think it\'s something that happens in the future, but it\'s kind of happening now. The wildfires and floods are pretty obvious if you pay attention.\n\nI\'m not sure what the best solution is. Maybe if more people talked about it in school it would help. Doing nothing definitely seems like the worst option though.',
-        },
-        {
-          badge: 'ESSAY · MEDIUM',
-          text: 'Social media has kind of become the default way people communicate, which has some real benefits but also some stuff that genuinely bothers me. You can keep up with people you\'d otherwise lose touch with completely, which is nice. But a lot of those connections feel pretty surface level.\n\nI\'ve noticed that people mostly post highlights, which makes everyone else feel like they\'re falling behind somehow. I\'m not totally sure if that\'s a social media thing or just a human thing, but it definitely feels amplified online.\n\nTo be fair, I\'ve also seen communities form around really niche stuff that probably couldn\'t exist in real life. Chronic illness groups, obscure hobbies, that kind of thing. So it\'s more complicated than just saying it\'s bad.',
-        },
-        {
-          badge: 'ANALYSIS · HARD',
-          text: 'Fitzgerald\'s green light is interesting because the more you explain it, the less it works. Sure, it represents what Gatsby can\'t have. But the detail that actually matters is that he just stands there looking at it. He\'s not planning. He\'s not moving. He\'s just reaching.\n\nI think that\'s deliberate. Gatsby doesn\'t actually want Daisy — he wants to want her. The longing is the whole point. The moment he\'d actually get what he\'s after, the thing he\'s built his life around disappears. Fitzgerald seems to understand that better than Gatsby does.\n\nThat\'s what makes the ending feel less like a tragedy about love and more about a guy who got exactly what he wanted, then died before he had to figure out what it meant.',
-        },
-        {
-          badge: 'ASSIGNMENT · EASY',
-          text: 'Cells are the basic building block of every living thing. Some organisms are just one cell, like bacteria. Humans have trillions of them and each one has a specific job to do.\n\nThe cell membrane is kind of like a wall that controls what goes in and out. Inside the cell is the nucleus, which is the control center. That\'s where the DNA lives, and the DNA tells the cell what to do and how to work.\n\nThe mitochondria makes energy for the cell. My teacher keeps saying it\'s the powerhouse of the cell. I used to think that was just a meme but apparently it\'s actually true and pretty important.',
-        },
-        {
-          badge: 'ESSAY · MEDIUM',
-          text: 'The French Revolution didn\'t really start because people cared about liberty. It started because bread was too expensive and the government had no money. Most revolutions are basically like that — the idealism comes after people are already desperate enough to act.\n\nLouis XVI wasn\'t even that bad compared to other kings of his time, but he was indecisive and completely out of touch, which is honestly the worst combination when your country is about to fall apart. He kept waiting for situations to resolve themselves.\n\nThe Declaration of the Rights of Man sounds incredible on paper, but the revolution ended up executing a lot of the people who helped write it. Revolutions are apparently really good at tearing things down and pretty bad at figuring out what to build next.',
-        },
-      ];
+      const DEMO = {
+        badge: 'LEVEL · STUDENT',
+        tokens: [
+          { t: 'Social media has' },
+          { from: 'transformed', to: 'changed', cat: 'word' },
+          { t: 'how we' },
+          { from: 'communicate', to: 'talk', cat: 'word' },
+          { from: ',', to: '.', cat: 'punct', glue: true },
+          { from: 'and', to: 'And', cat: 'caps' },
+          { t: 'it' },
+          { from: 'shapes', to: 'shaped', cat: 'tense' },
+          { t: 'our' },
+          { from: 'views', to: 'ideas', cat: 'word' },
+          { t: 'every day' },
+          { t: '.', glue: true },
+        ],
+      };
 
-      const badge   = document.getElementById('typeshow-badge');
-      const body    = document.getElementById('typeshow-body');
-      const dotsEl  = document.getElementById('typeshow-dots');
+      const bodyEl  = document.getElementById('ld-body');
+      const countEl = document.getElementById('ld-count');
+      const badgeEl = document.getElementById('ld-badge');
+      if (!bodyEl) return;
+      if (badgeEl) badgeEl.textContent = DEMO.badge;
 
-      // Build dots
-      SLIDES.forEach((_, i) => {
-        const d = document.createElement('span');
-        d.className = 'typeshow-dot' + (i === 0 ? ' active' : '');
-        dotsEl.appendChild(d);
-      });
+      const changeIdx = DEMO.tokens.reduce((a, t, i) => (t.from !== undefined ? a.concat(i) : a), []);
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-      let slideIdx = 0;
-      let charIdx  = 0;
-      let timer    = null;
-
-      function dots() {
-        dotsEl.querySelectorAll('.typeshow-dot').forEach((d, i) => {
-          d.classList.toggle('active', i === slideIdx);
+      function buildPlain() {
+        bodyEl.innerHTML = '';
+        DEMO.tokens.forEach((tok, i) => {
+          if (i > 0 && !tok.glue) bodyEl.appendChild(document.createTextNode(' '));
+          const span = document.createElement('span');
+          span.className = 'ld-tok';
+          span.dataset.i = i;
+          span.textContent = tok.from !== undefined ? tok.from : tok.t;
+          bodyEl.appendChild(span);
         });
       }
 
-      function typeNext() {
-        const text = SLIDES[slideIdx].text;
-        if (charIdx < text.length) {
-          body.textContent = text.slice(0, ++charIdx);
-          body.scrollTop = body.scrollHeight;
-          timer = setTimeout(typeNext, 16);
-        } else {
-          timer = setTimeout(transition, 2400);
+      function reveal(i) {
+        const tok = DEMO.tokens[i];
+        const span = bodyEl.querySelector('.ld-tok[data-i="' + i + '"]');
+        if (!span) return;
+        span.innerHTML =
+          '<span class="word-change-pair ld-pop" data-cat="' + tok.cat + '">' +
+          '<mark class="word-changed">' + esc(tok.to) + '</mark>' +
+          '<span class="word-original">' + esc(tok.from) + '</span></span>';
+      }
+
+      let timer = null;
+      function run() {
+        clearTimeout(timer);
+        buildPlain();
+        bodyEl.classList.remove('ld-fade');
+        if (countEl) countEl.textContent = '0 edits';
+        changeIdx.forEach((ci, k) => {
+          setTimeout(() => {
+            reveal(ci);
+            if (countEl) { const n = k + 1; countEl.textContent = n + (n === 1 ? ' edit' : ' edits'); }
+          }, 800 + k * 640);
+        });
+        const total = 800 + changeIdx.length * 640 + 2600;
+        timer = setTimeout(() => {
+          bodyEl.classList.add('ld-fade');
+          setTimeout(run, 650);
+        }, total);
+      }
+      setTimeout(run, 900);
+    })();
+
+    // ── Interactive hero background ────────────────────────────
+    (function () {
+      const hero = document.getElementById('hero-section');
+      if (!hero) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const spot = document.getElementById('hero-spotlight');
+      const card = document.getElementById('leveldemo');
+      const orbs = [].slice.call(hero.querySelectorAll('.hero-orb'));
+      const depth = [16, -11, 24, -18, 13];
+      let tx = 0, ty = 0, raf = null;
+
+      function apply() {
+        raf = null;
+        orbs.forEach((o, i) => {
+          const f = depth[i % depth.length];
+          o.style.transform = 'translate3d(' + (-tx * f).toFixed(1) + 'px,' + (-ty * f).toFixed(1) + 'px,0)';
+        });
+        if (card && card.classList.contains('revealed')) {
+          card.style.transform = 'perspective(1000px) rotateY(' + (tx * 3.2).toFixed(2) + 'deg) rotateX(' + (-ty * 3.2).toFixed(2) + 'deg)';
         }
       }
 
-      function goTo(newIdx, dir) {
-        clearTimeout(timer);
-        const exitClass  = dir === 1 ? 'typeshow-exit' : 'typeshow-exit-right';
-        const enterClass = dir === 1 ? 'typeshow-enter' : 'typeshow-enter-left';
-        body.classList.add(exitClass);
-        timer = setTimeout(() => {
-          slideIdx = (newIdx + SLIDES.length) % SLIDES.length;
-          charIdx  = 0;
-          badge.textContent = SLIDES[slideIdx].badge;
-          body.textContent  = '';
-          body.classList.remove(exitClass);
-          body.classList.add(enterClass);
-          body.offsetHeight;
-          body.classList.remove(enterClass);
-          dots();
-          timer = setTimeout(typeNext, 60);
-        }, 380);
-      }
-
-      function transition() { goTo(slideIdx + 1, 1); }
-
-      // ── Swipe / drag support ─────────────────────────────────
-      const card = document.querySelector('.typeshow');
-      let dragX = null;
-      const THRESHOLD = 50;
-
-      function onStart(x) { dragX = x; }
-      function onEnd(x) {
-        if (dragX === null) return;
-        const delta = dragX - x;
-        if (Math.abs(delta) >= THRESHOLD) goTo(slideIdx + (delta > 0 ? 1 : -1), delta > 0 ? 1 : -1);
-        dragX = null;
-      }
-
-      card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
-      card.addEventListener('touchend',   e => onEnd(e.changedTouches[0].clientX), { passive: true });
-      card.addEventListener('mousedown',  e => onStart(e.clientX));
-      card.addEventListener('mouseup',    e => onEnd(e.clientX));
-      card.addEventListener('mouseleave', ()  => { dragX = null; });
-      card.style.cursor = 'grab';
-      card.addEventListener('mousedown', () => { card.style.cursor = 'grabbing'; });
-      card.addEventListener('mouseup',   () => { card.style.cursor = 'grab'; });
-
-      // Dot clicks
-      dotsEl.addEventListener('click', e => {
-        const dot = e.target.closest('.typeshow-dot');
-        if (!dot) return;
-        const idx = [...dotsEl.children].indexOf(dot);
-        if (idx !== slideIdx) goTo(idx, idx > slideIdx ? 1 : -1);
+      hero.addEventListener('pointermove', e => {
+        const r = hero.getBoundingClientRect();
+        const mx = e.clientX - r.left, my = e.clientY - r.top;
+        tx = mx / r.width - 0.5;
+        ty = my / r.height - 0.5;
+        if (spot) {
+          spot.style.setProperty('--mx', (mx / r.width * 100).toFixed(1) + '%');
+          spot.style.setProperty('--my', (my / r.height * 100).toFixed(1) + '%');
+          spot.style.opacity = '1';
+        }
+        if (!raf) raf = requestAnimationFrame(apply);
       });
-
-      // Start after a short delay so page load animations settle
-      timer = setTimeout(typeNext, 900);
+      hero.addEventListener('pointerleave', () => {
+        if (spot) spot.style.opacity = '0';
+        orbs.forEach(o => { o.style.transform = ''; });
+        if (card) card.style.transform = '';
+      });
     })();
 
     // ── Navbar hide on scroll ──────────────────────────────────

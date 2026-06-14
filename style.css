@@ -1228,18 +1228,36 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 40%), rgba(255,255,255,0.6), transparent 62%);
 }
 
-/* Level-adjust showcase (reuses .typeshow shell) */
-.leveldemo-body {
-  height: auto;
-  min-height: 172px;
-  overflow: visible;
-  line-height: 2.7;
-  font-size: 14px;
-  color: var(--g700);
-  transition: opacity 0.45s var(--ease-out);
+/* Level-adjust showcase (reuses .typeshow shell + real changes-view classes) */
+.leveldemo-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 6px 20px 18px;
+  transition: opacity 0.4s var(--ease-out);
 }
-.leveldemo-body.ld-fade { opacity: 0; }
+.leveldemo-main.ld-fade { opacity: 0; }
+
+.leveldemo-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: auto;
+  min-height: 196px;
+  overflow: visible;
+  line-height: 2.5;
+  font-size: 13.5px;
+  color: var(--g700);
+  padding: 8px 0 0;
+}
 .leveldemo-body::after { content: none; }
+
+.leveldemo-filter {
+  flex: 0 0 196px;
+  width: 196px;
+}
+.leveldemo-filter .cf-row { cursor: default; }
+.leveldemo-filter .cf-switch,
+.leveldemo-filter .cf-switch::after { transition-duration: 0.28s; }
 
 .ld-count {
   font-family: var(--ff-mono);
@@ -1259,10 +1277,17 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .leveldemo-body .word-change-pair.ld-pop { animation: ld-pop 0.42s var(--ease-out) both; }
 
+@media (max-width: 720px) {
+  .leveldemo-main { flex-direction: column; }
+  .leveldemo-filter { flex-basis: auto; width: 100%; }
+  .leveldemo-body { min-height: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-orb { animation: none; }
   .hero-spotlight { display: none; }
-  .leveldemo-body, .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
+  .leveldemo-main,
+  .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
 }
 
 /* ─────────────────────────────────────────────────────────────

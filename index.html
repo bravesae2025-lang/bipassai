@@ -41,7 +41,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
 
@@ -104,7 +104,13 @@
         <span class="typeshow-badge" id="ld-badge">LEVEL · STUDENT</span>
         <span class="ld-count" id="ld-count">0 edits</span>
       </div>
-      <div class="typeshow-body leveldemo-body" id="ld-body"></div>
+      <div class="leveldemo-main" id="ld-main">
+        <div class="typeshow-body leveldemo-body" id="ld-body"></div>
+        <aside class="changes-filter leveldemo-filter" id="ld-filter">
+          <div class="cf-head">Filter changes</div>
+          <div class="cf-rows" id="ld-rows"></div>
+        </aside>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -421,74 +427,125 @@
 
     // ── Level-adjust showcase ─────────────────────────────────
     (function () {
-      const DEMO = {
-        badge: 'LEVEL · STUDENT',
-        tokens: [
-          { t: 'Social media has' },
-          { from: 'transformed', to: 'changed', cat: 'word' },
-          { t: 'how we' },
-          { from: 'communicate', to: 'talk', cat: 'word' },
-          { from: ',', to: '.', cat: 'punct', glue: true },
-          { from: 'and', to: 'And', cat: 'caps' },
-          { t: 'it' },
-          { from: 'shapes', to: 'shaped', cat: 'tense' },
-          { t: 'our' },
-          { from: 'views', to: 'ideas', cat: 'word' },
-          { t: 'every day' },
-          { t: '.', glue: true },
-        ],
-      };
+      const NAMES = { word: 'Vocabulary', caps: 'Capitals', punct: 'Punctuation', tense: 'Tense', spelling: 'Spelling', grammar: 'Grammar' };
+      const ORDER = ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'];
+
+      // Shared base paragraph (2–3 sentences). Editable slots get overridden per level.
+      const BASE = [
+        { w: 'Social media has' },
+        { w: 'completely' },
+        { w: 'transformed' },
+        { w: 'how we' },
+        { w: 'communicate' },
+        { w: '.', glue: true },
+        { w: 'It' },
+        { w: 'significantly' },
+        { w: 'shapes' },
+        { w: 'the way we see the world.' },
+        { w: 'This' },
+        { w: 'impact' },
+        { w: 'is' },
+        { w: 'undeniable' },
+        { w: '.', glue: true },
+      ];
+
+      const LEVELS = [
+        { badge: 'LEVEL · BEGINNER', edits: {
+            1: { to: 'totally', cat: 'word' }, 2: { to: 'changed', cat: 'word' }, 4: { to: 'talk', cat: 'word' },
+            5: { to: ',', cat: 'punct' }, 6: { to: 'it', cat: 'caps' }, 7: { to: 'really', cat: 'word' },
+            8: { to: 'shaped', cat: 'tense' }, 11: { to: 'thing', cat: 'word' }, 13: { to: 'real', cat: 'word' } } },
+        { badge: 'LEVEL · STUDENT', edits: {
+            2: { to: 'changed', cat: 'word' }, 4: { to: 'talk', cat: 'word' },
+            7: { to: 'really', cat: 'word' }, 8: { to: 'shaped', cat: 'tense' } } },
+        { badge: 'LEVEL · ACADEMIC', edits: {
+            1: { to: 'largely', cat: 'word' }, 7: { to: 'notably', cat: 'word' }, 13: { to: 'clear', cat: 'word' } } },
+      ];
 
       const bodyEl  = document.getElementById('ld-body');
+      const mainEl  = document.getElementById('ld-main');
+      const rowsEl  = document.getElementById('ld-rows');
       const countEl = document.getElementById('ld-count');
       const badgeEl = document.getElementById('ld-badge');
-      if (!bodyEl) return;
-      if (badgeEl) badgeEl.textContent = DEMO.badge;
+      if (!bodyEl || !rowsEl) return;
 
-      const changeIdx = DEMO.tokens.reduce((a, t, i) => (t.from !== undefined ? a.concat(i) : a), []);
       const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const TOGGLE = 'word';
 
       function buildPlain() {
         bodyEl.innerHTML = '';
-        DEMO.tokens.forEach((tok, i) => {
+        BASE.forEach((tok, i) => {
           if (i > 0 && !tok.glue) bodyEl.appendChild(document.createTextNode(' '));
           const span = document.createElement('span');
           span.className = 'ld-tok';
           span.dataset.i = i;
-          span.textContent = tok.from !== undefined ? tok.from : tok.t;
+          span.textContent = tok.w;
           bodyEl.appendChild(span);
         });
       }
 
-      function reveal(i) {
-        const tok = DEMO.tokens[i];
+      function reveal(i, edit) {
         const span = bodyEl.querySelector('.ld-tok[data-i="' + i + '"]');
         if (!span) return;
         span.innerHTML =
-          '<span class="word-change-pair ld-pop" data-cat="' + tok.cat + '">' +
-          '<mark class="word-changed">' + esc(tok.to) + '</mark>' +
-          '<span class="word-original">' + esc(tok.from) + '</span></span>';
+          '<span class="word-change-pair ld-pop" data-cat="' + edit.cat + '">' +
+          '<mark class="word-changed">' + esc(edit.to) + '</mark>' +
+          '<span class="word-original">' + esc(BASE[i].w) + '</span></span>';
       }
 
-      let timer = null;
-      function run() {
-        clearTimeout(timer);
-        buildPlain();
-        bodyEl.classList.remove('ld-fade');
-        if (countEl) countEl.textContent = '0 edits';
-        changeIdx.forEach((ci, k) => {
-          setTimeout(() => {
-            reveal(ci);
-            if (countEl) { const n = k + 1; countEl.textContent = n + (n === 1 ? ' edit' : ' edits'); }
-          }, 800 + k * 640);
-        });
-        const total = 800 + changeIdx.length * 640 + 2600;
-        timer = setTimeout(() => {
-          bodyEl.classList.add('ld-fade');
-          setTimeout(run, 650);
-        }, total);
+      function buildRows(edits) {
+        const counts = {};
+        Object.keys(edits).forEach(k => { const c = edits[k].cat; counts[c] = (counts[c] || 0) + 1; });
+        rowsEl.innerHTML = ORDER.filter(c => counts[c]).map(c =>
+          '<div class="cf-row" data-cat="' + c + '"><span class="cf-dot"></span>' +
+          '<span class="cf-name">' + NAMES[c] + '</span>' +
+          '<span class="cf-count" data-count="' + c + '">' + counts[c] + '</span>' +
+          '<span class="cf-switch"></span></div>').join('');
+        return counts;
       }
-      setTimeout(run, 900);
+
+      function toggleCat(cat, off) {
+        const row = rowsEl.querySelector('.cf-row[data-cat="' + cat + '"]');
+        if (row) row.classList.toggle('cf-off', off);
+        bodyEl.querySelectorAll('.word-change-pair[data-cat="' + cat + '"]').forEach(p => p.classList.toggle('change-reverted', off));
+      }
+
+      let timers = [];
+      const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+      const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+      let li = 0;
+      function runLevel() {
+        clearAll();
+        const L = LEVELS[li];
+        if (badgeEl) badgeEl.textContent = L.badge;
+        buildPlain();
+        const counts = buildRows(L.edits);
+        const idx = Object.keys(L.edits).map(Number).sort((a, b) => a - b);
+        const total = idx.length;
+        if (countEl) countEl.textContent = '0 edits';
+        if (mainEl) { mainEl.classList.remove('ld-fade'); }
+
+        let cursor = 560;
+        idx.forEach((ci, k) => at(cursor + k * 200, () => {
+          reveal(ci, L.edits[ci]);
+          if (countEl) { const n = k + 1; countEl.textContent = n + (n === 1 ? ' edit' : ' edits'); }
+        }));
+
+        const editsDone = cursor + total * 200;
+        const hasToggle = counts[TOGGLE] > 0;
+        let end;
+        if (hasToggle) {
+          at(editsDone + 950, () => toggleCat(TOGGLE, true));
+          at(editsDone + 2150, () => toggleCat(TOGGLE, false));
+          end = editsDone + 2150 + 1150;
+        } else {
+          end = editsDone + 2200;
+        }
+        at(end, () => { if (mainEl) mainEl.classList.add('ld-fade'); });
+        at(end + 450, () => { li = (li + 1) % LEVELS.length; runLevel(); });
+      }
+
+      at(900, runLevel);
     })();
 
     // ── Interactive hero background ────────────────────────────

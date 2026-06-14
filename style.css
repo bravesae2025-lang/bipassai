@@ -1186,29 +1186,33 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 
 .hero-bg {
   position: absolute;
-  inset: 0;
+  top: -110px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: calc(100% + 150px);
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  border-radius: 26px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 90px, #000 58%, transparent 96%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 90px, #000 58%, transparent 96%);
 }
 
 .hero-orb {
   position: absolute;
-  width: 46%;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  filter: blur(64px);
-  opacity: 0.55;
+  filter: blur(66px);
+  opacity: 0.5;
   mix-blend-mode: multiply;
   will-change: transform;
   transition: transform 0.6s var(--ease-out);
 }
-.hero-orb-1 { top: -14%; left: -2%;  width: 48%; background: radial-gradient(circle at 50% 50%, rgba(232,163,23,0.55), transparent 70%); animation: hero-orb-drift 19s ease-in-out infinite; }
-.hero-orb-2 { top: 26%;  left: 60%;  width: 44%; background: radial-gradient(circle at 50% 50%, rgba(26,165,100,0.46), transparent 70%); animation: hero-orb-drift 24s ease-in-out infinite reverse; }
-.hero-orb-3 { top: 50%;  left: 2%;   width: 40%; background: radial-gradient(circle at 50% 50%, rgba(139,92,246,0.44), transparent 70%); animation: hero-orb-drift 21s ease-in-out infinite; }
-.hero-orb-4 { top: -8%;  left: 56%;  width: 38%; background: radial-gradient(circle at 50% 50%, rgba(47,109,246,0.36), transparent 70%); animation: hero-orb-drift 27s ease-in-out infinite reverse; }
-.hero-orb-5 { top: 58%;  left: 40%;  width: 36%; background: radial-gradient(circle at 50% 50%, rgba(214,51,108,0.32), transparent 70%); animation: hero-orb-drift 17s ease-in-out infinite; }
+.hero-orb-1 { top: -10%; left: 1%;  width: 32%; background: radial-gradient(circle at 50% 50%, rgba(232,163,23,0.55), transparent 70%); animation: hero-orb-drift 19s ease-in-out infinite; }
+.hero-orb-2 { top: 6%;   left: 64%; width: 34%; background: radial-gradient(circle at 50% 50%, rgba(26,165,100,0.46), transparent 70%); animation: hero-orb-drift 24s ease-in-out infinite reverse; }
+.hero-orb-3 { top: 30%;  left: 22%; width: 30%; background: radial-gradient(circle at 50% 50%, rgba(139,92,246,0.44), transparent 70%); animation: hero-orb-drift 21s ease-in-out infinite; }
+.hero-orb-4 { top: -6%;  left: 40%; width: 27%; background: radial-gradient(circle at 50% 50%, rgba(47,109,246,0.36), transparent 70%); animation: hero-orb-drift 27s ease-in-out infinite reverse; }
+.hero-orb-5 { top: 22%;  left: 85%; width: 26%; background: radial-gradient(circle at 50% 50%, rgba(214,51,108,0.32), transparent 70%); animation: hero-orb-drift 17s ease-in-out infinite; }
 
 @keyframes hero-orb-drift {
   0%, 100% { translate: 0 0; }

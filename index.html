@@ -41,7 +41,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=29">
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
   <section class="hero-section" id="hero-section">
 
     <!-- Interactive background -->
-    <div class="hero-bg" aria-hidden="true">
+    <div class="hero-bg" id="hero-bg" aria-hidden="true">
       <span class="hero-orb hero-orb-1"></span>
       <span class="hero-orb hero-orb-2"></span>
       <span class="hero-orb hero-orb-3"></span>
@@ -493,43 +493,54 @@
 
     // ── Interactive hero background ────────────────────────────
     (function () {
-      const hero = document.getElementById('hero-section');
-      if (!hero) return;
+      const bg = document.getElementById('hero-bg');
+      if (!bg) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const spot = document.getElementById('hero-spotlight');
       const card = document.getElementById('leveldemo');
-      const orbs = [].slice.call(hero.querySelectorAll('.hero-orb'));
+      const orbs = [].slice.call(bg.querySelectorAll('.hero-orb'));
       const depth = [16, -11, 24, -18, 13];
-      let tx = 0, ty = 0, raf = null;
+      const clamp = v => Math.max(-0.6, Math.min(0.6, v));
+      let cx = 0, cy = 0, raf = null;
 
       function apply() {
         raf = null;
+        const r = bg.getBoundingClientRect();
+        const mx = cx - r.left, my = cy - r.top;
+        const within = my >= -60 && my <= r.height + 20;
+        const tx = clamp(mx / r.width - 0.5);
+        const ty = clamp(my / r.height - 0.5);
+
         orbs.forEach((o, i) => {
           const f = depth[i % depth.length];
           o.style.transform = 'translate3d(' + (-tx * f).toFixed(1) + 'px,' + (-ty * f).toFixed(1) + 'px,0)';
         });
+
+        if (spot) {
+          if (within) {
+            spot.style.setProperty('--mx', (mx / r.width * 100).toFixed(1) + '%');
+            spot.style.setProperty('--my', (my / r.height * 100).toFixed(1) + '%');
+            spot.style.opacity = '1';
+          } else {
+            spot.style.opacity = '0';
+          }
+        }
+
         if (card && card.classList.contains('revealed')) {
-          card.style.transform = 'perspective(1000px) rotateY(' + (tx * 3.2).toFixed(2) + 'deg) rotateX(' + (-ty * 3.2).toFixed(2) + 'deg)';
+          const cr = card.getBoundingClientRect();
+          const ctx = (cx - (cr.left + cr.width / 2)) / cr.width;
+          const cty = (cy - (cr.top + cr.height / 2)) / cr.height;
+          const near = Math.abs(ctx) < 1.5 && Math.abs(cty) < 1.8;
+          card.style.transform = near
+            ? 'perspective(1000px) rotateY(' + (Math.max(-1, Math.min(1, ctx)) * 5).toFixed(2) + 'deg) rotateX(' + (-Math.max(-1, Math.min(1, cty)) * 5).toFixed(2) + 'deg)'
+            : '';
         }
       }
 
-      hero.addEventListener('pointermove', e => {
-        const r = hero.getBoundingClientRect();
-        const mx = e.clientX - r.left, my = e.clientY - r.top;
-        tx = mx / r.width - 0.5;
-        ty = my / r.height - 0.5;
-        if (spot) {
-          spot.style.setProperty('--mx', (mx / r.width * 100).toFixed(1) + '%');
-          spot.style.setProperty('--my', (my / r.height * 100).toFixed(1) + '%');
-          spot.style.opacity = '1';
-        }
+      window.addEventListener('pointermove', e => {
+        cx = e.clientX; cy = e.clientY;
         if (!raf) raf = requestAnimationFrame(apply);
-      });
-      hero.addEventListener('pointerleave', () => {
-        if (spot) spot.style.opacity = '0';
-        orbs.forEach(o => { o.style.transform = ''; });
-        if (card) card.style.transform = '';
-      });
+      }, { passive: true });
     })();
 
     // ── Navbar hide on scroll ──────────────────────────────────

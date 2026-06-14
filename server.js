@@ -427,15 +427,21 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
     : '';
 
   const wl = parseInt(mistakes.wordLevel ?? 5);
+
+  // Overall change-density floor — scales with level so heavier presets always
+  // change MORE words (stops Beginner from ever falling below Student).
+  const overallPct    = wl <= 1 ? 52 : wl <= 3 ? 40 : wl <= 6 ? 22 : wl <= 8 ? 10 : 5;
+  const overallTarget = Math.max(3, Math.round(wordCount * overallPct / 100));
+
   const vocabInstruction = wl <= 1
-    ? `\n\nWORD LEVEL — ELEMENTARY: Replace every moderately or highly complex word with the absolute simplest everyday equivalent, as if a 10-year-old wrote it. Examples: "demonstrate"→"show", "obtain"→"get", "consider"→"think about", "require"→"need", "provide"→"give", "attempt"→"try", "communicate"→"talk", "approximately"→"about", "substantial"→"really big", "beneficial"→"good", "sufficient"→"enough", "frequently"→"a lot", "residence"→"home", "employed"→"working". Every word should be the first simple word that comes to mind.`
+    ? `\n\nWORD LEVEL — ELEMENTARY: Simplify roughly HALF (50–60%) of all words — almost nothing stays formal. Replace every moderately or highly complex word with the absolute simplest everyday equivalent, as if a 10-year-old wrote it. Examples: "demonstrate"→"show", "obtain"→"get", "consider"→"think about", "require"→"need", "provide"→"give", "attempt"→"try", "communicate"→"talk", "approximately"→"about", "substantial"→"really big", "beneficial"→"good", "sufficient"→"enough", "frequently"→"a lot", "residence"→"home", "employed"→"working". Every word should be the first simple word that comes to mind.`
     : wl <= 3
-    ? `\n\nWORD LEVEL — BEGINNER: Use simple conversational vocabulary throughout. Replace formal or academic words with plain everyday alternatives a non-native speaker would write. Avoid anything that sounds textbook-like or overly formal.`
+    ? `\n\nWORD LEVEL — BEGINNER: Simplify roughly 35–45% of words. Use simple conversational vocabulary throughout. Replace formal or academic words with plain everyday alternatives a non-native speaker would write. Avoid anything that sounds textbook-like or overly formal.`
     : wl <= 6
-    ? `\n\nWORD LEVEL — STUDENT: Use clear plain language a high school student would write. Replace AI buzzwords and obviously academic/formal words, but keep moderately formal words if they fit naturally.`
+    ? `\n\nWORD LEVEL — STUDENT: Simplify roughly 15–25% of words. Use clear plain language a high school student would write. Replace AI buzzwords and obviously academic/formal words, but keep moderately formal words if they fit naturally.`
     : wl <= 8
-    ? `\n\nWORD LEVEL — ACADEMIC: Keep vocabulary at a confident, educated level. Only replace the most obvious AI-specific buzzwords (utilize, leverage, facilitate, comprehensive, paramount, meticulous, groundbreaking, transformative, seamless) — leave all other advanced vocabulary unchanged.`
-    : `\n\nWORD LEVEL — EXPERT: Minimal vocabulary changes. Only fix the most glaring AI-specific terms (utilize→use, leverage→use, facilitate→help). Preserve all other sophisticated or technical vocabulary exactly as written.`;
+    ? `\n\nWORD LEVEL — ACADEMIC: Change only the obvious AI buzzwords (~5–10% of words). Keep vocabulary at a confident, educated level (utilize, leverage, facilitate, comprehensive, paramount, meticulous, groundbreaking, transformative, seamless) — leave all other advanced vocabulary unchanged.`
+    : `\n\nWORD LEVEL — EXPERT: Minimal vocabulary changes (~2–4% of words). Only fix the most glaring AI-specific terms (utilize→use, leverage→use, facilitate→help). Preserve all other sophisticated or technical vocabulary exactly as written.`;
 
   const lockLine = lockSentenceStructure
     ? '\n- STRUCTURE LOCK: every sentence must stay one sentence — word count per sentence must be identical or differ by at most one word.'
@@ -446,6 +452,8 @@ WHAT TO FIX:
 1. AI buzzwords: utilize→use, leverage→use, facilitate→help, comprehensive→complete, robust→strong, individuals→people, crucial→really important, significant→big, furthermore→also, moreover→also, nevertheless→but, paramount→most important, groundbreaking→new, transformative→life changing, seamless→smooth, meticulous→careful, realm→area, methodology→method, ultimately→in the end, delve→explore, innovative→new, sophisticated→advanced, invaluable→very useful, streamline→simplify, navigate→handle, ecosystem→environment, framework→system, cutting-edge→advanced, state-of-the-art→advanced
 2. Overly formal multi-word phrases: "in order to"→"to", "due to the fact that"→"because", "in the event that"→"if", "with regard to"→"about", "a large number of"→"many", "in terms of"→"about", "plays a crucial role"→"is really important", "serves as a testament"→"shows"
 3. Any word that sounds unusually polished or formal for a human writer — swap it for the simpler first-instinct word${vocabInstruction}${mistakeBlock}
+
+CHANGE TARGET (a floor, not a maximum): change at least ${overallTarget} words across the WHOLE text (~${overallPct}%). Heavier levels MUST change more — do not stop early. Count as you go and keep going until you reach this floor, spreading the changes across every paragraph, not just the first.
 
 STRICT RULES:
 - Only change individual words or short phrases (2–4 words max)
@@ -492,7 +500,7 @@ app.post('/api/adjust-level', async (req, res) => {
   // real multi-category changes (no more "150 grammar" diff artifact).
   const PRESET_MISTAKES = {
     // Beginner — most aggressive: simplest words, lots of human errors
-    easy:   { wordLevel: 1, grammar: 6, tense: 6, punct: 7, caps: 5, spelling: 6 },
+    easy:   { wordLevel: 0, grammar: 7, tense: 8, punct: 8, caps: 6, spelling: 7 },
     // Student — moderate simplification, occasional slips
     medium: { wordLevel: 5, grammar: 3, tense: 3, punct: 3, caps: 2, spelling: 2 },
     // Academic — light touch: keep advanced vocab, only obvious AI words, minimal errors

@@ -443,7 +443,7 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
   return `Scan this text for AI-detection signals and fix them word by word. Your job is word-level replacement only — no sentence restructuring, no paraphrasing.
 
 WHAT TO FIX:
-1. AI buzzwords: utilize→use, leverage→use, facilitate→help, comprehensive→complete, robust→strong, individuals→people, crucial→really important, significant→big, furthermore→also, moreover→also, nevertheless→but, paramount→most important, groundbreaking→new, transformative→life-changing, seamless→smooth, meticulous→careful, realm→area, methodology→method, ultimately→in the end, delve→explore, innovative→new, sophisticated→advanced, invaluable→very useful, streamline→simplify, navigate→handle, ecosystem→environment, framework→system, cutting-edge→advanced, state-of-the-art→advanced
+1. AI buzzwords: utilize→use, leverage→use, facilitate→help, comprehensive→complete, robust→strong, individuals→people, crucial→really important, significant→big, furthermore→also, moreover→also, nevertheless→but, paramount→most important, groundbreaking→new, transformative→life changing, seamless→smooth, meticulous→careful, realm→area, methodology→method, ultimately→in the end, delve→explore, innovative→new, sophisticated→advanced, invaluable→very useful, streamline→simplify, navigate→handle, ecosystem→environment, framework→system, cutting-edge→advanced, state-of-the-art→advanced
 2. Overly formal multi-word phrases: "in order to"→"to", "due to the fact that"→"because", "in the event that"→"if", "with regard to"→"about", "a large number of"→"many", "in terms of"→"about", "plays a crucial role"→"is really important", "serves as a testament"→"shows"
 3. Any word that sounds unusually polished or formal for a human writer — swap it for the simpler first-instinct word${vocabInstruction}${mistakeBlock}
 
@@ -453,6 +453,7 @@ STRICT RULES:
 - Keep proper nouns, numbers, and technical terms unchanged
 - Never expand one word into a full phrase that changes sentence rhythm${lockLine}
 - No em dashes — replace any with a comma
+- NO hyphens joining words — write "life changing" not "life-changing", "long term" not "long-term", "state of the art" not "state-of-the-art". If the original has a hyphenated word, split it into separate words.
 
 OUTPUT FORMAT — TAG EVERY CHANGE (this is mandatory):
 Return the full text. Leave unchanged text exactly as-is. Wrap EACH thing you change in this marker:
@@ -535,7 +536,11 @@ app.post('/api/adjust-level', async (req, res) => {
     if (data?.candidates?.[0]?.finishReason === 'MAX_TOKENS')
       console.warn('[adjust-level] output hit MAX_TOKENS — result may be truncated');
 
-    const finalResult = result.trim();
+    // Safety net: kill any dashes/hyphens the model still slipped in.
+    const finalResult = result.trim()
+      .replace(/\s*—\s*/g, ', ')                  // em dash → comma
+      .replace(/\s*–\s*/g, ', ')                  // en dash → comma
+      .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
     return res.json({ result: finalResult });
   } catch (err) {
     console.error('/api/adjust-level error:', err);

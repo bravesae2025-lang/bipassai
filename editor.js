@@ -696,6 +696,8 @@ function setupLeaveConfirm() {
   const close = () => modal.classList.add('hidden');
 
   backBtn.addEventListener('click', e => { e.preventDefault(); open(); });
+  const homeLink = document.querySelector('#drawer .drawer-item[href="/home"]');
+  homeLink?.addEventListener('click', e => { e.preventDefault(); open(); });
   anywayBtn?.addEventListener('click', () => { window.location.href = '/home'; });
   xBtn?.addEventListener('click', close);
   modal.addEventListener('click', e => { if (e.target === modal) close(); });

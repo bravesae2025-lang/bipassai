@@ -757,6 +757,79 @@ function _classifyChange(orig, repl) {
   return 'word';                                       // vocabulary swap (default)
 }
 
+// Per-category highlight colors (mirror the CSS [data-cat] vars in style.css)
+const CAT_COLORS = {
+  word: '#e8a317', caps: '#2f6df6', punct: '#8b5cf6',
+  spelling: '#e0533d', tense: '#1aa564', grammar: '#d6336c',
+};
+const _VALID_CATS = new Set(Object.keys(CAT_COLORS));
+
+// Build a striped linear-gradient background + split underline from N category colors
+function _multiCatStyle(cats) {
+  const cols = cats.map(c => CAT_COLORS[c] || CAT_COLORS.word);
+  const step = 100 / cols.length;
+  const tint  = cols.map((c, i) => `color-mix(in srgb, ${c} 16%, transparent) ${i * step}% ${(i + 1) * step}%`).join(', ');
+  const solid = cols.map((c, i) => `${c} ${i * step}% ${(i + 1) * step}%`).join(', ');
+  return `background:linear-gradient(100deg, ${tint});`
+       + `border-bottom:2px solid transparent;`
+       + `border-image:linear-gradient(100deg, ${solid}) 1;`;
+}
+
+// Parse AI annotation markers [[orig|new|cats]] into clean text + change HTML + counts.
+// Returns null when no markers are present (caller falls back to the diff).
+function _parseAnnotatedResult(annotated) {
+  if (!annotated || annotated.indexOf('[[') === -1) return null;
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const re = /\[\[([^\]|]*)\|([^\]|]*)\|([^\]]*)\]\]/g;
+
+  const counts = { word: 0, caps: 0, punct: 0, spelling: 0, tense: 0, grammar: 0 };
+  let html = '', cleanText = '', total = 0, last = 0, m, found = false;
+
+  while ((m = re.exec(annotated)) !== null) {
+    found = true;
+    const before = annotated.slice(last, m.index);
+    html += esc(before);
+    cleanText += before;
+    last = re.lastIndex;
+
+    const orig = m[1], repl = m[2];
+    let cats = m[3].split('+').map(c => c.trim().toLowerCase())
+                   .map(c => c === 'vocab' ? 'word' : c)
+                   .filter(c => _VALID_CATS.has(c));
+    if (!cats.length) cats = ['word'];
+    cats = [...new Set(cats)];
+
+    cats.forEach(c => counts[c]++);
+    total++;
+    cleanText += repl;
+
+    const safe   = esc(repl);
+    const origEsc = esc(orig);
+    if (cats.length === 1) {
+      const cat = cats[0];
+      html += orig
+        ? `<span class="word-change-pair" data-cat="${cat}"><mark class="word-changed">${safe}</mark><span class="word-original">${origEsc}</span></span>`
+        : `<mark class="word-changed" data-cat="${cat}">${safe}</mark>`;
+    } else {
+      const cl = cats.join(' ');
+      const st = _multiCatStyle(cats);
+      html += orig
+        ? `<span class="word-change-pair" data-cats="${cl}"><mark class="word-changed" style="${st}">${safe}</mark><span class="word-original" style="text-decoration-color:${CAT_COLORS[cats[0]]}">${origEsc}</span></span>`
+        : `<mark class="word-changed" data-cats="${cl}" style="${st}">${safe}</mark>`;
+    }
+  }
+  if (!found) return null;
+
+  const tail = annotated.slice(last);
+  html += esc(tail);
+  cleanText += tail;
+
+  // Safety: strip any stray/malformed markers from clean text so copy/extension stay clean
+  cleanText = cleanText.replace(/\[\[([^\]|]*)\|([^\]|]*)\|([^\]]*)\]\]/g, '$2')
+                       .replace(/\[\[|\]\]/g, '');
+  return { cleanText: cleanText.trim(), html: html.replace(/\n/g, '<br>\n'), counts, total };
+}
+
 function _buildDiffHtml(original, result) {
   const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
   // Split into alternating [word, whitespace, word, ...] tokens
@@ -966,11 +1039,14 @@ async function adjustLevel() {
     if (!res.ok) throw new Error('API error');
     const { result } = await res.json();
 
-    const htmlDiff = _buildDiffHtml(text, result);
-    const changed  = _countChanges(text, result);
+    // Prefer AI annotations (accurate multi-category); fall back to the diff.
+    const parsed   = _parseAnnotatedResult(result);
+    const cleanRes = parsed ? parsed.cleanText : result;
+    const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(text, result);
+    const changed  = parsed ? parsed.total     : _countChanges(text, result);
 
     sessionStorage.setItem('bipass_input',        text);
-    sessionStorage.setItem('bipass_result',       result);
+    sessionStorage.setItem('bipass_result',       cleanRes);
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
     sessionStorage.setItem('bipass_mode',         'humanize');
     sessionStorage.setItem('bipass_change_count', String(changed));

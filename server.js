@@ -414,7 +414,7 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
   if (pctLabel(mistakes.tense))
     mistakeLines.push(`- Tense (DO THIS FIRST): find EVERY past-tense verb in the text, then switch ${pctLabel(mistakes.tense)} them to present tense — e.g. "went"→"go", "said"→"say", "was"→"is", "were"→"are", "made"→"make", "changed"→"change", "showed"→"show", "had"→"have", "became"→"become". This category must NOT come out as zero.`);
   if (pctLabel(mistakes.punct))
-    mistakeLines.push(`- Punctuation (DO THIS EARLY): find EVERY contraction and drop the apostrophe on ${pctLabel(mistakes.punct)} them — don't→dont, can't→cant, it's→its, won't→wont, didn't→didnt, that's→thats, I'm→im. If there are few contractions, contract a couple of "is not"/"do not"/"it is" pairs and drop their apostrophes too. This category must NOT come out as zero.`);
+    mistakeLines.push(`- Punctuation (DO THIS EARLY): treat each punctuation mark as its OWN editable unit, separate from the word next to it. Apply to ${pctLabel(mistakes.punct)} the sentences: (a) swap a comma for a full stop or a full stop for a comma (e.g. "consequence," → "consequence."), and (b) drop the apostrophe on contractions (don't→dont, can't→cant, it's→its, didn't→didnt). When you change ONLY the punctuation mark, the annotation must wrap ONLY that mark — not the whole word (see PUNCTUATION example below). This category must NOT come out as zero.`);
   if (pctLabel(mistakes.caps))
     mistakeLines.push(`- Capitals (DO THIS EARLY): lowercase the first letter of ${pctLabel(mistakes.caps)} the sentences, and lowercase any standalone "I". This category must NOT come out as zero.`);
   if (countLabel(mistakes.spelling, 0.12))
@@ -423,7 +423,7 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
     mistakeLines.push(`- Grammar: introduce ${countLabel(mistakes.grammar, 0.10)} subject-verb disagreement or wrong/missing-article errors — do NOT exceed this count; grammar must not swallow the budget the other categories need.`);
 
   const mistakeBlock = mistakeLines.length
-    ? `\n\nMISTAKES YOU MUST APPLY — REQUIRED, NOT OPTIONAL:\nApply the lines below IN ORDER. The limited categories (tense, punctuation, capitals) come first on purpose — fully apply them BEFORE doing spelling/grammar, because those easy categories will otherwise eat all the changes and leave the others at zero. These are deliberate human imperfections: do NOT "fix" or clean them up.\n${mistakeLines.join('\n')}\nFINAL CHECK before returning: go category by category and confirm EVERY line above actually appears in your output. If tense, punctuation, or capitals is missing or near zero, STOP and add them — never return with an enabled category at zero. Spread changes across the WHOLE text, not just the first paragraph.`
+    ? `\n\nMISTAKES YOU MUST APPLY — REQUIRED, NOT OPTIONAL:\nApply the lines below IN ORDER. The limited categories (tense, punctuation, capitals) come first on purpose — fully apply them BEFORE doing spelling/grammar, because those easy categories will otherwise eat all the changes and leave the others at zero. These are deliberate human imperfections: do NOT "fix" or clean them up.\n${mistakeLines.join('\n')}\nSTACK MISTAKES ON THE SAME WORD: a single word can receive MORE than one change. If you simplify a verb for vocabulary AND it should also be a tense mistake, do both and tag both. Example: "facilitated" → simplify to "helped" (vocab) → then break the tense to "help" (tense) → the final word is "help" tagged "vocab+tense". Do NOT consider a word "used up" after one change — layer tense, spelling, and capital mistakes on top of vocabulary changes too. This is how tense and the others reach their targets.\nFINAL CHECK before returning: go category by category and confirm EVERY line above actually appears in your output. If tense, punctuation, or capitals is missing or near zero, STOP and add them — never return with an enabled category at zero. Spread changes across the WHOLE text, not just the first paragraph.`
     : '';
 
   const wl = parseInt(mistakes.wordLevel ?? 5);
@@ -449,12 +449,29 @@ WHAT TO FIX:
 
 STRICT RULES:
 - Only change individual words or short phrases (2–4 words max)
-- Keep ALL sentence structure, punctuation positions, and paragraph breaks IDENTICAL
+- Keep ALL sentence structure and paragraph breaks IDENTICAL
 - Keep proper nouns, numbers, and technical terms unchanged
 - Never expand one word into a full phrase that changes sentence rhythm${lockLine}
 - No em dashes — replace any with a comma
 
-Return ONLY the modified text, no explanation.`;
+OUTPUT FORMAT — TAG EVERY CHANGE (this is mandatory):
+Return the full text. Leave unchanged text exactly as-is. Wrap EACH thing you change in this marker:
+[[original|new|categories]]
+- "categories" is one or more of: vocab, tense, punct, caps, spelling, grammar — joined with "+" when a single word got multiple changes.
+- Wrap ONLY the part that changed. For a punctuation-only change, wrap just the mark, leaving the word outside the marker.
+- A purely inserted word (no original) uses an empty original: [[|new|grammar]].
+- Never wrap text you did not change. Never nest markers.
+
+EXAMPLES:
+- Vocabulary: [[utilize|use|vocab]]
+- Vocabulary + tense on one word: [[facilitated|help|vocab+tense]]
+- Tense only: [[went|go|tense]]
+- PUNCTUATION only (mark wrapped alone, word untouched): consequence[[,|.|punct]]
+- Capitals: [[The|the|caps]]
+- Spelling: [[separate|seperate|spelling]]
+- Inserted word: [[|really|grammar]]
+
+Do NOT add any explanation or commentary — return only the tagged text.`;
 }
 
 app.post('/api/adjust-level', async (req, res) => {

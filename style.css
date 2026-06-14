@@ -7344,34 +7344,18 @@ mark.word-changed[data-cat="caps"],
   font-weight: 700;
 }
 
-/* ── Hide rules: unticked category → show original word, hide the changed word ── */
+/* ── Multi-category change: striped highlight from inline gradient (set by JS) ── */
+/* (single-cat marks use [data-cat] rules above; [data-cats] marks carry an inline
+   style with the gradient background + split underline, so no color rule here.) */
 
-/* 1. Collapse the pair wrapper to inline so the original span flows as plain text */
-.changes-view.cat-off-word     .word-change-pair[data-cat="word"],
-.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"],
-.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"],
-.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"],
-.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"],
-.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"] {
+/* ── Filter hide: JS adds .change-reverted to a change when ALL its categories
+   are toggled off → revert it to the original word (or hide a pure insertion) ── */
+.word-change-pair.change-reverted {
   display: inline;
   position: static;
 }
-
-/* 2. Hide the changed (highlighted) word */
-.changes-view.cat-off-word     .word-change-pair[data-cat="word"]     > mark.word-changed,
-.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"]     > mark.word-changed,
-.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"]    > mark.word-changed,
-.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"] > mark.word-changed,
-.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"]    > mark.word-changed,
-.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"]  > mark.word-changed { display: none; }
-
-/* 3. Show the original word as normal inline text */
-.changes-view.cat-off-word     .word-change-pair[data-cat="word"]     > .word-original,
-.changes-view.cat-off-caps     .word-change-pair[data-cat="caps"]     > .word-original,
-.changes-view.cat-off-punct    .word-change-pair[data-cat="punct"]    > .word-original,
-.changes-view.cat-off-spelling .word-change-pair[data-cat="spelling"] > .word-original,
-.changes-view.cat-off-tense    .word-change-pair[data-cat="tense"]    > .word-original,
-.changes-view.cat-off-grammar  .word-change-pair[data-cat="grammar"]  > .word-original {
+.word-change-pair.change-reverted > mark.word-changed { display: none; }
+.word-change-pair.change-reverted > .word-original {
   display: inline;
   position: static;
   font-size: inherit;
@@ -7384,14 +7368,8 @@ mark.word-changed[data-cat="caps"],
   padding-bottom: 0;
   user-select: auto;
 }
-
-/* 4. Standalone marks (pure insertions — no original to revert to): hide entirely */
-.changes-view.cat-off-word     mark.word-changed[data-cat="word"],
-.changes-view.cat-off-caps     mark.word-changed[data-cat="caps"],
-.changes-view.cat-off-punct    mark.word-changed[data-cat="punct"],
-.changes-view.cat-off-spelling mark.word-changed[data-cat="spelling"],
-.changes-view.cat-off-tense    mark.word-changed[data-cat="tense"],
-.changes-view.cat-off-grammar  mark.word-changed[data-cat="grammar"] { display: none; }
+/* Standalone marks (pure insertions — no original to revert to): hide entirely */
+mark.word-changed.change-reverted { display: none; }
 
 /* ── Changes layout: diff text (left) + filter panel (right) ── */
 .changes-layout {

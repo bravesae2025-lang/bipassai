@@ -227,10 +227,20 @@ function setupViewToggle(result, mode) {
   // leave the plain textarea showing as-is and drop the buttons to the bottom.
   if (mode !== 'humanize' || !hasHtml) { mountActionsBottom(); return; }
 
+  const CAT_COLORS = {
+    word: '#e8a317', caps: '#2f6df6', punct: '#8b5cf6',
+    spelling: '#e0533d', tense: '#1aa564', grammar: '#d6336c',
+  };
+
+  // A change carries either a single data-cat or a space-separated data-cats list
+  const catsOf = el => el.dataset.cats
+    ? el.dataset.cats.split(/\s+/).filter(Boolean)
+    : (el.dataset.cat ? [el.dataset.cat] : []);
+
   function refreshCounts() {
     if (!filter || !changesView) return;
     ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'].forEach(cat => {
-      const n = changesView.querySelectorAll(`[data-cat="${cat}"]`).length;
+      const n = changesView.querySelectorAll(`[data-cat="${cat}"], [data-cats~="${cat}"]`).length;
       const cEl = filter.querySelector(`[data-count="${cat}"]`);
       if (cEl) cEl.textContent = n;
       const row = filter.querySelector(`.cf-row[data-cat="${cat}"]`);
@@ -238,13 +248,46 @@ function setupViewToggle(result, mode) {
     });
   }
 
+  // Re-stripe a multi-category mark to only its still-enabled colors
+  function restripe(mark, cats) {
+    const cols = cats.map(c => CAT_COLORS[c] || CAT_COLORS.word);
+    const step = 100 / cols.length;
+    const tint  = cols.map((c, i) => `color-mix(in srgb, ${c} 16%, transparent) ${i * step}% ${(i + 1) * step}%`).join(', ');
+    const solid = cols.map((c, i) => `${c} ${i * step}% ${(i + 1) * step}%`).join(', ');
+    mark.style.background = `linear-gradient(100deg, ${tint})`;
+    mark.style.borderBottom = '2px solid transparent';
+    mark.style.borderImage = `linear-gradient(100deg, ${solid}) 1`;
+  }
+
+  function applyFilters() {
+    if (!filter || !changesView) return;
+    const enabled = new Set();
+    filter.querySelectorAll('.cf-row input').forEach(box => {
+      if (box.checked) enabled.add(box.closest('.cf-row').dataset.cat);
+    });
+    changesView.querySelectorAll('.word-change-pair, mark.word-changed').forEach(el => {
+      // skip the inner <mark> of a pair (handled via its parent)
+      if (el.tagName === 'MARK' && el.closest('.word-change-pair')) return;
+      const cats = catsOf(el);
+      if (!cats.length) return;
+      const on = cats.filter(c => enabled.has(c));
+      if (on.length === 0) {
+        el.classList.add('change-reverted');
+      } else {
+        el.classList.remove('change-reverted');
+        if (cats.length > 1) {
+          const mark = el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed');
+          if (mark) restripe(mark, on);
+        }
+      }
+    });
+  }
+
   // Wire category filter toggles
   filter?.querySelectorAll('.cf-row input').forEach(box => {
     box.addEventListener('change', () => {
-      const row = box.closest('.cf-row');
-      const cat = row.dataset.cat;
-      changesView.classList.toggle(`cat-off-${cat}`, !box.checked);
-      row.classList.toggle('cf-off', !box.checked);
+      box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
+      applyFilters();
     });
   });
 
@@ -255,6 +298,7 @@ function setupViewToggle(result, mode) {
   if (layout) layout.classList.remove('hidden');
   if (changesView) changesView.innerHTML = resultHtml;
   refreshCounts();
+  applyFilters();
 }
 
 async function saveResult(text, mode, session) {

@@ -136,19 +136,19 @@
           <div class="howto-step-right">
             <div class="howto-mock">
               <div class="mock-body mock-body-pad">
-                <div class="mock-label">Reads like</div>
-                <div class="mock-pill-row">
-                  <div class="mock-pill mock-pill-active" style="background:#e11d1d;color:#fff;border-color:#e11d1d;">Polished AI</div>
-                  <div class="mock-pill">A real student</div>
+                <div class="mock-result-topbar">
+                  <div class="mock-result-badge">Your essay</div>
+                  <div class="mock-result-wc">312 words</div>
                 </div>
-                <div class="mock-level-desc">Every sentence the same length, every word the safe choice — too uniform to read like a person wrote it.</div>
-                <div class="mock-divider"></div>
-                <div class="mock-result-area" style="margin-top:4px;">
-                  <div class="mock-line mock-line-full" style="background:rgba(225,29,29,0.18)"></div>
-                  <div class="mock-line mock-line-full" style="background:rgba(225,29,29,0.18)"></div>
-                  <div class="mock-line mock-line-full" style="background:rgba(225,29,29,0.18)"></div>
-                  <div class="mock-line mock-line-full" style="background:rgba(225,29,29,0.18)"></div>
+                <div class="mock-result-area" style="margin-top:6px;">
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
+                  <div class="mock-line mock-line-full"></div>
                 </div>
+                <div class="mock-level-desc" style="margin-top:10px;">Every sentence the same length — reads like AI.</div>
               </div>
             </div>
           </div>
@@ -186,32 +186,58 @@
           <div class="howto-step-right">
             <div class="howto-mock">
               <div class="mock-body mock-body-pad">
-                <div class="mock-label">Writing level</div>
+                <div class="mock-label">Adjust Level</div>
+                <div class="mock-label" style="margin-top:2px;color:var(--g300);">Presets</div>
                 <div class="mock-pill-row">
                   <div class="mock-pill">Beginner</div>
                   <div class="mock-pill mock-pill-active">Student</div>
                   <div class="mock-pill">Academic</div>
                   <div class="mock-pill">Custom</div>
                 </div>
-                <div class="mock-level-desc">Student — average undergrad voice with natural variation in sentence length and vocabulary</div>
+                <div class="mock-level-desc">Student — average undergrad voice, natural variation in sentence length and vocabulary.</div>
                 <div class="mock-divider"></div>
-                <div class="mock-label" style="margin-top:4px;">Add natural mistakes</div>
-                <div class="mock-mistake-row">
-                  <span class="mock-mistake-name">Vocabulary</span>
-                  <div class="mock-mints">
-                    <div class="mock-mint">None</div>
-                    <div class="mock-mint mock-mint-active">A little</div>
-                    <div class="mock-mint">A lot</div>
+                <div class="mock-label" style="margin-top:4px;">Human Mistakes</div>
+
+                <div style="margin-top:9px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--black);">
+                    <span>Vocabulary</span><span style="color:var(--g300);">Student</span>
+                  </div>
+                  <div style="position:relative;height:5px;border-radius:3px;background:var(--g150);margin:7px 0 3px;">
+                    <div style="position:absolute;left:0;top:0;height:5px;width:50%;border-radius:3px;background:#111;"></div>
+                    <div style="position:absolute;left:50%;top:50%;width:13px;height:13px;border-radius:50%;background:#111;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.04em;text-transform:uppercase;color:var(--g300);">
+                    <span>Simple</span><span>Hard</span>
                   </div>
                 </div>
-                <div class="mock-mistake-row">
-                  <span class="mock-mistake-name">Punctuation</span>
-                  <div class="mock-mints">
-                    <div class="mock-mint">None</div>
-                    <div class="mock-mint mock-mint-active">A little</div>
-                    <div class="mock-mint">A lot</div>
+
+                <div style="margin-top:11px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--black);">
+                    <span>Grammar</span><span style="color:var(--g300);">A little</span>
+                  </div>
+                  <div style="position:relative;height:5px;border-radius:3px;background:var(--g150);margin:7px 0 3px;">
+                    <div style="position:absolute;left:0;top:0;height:5px;width:30%;border-radius:3px;background:#111;"></div>
+                    <div style="position:absolute;left:30%;top:50%;width:13px;height:13px;border-radius:50%;background:#111;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.04em;text-transform:uppercase;color:var(--g300);">
+                    <span>None</span><span>A lot</span>
                   </div>
                 </div>
+
+                <div style="margin-top:11px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--black);">
+                    <span>Spelling</span><span style="color:var(--g300);">A little</span>
+                  </div>
+                  <div style="position:relative;height:5px;border-radius:3px;background:var(--g150);margin:7px 0 3px;">
+                    <div style="position:absolute;left:0;top:0;height:5px;width:20%;border-radius:3px;background:#111;"></div>
+                    <div style="position:absolute;left:20%;top:50%;width:13px;height:13px;border-radius:50%;background:#111;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:0.04em;text-transform:uppercase;color:var(--g300);">
+                    <span>None</span><span>A lot</span>
+                  </div>
+                </div>
+
+                <div class="mock-action-btn" style="margin-top:14px;">Adjust Level →</div>
               </div>
             </div>
           </div>
@@ -238,18 +264,26 @@
           <div class="howto-step-right">
             <div class="howto-mock">
               <div class="mock-body mock-body-pad">
-                <div class="mock-label">Reads like</div>
-                <div class="mock-pill-row">
-                  <div class="mock-pill">Polished AI</div>
-                  <div class="mock-pill mock-pill-active" style="background:#1aa564;color:#fff;border-color:#1aa564;">A real student</div>
+                <div class="mock-result-topbar">
+                  <div class="mock-result-badge">Result</div>
+                  <div class="mock-result-wc">298 words</div>
+                  <div class="mock-copy-btn">Copy</div>
                 </div>
-                <div class="mock-level-desc">Mixed sentence lengths, simpler word choices, natural variation — reads like a person at your chosen level.</div>
-                <div class="mock-divider"></div>
-                <div class="mock-result-area" style="margin-top:4px;">
-                  <div class="mock-line mock-line-full" style="background:rgba(26,165,100,0.18)"></div>
-                  <div class="mock-line mock-line-sm" style="background:rgba(26,165,100,0.18)"></div>
-                  <div class="mock-line mock-line-lg" style="background:rgba(26,165,100,0.18)"></div>
-                  <div class="mock-line mock-line-md" style="background:rgba(26,165,100,0.18)"></div>
+                <div style="margin-top:10px;font-size:11px;line-height:2;color:var(--black);">
+                  The study <span style="color:#b9790a;background:rgba(232,163,23,0.14);border-bottom:2px solid #e8a317;border-radius:3px;padding:0 2px;">helped</span> students <span style="color:#14804f;background:rgba(26,165,100,0.14);border-bottom:2px solid #1aa564;border-radius:3px;padding:0 2px;">get</span> the idea<span style="color:#6d44c9;background:rgba(139,92,246,0.16);border-bottom:2px solid #8b5cf6;border-radius:3px;padding:0 2px;">.</span> A lot of them <span style="color:#b9790a;background:rgba(232,163,23,0.14);border-bottom:2px solid #e8a317;border-radius:3px;padding:0 2px;">tried</span> harder afterwards.
+                </div>
+                <div class="mock-divider" style="margin-top:10px;"></div>
+                <div class="mock-label" style="margin-top:4px;">Changes</div>
+                <div style="display:flex;flex-direction:column;gap:7px;margin-top:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--black);">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#e8a317;flex:none;"></span>Vocabulary<span style="margin-left:auto;color:var(--g300);">2</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--black);">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#1aa564;flex:none;"></span>Tense<span style="margin-left:auto;color:var(--g300);">1</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--black);">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#8b5cf6;flex:none;"></span>Punctuation<span style="margin-left:auto;color:var(--g300);">1</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -645,6 +645,7 @@ function setupLeaveConfirm() {
   const backBtn   = document.getElementById('back-btn');
   const uploadBtn = document.getElementById('leave-upload');
   const anywayBtn = document.getElementById('leave-anyway');
+  const xBtn      = document.getElementById('leave-x');
   if (!modal || !backBtn) return;
 
   const open  = () => modal.classList.remove('hidden');
@@ -652,6 +653,7 @@ function setupLeaveConfirm() {
 
   backBtn.addEventListener('click', e => { e.preventDefault(); open(); });
   anywayBtn?.addEventListener('click', () => { window.location.href = '/home'; });
+  xBtn?.addEventListener('click', close);
   modal.addEventListener('click', e => { if (e.target === modal) close(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !modal.classList.contains('hidden')) close();

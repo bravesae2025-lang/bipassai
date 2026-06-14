@@ -5735,6 +5735,25 @@ body.drawer-lock { overflow: hidden; }
 
 .settings-modal-confirm:hover { opacity: 0.85; }
 
+/* Leave-editor modal: close X in the top-right corner */
+.leave-modal { position: relative; }
+.leave-modal-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--g300);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.leave-modal-x:hover { background: var(--g100); color: var(--black); }
+
 /* Leave-editor modal: black primary "Upload & Leave" (recommended action) */
 .leave-modal-upload {
   font-family: var(--ff-mono);

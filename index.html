@@ -41,7 +41,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 
@@ -430,7 +430,7 @@
       const NAMES = { word: 'Vocabulary', caps: 'Capitals', punct: 'Punctuation', tense: 'Tense', spelling: 'Spelling', grammar: 'Grammar' };
       const ORDER = ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'];
 
-      // Shared base paragraph (2–3 sentences). Editable slots get overridden per level.
+      // Shared base paragraph (~4 sentences). Editable slots get overridden per level.
       const BASE = [
         { w: 'Social media has' },
         { w: 'completely' },
@@ -447,16 +447,23 @@
         { w: 'is' },
         { w: 'undeniable' },
         { w: '.', glue: true },
+        { w: 'Honestly,' },
+        { w: 'most people can no longer' },
+        { w: 'imagine' },
+        { w: 'life without it' },
+        { w: '.', glue: true },
       ];
 
       const LEVELS = [
         { badge: 'LEVEL · BEGINNER', edits: {
             1: { to: 'totally', cat: 'word' }, 2: { to: 'changed', cat: 'word' }, 4: { to: 'talk', cat: 'word' },
             5: { to: ',', cat: 'punct' }, 6: { to: 'it', cat: 'caps' }, 7: { to: 'really', cat: 'word' },
-            8: { to: 'shaped', cat: 'tense' }, 11: { to: 'thing', cat: 'word' }, 13: { to: 'real', cat: 'word' } } },
+            8: { to: 'shaped', cat: 'tense' }, 11: { to: 'thing', cat: 'word' }, 13: { to: 'real', cat: 'word' },
+            17: { to: 'picture', cat: 'word' } } },
         { badge: 'LEVEL · STUDENT', edits: {
             2: { to: 'changed', cat: 'word' }, 4: { to: 'talk', cat: 'word' },
-            7: { to: 'really', cat: 'word' }, 8: { to: 'shaped', cat: 'tense' } } },
+            7: { to: 'really', cat: 'word' }, 8: { to: 'shaped', cat: 'tense' },
+            17: { to: 'picture', cat: 'word' } } },
         { badge: 'LEVEL · ACADEMIC', edits: {
             1: { to: 'largely', cat: 'word' }, 7: { to: 'notably', cat: 'word' }, 13: { to: 'clear', cat: 'word' } } },
       ];
@@ -525,24 +532,24 @@
         if (countEl) countEl.textContent = '0 edits';
         if (mainEl) { mainEl.classList.remove('ld-fade'); }
 
-        let cursor = 560;
-        idx.forEach((ci, k) => at(cursor + k * 200, () => {
+        let cursor = 700;
+        idx.forEach((ci, k) => at(cursor + k * 360, () => {
           reveal(ci, L.edits[ci]);
           if (countEl) { const n = k + 1; countEl.textContent = n + (n === 1 ? ' edit' : ' edits'); }
         }));
 
-        const editsDone = cursor + total * 200;
+        const editsDone = cursor + total * 360;
         const hasToggle = counts[TOGGLE] > 0;
         let end;
         if (hasToggle) {
-          at(editsDone + 950, () => toggleCat(TOGGLE, true));
-          at(editsDone + 2150, () => toggleCat(TOGGLE, false));
-          end = editsDone + 2150 + 1150;
+          at(editsDone + 1400, () => toggleCat(TOGGLE, true));
+          at(editsDone + 1400 + 1700, () => toggleCat(TOGGLE, false));
+          end = editsDone + 1400 + 1700 + 1400;
         } else {
-          end = editsDone + 2200;
+          end = editsDone + 2600;
         }
         at(end, () => { if (mainEl) mainEl.classList.add('ld-fade'); });
-        at(end + 450, () => { li = (li + 1) % LEVELS.length; runLevel(); });
+        at(end + 500, () => { li = (li + 1) % LEVELS.length; runLevel(); });
       }
 
       at(900, runLevel);

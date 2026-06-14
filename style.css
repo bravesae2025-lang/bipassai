@@ -1254,6 +1254,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .leveldemo-filter {
   flex: 0 0 196px;
   width: 196px;
+  margin-top: 12px;
 }
 .leveldemo-filter .cf-row { cursor: default; }
 .leveldemo-filter .cf-switch,

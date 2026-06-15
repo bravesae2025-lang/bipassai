@@ -553,14 +553,11 @@
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const DEPTH = 420;        // z-range of the cloud
-    const F     = 900;        // focal length (perspective)
-    const D3D   = 152;        // 3D link distance
-    const D2    = D3D * D3D;
-    const MR    = 160;        // cursor-link radius (screen space)
+    const MR    = 150;        // cursor radius (screen space)
     const MR2   = MR * MR;
 
     let pts = [], W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
+    let R = 0, F = 0, D3D = 0, D2 = 0;   // sphere radius, focal, link dist (set in build)
     let mx = -9999, my = -9999, active = false, raf = null;
     let angY = 0;             // auto-spin (free, not mouse-driven)
     const tiltX = 0.32;       // fixed 3D viewing angle (not animated, no follow)
@@ -575,13 +572,25 @@
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const n = Math.max(80, Math.min(260, Math.round(W * H / 8000)));
+      // Sphere sized so its silhouette circle covers the whole page (incl corners)
+      R = 0.5 * Math.hypot(W, H);
+      F = R * 2.2;
+      const n = Math.max(240, Math.min(360, Math.round(R * 0.45)));
+      // auto-scale link distance to keep mesh density consistent on any screen
+      const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
+      D3D = spacing * 1.2;
+      D2  = D3D * D3D;
+
       pts = [];
       for (let i = 0; i < n; i++) {
+        const u = Math.random() * 2 - 1;
+        const phi = Math.random() * Math.PI * 2;
+        const r = R * Math.cbrt(Math.random());
+        const s = Math.sqrt(1 - u * u);
         pts.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          z: (Math.random() - 0.5) * DEPTH,
+          x: r * s * Math.cos(phi),
+          y: r * s * Math.sin(phi),
+          z: r * u,
           vx: (Math.random() - 0.5) * 0.45,
           vy: (Math.random() - 0.5) * 0.45,
           vz: (Math.random() - 0.5) * 0.45,
@@ -600,7 +609,6 @@
       const ay = angY, ax = tiltX;
       const cosY = Math.cos(ay), sinY = Math.sin(ay);
       const cosX = Math.cos(ax), sinX = Math.sin(ax);
-      const hz = DEPTH / 2;
 
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
@@ -612,7 +620,7 @@
             const d2 = ddx * ddx + ddy * ddy;
             if (d2 < MR2) {
               const d = Math.sqrt(d2) || 1;
-              const f = (1 - d / MR) * 0.18;
+              const f = (1 - d / MR) * 0.10;
               const fx = (ddx / d) * f, fy = (ddy / d) * f;
               // inverse-rotate the screen-space pull back into world space
               const ryf = cosX * fy;
@@ -628,19 +636,23 @@
           // keep-alive minimum drift
           const sp = Math.abs(p.vx) + Math.abs(p.vy) + Math.abs(p.vz);
           if (sp < 0.25) { p.vx += (Math.random() - 0.5) * 0.05; p.vy += (Math.random() - 0.5) * 0.05; p.vz += (Math.random() - 0.5) * 0.05; }
-          // bounce off the 6 walls of the box
-          if (p.x < 0) { p.x = 0; p.vx = -p.vx; } else if (p.x > W) { p.x = W; p.vx = -p.vx; }
-          if (p.y < 0) { p.y = 0; p.vy = -p.vy; } else if (p.y > H) { p.y = H; p.vy = -p.vy; }
-          if (p.z < -hz) { p.z = -hz; p.vz = -p.vz; } else if (p.z > hz) { p.z = hz; p.vz = -p.vz; }
+          // bounce off the sphere shell (keeps the ball full)
+          const len2 = p.x * p.x + p.y * p.y + p.z * p.z;
+          if (len2 > R * R) {
+            const len = Math.sqrt(len2) || 1;
+            const nx = p.x / len, ny = p.y / len, nz = p.z / len;
+            const dot = p.vx * nx + p.vy * ny + p.vz * nz;
+            p.vx -= 2 * dot * nx; p.vy -= 2 * dot * ny; p.vz -= 2 * dot * nz;
+            p.x = nx * R; p.y = ny * R; p.z = nz * R;
+          }
         }
-        // rotate around center: Y axis then X axis
-        const rx = p.x - cx, ry = p.y - cy, rz = p.z;
-        let x1 = rx * cosY + rz * sinY;
-        let z1 = -rx * sinY + rz * cosY;
-        let y1 = ry * cosX - z1 * sinX;
-        let z2 = ry * sinX + z1 * cosX;
-        // perspective project (denominator always > 0 since F > DEPTH)
-        const sc = F / (F + z2 + hz);
+        // rotate (coords are centered at the sphere origin): Y axis then X axis
+        let x1 = p.x * cosY + p.z * sinY;
+        let z1 = -p.x * sinY + p.z * cosY;
+        let y1 = p.y * cosX - z1 * sinX;
+        let z2 = p.y * sinX + z1 * cosX;
+        // perspective project (denominator always > 0 since F = 2.2R > R ≥ |z2|)
+        const sc = F / (F + z2);
         p.sx = cx + x1 * sc;
         p.sy = cy + y1 * sc;
         p.sc = sc;

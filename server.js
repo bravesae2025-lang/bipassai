@@ -389,23 +389,21 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
   // starts), so target them as a share of that pool — not of total words —
   // otherwise they get starved while grammar/vocab (which can hit any word)
   // eat the whole budget.
+  // Slider tiers: 1-2 subtle, 3-5 moderate, 6-8 strong, 9-10 heavy.
   const pctLabel = v => {
     v = parseInt(v) || 0;
     if (v <= 0) return null;
-    if (v <= 2) return 'about 25% of';
-    if (v <= 4) return 'about 45% of';
-    if (v <= 6) return 'about 65% of';
-    if (v <= 8) return 'about 85% of';
+    if (v <= 2) return 'at least 35% of';
+    if (v <= 5) return 'at least 55% of';
+    if (v <= 8) return 'at least 75% of';
     return 'nearly all of';
   };
-  // Spelling/grammar can apply to any word — give a count, but CAP it low so
-  // they don't crowd out the limited categories above.
-  const countLabel = (v, capFrac) => {
+  // Spelling/grammar can apply to any word — give a concrete required count.
+  const countLabel = v => {
     v = parseInt(v) || 0;
     if (v <= 0) return null;
-    const r = v <= 2 ? 0.02 : v <= 4 ? 0.04 : v <= 6 ? 0.06 : v <= 8 ? 0.08 : 0.10;
-    const n = Math.min(Math.round(wordCount * capFrac), Math.max(2, Math.round(wordCount * r)));
-    return `about ${n}`;
+    const r = v <= 2 ? 0.03 : v <= 5 ? 0.06 : v <= 8 ? 0.10 : 0.14;
+    return `at least ${Math.max(3, Math.round(wordCount * r))}`;
   };
 
   const mistakeLines = [];
@@ -417,30 +415,30 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
     mistakeLines.push(`- Punctuation (DO THIS EARLY): treat each punctuation mark as its OWN editable unit, separate from the word next to it. Apply to ${pctLabel(mistakes.punct)} the sentences: (a) swap a comma for a full stop or a full stop for a comma (e.g. "consequence," → "consequence."), and (b) drop the apostrophe on contractions (don't→dont, can't→cant, it's→its, didn't→didnt). When you change ONLY the punctuation mark, the annotation must wrap ONLY that mark — not the whole word (see PUNCTUATION example below). This category must NOT come out as zero.`);
   if (pctLabel(mistakes.caps))
     mistakeLines.push(`- Capitals (DO THIS EARLY): lowercase the first letter of ${pctLabel(mistakes.caps)} the sentences, and lowercase any standalone "I". This category must NOT come out as zero.`);
-  if (countLabel(mistakes.spelling, 0.12))
-    mistakeLines.push(`- Spelling: misspell ${countLabel(mistakes.spelling, 0.12)} words the way a real person slips up (definately, recieve, seperate, occured, wierd, alot, untill, becuase, thier, wich).`);
-  if (countLabel(mistakes.grammar, 0.10))
-    mistakeLines.push(`- Grammar: introduce ${countLabel(mistakes.grammar, 0.10)} subject-verb disagreement or wrong/missing-article errors — do NOT exceed this count; grammar must not swallow the budget the other categories need.`);
+  if (countLabel(mistakes.spelling))
+    mistakeLines.push(`- Spelling: misspell ${countLabel(mistakes.spelling)} words the way a real person slips up (definately, recieve, seperate, occured, wierd, alot, untill, becuase, thier, wich). This is a minimum to reach.`);
+  if (countLabel(mistakes.grammar))
+    mistakeLines.push(`- Grammar: introduce ${countLabel(mistakes.grammar)} subject-verb disagreement or wrong/missing-article errors (e.g. "they was", "a apple", dropping "the"). This is a minimum to reach.`);
 
   const mistakeBlock = mistakeLines.length
-    ? `\n\nMISTAKES YOU MUST APPLY — REQUIRED, NOT OPTIONAL:\nApply the lines below IN ORDER. The limited categories (tense, punctuation, capitals) come first on purpose — fully apply them BEFORE doing spelling/grammar, because those easy categories will otherwise eat all the changes and leave the others at zero. These are deliberate human imperfections: do NOT "fix" or clean them up.\n${mistakeLines.join('\n')}\nSTACK MISTAKES ON THE SAME WORD: a single word can receive MORE than one change. If you simplify a verb for vocabulary AND it should also be a tense mistake, do both and tag both. Example: "facilitated" → simplify to "helped" (vocab) → then break the tense to "help" (tense) → the final word is "help" tagged "vocab+tense". Do NOT consider a word "used up" after one change — layer tense, spelling, and capital mistakes on top of vocabulary changes too. This is how tense and the others reach their targets.\nFINAL CHECK before returning: go category by category and confirm EVERY line above actually appears in your output. If tense, punctuation, or capitals is missing or near zero, STOP and add them — never return with an enabled category at zero. Spread changes across the WHOLE text, not just the first paragraph.`
+    ? `\n\nMISTAKES YOU MUST APPLY — REQUIRED, NOT OPTIONAL:\nEach line below is a REQUIRED MINIMUM you must actually hit — these are deliberate human imperfections, so do NOT "fix" or clean them up, and do NOT stop short. Apply them throughout the WHOLE text (every paragraph), not just the opening lines.\n${mistakeLines.join('\n')}\nSTACK MISTAKES ON THE SAME WORD: a single word can receive MORE than one change. Example: "facilitated" → simplify to "helped" (vocab) → then break the tense to "help" (tense) → final word "help" tagged "vocab+tense". Do NOT consider a word "used up" after one change — layer tense, spelling, capital, and grammar mistakes on top of vocabulary changes too.\nFINAL CHECK before returning: go category by category and confirm EVERY enabled line above reached its minimum in your output. If any enabled category is missing or short, STOP and add more — never return with an enabled category empty or near zero.`
     : '';
 
   const wl = parseInt(mistakes.wordLevel ?? 5);
 
   // Overall change-density floor — scales with level so heavier presets always
   // change MORE words (stops Beginner from ever falling below Student).
-  const overallPct    = wl <= 1 ? 52 : wl <= 3 ? 40 : wl <= 6 ? 22 : wl <= 8 ? 10 : 5;
+  const overallPct    = wl <= 1 ? 55 : wl <= 3 ? 40 : wl <= 6 ? 28 : wl <= 8 ? 10 : 5;
   const overallTarget = Math.max(3, Math.round(wordCount * overallPct / 100));
 
   const vocabInstruction = wl <= 1
-    ? `\n\nWORD LEVEL — ELEMENTARY: Simplify roughly HALF (50–60%) of all words — almost nothing stays formal. Replace every moderately or highly complex word with the absolute simplest everyday equivalent, as if a 10-year-old wrote it. Examples: "demonstrate"→"show", "obtain"→"get", "consider"→"think about", "require"→"need", "provide"→"give", "attempt"→"try", "communicate"→"talk", "approximately"→"about", "substantial"→"really big", "beneficial"→"good", "sufficient"→"enough", "frequently"→"a lot", "residence"→"home", "employed"→"working". Every word should be the first simple word that comes to mind.`
+    ? `\n\nWORD LEVEL — ELEMENTARY (write like a 9–10 year old, 4th–5th grade): Scan EVERY single word. ANY word a 10-year-old wouldn't use in everyday talk MUST be replaced with the simplest possible everyday equivalent — no formal, academic, or "big" words may remain anywhere. Change 50–60%+ of the words. If you're unsure whether a word is simple enough, replace it. Examples: "demonstrate"→"show", "obtain"→"get", "consider"→"think about", "require"→"need", "provide"→"give", "attempt"→"try", "communicate"→"talk", "approximately"→"about", "substantial"→"really big", "beneficial"→"good", "sufficient"→"enough", "frequently"→"a lot", "residence"→"home", "employed"→"working", "purchase"→"buy", "assist"→"help", "construct"→"build", "consume"→"eat", "observe"→"see", "numerous"→"a lot of", "essential"→"needed", "encounter"→"run into", "maintain"→"keep". Pick the first simple word that comes to mind.`
     : wl <= 3
-    ? `\n\nWORD LEVEL — BEGINNER: Simplify roughly 35–45% of words. Use simple conversational vocabulary throughout. Replace formal or academic words with plain everyday alternatives a non-native speaker would write. Avoid anything that sounds textbook-like or overly formal.`
+    ? `\n\nWORD LEVEL — BEGINNER (write like an ESL beginner / middle-schooler): Replace ALL formal or academic words with plain everyday alternatives — change roughly 35–45% of words. Nothing should sound textbook-like or polished. If a word feels even slightly formal, simplify it (e.g. "demonstrate"→"show", "significant"→"big", "obtain"→"get", "however"→"but", "therefore"→"so", "additionally"→"also").`
     : wl <= 6
-    ? `\n\nWORD LEVEL — STUDENT: Simplify roughly 15–25% of words. Use clear plain language a high school student would write. Replace AI buzzwords and obviously academic/formal words, but keep moderately formal words if they fit naturally.`
+    ? `\n\nWORD LEVEL — STUDENT (everyday high-school writing): Replace AI buzzwords and any clearly formal/academic words with plain wording — change roughly 20–30% of words. Keep ordinary moderate words that a normal student would actually use; only swap the ones that sound stiff, academic, or AI-ish.`
     : wl <= 8
-    ? `\n\nWORD LEVEL — ACADEMIC: Change only the obvious AI buzzwords (~5–10% of words). Keep vocabulary at a confident, educated level (utilize, leverage, facilitate, comprehensive, paramount, meticulous, groundbreaking, transformative, seamless) — leave all other advanced vocabulary unchanged.`
+    ? `\n\nWORD LEVEL — ACADEMIC: Keep the vocabulary advanced and educated. Change ONLY the obvious AI buzzwords (~5–10% of words) — utilize, leverage, facilitate, comprehensive, paramount, meticulous, groundbreaking, transformative, seamless, delve. Leave all other sophisticated vocabulary exactly as written.`
     : `\n\nWORD LEVEL — EXPERT: Minimal vocabulary changes (~2–4% of words). Only fix the most glaring AI-specific terms (utilize→use, leverage→use, facilitate→help). Preserve all other sophisticated or technical vocabulary exactly as written.`;
 
   const lockLine = lockSentenceStructure
@@ -451,7 +449,7 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
 WHAT TO FIX:
 1. AI buzzwords: utilize→use, leverage→use, facilitate→help, comprehensive→complete, robust→strong, individuals→people, crucial→really important, significant→big, furthermore→also, moreover→also, nevertheless→but, paramount→most important, groundbreaking→new, transformative→life changing, seamless→smooth, meticulous→careful, realm→area, methodology→method, ultimately→in the end, delve→explore, innovative→new, sophisticated→advanced, invaluable→very useful, streamline→simplify, navigate→handle, ecosystem→environment, framework→system, cutting-edge→advanced, state-of-the-art→advanced
 2. Overly formal multi-word phrases: "in order to"→"to", "due to the fact that"→"because", "in the event that"→"if", "with regard to"→"about", "a large number of"→"many", "in terms of"→"about", "plays a crucial role"→"is really important", "serves as a testament"→"shows"
-3. Any word that sounds unusually polished or formal for a human writer — swap it for the simpler first-instinct word${vocabInstruction}${mistakeBlock}
+3. Any word that sounds unusually polished or formal for a human writer — swap it for the simpler first-instinct word. Treat the WORD LEVEL section below as a STRICT target: at lower levels, replace ANY word above that reading level, not just the buzzwords listed above.${vocabInstruction}${mistakeBlock}
 
 CHANGE TARGET (a floor, not a maximum): change at least ${overallTarget} words across the WHOLE text (~${overallPct}%). Heavier levels MUST change more — do not stop early. Count as you go and keep going until you reach this floor, spreading the changes across every paragraph, not just the first.
 
@@ -527,7 +525,7 @@ app.post('/api/adjust-level', async (req, res) => {
         // headroom and cap thinking so reasoning can't starve the output (was 8192,
         // which thinking consumed → ~80-word truncations on annotated essays).
         generationConfig: {
-          temperature: 0.3,
+          temperature: 0.5,
           topP: 0.95,
           maxOutputTokens: 32768,
           thinkingConfig: { thinkingBudget: 8192 },

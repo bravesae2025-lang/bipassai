@@ -296,7 +296,14 @@ function setupViewToggle(result, mode) {
   editorTextarea.classList.add('hidden');
   if (aiBox) aiBox.style.display = 'none';
   if (layout) layout.classList.remove('hidden');
-  if (changesView) changesView.innerHTML = resultHtml;
+  if (changesView) {
+    changesView.innerHTML = resultHtml;
+    changesView.contentEditable = 'true';
+    changesView.spellcheck = true;
+    changesView.querySelectorAll('.word-original').forEach(el => {
+      el.contentEditable = 'false';
+    });
+  }
   refreshCounts();
   applyFilters();
 }
@@ -380,8 +387,24 @@ function updateWc() {
 
 // ─── Copy ─────────────────────────────────────────────────────
 
+function extractResultText(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll('.word-change-pair').forEach(pair => {
+    const isReverted = pair.classList.contains('change-reverted');
+    const original = pair.querySelector('.word-original');
+    const changed  = pair.querySelector('mark.word-changed');
+    const word = isReverted ? (original?.textContent ?? '') : (changed?.textContent ?? '');
+    pair.replaceWith(document.createTextNode(word));
+  });
+  clone.querySelectorAll('.word-original').forEach(el => el.remove());
+  return clone.innerText.trim();
+}
+
 async function copyText() {
-  const text = editorTextarea.value;
+  const layout = document.getElementById('changes-layout');
+  const inChanges = layout && !layout.classList.contains('hidden');
+  const changesView = document.getElementById('changes-view');
+  const text = inChanges && changesView ? extractResultText(changesView) : editorTextarea.value;
   if (!text) return;
   try {
     await navigator.clipboard.writeText(text);

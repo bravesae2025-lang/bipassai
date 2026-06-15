@@ -7633,6 +7633,8 @@ mark.word-changed.change-reverted { display: none; }
   box-sizing: border-box;
 }
 .changes-view.hidden { display: none; }
+.changes-view[contenteditable="true"] { outline: none; cursor: text; }
+.word-original[contenteditable="false"] { caret-color: transparent; }
 
 /* Credit cost preview */
 .cost-preview {

@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=29">
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
@@ -152,13 +152,7 @@
 
   <main class="app-main">
     <div class="appbg" id="appbg" aria-hidden="true">
-      <span class="appbg-orb appbg-orb-1"></span>
-      <span class="appbg-orb appbg-orb-2"></span>
-      <span class="appbg-orb appbg-orb-3"></span>
-      <span class="appbg-orb appbg-orb-4"></span>
-      <span class="appbg-orb appbg-orb-5"></span>
-      <span class="appbg-orb appbg-orb-6"></span>
-      <span class="appbg-spot" id="appbg-spot"></span>
+      <canvas class="appbg-canvas" id="appbg-canvas"></canvas>
     </div>
     <div class="workspace" id="workspace">
 
@@ -551,46 +545,110 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Interactive background — drifting orbs + cursor spotlight + parallax */
+  /* Interactive background — magnetic dot grid */
   (function () {
-    const bg = document.getElementById('appbg');
-    if (!bg) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const spot = document.getElementById('appbg-spot');
-    const orbs = [].slice.call(bg.querySelectorAll('.appbg-orb'));
-    const depth = [18, -13, 26, -20, 15, -24];
-    const clamp = v => Math.max(-0.6, Math.min(0.6, v));
-    let cx = 0, cy = 0, raf = null;
+    const bg     = document.getElementById('appbg');
+    const canvas = document.getElementById('appbg-canvas');
+    if (!bg || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function apply() {
-      raf = null;
-      const r = bg.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      const mx = cx - r.left, my = cy - r.top;
-      const within = mx >= -40 && mx <= r.width + 40 && my >= -40 && my <= r.height + 40;
-      const tx = clamp(mx / r.width - 0.5);
-      const ty = clamp(my / r.height - 0.5);
+    const PALETTE = ['232,163,23','47,109,246','139,92,246','26,165,100','214,51,108','224,83,61'];
+    const GAP = 34;          // px between dots
+    const R   = 165;         // magnet radius
+    const R2  = R * R;
 
-      orbs.forEach((o, i) => {
-        const f = depth[i % depth.length];
-        o.style.transform = 'translate3d(' + (-tx * f).toFixed(1) + 'px,' + (-ty * f).toFixed(1) + 'px,0)';
-      });
+    let dots = [], W = 0, H = 0, dpr = 1;
+    let mx = -9999, my = -9999, active = false, raf = null, t = 0;
 
-      if (spot) {
-        if (within) {
-          spot.style.setProperty('--mx', (mx / r.width * 100).toFixed(1) + '%');
-          spot.style.setProperty('--my', (my / r.height * 100).toFixed(1) + '%');
-          spot.style.opacity = '1';
-        } else {
-          spot.style.opacity = '0';
+    function build() {
+      W = bg.offsetWidth;
+      H = bg.offsetHeight;
+      if (!W || !H) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      dots = [];
+      const cols = Math.ceil(W / GAP) + 1;
+      const rows = Math.ceil(H / GAP) + 1;
+      const offX = (W - (cols - 1) * GAP) / 2;
+      const offY = (H - (rows - 1) * GAP) / 2;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const hx = offX + c * GAP, hy = offY + r * GAP;
+          dots.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, color: PALETTE[(c + r) % PALETTE.length] });
         }
+      }
+      if (reduced) drawStatic();
+    }
+
+    function drawStatic() {
+      ctx.clearRect(0, 0, W, H);
+      for (const d of dots) {
+        ctx.beginPath();
+        ctx.arc(d.hx, d.hy, 1.5, 0, 6.2832);
+        ctx.fillStyle = 'rgba(40,40,40,0.12)';
+        ctx.fill();
       }
     }
 
+    function tick() {
+      raf = null;
+      t += 0.016;
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < dots.length; i++) {
+        const d = dots[i];
+        let lit = 0;
+        if (active) {
+          const dx = mx - d.hx, dy = my - d.hy;
+          const dist2 = dx * dx + dy * dy;
+          if (dist2 < R2) {
+            const dist = Math.sqrt(dist2) || 1;
+            lit = 1 - dist / R;
+            const pull = lit * 4.2;          // attraction strength
+            d.vx += (dx / dist) * pull * 0.12;
+            d.vy += (dy / dist) * pull * 0.12;
+          }
+        }
+        // spring home + damping
+        d.vx += (d.hx - d.x) * 0.10;
+        d.vy += (d.hy - d.y) * 0.10;
+        d.vx *= 0.82; d.vy *= 0.82;
+        d.x += d.vx; d.y += d.vy;
+
+        const wob = reduced ? 0 : Math.sin(t * 1.3 + i * 0.7) * 0.5;
+        const rad = 1.5 + lit * 2.6;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y + wob, rad, 0, 6.2832);
+        if (lit > 0.01) {
+          ctx.fillStyle = 'rgba(' + d.color + ',' + (0.18 + lit * 0.72).toFixed(3) + ')';
+        } else {
+          ctx.fillStyle = 'rgba(40,40,40,0.11)';
+        }
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() { if (!reduced && raf == null) raf = requestAnimationFrame(tick); }
+
     window.addEventListener('pointermove', e => {
-      cx = e.clientX; cy = e.clientY;
-      if (!raf) raf = requestAnimationFrame(apply);
+      const r = bg.getBoundingClientRect();
+      mx = e.clientX - r.left;
+      my = e.clientY - r.top;
+      active = mx >= -R && mx <= W + R && my >= -R && my <= H + R;
     }, { passive: true });
+    window.addEventListener('pointerout', () => { active = false; }, { passive: true });
+
+    let rz = null;
+    const onResize = () => { clearTimeout(rz); rz = setTimeout(build, 150); };
+    if (window.ResizeObserver) new ResizeObserver(onResize).observe(bg);
+    window.addEventListener('resize', onResize, { passive: true });
+
+    build();
+    start();
   })();
   </script>
 

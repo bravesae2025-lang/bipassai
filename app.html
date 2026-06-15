@@ -553,7 +553,7 @@
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const D  = 122;          // link distance between particles
+    const D  = 108;          // link distance between particles
     const D2 = D * D;
     const MR = 175;          // cursor gather radius
     const MR2 = MR * MR;
@@ -570,7 +570,7 @@
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const n = Math.max(40, Math.min(150, Math.round(W * H / 14000)));
+      const n = Math.max(60, Math.min(240, Math.round(W * H / 9000)));
       pts = [];
       for (let i = 0; i < n; i++) {
         pts.push({

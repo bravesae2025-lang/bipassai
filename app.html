@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=28">
+  <link rel="stylesheet" href="style.css?v=29">
 </head>
 <body>
 
@@ -151,6 +151,15 @@
   <span id="status-label" style="display:none">Ready</span>
 
   <main class="app-main">
+    <div class="appbg" id="appbg" aria-hidden="true">
+      <span class="appbg-orb appbg-orb-1"></span>
+      <span class="appbg-orb appbg-orb-2"></span>
+      <span class="appbg-orb appbg-orb-3"></span>
+      <span class="appbg-orb appbg-orb-4"></span>
+      <span class="appbg-orb appbg-orb-5"></span>
+      <span class="appbg-orb appbg-orb-6"></span>
+      <span class="appbg-spot" id="appbg-spot"></span>
+    </div>
     <div class="workspace" id="workspace">
 
       <!-- ── 01 GENERATE / 02 LEVEL ADJUST ────────────────────── -->
@@ -540,6 +549,50 @@
   <script src="auth.js?v=2"></script>
   <script src="app.js?v=11"></script>
   <script src="cursor.js?v=2"></script>
+
+  <script>
+  /* Interactive background — drifting orbs + cursor spotlight + parallax */
+  (function () {
+    const bg = document.getElementById('appbg');
+    if (!bg) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const spot = document.getElementById('appbg-spot');
+    const orbs = [].slice.call(bg.querySelectorAll('.appbg-orb'));
+    const depth = [18, -13, 26, -20, 15, -24];
+    const clamp = v => Math.max(-0.6, Math.min(0.6, v));
+    let cx = 0, cy = 0, raf = null;
+
+    function apply() {
+      raf = null;
+      const r = bg.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const mx = cx - r.left, my = cy - r.top;
+      const within = mx >= -40 && mx <= r.width + 40 && my >= -40 && my <= r.height + 40;
+      const tx = clamp(mx / r.width - 0.5);
+      const ty = clamp(my / r.height - 0.5);
+
+      orbs.forEach((o, i) => {
+        const f = depth[i % depth.length];
+        o.style.transform = 'translate3d(' + (-tx * f).toFixed(1) + 'px,' + (-ty * f).toFixed(1) + 'px,0)';
+      });
+
+      if (spot) {
+        if (within) {
+          spot.style.setProperty('--mx', (mx / r.width * 100).toFixed(1) + '%');
+          spot.style.setProperty('--my', (my / r.height * 100).toFixed(1) + '%');
+          spot.style.opacity = '1';
+        } else {
+          spot.style.opacity = '0';
+        }
+      }
+    }
+
+    window.addEventListener('pointermove', e => {
+      cx = e.clientX; cy = e.clientY;
+      if (!raf) raf = requestAnimationFrame(apply);
+    }, { passive: true });
+  })();
+  </script>
 
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>

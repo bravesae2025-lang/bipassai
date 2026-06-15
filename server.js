@@ -459,6 +459,8 @@ STRICT RULES:
 - Only change individual words or short phrases (2–4 words max)
 - Keep ALL sentence structure and paragraph breaks IDENTICAL
 - Keep proper nouns, numbers, and technical terms unchanged
+- NEVER TOUCH NAMES: leave every person, place, organisation, brand, product, and title name exactly as written — never change its spelling, never lowercase its capital letter, never apply any vocabulary/tense/spelling/capital mistake to it. This overrides every mistake instruction above. (If a sentence happens to START with a name, skip the lowercase-first-letter mistake for that sentence and apply it elsewhere.)
+- NEVER TOUCH QUOTES: any text inside quotation marks ("…", '…', “…”, ‘…’) is a direct quote — reproduce it character-for-character, including its original capitals, spelling, and punctuation. Apply NO changes or mistakes inside quotation marks.
 - Never expand one word into a full phrase that changes sentence rhythm${lockLine}
 - No em dashes — replace any with a comma
 - NO hyphens joining words — write "life changing" not "life-changing", "long term" not "long-term", "state of the art" not "state-of-the-art". If the original has a hyphenated word, split it into separate words.

@@ -501,19 +501,18 @@ main {
   z-index: 1;
 }
 
-/* ── Left column stack: Humanize (top) + Level Adjust (below) ── */
-.col-stack {
+/* ── Mode toggle header (Level Adjust / Humanize) ── */
+.mode-tabs-head {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 0;
+  align-items: center;
+  gap: 12px;
 }
-.col-stack > .col-main     { flex: 1 1 auto; }
-.col-stack > .col-humanizer { flex: 0 0 auto; }
+.mode-tabs-head .mode-tabs { flex: 1; }
+.mode-block.mode-hidden { display: none; }
 
-.col-humanizer { background: #ffffff; position: relative; z-index: 1; }
-.col-humanizer .textarea-wrap { flex: 0 0 auto; min-height: 0; }
-.col-humanizer textarea { height: 130px; min-height: 130px; }
+/* dim the level presets while the Humanize tab is active */
+.right-panel { transition: opacity 0.25s ease; }
+.workspace.mode-humanize .right-panel { opacity: 0.5; pointer-events: none; }
 
 .soon-badge {
   font-family: var(--ff-mono);
@@ -549,6 +548,10 @@ main {
 }
 .mode-tab {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 0;
   border: none;
   border-radius: 8px;

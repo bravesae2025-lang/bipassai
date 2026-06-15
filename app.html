@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -156,68 +156,15 @@
     </div>
     <div class="workspace" id="workspace">
 
-      <!-- ── LEFT COLUMN: 01 HUMANIZE / 02 LEVEL ADJUST ───────── -->
-      <div class="col-stack">
-
-      <!-- ── 01 HUMANIZE (UI base — wiring comes later) ────────── -->
-      <section class="col col-humanizer" data-reveal>
-        <div class="col-label">
-          <span class="col-name">Humanize</span>
-          <span class="soon-badge">Soon</span>
-          <span class="box-wc" id="humanizer-wc">0 words</span>
-        </div>
-
-        <div class="textarea-wrap">
-          <textarea
-            id="humanizer-input"
-            placeholder="Paste your AI-generated text — Humanize rewrites it to read naturally before you set the level…"
-            spellcheck="false"
-          ></textarea>
-          <div class="textarea-corner tl"></div>
-          <div class="textarea-corner tr"></div>
-          <div class="textarea-corner bl"></div>
-          <div class="textarea-corner br"></div>
-        </div>
-
-        <div class="humanize-hints">
-          <div class="h-hint">
-            <span class="h-hint-icon">~</span>
-            <span class="h-hint-title">Natural Flow</span>
-            <span class="h-hint-sub">Smooths robotic phrasing</span>
-          </div>
-          <div class="h-hint">
-            <span class="h-hint-icon">◴</span>
-            <span class="h-hint-title">Human Tone</span>
-            <span class="h-hint-sub">Sounds like a person</span>
-          </div>
-          <div class="h-hint">
-            <span class="h-hint-icon">✓</span>
-            <span class="h-hint-title">Keeps Meaning</span>
-            <span class="h-hint-sub">Same point, your words</span>
-          </div>
-        </div>
-
-        <button id="humanizer-btn" class="btn-generate" aria-label="Humanize">
-          <span class="btn-content">
-            <span id="humanizer-label">Humanize</span>
-            <span id="humanizer-loader" class="spinner hidden"></span>
-          </span>
-          <span class="btn-arrow" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
-          <span class="btn-sweep" aria-hidden="true"></span>
-        </button>
-        <p class="humanizer-note" id="humanizer-note" hidden>Humanizer is coming soon — this step will be live shortly.</p>
-      </section>
-
-      <!-- ── 02 LEVEL ADJUST ───────────────────────────────────── -->
-      <section class="col col-main" data-reveal data-reveal-delay="1">
+      <!-- ── LEFT COLUMN: Humanize / Level Adjust (tabbed) ─────── -->
+      <section class="col col-main" data-reveal>
 
         <div id="humanize-section">
-          <div class="col-label">
-            <span class="col-name">Level Adjust</span>
+          <div class="mode-tabs-head">
+            <div class="mode-tabs" role="tablist">
+              <button type="button" class="mode-tab mode-tab-active" data-mode="level">Level Adjust</button>
+              <button type="button" class="mode-tab" data-mode="humanize">Humanize<span class="soon-badge">Soon</span></button>
+            </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
           </div>
 
@@ -243,7 +190,8 @@
             <div class="textarea-corner br"></div>
           </div>
 
-          <div class="humanize-hints">
+          <!-- Level Adjust hints -->
+          <div class="humanize-hints mode-block" data-mode="level">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
               <span class="h-hint-title">Word Swap</span>
@@ -261,22 +209,60 @@
             </div>
           </div>
 
-          <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Adjust level">
-            <span class="btn-content">
-              <span id="humanize-label">Adjust Level</span>
-              <span id="humanize-loader" class="spinner hidden"></span>
-            </span>
-            <span class="btn-arrow" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </span>
-            <span class="btn-sweep" aria-hidden="true"></span>
-          </button>
+          <!-- Humanize hints -->
+          <div class="humanize-hints mode-block mode-hidden" data-mode="humanize">
+            <div class="h-hint">
+              <span class="h-hint-icon">~</span>
+              <span class="h-hint-title">Natural Flow</span>
+              <span class="h-hint-sub">Smooths robotic phrasing</span>
+            </div>
+            <div class="h-hint">
+              <span class="h-hint-icon">◴</span>
+              <span class="h-hint-title">Human Tone</span>
+              <span class="h-hint-sub">Sounds like a person</span>
+            </div>
+            <div class="h-hint">
+              <span class="h-hint-icon">✓</span>
+              <span class="h-hint-title">Keeps Meaning</span>
+              <span class="h-hint-sub">Same point, your words</span>
+            </div>
+          </div>
+
+          <!-- Level Adjust action -->
+          <div class="mode-block" data-mode="level">
+            <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Adjust level">
+              <span class="btn-content">
+                <span id="humanize-label">Adjust Level</span>
+                <span id="humanize-loader" class="spinner hidden"></span>
+              </span>
+              <span class="btn-arrow" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </span>
+              <span class="btn-sweep" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <!-- Humanize action (UI base — wiring comes later) -->
+          <div class="mode-block mode-hidden" data-mode="humanize">
+            <button id="humanizer-btn" class="btn-generate" aria-label="Humanize">
+              <span class="btn-content">
+                <span id="humanizer-label">Humanize</span>
+                <span id="humanizer-loader" class="spinner hidden"></span>
+              </span>
+              <span class="btn-arrow" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </span>
+              <span class="btn-sweep" aria-hidden="true"></span>
+            </button>
+            <p class="humanizer-note" id="humanizer-note" hidden>Humanizer is coming soon — this step will be live shortly.</p>
+          </div>
         </div>
 
       </section>
-      </div><!-- /col-stack -->
 
       <!-- ── RIGHT PANEL ──────────────────────────────────────── -->
       <div class="right-panel-wrap">
@@ -602,19 +588,23 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Humanize section — UI base only (word count + coming-soon note) */
+  /* Mode toggle — switch the editor card between Level Adjust and Humanize */
   (function () {
-    const input = document.getElementById('humanizer-input');
-    const wc    = document.getElementById('humanizer-wc');
-    const btn   = document.getElementById('humanizer-btn');
-    const note  = document.getElementById('humanizer-note');
-    if (!input || !btn) return;
-    const count = v => v.trim() === '' ? 0 : v.trim().split(/\s+/).length;
-    input.addEventListener('input', () => {
-      const n = count(input.value);
-      if (wc) wc.textContent = n + (n === 1 ? ' word' : ' words');
-    });
-    btn.addEventListener('click', () => {
+    const section = document.getElementById('humanize-section');
+    const ws      = document.getElementById('workspace');
+    if (!section) return;
+    const tabs   = section.querySelectorAll('.mode-tab');
+    const blocks = section.querySelectorAll('.mode-block');
+    function setMode(mode) {
+      tabs.forEach(t => t.classList.toggle('mode-tab-active', t.dataset.mode === mode));
+      blocks.forEach(b => b.classList.toggle('mode-hidden', b.dataset.mode !== mode));
+      if (ws) ws.classList.toggle('mode-humanize', mode === 'humanize');
+    }
+    tabs.forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+
+    // Humanize button — UI base only; show coming-soon note
+    const note = document.getElementById('humanizer-note');
+    document.getElementById('humanizer-btn')?.addEventListener('click', () => {
       if (note) note.hidden = false;
     });
   })();

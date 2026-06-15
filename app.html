@@ -624,11 +624,12 @@
     const TAU = 6.2831853;
 
     let mode = 'level';       // current render mode
-    let pts = [], hpts = [], links = [];
+    let pts = [], hpts = [];
     let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
     let R = 0, F = 0, D3D = 0, D2 = 0;
     let mx = -9999, my = -9999, active = false, raf = null;
     let angY = 0;
+    let gt = 0;               // galaxy time (humanize mode)
     const tiltX = 0.32;
 
     // ── build ────────────────────────────────────────────────
@@ -672,26 +673,25 @@
     }
 
     function buildHumanize() {
-      const n = Math.max(200, Math.min(300, Math.round(R * 0.4)));
+      // Rotating 3D nebula / spiral galaxy of fine dots (no lines)
+      const diskR = 0.6 * Math.hypot(W, H);
+      const n = Math.max(420, Math.min(1000, Math.round(W * H / 2400)));
+      const ARMS = 3;
       hpts = [];
-      const ga = Math.PI * (3 - Math.sqrt(5));   // golden angle
       for (let i = 0; i < n; i++) {
-        const uy = 1 - (i / (n - 1)) * 2;        // 1 → -1
-        const rr = Math.sqrt(Math.max(0, 1 - uy * uy));
-        const th = i * ga;
-        hpts.push({ ux: Math.cos(th) * rr, uy: uy, uz: Math.sin(th) * rr, b: 0, sx: 0, sy: 0, sc: 1 });
-      }
-      // precompute near-neighbour links (geodesic wireframe)
-      const t = 4.8 / Math.sqrt(n);              // unit-chord threshold (~5-6 neighbours)
-      const t2 = t * t;
-      links = [];
-      for (let i = 0; i < n; i++) {
-        const a = hpts[i];
-        for (let j = i + 1; j < n; j++) {
-          const b = hpts[j];
-          const dx = a.ux - b.ux, dy = a.uy - b.uy, dz = a.uz - b.uz;
-          if (dx * dx + dy * dy + dz * dz < t2) links.push(i, j);
-        }
+        const rn = Math.pow(Math.random(), 1.3);          // 0..1, denser core
+        const arm = i % ARMS;
+        const ang0 = arm * (TAU / ARMS) + rn * 5.0 + (Math.random() - 0.5) * 0.7;
+        hpts.push({
+          rn: rn,
+          r: rn * diskR,
+          ang0: ang0,
+          w: 0.0009 + 0.0022 * (1 - rn),                  // inner orbits faster
+          size: 0.7 + Math.random() * 1.1,
+          ph: Math.random() * TAU,                         // twinkle phase
+          ox: 0, oy: 0,                                    // eased cursor warp
+          sx: 0, sy: 0, sc: 1,
+        });
       }
     }
 
@@ -701,7 +701,7 @@
       if (!still) angY += 0.0016;
       const cosY = Math.cos(angY), sinY = Math.sin(angY);
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
-      if (mode === 'humanize') stepHumanize(still, cosY, sinY, cosX, sinX);
+      if (mode === 'humanize') stepHumanize(still);
       else stepLevel(still, cosY, sinY, cosX, sinX);
     }
 
@@ -781,41 +781,54 @@
       }
     }
 
-    function stepHumanize(still, cosY, sinY, cosX, sinX) {
+    function stepHumanize(still) {
+      if (!still) gt += 1;
+      // galaxy's own 3D orientation: fixed tilt + slow spin (independent of level)
+      const AX = 1.02;
+      const ay = gt * 0.0006;
+      const cosY = Math.cos(ay), sinY = Math.sin(ay);
+      const cosX = Math.cos(AX), sinX = Math.sin(AX);
+      const tw = gt * 0.05;
+
       for (let i = 0; i < hpts.length; i++) {
         const p = hpts[i];
-        const rr = R * (1 + p.b);
-        const wx = p.ux * rr, wy = p.uy * rr, wz = p.uz * rr;
-        const x1 = wx * cosY + wz * sinY;
-        const z1 = -wx * sinY + wz * cosY;
-        const y1 = wy * cosX - z1 * sinX;
-        const z2 = wy * sinX + z1 * cosX;
+        const a = p.ang0 + gt * p.w;          // differential rotation → spiral arms
+        const px = Math.cos(a) * p.r, py = Math.sin(a) * p.r;   // disk plane (z = 0)
+        // rotate X (tilt) then Y (spin); pz = 0 simplifies terms
+        const y1 = py * cosX;
+        const z1 = py * sinX;
+        const x2 = px * cosY + z1 * sinY;
+        const z2 = -px * sinY + z1 * cosY;
         const sc = F / (F + z2);
-        p.sx = cx + x1 * sc; p.sy = cy + y1 * sc; p.sc = sc;
-        // hover poke — bulge the surface outward near the cursor, ease back
-        let tb = 0;
+        p.sx = cx + x2 * sc;
+        p.sy = cy + y1 * sc;
+        p.sc = sc;
+
+        // cursor gravity-lens — push nearby dots outward, ease back
+        let tox = 0, toy = 0;
         if (active && !still) {
           const dx = p.sx - mx, dy = p.sy - my;
           const d2 = dx * dx + dy * dy;
-          if (d2 < MR2) tb = (1 - Math.sqrt(d2) / MR) * 0.18;
+          if (d2 < MR2) {
+            const d = Math.sqrt(d2) || 1;
+            const push = (1 - d / MR) * 26;
+            tox = (dx / d) * push; toy = (dy / d) * push;
+          }
         }
-        if (!still) p.b += (tb - p.b) * 0.12;
+        if (!still) { p.ox += (tox - p.ox) * 0.10; p.oy += (toy - p.oy) * 0.10; }
       }
 
-      ctx.lineWidth = 1;
-      for (let k = 0; k < links.length; k += 2) {
-        const a = hpts[links[k]], b = hpts[links[k + 1]];
-        const al = 0.22 * ((a.sc + b.sc) * 0.5);
-        ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
-        ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
-      }
+      // dots only — no lines
       for (let i = 0; i < hpts.length; i++) {
         const p = hpts[i];
-        const rad = Math.max(0.5, 1.7 * p.sc);
-        const alpha = Math.max(0.18, Math.min(0.8, 0.4 + (p.sc - 0.6) * 0.6));
-        const lift = p.b > 0.01;
-        ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, TAU);
-        ctx.fillStyle = lift ? 'rgba(28,28,28,0.85)' : 'rgba(50,50,50,' + alpha.toFixed(3) + ')';
+        const rad = Math.max(0.5, p.size * p.sc);
+        const twk = still ? 1 : (0.7 + 0.3 * Math.sin(tw + p.ph));
+        const depth = 0.34 + (p.sc - 0.6) * 0.7;        // near brighter
+        const core = 0.18 * (1 - p.rn);                  // core a touch brighter
+        const alpha = Math.max(0.12, Math.min(0.82, (depth + core) * twk));
+        ctx.beginPath();
+        ctx.arc(p.sx + p.ox, p.sy + p.oy, rad, 0, TAU);
+        ctx.fillStyle = 'rgba(48,48,48,' + alpha.toFixed(3) + ')';
         ctx.fill();
       }
     }

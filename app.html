@@ -562,8 +562,8 @@
 
     let pts = [], W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
     let mx = -9999, my = -9999, active = false, raf = null;
-    let angY = 0;                                  // auto-spin
-    let tiltX = 0, tiltY = 0, tTiltX = 0, tTiltY = 0;  // cursor parallax (current/target)
+    let angY = 0;             // auto-spin (free, not mouse-driven)
+    const tiltX = 0.32;       // fixed 3D viewing angle (not animated, no follow)
 
     function build() {
       W = bg.offsetWidth;
@@ -575,7 +575,7 @@
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const n = Math.max(50, Math.min(200, Math.round(W * H / 10000)));
+      const n = Math.max(80, Math.min(260, Math.round(W * H / 8000)));
       pts = [];
       for (let i = 0; i < n; i++) {
         pts.push({
@@ -596,11 +596,8 @@
 
       if (!still) {
         angY += 0.0016;
-        // ease cursor tilt toward target
-        tiltX += (tTiltX - tiltX) * 0.05;
-        tiltY += (tTiltY - tiltY) * 0.05;
       }
-      const ay = angY + tiltY, ax = tiltX;
+      const ay = angY, ax = tiltX;
       const cosY = Math.cos(ay), sinY = Math.sin(ay);
       const cosX = Math.cos(ax), sinX = Math.sin(ax);
       const hz = DEPTH / 2;
@@ -608,10 +605,29 @@
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
         if (!still) {
+          // local hover attraction — pull nearby particles toward the cursor
+          // (uses last frame's projected position; the cloud itself never follows)
+          if (active) {
+            const ddx = mx - p.sx, ddy = my - p.sy;
+            const d2 = ddx * ddx + ddy * ddy;
+            if (d2 < MR2) {
+              const d = Math.sqrt(d2) || 1;
+              const f = (1 - d / MR) * 0.18;
+              const fx = (ddx / d) * f, fy = (ddy / d) * f;
+              // inverse-rotate the screen-space pull back into world space
+              const ryf = cosX * fy;
+              const z1f = -sinX * fy;
+              p.vx += cosY * fx - sinY * z1f;
+              p.vy += ryf;
+              p.vz += sinY * fx + cosY * z1f;
+            }
+          }
+          // light friction so pulled particles ease back into free drift
+          p.vx *= 0.95; p.vy *= 0.95; p.vz *= 0.95;
           p.x += p.vx; p.y += p.vy; p.z += p.vz;
           // keep-alive minimum drift
           const sp = Math.abs(p.vx) + Math.abs(p.vy) + Math.abs(p.vz);
-          if (sp < 0.22) { p.vx += (Math.random() - 0.5) * 0.04; p.vy += (Math.random() - 0.5) * 0.04; p.vz += (Math.random() - 0.5) * 0.04; }
+          if (sp < 0.25) { p.vx += (Math.random() - 0.5) * 0.05; p.vy += (Math.random() - 0.5) * 0.05; p.vz += (Math.random() - 0.5) * 0.05; }
           // bounce off the 6 walls of the box
           if (p.x < 0) { p.x = 0; p.vx = -p.vx; } else if (p.x > W) { p.x = W; p.vx = -p.vx; }
           if (p.y < 0) { p.y = 0; p.vy = -p.vy; } else if (p.y > H) { p.y = H; p.vy = -p.vy; }
@@ -640,7 +656,7 @@
           const d2 = dx * dx + dy * dy + dz * dz;
           if (d2 < D2) {
             const avg = (a.sc + b.sc) * 0.5;
-            const al = (1 - Math.sqrt(d2) / D3D) * 0.18 * avg;
+            const al = (1 - Math.sqrt(d2) / D3D) * 0.2 * avg;
             ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
             ctx.beginPath();
             ctx.moveTo(a.sx, a.sy);
@@ -676,8 +692,8 @@
           const dx = p.sx - mx, dy = p.sy - my;
           near = (dx * dx + dy * dy) < MR2;
         }
-        const a = (0.28 + (p.sc - 0.6) * 0.6);     // fainter when far
-        const alpha = Math.max(0.12, Math.min(0.7, a));
+        const a = (0.36 + (p.sc - 0.6) * 0.6);     // fainter when far
+        const alpha = Math.max(0.18, Math.min(0.75, a));
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, rad, 0, 6.2832);
         ctx.fillStyle = near ? 'rgba(28,28,28,0.8)' : 'rgba(50,50,50,' + alpha.toFixed(3) + ')';
@@ -695,11 +711,8 @@
       mx = e.clientX - r.left;
       my = e.clientY - r.top;
       active = mx >= -MR && mx <= W + MR && my >= 0 && my <= H + MR;
-      // map cursor to a gentle tilt target
-      tTiltY = (mx / W - 0.5) * 0.6;
-      tTiltX = (my / H - 0.5) * 0.5;
     }, { passive: true });
-    window.addEventListener('pointerout', () => { active = false; tTiltX = 0; tTiltY = 0; }, { passive: true });
+    window.addEventListener('pointerout', () => { active = false; }, { passive: true });
 
     let rz = null;
     const onResize = () => { clearTimeout(rz); rz = setTimeout(build, 150); };

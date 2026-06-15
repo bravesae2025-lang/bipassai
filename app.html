@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=34">
+  <link rel="stylesheet" href="style.css?v=35">
 </head>
 <body>
 
@@ -611,23 +611,27 @@
   </script>
 
   <script>
-  /* Interactive background — rotating 3D constellation network */
+  /* Interactive background — two modes: dot-cloud (level) + geodesic globe (humanize) */
   (function () {
     const bg     = document.getElementById('appbg');
     const canvas = document.getElementById('appbg-canvas');
+    const ws     = document.getElementById('workspace');
     if (!bg || !canvas) return;
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const MR    = 150;        // cursor radius (screen space)
-    const MR2   = MR * MR;
+    const MR  = 150, MR2 = MR * MR;     // cursor radius (screen space)
+    const TAU = 6.2831853;
 
-    let pts = [], W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
-    let R = 0, F = 0, D3D = 0, D2 = 0;   // sphere radius, focal, link dist (set in build)
+    let mode = 'level';       // current render mode
+    let pts = [], hpts = [], links = [];
+    let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
+    let R = 0, F = 0, D3D = 0, D2 = 0;
     let mx = -9999, my = -9999, active = false, raf = null;
-    let angY = 0;             // auto-spin (free, not mouse-driven)
-    const tiltX = 0.32;       // fixed 3D viewing angle (not animated, no follow)
+    let angY = 0;
+    const tiltX = 0.32;
 
+    // ── build ────────────────────────────────────────────────
     function build() {
       W = bg.offsetWidth;
       H = bg.offsetHeight;
@@ -638,49 +642,73 @@
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Sphere sized so its silhouette circle covers the whole page (incl corners)
+      // Sphere sized so its silhouette covers the whole page (incl corners)
       R = 0.5 * Math.hypot(W, H);
       F = R * 2.2;
-      const n = Math.max(240, Math.min(360, Math.round(R * 0.45)));
-      // auto-scale link distance to keep mesh density consistent on any screen
-      const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
-      D3D = spacing * 1.2;
-      D2  = D3D * D3D;
 
-      pts = [];
-      for (let i = 0; i < n; i++) {
-        const u = Math.random() * 2 - 1;
-        const phi = Math.random() * Math.PI * 2;
-        const r = R * Math.cbrt(Math.random());
-        const s = Math.sqrt(1 - u * u);
-        pts.push({
-          x: r * s * Math.cos(phi),
-          y: r * s * Math.sin(phi),
-          z: r * u,
-          vx: (Math.random() - 0.5) * 0.45,
-          vy: (Math.random() - 0.5) * 0.45,
-          vz: (Math.random() - 0.5) * 0.45,
-          sx: 0, sy: 0, sc: 1,
-        });
-      }
+      if (mode === 'humanize') buildHumanize();
+      else buildLevel();
+
       if (reduced) step(true);
     }
 
+    function buildLevel() {
+      const n = Math.max(240, Math.min(360, Math.round(R * 0.45)));
+      const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
+      D3D = spacing * 1.2;
+      D2  = D3D * D3D;
+      pts = [];
+      for (let i = 0; i < n; i++) {
+        const u = Math.random() * 2 - 1;
+        const phi = Math.random() * TAU;
+        const r = R * Math.cbrt(Math.random());
+        const s = Math.sqrt(1 - u * u);
+        pts.push({
+          x: r * s * Math.cos(phi), y: r * s * Math.sin(phi), z: r * u,
+          vx: (Math.random() - 0.5) * 0.45, vy: (Math.random() - 0.5) * 0.45, vz: (Math.random() - 0.5) * 0.45,
+          sx: 0, sy: 0, sc: 1,
+        });
+      }
+    }
+
+    function buildHumanize() {
+      const n = Math.max(200, Math.min(300, Math.round(R * 0.4)));
+      hpts = [];
+      const ga = Math.PI * (3 - Math.sqrt(5));   // golden angle
+      for (let i = 0; i < n; i++) {
+        const uy = 1 - (i / (n - 1)) * 2;        // 1 → -1
+        const rr = Math.sqrt(Math.max(0, 1 - uy * uy));
+        const th = i * ga;
+        hpts.push({ ux: Math.cos(th) * rr, uy: uy, uz: Math.sin(th) * rr, b: 0, sx: 0, sy: 0, sc: 1 });
+      }
+      // precompute near-neighbour links (geodesic wireframe)
+      const t = 4.8 / Math.sqrt(n);              // unit-chord threshold (~5-6 neighbours)
+      const t2 = t * t;
+      links = [];
+      for (let i = 0; i < n; i++) {
+        const a = hpts[i];
+        for (let j = i + 1; j < n; j++) {
+          const b = hpts[j];
+          const dx = a.ux - b.ux, dy = a.uy - b.uy, dz = a.uz - b.uz;
+          if (dx * dx + dy * dy + dz * dz < t2) links.push(i, j);
+        }
+      }
+    }
+
+    // ── step / render ────────────────────────────────────────
     function step(still) {
       ctx.clearRect(0, 0, W, H);
+      if (!still) angY += 0.0016;
+      const cosY = Math.cos(angY), sinY = Math.sin(angY);
+      const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
+      if (mode === 'humanize') stepHumanize(still, cosY, sinY, cosX, sinX);
+      else stepLevel(still, cosY, sinY, cosX, sinX);
+    }
 
-      if (!still) {
-        angY += 0.0016;
-      }
-      const ay = angY, ax = tiltX;
-      const cosY = Math.cos(ay), sinY = Math.sin(ay);
-      const cosX = Math.cos(ax), sinX = Math.sin(ax);
-
+    function stepLevel(still, cosY, sinY, cosX, sinX) {
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
         if (!still) {
-          // local hover attraction — pull nearby particles toward the cursor
-          // (uses last frame's projected position; the cloud itself never follows)
           if (active) {
             const ddx = mx - p.sx, ddy = my - p.sy;
             const d2 = ddx * ddx + ddy * ddy;
@@ -688,21 +716,16 @@
               const d = Math.sqrt(d2) || 1;
               const f = (1 - d / MR) * 0.10;
               const fx = (ddx / d) * f, fy = (ddy / d) * f;
-              // inverse-rotate the screen-space pull back into world space
-              const ryf = cosX * fy;
-              const z1f = -sinX * fy;
+              const ryf = cosX * fy, z1f = -sinX * fy;
               p.vx += cosY * fx - sinY * z1f;
               p.vy += ryf;
               p.vz += sinY * fx + cosY * z1f;
             }
           }
-          // light friction so pulled particles ease back into free drift
           p.vx *= 0.95; p.vy *= 0.95; p.vz *= 0.95;
           p.x += p.vx; p.y += p.vy; p.z += p.vz;
-          // keep-alive minimum drift
           const sp = Math.abs(p.vx) + Math.abs(p.vy) + Math.abs(p.vz);
           if (sp < 0.25) { p.vx += (Math.random() - 0.5) * 0.05; p.vy += (Math.random() - 0.5) * 0.05; p.vz += (Math.random() - 0.5) * 0.05; }
-          // bounce off the sphere shell (keeps the ball full)
           const len2 = p.x * p.x + p.y * p.y + p.z * p.z;
           if (len2 > R * R) {
             const len = Math.sqrt(len2) || 1;
@@ -712,19 +735,14 @@
             p.x = nx * R; p.y = ny * R; p.z = nz * R;
           }
         }
-        // rotate (coords are centered at the sphere origin): Y axis then X axis
-        let x1 = p.x * cosY + p.z * sinY;
-        let z1 = -p.x * sinY + p.z * cosY;
-        let y1 = p.y * cosX - z1 * sinX;
-        let z2 = p.y * sinX + z1 * cosX;
-        // perspective project (denominator always > 0 since F = 2.2R > R ≥ |z2|)
+        const x1 = p.x * cosY + p.z * sinY;
+        const z1 = -p.x * sinY + p.z * cosY;
+        const y1 = p.y * cosX - z1 * sinX;
+        const z2 = p.y * sinX + z1 * cosX;
         const sc = F / (F + z2);
-        p.sx = cx + x1 * sc;
-        p.sy = cy + y1 * sc;
-        p.sc = sc;
+        p.sx = cx + x1 * sc; p.sy = cy + y1 * sc; p.sc = sc;
       }
 
-      // links by 3D distance (rotation-invariant), drawn between projected points
       ctx.lineWidth = 1;
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i];
@@ -733,18 +751,12 @@
           const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
           const d2 = dx * dx + dy * dy + dz * dz;
           if (d2 < D2) {
-            const avg = (a.sc + b.sc) * 0.5;
-            const al = (1 - Math.sqrt(d2) / D3D) * 0.2 * avg;
+            const al = (1 - Math.sqrt(d2) / D3D) * 0.2 * ((a.sc + b.sc) * 0.5);
             ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
-            ctx.beginPath();
-            ctx.moveTo(a.sx, a.sy);
-            ctx.lineTo(b.sx, b.sy);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
           }
         }
       }
-
-      // cursor-link lines (screen space) for interactivity
       if (active && !still) {
         for (let i = 0; i < pts.length; i++) {
           const p = pts[i];
@@ -753,37 +765,74 @@
           if (d2 < MR2) {
             const al = (1 - Math.sqrt(d2) / MR) * 0.3;
             ctx.strokeStyle = 'rgba(30,30,30,' + al.toFixed(3) + ')';
-            ctx.beginPath();
-            ctx.moveTo(p.sx, p.sy);
-            ctx.lineTo(mx, my);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(mx, my); ctx.stroke();
           }
         }
       }
-
-      // dots — size + darkness by depth (near = bigger/darker)
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
         const rad = Math.max(0.4, 1.5 * p.sc);
         let near = false;
-        if (active && !still) {
-          const dx = p.sx - mx, dy = p.sy - my;
-          near = (dx * dx + dy * dy) < MR2;
-        }
-        const a = (0.36 + (p.sc - 0.6) * 0.6);     // fainter when far
-        const alpha = Math.max(0.18, Math.min(0.75, a));
-        ctx.beginPath();
-        ctx.arc(p.sx, p.sy, rad, 0, 6.2832);
+        if (active && !still) { const dx = p.sx - mx, dy = p.sy - my; near = (dx * dx + dy * dy) < MR2; }
+        const alpha = Math.max(0.18, Math.min(0.75, 0.36 + (p.sc - 0.6) * 0.6));
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, TAU);
         ctx.fillStyle = near ? 'rgba(28,28,28,0.8)' : 'rgba(50,50,50,' + alpha.toFixed(3) + ')';
         ctx.fill();
       }
     }
 
-    function tick() {
-      raf = requestAnimationFrame(tick);
-      step(false);
+    function stepHumanize(still, cosY, sinY, cosX, sinX) {
+      for (let i = 0; i < hpts.length; i++) {
+        const p = hpts[i];
+        const rr = R * (1 + p.b);
+        const wx = p.ux * rr, wy = p.uy * rr, wz = p.uz * rr;
+        const x1 = wx * cosY + wz * sinY;
+        const z1 = -wx * sinY + wz * cosY;
+        const y1 = wy * cosX - z1 * sinX;
+        const z2 = wy * sinX + z1 * cosX;
+        const sc = F / (F + z2);
+        p.sx = cx + x1 * sc; p.sy = cy + y1 * sc; p.sc = sc;
+        // hover poke — bulge the surface outward near the cursor, ease back
+        let tb = 0;
+        if (active && !still) {
+          const dx = p.sx - mx, dy = p.sy - my;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < MR2) tb = (1 - Math.sqrt(d2) / MR) * 0.18;
+        }
+        if (!still) p.b += (tb - p.b) * 0.12;
+      }
+
+      ctx.lineWidth = 1;
+      for (let k = 0; k < links.length; k += 2) {
+        const a = hpts[links[k]], b = hpts[links[k + 1]];
+        const al = 0.22 * ((a.sc + b.sc) * 0.5);
+        ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
+        ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+      }
+      for (let i = 0; i < hpts.length; i++) {
+        const p = hpts[i];
+        const rad = Math.max(0.5, 1.7 * p.sc);
+        const alpha = Math.max(0.18, Math.min(0.8, 0.4 + (p.sc - 0.6) * 0.6));
+        const lift = p.b > 0.01;
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, TAU);
+        ctx.fillStyle = lift ? 'rgba(28,28,28,0.85)' : 'rgba(50,50,50,' + alpha.toFixed(3) + ')';
+        ctx.fill();
+      }
     }
 
+    function tick() { raf = requestAnimationFrame(tick); step(false); }
+
+    function setMode(m) {
+      if (m === mode) return;
+      mode = m;
+      build();
+      // soft cross-fade
+      canvas.style.opacity = '0';
+      requestAnimationFrame(() => { canvas.style.opacity = '1'; });
+      if (reduced) step(true);
+    }
+
+    // ── input / lifecycle ────────────────────────────────────
     window.addEventListener('pointermove', e => {
       const r = bg.getBoundingClientRect();
       mx = e.clientX - r.left;
@@ -796,6 +845,13 @@
     const onResize = () => { clearTimeout(rz); rz = setTimeout(build, 150); };
     if (window.ResizeObserver) new ResizeObserver(onResize).observe(bg);
     window.addEventListener('resize', onResize, { passive: true });
+
+    // watch the editor mode toggle (workspace gets .mode-humanize)
+    if (ws && window.MutationObserver) {
+      new MutationObserver(() => {
+        setMode(ws.classList.contains('mode-humanize') ? 'humanize' : 'level');
+      }).observe(ws, { attributes: true, attributeFilter: ['class'] });
+    }
 
     build();
     if (!reduced) raf = requestAnimationFrame(tick);

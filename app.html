@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
 
@@ -156,8 +156,64 @@
     </div>
     <div class="workspace" id="workspace">
 
-      <!-- ── 01 GENERATE / 02 LEVEL ADJUST ────────────────────── -->
-      <section class="col col-main" data-reveal>
+      <!-- ── LEFT COLUMN: 01 HUMANIZE / 02 LEVEL ADJUST ───────── -->
+      <div class="col-stack">
+
+      <!-- ── 01 HUMANIZE (UI base — wiring comes later) ────────── -->
+      <section class="col col-humanizer" data-reveal>
+        <div class="col-label">
+          <span class="col-name">Humanize</span>
+          <span class="soon-badge">Soon</span>
+          <span class="box-wc" id="humanizer-wc">0 words</span>
+        </div>
+
+        <div class="textarea-wrap">
+          <textarea
+            id="humanizer-input"
+            placeholder="Paste your AI-generated text — Humanize rewrites it to read naturally before you set the level…"
+            spellcheck="false"
+          ></textarea>
+          <div class="textarea-corner tl"></div>
+          <div class="textarea-corner tr"></div>
+          <div class="textarea-corner bl"></div>
+          <div class="textarea-corner br"></div>
+        </div>
+
+        <div class="humanize-hints">
+          <div class="h-hint">
+            <span class="h-hint-icon">~</span>
+            <span class="h-hint-title">Natural Flow</span>
+            <span class="h-hint-sub">Smooths robotic phrasing</span>
+          </div>
+          <div class="h-hint">
+            <span class="h-hint-icon">◴</span>
+            <span class="h-hint-title">Human Tone</span>
+            <span class="h-hint-sub">Sounds like a person</span>
+          </div>
+          <div class="h-hint">
+            <span class="h-hint-icon">✓</span>
+            <span class="h-hint-title">Keeps Meaning</span>
+            <span class="h-hint-sub">Same point, your words</span>
+          </div>
+        </div>
+
+        <button id="humanizer-btn" class="btn-generate" aria-label="Humanize">
+          <span class="btn-content">
+            <span id="humanizer-label">Humanize</span>
+            <span id="humanizer-loader" class="spinner hidden"></span>
+          </span>
+          <span class="btn-arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+          <span class="btn-sweep" aria-hidden="true"></span>
+        </button>
+        <p class="humanizer-note" id="humanizer-note" hidden>Humanizer is coming soon — this step will be live shortly.</p>
+      </section>
+
+      <!-- ── 02 LEVEL ADJUST ───────────────────────────────────── -->
+      <section class="col col-main" data-reveal data-reveal-delay="1">
 
         <div id="humanize-section">
           <div class="col-label">
@@ -220,6 +276,7 @@
         </div>
 
       </section>
+      </div><!-- /col-stack -->
 
       <!-- ── RIGHT PANEL ──────────────────────────────────────── -->
       <div class="right-panel-wrap">
@@ -543,6 +600,25 @@
   <script src="auth.js?v=2"></script>
   <script src="app.js?v=11"></script>
   <script src="cursor.js?v=2"></script>
+
+  <script>
+  /* Humanize section — UI base only (word count + coming-soon note) */
+  (function () {
+    const input = document.getElementById('humanizer-input');
+    const wc    = document.getElementById('humanizer-wc');
+    const btn   = document.getElementById('humanizer-btn');
+    const note  = document.getElementById('humanizer-note');
+    if (!input || !btn) return;
+    const count = v => v.trim() === '' ? 0 : v.trim().split(/\s+/).length;
+    input.addEventListener('input', () => {
+      const n = count(input.value);
+      if (wc) wc.textContent = n + (n === 1 ? ' word' : ' words');
+    });
+    btn.addEventListener('click', () => {
+      if (note) note.hidden = false;
+    });
+  })();
+  </script>
 
   <script>
   /* Interactive background — rotating 3D constellation network */

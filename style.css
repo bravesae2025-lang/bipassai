@@ -501,6 +501,43 @@ main {
   z-index: 1;
 }
 
+/* ── Left column stack: Humanize (top) + Level Adjust (below) ── */
+.col-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+}
+.col-stack > .col-main     { flex: 1 1 auto; }
+.col-stack > .col-humanizer { flex: 0 0 auto; }
+
+.col-humanizer { background: #ffffff; position: relative; z-index: 1; }
+.col-humanizer .textarea-wrap { flex: 0 0 auto; min-height: 0; }
+.col-humanizer textarea { height: 130px; min-height: 130px; }
+
+.soon-badge {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--g400);
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 999px;
+  padding: 2px 8px;
+  line-height: 1.4;
+}
+
+.humanizer-note {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g400);
+  letter-spacing: 0.02em;
+  margin: -4px 2px 0;
+  line-height: 1.5;
+}
+
 /* ── Mode tab switcher ──────────────────────────── */
 .mode-tabs {
   display: flex;

@@ -495,7 +495,7 @@ main {
 
 .col-main {
   background: #ffffff;
-  border: 2px solid rgba(0,0,0,0.35);
+  border: none;
   padding-bottom: clamp(32px, 5vh, 64px);
   position: relative;
   z-index: 1;

@@ -553,7 +553,7 @@
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const PALETTE = ['232,163,23','47,109,246','139,92,246','26,165,100','214,51,108','224,83,61'];
+    const ACCENT = [232, 163, 23];   // faint warm hint at the magnet core
     const GAP = 34;          // px between dots
     const R   = 165;         // magnet radius
     const R2  = R * R;
@@ -578,7 +578,7 @@
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const hx = offX + c * GAP, hy = offY + r * GAP;
-          dots.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, color: PALETTE[(c + r) % PALETTE.length] });
+          dots.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0 });
         }
       }
       if (reduced) drawStatic();
@@ -623,9 +623,15 @@
         ctx.beginPath();
         ctx.arc(d.x, d.y + wob, rad, 0, 6.2832);
         if (lit > 0.01) {
-          ctx.fillStyle = 'rgba(' + d.color + ',' + (0.18 + lit * 0.72).toFixed(3) + ')';
+          // grey → charcoal ink as it's pulled in, with a faint warm core
+          const base = 70 - lit * 52;                  // 70 (grey) → 18 (charcoal)
+          const k = lit * 0.16;                        // ≤16% accent at peak
+          const cr = Math.round(base + (ACCENT[0] - base) * k);
+          const cg = Math.round(base + (ACCENT[1] - base) * k);
+          const cb = Math.round(base + (ACCENT[2] - base) * k);
+          ctx.fillStyle = 'rgba(' + cr + ',' + cg + ',' + cb + ',' + (0.12 + lit * 0.62).toFixed(3) + ')';
         } else {
-          ctx.fillStyle = 'rgba(40,40,40,0.11)';
+          ctx.fillStyle = 'rgba(60,60,60,0.12)';
         }
         ctx.fill();
       }

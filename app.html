@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
 
@@ -545,7 +545,7 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Interactive background — magnetic dot grid */
+  /* Interactive background — drifting constellation network */
   (function () {
     const bg     = document.getElementById('appbg');
     const canvas = document.getElementById('appbg-canvas');
@@ -553,13 +553,13 @@
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const ACCENT = [232, 163, 23];   // faint warm hint at the magnet core
-    const GAP = 34;          // px between dots
-    const R   = 165;         // magnet radius
-    const R2  = R * R;
+    const D  = 122;          // link distance between particles
+    const D2 = D * D;
+    const MR = 175;          // cursor gather radius
+    const MR2 = MR * MR;
 
-    let dots = [], W = 0, H = 0, dpr = 1;
-    let mx = -9999, my = -9999, active = false, raf = null, t = 0;
+    let pts = [], W = 0, H = 0, dpr = 1;
+    let mx = -9999, my = -9999, active = false, raf = null;
 
     function build() {
       W = bg.offsetWidth;
@@ -570,81 +570,110 @@
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      dots = [];
-      const cols = Math.ceil(W / GAP) + 1;
-      const rows = Math.ceil(H / GAP) + 1;
-      const offX = (W - (cols - 1) * GAP) / 2;
-      const offY = (H - (rows - 1) * GAP) / 2;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const hx = offX + c * GAP, hy = offY + r * GAP;
-          dots.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0 });
-        }
+      const n = Math.max(40, Math.min(150, Math.round(W * H / 14000)));
+      pts = [];
+      for (let i = 0; i < n; i++) {
+        pts.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+        });
       }
-      if (reduced) drawStatic();
+      if (reduced) { step(true); }
     }
 
-    function drawStatic() {
+    function step(still) {
       ctx.clearRect(0, 0, W, H);
-      for (const d of dots) {
+
+      // move + cursor gather
+      if (!still) {
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          if (active) {
+            const dx = mx - p.x, dy = my - p.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < MR2) {
+              const d = Math.sqrt(d2) || 1;
+              const f = (1 - d / MR) * 0.16;
+              p.vx += (dx / d) * f;
+              p.vy += (dy / d) * f;
+            }
+          }
+          p.x += p.vx;
+          p.y += p.vy;
+          // gentle friction so cursor pushes settle back to a calm drift
+          p.vx *= 0.992; p.vy *= 0.992;
+          // keep a minimum drift so the field never freezes
+          const sp = Math.hypot(p.vx, p.vy);
+          if (sp < 0.12) { p.vx += (Math.random() - 0.5) * 0.04; p.vy += (Math.random() - 0.5) * 0.04; }
+          // bounce off edges
+          if (p.x < 0) { p.x = 0; p.vx = -p.vx; } else if (p.x > W) { p.x = W; p.vx = -p.vx; }
+          if (p.y < 0) { p.y = 0; p.vy = -p.vy; } else if (p.y > H) { p.y = H; p.vy = -p.vy; }
+        }
+      }
+
+      // links between nearby particles (group formation)
+      ctx.lineWidth = 1;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        for (let j = i + 1; j < pts.length; j++) {
+          const b = pts[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < D2) {
+            const al = (1 - Math.sqrt(d2) / D) * 0.16;
+            ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // cursor links + node
+      if (active && !still) {
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          const dx = p.x - mx, dy = p.y - my;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < MR2) {
+            const al = (1 - Math.sqrt(d2) / MR) * 0.28;
+            ctx.strokeStyle = 'rgba(30,30,30,' + al.toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mx, my);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // dots
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        let dark = false;
+        if (active && !still) {
+          const dx = p.x - mx, dy = p.y - my;
+          dark = (dx * dx + dy * dy) < MR2;
+        }
         ctx.beginPath();
-        ctx.arc(d.hx, d.hy, 1.5, 0, 6.2832);
-        ctx.fillStyle = 'rgba(40,40,40,0.12)';
+        ctx.arc(p.x, p.y, 1.3, 0, 6.2832);
+        ctx.fillStyle = dark ? 'rgba(30,30,30,0.75)' : 'rgba(55,55,55,0.55)';
         ctx.fill();
       }
     }
 
     function tick() {
-      raf = null;
-      t += 0.016;
-      ctx.clearRect(0, 0, W, H);
-      for (let i = 0; i < dots.length; i++) {
-        const d = dots[i];
-        let lit = 0;
-        if (active) {
-          const dx = mx - d.hx, dy = my - d.hy;
-          const dist2 = dx * dx + dy * dy;
-          if (dist2 < R2) {
-            const dist = Math.sqrt(dist2) || 1;
-            lit = 1 - dist / R;
-            const pull = lit * 4.2;          // attraction strength
-            d.vx += (dx / dist) * pull * 0.12;
-            d.vy += (dy / dist) * pull * 0.12;
-          }
-        }
-        // spring home + damping
-        d.vx += (d.hx - d.x) * 0.10;
-        d.vy += (d.hy - d.y) * 0.10;
-        d.vx *= 0.82; d.vy *= 0.82;
-        d.x += d.vx; d.y += d.vy;
-
-        const wob = reduced ? 0 : Math.sin(t * 1.3 + i * 0.7) * 0.5;
-        const rad = 1.5 + lit * 2.6;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y + wob, rad, 0, 6.2832);
-        if (lit > 0.01) {
-          // grey → charcoal ink as it's pulled in, with a faint warm core
-          const base = 70 - lit * 52;                  // 70 (grey) → 18 (charcoal)
-          const k = lit * 0.16;                        // ≤16% accent at peak
-          const cr = Math.round(base + (ACCENT[0] - base) * k);
-          const cg = Math.round(base + (ACCENT[1] - base) * k);
-          const cb = Math.round(base + (ACCENT[2] - base) * k);
-          ctx.fillStyle = 'rgba(' + cr + ',' + cg + ',' + cb + ',' + (0.12 + lit * 0.62).toFixed(3) + ')';
-        } else {
-          ctx.fillStyle = 'rgba(60,60,60,0.12)';
-        }
-        ctx.fill();
-      }
       raf = requestAnimationFrame(tick);
+      step(false);
     }
-
-    function start() { if (!reduced && raf == null) raf = requestAnimationFrame(tick); }
 
     window.addEventListener('pointermove', e => {
       const r = bg.getBoundingClientRect();
       mx = e.clientX - r.left;
       my = e.clientY - r.top;
-      active = mx >= -R && mx <= W + R && my >= -R && my <= H + R;
+      active = mx >= -MR && mx <= W + MR && my >= -MR && my <= H + MR;
     }, { passive: true });
     window.addEventListener('pointerout', () => { active = false; }, { passive: true });
 
@@ -654,7 +683,7 @@
     window.addEventListener('resize', onResize, { passive: true });
 
     build();
-    start();
+    if (!reduced) raf = requestAnimationFrame(tick);
   })();
   </script>
 

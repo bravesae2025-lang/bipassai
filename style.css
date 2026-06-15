@@ -921,7 +921,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   display: flex;
   flex-direction: column;
   flex: none;
-  min-height: auto;
+  min-height: calc(100vh - 52px);
   overflow-y: auto;
   background: #f2f0ec;
 }
@@ -1235,8 +1235,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60px, #000 88%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 60px, #000 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 40px, #000 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 40px, #000 100%);
 }
 .appbg-canvas {
   position: absolute;

@@ -654,19 +654,20 @@
     }
 
     function buildLevel() {
-      const n = Math.max(240, Math.min(360, Math.round(R * 0.45)));
+      const n = Math.max(360, Math.min(520, Math.round(R * 0.6)));
       const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
-      D3D = spacing * 1.2;
+      D3D = spacing * 1.05;
       D2  = D3D * D3D;
       pts = [];
       for (let i = 0; i < n; i++) {
         const u = Math.random() * 2 - 1;
         const phi = Math.random() * TAU;
-        const r = R * Math.cbrt(Math.random());
+        // mild outward bias so the visible page margins (sphere edge) stay filled
+        const r = R * Math.cbrt(0.12 + 0.88 * Math.random());
         const s = Math.sqrt(1 - u * u);
         pts.push({
           x: r * s * Math.cos(phi), y: r * s * Math.sin(phi), z: r * u,
-          vx: (Math.random() - 0.5) * 0.45, vy: (Math.random() - 0.5) * 0.45, vz: (Math.random() - 0.5) * 0.45,
+          vx: (Math.random() - 0.5) * 0.38, vy: (Math.random() - 0.5) * 0.38, vz: (Math.random() - 0.5) * 0.38,
           sx: 0, sy: 0, sc: 1,
         });
       }
@@ -714,7 +715,7 @@
     // ── step / render ────────────────────────────────────────
     function step(still) {
       ctx.clearRect(0, 0, W, H);
-      if (!still) angY += 0.0016;
+      if (!still) angY += 0.0011;
       const cosY = Math.cos(angY), sinY = Math.sin(angY);
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
       if (mode === 'humanize') stepHumanize(still);

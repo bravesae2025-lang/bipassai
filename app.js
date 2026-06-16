@@ -1051,6 +1051,7 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_mode',         'humanize');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
+    sessionStorage.setItem('bipass_level',        selectedLevel);
     window.location.href = 'editor.html';
   } catch {
     // Fallback to client-side dictionary if API fails
@@ -1063,6 +1064,7 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_mode',         'humanize');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
+    sessionStorage.setItem('bipass_level',        selectedLevel);
     window.location.href = 'editor.html';
   } finally {
     setLoading(false);

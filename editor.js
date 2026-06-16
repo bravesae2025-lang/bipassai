@@ -174,6 +174,14 @@ async function init() {
     changeEl.classList.remove('hidden');
   }
 
+  const levelMap = { easy: 'Beginner', medium: 'Student', hard: 'Academic', customize: 'Custom' };
+  const levelKey = sessionStorage.getItem('bipass_level');
+  const levelEl  = document.getElementById('editor-level');
+  if (levelEl && levelKey && levelMap[levelKey]) {
+    levelEl.textContent = levelMap[levelKey];
+    levelEl.classList.remove('hidden');
+  }
+
   const tokensRaw = sessionStorage.getItem('bipass_tokens');
   if (tokensRaw) {
     try {

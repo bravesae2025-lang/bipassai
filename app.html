@@ -624,7 +624,7 @@
     const TAU = 6.2831853;
 
     let mode = 'level';       // current render mode
-    let pts = [], hpts = [];
+    let pts = [], hpts = [], hstars = [];
     let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
     let R = 0, F = 0, D3D = 0, D2 = 0;
     let mx = -9999, my = -9999, active = false, raf = null;
@@ -674,8 +674,9 @@
 
     function buildHumanize() {
       // Rotating 3D nebula / spiral galaxy of fine dots (no lines)
-      const diskR = 0.6 * Math.hypot(W, H);
-      const n = Math.max(420, Math.min(1000, Math.round(W * H / 2400)));
+      const diskR = 0.62 * Math.hypot(W, H);
+      const thickness = diskR * 0.16;
+      const n = Math.max(600, Math.min(1600, Math.round(W * H / 1500)));
       const ARMS = 3;
       hpts = [];
       for (let i = 0; i < n; i++) {
@@ -686,11 +687,26 @@
           rn: rn,
           r: rn * diskR,
           ang0: ang0,
+          // real vertical thickness — fat bulge at the core, thin in the arms
+          zh: (Math.random() - 0.5) * thickness * (0.35 + 0.65 * (1 - rn)),
           w: 0.0009 + 0.0022 * (1 - rn),                  // inner orbits faster
           size: 0.7 + Math.random() * 1.1,
           ph: Math.random() * TAU,                         // twinkle phase
+          tws: 0.8 + Math.random() * 0.8,                  // twinkle speed
           ox: 0, oy: 0,                                    // eased cursor warp
           sx: 0, sy: 0, sc: 1,
+        });
+      }
+      // faint deep-space starfield behind the galaxy (parallax depth)
+      const sn = Math.round(W * H / 9000);
+      hstars = [];
+      for (let i = 0; i < sn; i++) {
+        hstars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          dz: 0.2 + Math.random() * 0.8,                   // parallax depth factor
+          size: 0.5 + Math.random() * 0.6,
+          ph: Math.random() * TAU,
         });
       }
     }
@@ -783,20 +799,35 @@
 
     function stepHumanize(still) {
       if (!still) gt += 1;
-      // galaxy's own 3D orientation: fixed tilt + slow spin (independent of level)
-      const AX = 1.02;
+      // galaxy orientation: slowly nodding tilt (nutation) + slow spin
+      const AX = 1.02 + 0.16 * Math.sin(gt * 0.0008);
       const ay = gt * 0.0006;
       const cosY = Math.cos(ay), sinY = Math.sin(ay);
       const cosX = Math.cos(AX), sinX = Math.sin(AX);
       const tw = gt * 0.05;
+      const pgx = active ? (mx - cx) : 0;
+      const pgy = active ? (my - cy) : 0;
 
+      // ── faint deep-space starfield (behind, parallax) ──
+      for (let i = 0; i < hstars.length; i++) {
+        const s = hstars[i];
+        const sx = s.x + pgx * 0.015 * s.dz;
+        const sy = s.y + pgy * 0.015 * s.dz;
+        const twk = still ? 1 : (0.6 + 0.4 * Math.sin(tw * 0.7 + s.ph));
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.size, 0, TAU);
+        ctx.fillStyle = 'rgba(60,60,60,' + (0.07 + 0.13 * s.dz * twk).toFixed(3) + ')';
+        ctx.fill();
+      }
+
+      // ── galaxy dots (true 3D volume) ──
       for (let i = 0; i < hpts.length; i++) {
         const p = hpts[i];
         const a = p.ang0 + gt * p.w;          // differential rotation → spiral arms
-        const px = Math.cos(a) * p.r, py = Math.sin(a) * p.r;   // disk plane (z = 0)
-        // rotate X (tilt) then Y (spin); pz = 0 simplifies terms
-        const y1 = py * cosX;
-        const z1 = py * sinX;
+        const px = Math.cos(a) * p.r, py = Math.sin(a) * p.r, pz = p.zh;
+        // rotate X (tilt) then Y (spin) — full 3D, pz gives real depth
+        const y1 = py * cosX - pz * sinX;
+        const z1 = py * sinX + pz * cosX;
         const x2 = px * cosY + z1 * sinY;
         const z2 = -px * sinY + z1 * cosY;
         const sc = F / (F + z2);
@@ -816,16 +847,12 @@
           }
         }
         if (!still) { p.ox += (tox - p.ox) * 0.10; p.oy += (toy - p.oy) * 0.10; }
-      }
 
-      // dots only — no lines
-      for (let i = 0; i < hpts.length; i++) {
-        const p = hpts[i];
-        const rad = Math.max(0.5, p.size * p.sc);
-        const twk = still ? 1 : (0.7 + 0.3 * Math.sin(tw + p.ph));
+        const twk = still ? 1 : (0.7 + 0.3 * Math.sin(tw * p.tws + p.ph));
+        const rad = Math.max(0.5, p.size * p.sc * (0.85 + 0.15 * twk));
         const depth = 0.34 + (p.sc - 0.6) * 0.7;        // near brighter
-        const core = 0.18 * (1 - p.rn);                  // core a touch brighter
-        const alpha = Math.max(0.12, Math.min(0.82, (depth + core) * twk));
+        const core = 0.2 * (1 - p.rn);                   // core a touch brighter
+        const alpha = Math.max(0.12, Math.min(0.85, (depth + core) * twk));
         ctx.beginPath();
         ctx.arc(p.sx + p.ox, p.sy + p.oy, rad, 0, TAU);
         ctx.fillStyle = 'rgba(48,48,48,' + alpha.toFixed(3) + ')';

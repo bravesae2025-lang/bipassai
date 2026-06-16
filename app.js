@@ -2494,8 +2494,8 @@ const _lfx = { decodeRaf: 0, t1: 0, t2: 0 };
 const LFX_GLYPHS = '!<>-_\\/[]{}—=+*^?#%@&ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
 const LFX_PHASES  = ['Analyzing', 'Thinking', 'Making the change'];
 const LFX_TARGETS = [30, 62, 90];          // bar width (%) per phase
-const LFX_FILLDUR = ['3.5s', '4s', '8s'];  // ease across each stage / slow creep on hold
-const LFX_ADVANCE = [3500, 4000];          // ms: 0→1, then 1→2 (Analyzing ~3.5s, Thinking ~4s)
+const LFX_FILLDUR = ['5s', '5.5s', '10s']; // ease across each stage / slow creep on hold
+const LFX_ADVANCE = [5000, 5500];          // ms: 0→1, then 1→2 (Analyzing ~5s, Thinking ~5.5s)
 function lfxReduced() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

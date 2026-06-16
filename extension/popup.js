@@ -111,12 +111,22 @@ function selectResult(text, mode) {
   showState('ready');
 }
 
+function semverGt(a, b) {
+  const av = a.split('.').map(Number);
+  const bv = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((av[i] ?? 0) > (bv[i] ?? 0)) return true;
+    if ((av[i] ?? 0) < (bv[i] ?? 0)) return false;
+  }
+  return false;
+}
+
 async function checkForUpdate() {
   try {
     const res = await fetch('https://bipassai.com/extension-version.json?t=' + Date.now());
     const { version: latest } = await res.json();
     const installed = chrome.runtime.getManifest().version;
-    if (latest !== installed) chrome.runtime.reload();
+    if (semverGt(latest, installed)) chrome.runtime.reload();
   } catch {}
 }
 
@@ -273,6 +283,9 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
 // ── Navigation ──────────────────────────────────────────────────
 document.getElementById('open-bipass').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/app.html' });
+});
+document.getElementById('signup-link').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://bipassai.com/login.html' });
 });
 document.getElementById('open-upgrade').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/plans.html' });

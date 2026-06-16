@@ -324,7 +324,7 @@
     ───────────────────────────────────────────── */
     .start-btn {
       position: relative; overflow: hidden;
-      width: 100%; padding: 13px; background: var(--ink); color: #fff;
+      width: 100%; padding: 15px; background: linear-gradient(135deg, #111 0%, #0a0a0a 100%); color: #fff;
       border: none; border-radius: var(--r); font-size: 12px; font-weight: 700;
       letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
       transition: transform 0.12s var(--ease-snappy), box-shadow var(--dur) var(--ease-out);
@@ -456,6 +456,69 @@
     .signout-global-btn:hover { color: var(--ink); }
 
     /* ─────────────────────────────────────────────
+       Text card (ready screen)
+    ───────────────────────────────────────────── */
+    .text-card {
+      border: 1.5px solid var(--g-200); border-radius: var(--r-lg); overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .text-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 13px 9px 10px;
+      background: var(--g-050); border-bottom: 1px solid var(--g-100);
+    }
+    .text-card-meta {
+      display: flex; align-items: center; gap: 5px;
+      font-family: var(--ff-mono); font-size: 10px;
+    }
+    .text-card-meta #preview-wc { color: var(--g-400); }
+    .text-card-meta .meta-sep { color: var(--g-300); }
+    .text-card-meta #preview-mode {
+      color: var(--paper); font-weight: 600;
+      background: var(--ink); padding: 2px 8px; border-radius: var(--r-pill);
+      font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .preview-fade-wrap { position: relative; }
+    .preview-fade-wrap::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, var(--paper));
+      pointer-events: none; z-index: 1;
+    }
+    #preview-text {
+      padding: 12px 13px 28px; font-size: 11px; line-height: 1.7; color: var(--g-600);
+      max-height: 112px; overflow-y: auto; white-space: pre-wrap; background: var(--paper);
+    }
+    #preview-text::-webkit-scrollbar { width: 4px; }
+    #preview-text::-webkit-scrollbar-thumb { background: var(--g-200); border-radius: 2px; }
+
+    /* ─────────────────────────────────────────────
+       Control panels
+    ───────────────────────────────────────────── */
+    .ctrl-panel {
+      display: flex; flex-direction: column; gap: 12px;
+      padding: 13px;
+      background: var(--g-050); border: 1px solid var(--g-200); border-radius: var(--r);
+    }
+    .ctrl-sep {
+      height: 1px; background: var(--g-200);
+      margin-left: -13px; margin-right: -13px;
+    }
+
+    /* ─────────────────────────────────────────────
+       Hint box
+    ───────────────────────────────────────────── */
+    .hint-box {
+      display: flex; align-items: flex-start; gap: 9px;
+      padding: 10px 12px;
+      background: var(--g-050); border-left: 3px solid var(--g-200);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      font-size: 10px; color: var(--g-500); line-height: 1.65;
+    }
+    .hint-icon { font-size: 9px; color: var(--g-300); margin-top: 2px; flex-shrink: 0; }
+    .hint-box strong { color: var(--ink); font-weight: 700; }
+
+    /* ─────────────────────────────────────────────
        Reduced motion
     ───────────────────────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
@@ -548,75 +611,83 @@
 
     <!-- Text ready -->
     <div class="state" id="state-ready">
-      <div class="ready-topbar">
-        <button class="back-arrow-btn" id="back-btn" type="button">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          Back
-        </button>
-      </div>
-      <div>
-        <div class="preview-label" style="margin-bottom:6px">Selected text</div>
-        <div class="preview-box" id="preview-text"></div>
-        <div class="preview-meta" style="margin-top:6px">
-          <span id="preview-wc"></span>
-          <span id="preview-mode"></span>
-        </div>
-      </div>
 
-      <div>
-        <span class="ctrl-label">Typing Speed</span>
-        <div class="dur-track">
-          <button class="spd-btn" data-spd="150">Slow</button>
-          <button class="spd-btn active" data-spd="90">Normal</button>
-          <button class="spd-btn" data-spd="55">Fast</button>
-        </div>
-      </div>
-
-      <div class="mistype-row">
-        <div class="ctrl-label-row">
-          <span class="ctrl-label">Mistyping</span>
-          <button class="info-btn" id="mistype-info-btn" type="button" aria-label="What is mistyping?">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>
+      <!-- Premium text card -->
+      <div class="text-card">
+        <div class="text-card-header">
+          <button class="back-arrow-btn" id="back-btn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back
           </button>
-          <div class="info-popup" id="mistype-popup">
-            Occasionally types the wrong character, pauses briefly, backspaces, then types the correct one — like a real human making and catching a typo.
+          <div class="text-card-meta">
+            <span id="preview-wc"></span>
+            <span class="meta-sep">·</span>
+            <span id="preview-mode"></span>
           </div>
         </div>
-        <div class="mistype-track">
-          <input type="range" id="mistype-slider" min="0" max="4" value="0" step="1">
-          <span class="mistype-val" id="mistype-val-label">None</span>
+        <div class="preview-fade-wrap">
+          <div id="preview-text"></div>
         </div>
       </div>
 
-      <div class="divider"></div>
-
-      <div>
-        <span class="ctrl-label">Target Time</span>
-        <div class="dur-track">
-          <button class="dur-btn active" data-dur="0">Off</button>
-          <button class="dur-btn" data-dur="5">5m</button>
-          <button class="dur-btn" data-dur="10">10m</button>
-          <button class="dur-btn" data-dur="20">20m</button>
-          <button class="dur-btn" data-dur="custom" title="Custom time" aria-label="Custom duration">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
-              <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
-              <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
-              <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
-            </svg>
-          </button>
+      <!-- Speed + Mistyping panel -->
+      <div class="ctrl-panel">
+        <div>
+          <span class="ctrl-label">Typing Speed</span>
+          <div class="dur-track">
+            <button class="spd-btn" data-spd="150">Slow</button>
+            <button class="spd-btn active" data-spd="90">Normal</button>
+            <button class="spd-btn" data-spd="55">Fast</button>
+          </div>
         </div>
-        <div class="dur-custom-row" id="dur-custom-row" style="display:none">
-          <input type="number" id="dur-custom-val" min="1" max="120" value="15" />
-          <span class="dur-custom-unit">min</span>
+        <div class="ctrl-sep"></div>
+        <div class="mistype-row">
+          <div class="ctrl-label-row">
+            <span class="ctrl-label">Mistyping</span>
+            <button class="info-btn" id="mistype-info-btn" type="button" aria-label="What is mistyping?">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>
+            </button>
+            <div class="info-popup" id="mistype-popup">
+              Occasionally types the wrong character, pauses briefly, backspaces, then types the correct one — like a real human making and catching a typo.
+            </div>
+          </div>
+          <div class="mistype-track">
+            <input type="range" id="mistype-slider" min="0" max="4" value="0" step="1">
+            <span class="mistype-val" id="mistype-val-label">None</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Target Time panel -->
+      <div class="ctrl-panel">
+        <div>
+          <span class="ctrl-label">Target Time</span>
+          <div class="dur-track">
+            <button class="dur-btn active" data-dur="0">Off</button>
+            <button class="dur-btn" data-dur="5">5m</button>
+            <button class="dur-btn" data-dur="10">10m</button>
+            <button class="dur-btn" data-dur="20">20m</button>
+            <button class="dur-btn" data-dur="custom" title="Custom time" aria-label="Custom duration">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+                <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+                <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+              </svg>
+            </button>
+          </div>
+          <div class="dur-custom-row" id="dur-custom-row" style="display:none">
+            <input type="number" id="dur-custom-val" min="1" max="120" value="15" />
+            <span class="dur-custom-unit">min</span>
+          </div>
         </div>
       </div>
 
       <button class="start-btn" id="start-btn">Start Typing <span class="arrow">→</span></button>
 
-      <div class="instructions">
-        After clicking Start, switch to the page where you want to type.<br>
-        A <strong>▶ button</strong> will appear — click into your text field, then press it.
+      <div class="hint-box">
+        <span class="hint-icon">▶</span>
+        <span>Switch to the page where you want to type. Click into the text field, then press the <strong>▶ button</strong>.</span>
       </div>
 
     </div>

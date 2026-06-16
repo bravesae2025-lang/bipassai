@@ -1105,6 +1105,8 @@ const toast          = document.getElementById('toast');
 const workspace      = document.getElementById('workspace');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText    = document.getElementById('loading-text');
+const loadingRewrite = document.getElementById('loading-rewrite');
+const loadingStepper = document.getElementById('loading-stepper');
 const levelTrack     = document.querySelector('.level-track');
 const colCustomize   = document.querySelector('.col-customize');
 const myStyleBox     = document.getElementById('my-style-block');
@@ -2484,12 +2486,117 @@ function showCreditWarning(msg) {
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); }, { once: true });
 }
 
+// ─── Loading FX: decode headline + live rewrite strip + phase stepper ─
+const _lfx = { decodeRaf: 0, rewriteTimer: 0, stepTimer: 0 };
+const LFX_GLYPHS = '!<>-_\\/[]{}—=+*^?#%@&ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+const LFX_PHRASES = [
+  'rephrasing', 'varying cadence', 'softening tone', 'breaking patterns',
+  'your words', 'adjusting rhythm', 'trimming filler', 'natural phrasing',
+];
+function lfxReduced() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function lfxGlyph() { return LFX_GLYPHS[(Math.random() * LFX_GLYPHS.length) | 0]; }
+
+function lfxDecodeHeadline(text) {
+  if (!loadingText) return;
+  cancelAnimationFrame(_lfx.decodeRaf);
+  const chars = [...text];
+  loadingText.innerHTML = '';
+  const spans = chars.map((ch) => {
+    const s = document.createElement('span');
+    s.className = 'dc';
+    s.textContent = ch;
+    loadingText.appendChild(s);
+    return s;
+  });
+  if (lfxReduced()) return;
+
+  const start = performance.now();
+  const perChar = 50;   // stagger each char's lock
+  const settle  = 300;  // scramble window before a char locks
+  function frame(now) {
+    let done = true;
+    const elapsed = now - start;
+    chars.forEach((ch, i) => {
+      const span = spans[i];
+      if (ch === ' ') { span.textContent = ' '; span.classList.remove('scrambling'); return; }
+      if (elapsed >= settle + i * perChar) {
+        span.textContent = ch;
+        span.classList.remove('scrambling');
+      } else {
+        span.textContent = lfxGlyph();
+        span.classList.add('scrambling');
+        done = false;
+      }
+    });
+    if (!done) _lfx.decodeRaf = requestAnimationFrame(frame);
+  }
+  _lfx.decodeRaf = requestAnimationFrame(frame);
+}
+
+function lfxStartRewrite() {
+  if (!loadingRewrite) return;
+  if (lfxReduced()) { loadingRewrite.textContent = LFX_PHRASES[0]; return; }
+  const WIDTH = 34;
+  let pIdx = 0, tick = 0;
+  function render() {
+    const phrase = LFX_PHRASES[pIdx];
+    const pad = Math.max(0, WIDTH - phrase.length);
+    const left = pad >> 1, right = pad - left;
+    let nL = '', nR = '';
+    for (let i = 0; i < left;  i++) nL += Math.random() < 0.5 ? lfxGlyph() : ' ';
+    for (let i = 0; i < right; i++) nR += Math.random() < 0.5 ? lfxGlyph() : ' ';
+    loadingRewrite.innerHTML = '';
+    const sL = document.createElement('span'); sL.className = 'rw-scramble'; sL.textContent = nL;
+    const sR = document.createElement('span'); sR.className = 'rw-scramble'; sR.textContent = nR;
+    loadingRewrite.append(sL, document.createTextNode(phrase), sR);
+    if (++tick % 26 === 0) pIdx = (pIdx + 1) % LFX_PHRASES.length;
+  }
+  render();
+  _lfx.rewriteTimer = setInterval(render, 70);
+}
+
+function lfxStartStepper() {
+  if (!loadingStepper) return;
+  const steps = loadingStepper.querySelectorAll('.loading-step');
+  const underline = document.getElementById('loading-step-underline');
+  if (!steps.length) return;
+  function activate(i) {
+    steps.forEach((s, n) => s.classList.toggle('active', n === i));
+    if (underline) {
+      underline.style.left  = steps[i].offsetLeft  + 'px';
+      underline.style.width = steps[i].offsetWidth + 'px';
+    }
+  }
+  activate(0);
+  if (lfxReduced()) return;
+  let idx = 0;
+  _lfx.stepTimer = setInterval(() => {
+    idx = (idx + 1) % steps.length;
+    activate(idx);
+  }, 1600);
+}
+
+function startLoadingFx(text) {
+  lfxDecodeHeadline(text || 'Loading…');
+  lfxStartRewrite();
+  lfxStartStepper();
+}
+
+function stopLoadingFx() {
+  cancelAnimationFrame(_lfx.decodeRaf);
+  clearInterval(_lfx.rewriteTimer);
+  clearInterval(_lfx.stepTimer);
+  _lfx.decodeRaf = _lfx.rewriteTimer = _lfx.stepTimer = 0;
+  if (loadingRewrite) loadingRewrite.textContent = '';
+}
+
 function setLoading(on, text) {
   if (generateBtn) generateBtn.disabled = on;
   humanizeBtn.disabled = on;
 
   if (on) {
-    loadingText.textContent = text || 'Loading…';
     const credEl  = document.getElementById('loading-credits');
     const wrapEl  = document.getElementById('loading-credits-wrap');
     if (credEl)  credEl.textContent = '0';
@@ -2497,11 +2604,13 @@ function setLoading(on, text) {
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');
+    startLoadingFx(text || 'Loading…');
     setStatus(text || 'Loading…');
   } else {
     workspace.style.opacity = '';
     workspace.style.pointerEvents = '';
     loadingOverlay.classList.remove('visible');
+    stopLoadingFx();
     const credEl = document.getElementById('loading-credits');
     if (credEl) credEl.textContent = '';
     setStatus('Ready');

@@ -33,21 +33,45 @@
 
   <!-- Loading overlay — shown while API call is in progress -->
   <div class="loading-overlay" id="loading-overlay" aria-live="polite">
-    <div class="loading-bar">
-      <div class="loading-bar-fill"></div>
+    <div class="loading-grain" aria-hidden="true"></div>
+    <div class="loading-inner">
+
+      <!-- staged phases -->
+      <div class="loading-stepper" id="loading-stepper" aria-hidden="true">
+        <span class="loading-step" data-step="0">Analyzing</span>
+        <span class="loading-step-sep">▸</span>
+        <span class="loading-step" data-step="1">Rewriting</span>
+        <span class="loading-step-sep">▸</span>
+        <span class="loading-step" data-step="2">Humanizing</span>
+        <span class="loading-step-underline" id="loading-step-underline"></span>
+      </div>
+
+      <!-- decode headline -->
+      <h2 class="loading-decode" id="loading-text">Generating your text…</h2>
+
+      <!-- live rewrite strip -->
+      <div class="loading-rewrite" id="loading-rewrite" aria-hidden="true"></div>
+
+      <!-- progress hairline -->
+      <div class="loading-bar">
+        <div class="loading-bar-fill"></div>
+        <span class="loading-comet" aria-hidden="true"></span>
+      </div>
+
+      <div class="loading-credits-wrap" id="loading-credits-wrap">
+        <div class="loading-credits-num" id="loading-credits">0</div>
+        <div class="loading-credits-lbl">credits used</div>
+      </div>
+
+      <button class="loading-cancel-btn" id="loading-cancel-btn">
+        <span class="btn-content">Cancel</span>
+        <span class="btn-arrow" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </span>
+        <span class="btn-sweep" aria-hidden="true"></span>
+      </button>
+
     </div>
-    <div class="loading-text" id="loading-text">Generating your text…</div>
-    <div class="loading-credits-wrap" id="loading-credits-wrap">
-      <div class="loading-credits-num" id="loading-credits">0</div>
-      <div class="loading-credits-lbl">credits used</div>
-    </div>
-    <button class="loading-cancel-btn" id="loading-cancel-btn">
-      <span class="btn-content">Cancel</span>
-      <span class="btn-arrow" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </span>
-      <span class="btn-sweep" aria-hidden="true"></span>
-    </button>
   </div>
 
   <nav class="navbar">

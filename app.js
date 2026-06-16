@@ -1036,14 +1036,31 @@ async function adjustLevel() {
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
       }),
     });
+    // Out of credits — show the warning and STOP. Do not fall through to the
+    // offline fallback (that would hand out a free result).
+    if (res.status === 402) {
+      const d = await res.json().catch(() => ({}));
+      setLoading(false);
+      showCreditWarning(d.error || 'No credits remaining');
+      return;
+    }
     if (!res.ok) throw new Error('API error');
-    const { result } = await res.json();
+    const data   = await res.json();
+    const result = data.result;
 
     // Prefer AI annotations (accurate multi-category); fall back to the diff.
     const parsed   = _parseAnnotatedResult(result);
     const cleanRes = parsed ? parsed.cleanText : result;
     const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(text, result);
     const changed  = parsed ? parsed.total     : _countChanges(text, result);
+
+    // Finish the bar + reveal the credits used cleanly, then let it breathe.
+    lfxFinish();
+    if (data.creditsUsed != null) {
+      updateCreditDisplay(data.creditsUsed, data.creditsRemaining);
+      animateLoadingCredits(data.creditsUsed);
+      await new Promise(r => setTimeout(r, 1200));
+    }
 
     sessionStorage.setItem('bipass_input',        text);
     sessionStorage.setItem('bipass_result',       cleanRes);
@@ -2382,6 +2399,7 @@ async function callAPIStream(prompt) {
     else throw new Error('No output received');
   }
   if (creditsData) {
+    lfxFinish();
     updateCreditDisplay(creditsData.creditsUsed, creditsData.creditsRemaining);
     animateLoadingCredits(creditsData.creditsUsed);
   }
@@ -2420,14 +2438,16 @@ async function callAPI(prompt) {
   return data.result;
 }
 
+// Clean reveal: show the final credits-used value and fade it in.
+// (No rolling count-up — the user found that animation distracting.)
 function animateLoadingCredits(total) {
   const wrapEl = document.getElementById('loading-credits-wrap');
   const numEl  = document.getElementById('loading-credits');
   if (!wrapEl || !numEl) return;
-  numEl.textContent = '0';
-  wrapEl.style.transition = 'opacity 0.25s ease';
+  numEl.textContent = (total || 0).toLocaleString();
+  wrapEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+  wrapEl.style.transform = 'translateY(0)';
   wrapEl.style.opacity = '1';
-  animateCount(numEl, 0, total, 650);
 }
 
 function animateCount(el, from, to, duration = 700) {
@@ -2570,6 +2590,21 @@ function stopLoadingFx() {
     loadingBarFill.style.width = '0';
   }
   if (loadingCount) loadingCount.textContent = '01 / 03';
+}
+
+// Satisfying "done" finish: stop the phase timers and drive the bar to 100%.
+// Leaves the overlay visible so the credits-used reveal can show before nav/hide.
+function lfxFinish() {
+  cancelAnimationFrame(_lfx.decodeRaf);
+  clearTimeout(_lfx.t1);
+  clearTimeout(_lfx.t2);
+  _lfx.decodeRaf = _lfx.t1 = _lfx.t2 = 0;
+  if (loadingBar) loadingBar.classList.remove('working');
+  if (loadingBarFill) {
+    loadingBarFill.style.transitionDuration = lfxReduced() ? '0s' : '0.45s';
+    loadingBarFill.style.width = '100%';
+  }
+  if (loadingCount) loadingCount.textContent = '03 / 03';
 }
 
 function setLoading(on, text) {

@@ -492,8 +492,30 @@ app.post('/api/adjust-level', async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
+  // ── Credit check (mirror /api/humanize) ───────────────────────
+  // Plan expiry — blocks regardless of tier to prevent slip-through after demotion
+  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  if (planExpiresAt && Date.now() > planExpiresAt) {
+    const userTier = user.user_metadata?.tier || 'free';
+    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
+  // Free starter-credit expiry
+  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  if (creditsExpireAt && Date.now() > creditsExpireAt) {
+    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
+  }
+  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  if (credits <= 0) {
+    return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
+
+  let cancelled = false;
+  req.on('close', () => { cancelled = true; });
 
   // Presets reuse the SAME annotation prompt as Custom — each maps to a preset
   // mistakes/word-level config so they emit [[orig|new|cats]] tags and produce
@@ -549,7 +571,15 @@ app.post('/api/adjust-level', async (req, res) => {
       .replace(/\s*—\s*/g, ', ')                  // em dash → comma
       .replace(/\s*–\s*/g, ', ')                  // en dash → comma
       .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
-    return res.json({ result: finalResult });
+
+    // ── Deduct credits: 1 per INPUT character (preview quotes input length;
+    //    the result carries [[…]] annotation markup, so don't bill on output). ──
+    if (cancelled) return;
+    const creditsUsed = (text || '').length;
+    const newCredits  = Math.max(0, credits - creditsUsed);
+    await updateUserCredits(user.id, newCredits);
+
+    return res.json({ result: finalResult, creditsUsed, creditsRemaining: newCredits });
   } catch (err) {
     console.error('/api/adjust-level error:', err);
     return res.status(500).json({ error: 'Server error' });

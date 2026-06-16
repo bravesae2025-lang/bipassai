@@ -11,7 +11,13 @@ const states = ['loading', 'login', 'upgrade', 'empty', 'list', 'ready', 'armed'
 const UNAUTHED_STATES = new Set(['loading', 'login']);
 function showState(name) {
   states.forEach(s => document.getElementById(`state-${s}`).classList.remove('active'));
-  document.getElementById(`state-${name}`).classList.add('active');
+  const el = document.getElementById(`state-${name}`);
+  el.classList.add('active');
+  // one-shot enter animation
+  el.classList.remove('enter');
+  void el.offsetWidth; // restart the animation
+  el.classList.add('enter');
+  el.addEventListener('animationend', () => el.classList.remove('enter'), { once: true });
   const footer = document.getElementById('account-footer');
   if (footer) footer.style.display = UNAUTHED_STATES.has(name) ? 'none' : 'flex';
 }
@@ -225,10 +231,16 @@ document.addEventListener('click', () => mistypePopup.classList.remove('open'));
 const MISTYPE_LABELS = ['None', 'A little', 'Some', 'More', 'A lot'];
 const mistypeSlider  = document.getElementById('mistype-slider');
 const mistypeLabel   = document.getElementById('mistype-val-label');
+function paintMistypeFill() {
+  const pct = (parseInt(mistypeSlider.value) / parseInt(mistypeSlider.max)) * 100;
+  mistypeSlider.style.setProperty('--fill', pct + '%');
+}
 mistypeSlider.addEventListener('input', () => {
   currentMistype = parseInt(mistypeSlider.value);
   mistypeLabel.textContent = MISTYPE_LABELS[currentMistype];
+  paintMistypeFill();
 });
+paintMistypeFill();
 
 // ── Speed buttons ───────────────────────────────────────────────
 document.querySelectorAll('.spd-btn').forEach(btn => {

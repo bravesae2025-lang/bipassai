@@ -119,6 +119,18 @@
     const style = document.createElement('style');
     style.id = 'bipass-float-style';
     style.textContent = `
+      @keyframes bipass-float-in {
+        from { opacity: 0; transform: translateY(16px) scale(0.92); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes bipass-glow {
+        0%,100% { box-shadow: 0 6px 24px rgba(0,0,0,0.38), 0 0 0 0 rgba(34,197,94,0.45); }
+        50%     { box-shadow: 0 6px 24px rgba(0,0,0,0.38), 0 0 0 7px rgba(34,197,94,0); }
+      }
+      @keyframes bipass-bar {
+        0%,100% { transform: scaleY(0.4); }
+        50%     { transform: scaleY(1); }
+      }
       #bipass-float-btn {
         position: fixed;
         bottom: 24px;
@@ -129,24 +141,40 @@
         gap: 8px;
         background: #0a0a0a;
         border-radius: 50px;
-        padding: 10px 16px 10px 14px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        padding: 11px 17px 11px 15px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.38);
         cursor: pointer;
         user-select: none;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        transition: opacity 0.2s, transform 0.2s;
+        transition: transform 0.22s cubic-bezier(0.16,1,0.3,1), box-shadow 0.22s ease;
+        animation: bipass-float-in 0.4s cubic-bezier(0.16,1,0.3,1) both;
       }
-      #bipass-float-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-      #bipass-float-inner { display: flex; align-items: center; gap: 7px; }
-      #bipass-float-icon { font-size: 11px; color: #fff; }
+      #bipass-float-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+      #bipass-float-btn:active { transform: translateY(0) scale(0.98); }
+      #bipass-float-btn.bipass-typing { animation: bipass-glow 1.6s cubic-bezier(0.16,1,0.3,1) infinite; }
+      #bipass-float-inner { display: flex; align-items: center; gap: 8px; }
+      #bipass-float-icon { font-size: 11px; color: #fff; line-height: 1; }
       #bipass-float-label { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; color: #fff; }
+      /* equalizer bars shown while typing (replaces the ■ glyph) */
+      #bipass-float-icon.bipass-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+      #bipass-float-icon.bipass-eq i {
+        width: 2.5px; height: 100%; background: #22c55e; border-radius: 1px;
+        transform-origin: bottom; animation: bipass-bar 0.7s ease-in-out infinite;
+      }
+      #bipass-float-icon.bipass-eq i:nth-child(2) { animation-delay: 0.18s; }
+      #bipass-float-icon.bipass-eq i:nth-child(3) { animation-delay: 0.36s; }
       #bipass-float-close {
         font-size: 10px; color: rgba(255,255,255,0.45);
-        padding: 2px 0 2px 8px;
+        padding: 2px 0 2px 9px;
         border-left: 1px solid rgba(255,255,255,0.15);
         cursor: pointer; transition: color 0.15s;
       }
       #bipass-float-close:hover { color: #fff; }
+      @media (prefers-reduced-motion: reduce) {
+        #bipass-float-btn, #bipass-float-btn.bipass-typing, #bipass-float-icon.bipass-eq i {
+          animation: none !important;
+        }
+      }
     `;
 
     document.head.appendChild(style);
@@ -199,18 +227,24 @@
   }
 
   function updateBtn(state) {
+    const btn   = document.getElementById('bipass-float-btn');
     const icon  = document.getElementById('bipass-float-icon');
     const label = document.getElementById('bipass-float-label');
     if (!icon || !label) return;
+    icon.classList.remove('bipass-eq');
     if (state === 'typing') {
-      icon.textContent  = '■';
+      icon.classList.add('bipass-eq');
+      icon.innerHTML    = '<i></i><i></i><i></i>';
       label.textContent = 'Stop';
+      btn?.classList.add('bipass-typing');
     } else if (state === 'paused') {
       icon.textContent  = '▶';
       label.textContent = 'Continue';
+      btn?.classList.remove('bipass-typing');
     } else {
       icon.textContent  = '▶';
       label.textContent = 'Start Typing';
+      btn?.classList.remove('bipass-typing');
     }
   }
 

@@ -823,111 +823,87 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   text-align: center;
 }
 
-/* staged phases ──────────────── */
-.loading-stepper {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
+/* step counter ──────────────── */
+.loading-count {
   font-family: var(--ff-mono);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
   text-transform: uppercase;
-  padding-bottom: 10px;
-}
-.loading-step {
   color: var(--g300);
-  transition: color 0.45s var(--ease-out);
-}
-.loading-step.active { color: var(--black); }
-.loading-step-sep { color: var(--g200); font-size: 9px; }
-.loading-step-underline {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 0;
-  background: var(--black);
-  border-radius: 2px;
-  transition: left 0.5s var(--ease-out), width 0.5s var(--ease-out);
 }
 
-/* decode headline ────────────── */
+/* decode headline = live phase ── */
 .loading-decode {
   margin: 0;
   font-family: var(--ff-display);
   font-weight: 400;
-  font-size: clamp(40px, 8vw, 64px);
-  line-height: 0.96;
+  font-size: clamp(36px, 7vw, 56px);
+  line-height: 0.98;
   letter-spacing: 0.04em;
   color: var(--black);
   text-transform: uppercase;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  column-gap: 0.3em;
+  row-gap: 0.05em;
+  min-height: 1em;
+}
+.loading-decode .dc-word {
+  display: inline-block;
+  white-space: nowrap;
 }
 .loading-decode .dc {
   display: inline-block;
-  white-space: pre;
 }
 .loading-decode .dc.scrambling { color: var(--g300); }
 
-/* live rewrite strip ─────────── */
-.loading-rewrite {
-  font-family: var(--ff-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--g400);
-  min-height: 1.2em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.loading-rewrite .rw-scramble { color: var(--g200); }
-
-/* progress hairline + comet ──── */
+/* connected 3-stage progress bar ── */
 .loading-bar {
   position: relative;
-  width: 280px;
-  max-width: 70vw;
-  height: 2px;
+  width: 320px;
+  max-width: 74vw;
+  height: 3px;
   background: var(--g150);
-  border-radius: 2px;
-  overflow: visible;
-  margin-top: 4px;
+  border-radius: 999px;
+  margin-top: 6px;
 }
-
 .loading-bar-fill {
   position: absolute;
-  inset: 0;
-  width: 40%;
-  height: 100%;
-  background: var(--black);
-  border-radius: 2px;
-  overflow: hidden;
-  animation: loading-sweep 1.5s var(--ease-snappy) infinite;
-}
-.loading-comet {
-  position: absolute;
-  top: 50%;
   left: 0;
-  width: 7px;
-  height: 7px;
-  margin: -3.5px 0 0 -3.5px;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: var(--black);
+  border-radius: 999px;
+  transition: width 1.6s var(--ease-out);
+}
+/* glow welded to the fill's leading edge — can never detach */
+.loading-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(50%, -50%);
   border-radius: 50%;
   background: var(--black);
-  box-shadow: 0 0 10px 2px rgba(13, 13, 13, 0.35);
-  animation: comet-sweep 1.5s var(--ease-snappy) infinite;
+  box-shadow: 0 0 12px 3px rgba(13, 13, 13, 0.4);
+}
+/* subtle shimmer that sweeps inside the fill while the final phase holds */
+.loading-bar.working .loading-bar-fill {
+  background-image: linear-gradient(90deg,
+    transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+  background-size: 70px 100%;
+  background-repeat: no-repeat;
+  animation: lfx-shimmer 1.25s linear infinite;
 }
 
-@keyframes loading-sweep {
-  0%   { transform: translateX(-120%); }
-  100% { transform: translateX(290%); }
-}
-@keyframes comet-sweep {
-  0%   { left: -2%;  opacity: 0; }
-  12%  { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { left: 102%; opacity: 0; }
+@keyframes lfx-shimmer {
+  from { background-position: -70px 0; }
+  to   { background-position: calc(100% + 70px) 0; }
 }
 
 /* cancel — quiet ghost button ── */
@@ -982,14 +958,9 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loading-grain,
-  .loading-comet { animation: none; }
-  .loading-comet { display: none; }
-  .loading-bar-fill {
-    position: relative;
-    width: 100%;
-    animation: none;
-  }
+  .loading-grain { animation: none; }
+  .loading-bar-fill { transition: none; }
+  .loading-bar.working .loading-bar-fill { animation: none; background-image: none; }
   .loading-decode .dc.scrambling { color: var(--black); }
 }
 

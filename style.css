@@ -8498,3 +8498,283 @@ mark.word-changed.change-reverted { display: none; }
 .lock-structure-btn .icon-locked  { display: none; }
 .lock-structure-btn.active .icon-unlocked { display: none; }
 .lock-structure-btn.active .icon-locked   { display: block; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ABOUT PAGE — about.html
+   Reuses howto-* layout; these add the intro, fact cards,
+   workflow ladder, comparison table, pricing & terms blocks.
+═══════════════════════════════════════════════════════════════ */
+
+.about-intro {
+  max-width: 760px;
+  margin: 0 auto 8px;
+  text-align: center;
+}
+.about-lead {
+  font-family: var(--ff-ui);
+  font-size: clamp(17px, 2.4vw, 21px);
+  line-height: 1.6;
+  color: var(--black);
+  margin: 0 0 20px;
+}
+.about-body-lg {
+  font-family: var(--ff-ui);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--g400);
+  margin: 0;
+}
+.about-intro strong { color: var(--black); font-weight: 700; }
+
+/* Right-side fact cards */
+.about-card {
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 16px;
+  padding: 24px 24px 22px;
+}
+.about-card-title {
+  font-family: var(--ff-display);
+  font-size: 24px;
+  letter-spacing: 0.02em;
+  color: var(--black);
+  margin-bottom: 16px;
+}
+.about-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.about-card-list li {
+  font-family: var(--ff-mono);
+  font-size: 12.5px;
+  color: var(--g400);
+  line-height: 1.5;
+}
+.about-card-tag {
+  display: inline-block;
+  background: var(--black);
+  color: #fff;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+.about-card-list-plain li {
+  position: relative;
+  padding-left: 18px;
+}
+.about-card-list-plain li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 7px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--black);
+}
+.about-card-foot {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--g150);
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g300);
+}
+
+/* Workflow ladder */
+.about-flow {
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.about-flow-step {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid var(--g150);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.about-flow-num {
+  flex: none;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--black);
+  color: #fff;
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-flow-name {
+  font-family: var(--ff-ui);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+}
+.about-flow-sub {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 2px;
+}
+.about-flow-arrow {
+  font-size: 16px;
+  color: var(--g300);
+  line-height: 1;
+}
+
+/* Shared section spacing + intros */
+.about-compare-section,
+.about-pricing-section,
+.about-who-section,
+.about-terms-section {
+  padding: 80px 0 0;
+  border-top: 1px solid var(--g150);
+  margin-top: 16px;
+}
+.about-compare-intro {
+  max-width: 720px;
+  margin: -24px auto 36px;
+  text-align: center;
+  font-family: var(--ff-ui);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--g400);
+}
+.about-compare-intro strong { color: var(--black); font-weight: 700; }
+
+/* Comparison table */
+.about-table {
+  border: 1px solid var(--g150);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.about-table-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  border-top: 1px solid var(--g150);
+}
+.about-table-row:first-child { border-top: none; }
+.about-table-head {
+  background: var(--black);
+}
+.about-table-head .about-tc {
+  color: #fff;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.about-tc {
+  padding: 14px 16px;
+  font-family: var(--ff-mono);
+  font-size: 12.5px;
+  color: var(--g400);
+  border-left: 1px solid var(--g150);
+  display: flex;
+  align-items: center;
+}
+.about-tc:first-child {
+  border-left: none;
+  color: var(--black);
+  font-family: var(--ff-ui);
+  font-weight: 600;
+  font-size: 13px;
+}
+.about-yes { color: #14804f; font-weight: 500; }
+.about-no  { color: var(--g300); }
+.about-mid { color: #b9790a; }
+
+/* Pricing strip */
+.about-price-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.about-price-card {
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+}
+.about-price-card-best {
+  background: var(--black);
+}
+.about-price-card-best .about-price-name,
+.about-price-card-best .about-price-amt { color: #fff; }
+.about-price-card-best .about-price-sub { color: rgba(255,255,255,0.55); }
+.about-price-name {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--g400);
+  margin-bottom: 10px;
+}
+.about-price-amt {
+  font-family: var(--ff-display);
+  font-size: 38px;
+  letter-spacing: 0.02em;
+  color: var(--black);
+  line-height: 1;
+}
+.about-price-amt span {
+  font-size: 15px;
+  color: var(--g300);
+}
+.about-price-sub {
+  margin-top: 8px;
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  color: var(--g300);
+}
+
+/* Terms cloud */
+.about-terms-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 880px;
+  margin: 0 auto;
+}
+.about-terms-cloud span {
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  color: var(--g400);
+  background: var(--g050);
+  border: 1px solid var(--g150);
+  border-radius: 100px;
+  padding: 7px 13px;
+}
+.about-terms-foot {
+  max-width: 720px;
+  margin: 28px auto 0;
+  text-align: center;
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--g300);
+}
+
+@media (max-width: 760px) {
+  .about-table-row { grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr; }
+  .about-tc { padding: 11px 9px; font-size: 11px; }
+  .about-tc:first-child { font-size: 11.5px; }
+  .about-price-grid { grid-template-columns: 1fr 1fr; }
+}

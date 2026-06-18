@@ -8658,17 +8658,30 @@ mark.word-changed.change-reverted { display: none; }
 .about-compare-intro strong { color: var(--black); font-weight: 700; }
 
 /* Comparison table */
+.about-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .about-table {
   border: 1px solid var(--g150);
   border-radius: 16px;
   overflow: hidden;
+  min-width: 580px;
 }
 .about-table-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
   border-top: 1px solid var(--g150);
 }
 .about-table-row:first-child { border-top: none; }
+.about-table-mine { background: var(--g050); }
+.about-table-mine .about-tc:first-child { color: var(--black); font-weight: 700; }
+.about-table-note {
+  max-width: 720px;
+  margin: 16px auto 0;
+  text-align: center;
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--g300);
+}
 .about-table-head {
   background: var(--black);
 }
@@ -8773,8 +8786,7 @@ mark.word-changed.change-reverted { display: none; }
 }
 
 @media (max-width: 760px) {
-  .about-table-row { grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr; }
-  .about-tc { padding: 11px 9px; font-size: 11px; }
+  .about-tc { padding: 11px 10px; font-size: 11px; }
   .about-tc:first-child { font-size: 11.5px; }
   .about-price-grid { grid-template-columns: 1fr 1fr; }
 }

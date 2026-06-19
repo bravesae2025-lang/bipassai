@@ -1388,7 +1388,7 @@ async function init() {
   // Seed credit display from session metadata, then immediately refresh from server
   const valEl = document.getElementById('credit-val');
   if (valEl) {
-    const cached = session.user.user_metadata?.credits ?? 5000;
+    const cached = session.user.user_metadata?.credits ?? 2000;
     valEl.textContent = cached.toLocaleString();
   }
   window.bipassAuth.refreshCredits().then(fresh => {
@@ -1437,12 +1437,12 @@ async function showWelcomeModal() {
       setTimeout(() => overlay.classList.add('hidden'), 250);
       return;
     }
-    if (data.expiresAt) expiresAt = data.expiresAt;
+    if (data.passExpiresAt) expiresAt = data.passExpiresAt;
   } catch (_) {}
 
-  // Update credit display to 5,000
+  // Update credit display to 2,000
   const valEl = document.getElementById('credit-val');
-  if (valEl) valEl.textContent = (5000).toLocaleString();
+  if (valEl) valEl.textContent = (2000).toLocaleString();
 
   // Live countdown
   const expireEl = document.getElementById('welcome-expire-val');

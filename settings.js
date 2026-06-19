@@ -134,7 +134,7 @@ function setupCredits(session) {
     numEl.textContent = typeof n === 'number' ? n.toLocaleString() : '—';
   }
 
-  display(session.user.user_metadata?.credits ?? 5000);
+  display(session.user.user_metadata?.credits ?? 2000);
 
   refreshBtn.addEventListener('click', async () => {
     refreshBtn.disabled = true;

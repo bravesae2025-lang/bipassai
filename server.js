@@ -43,7 +43,7 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
 
-const INITIAL_CREDITS = 5000;
+const INITIAL_CREDITS = 2000;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -330,14 +330,18 @@ app.post('/api/init-credits', async (req, res) => {
     return res.json({ alreadyInit: true });
   }
 
-  const expiresAt = Date.now() + 86400000; // 24 hours
+  // Free signup = a 1-day pass (unlocks Auto Typer / Pro for 24h) + 2,000 credits.
+  // Credits never expire (credits_expire_at: null) so they stay usable after the
+  // pass ends; only the Pro window (free_pass_until) lapses at 24h.
+  const passExpiresAt = Date.now() + 86400000; // 24 hours
   await updateUserMeta(user.id, {
     credits: INITIAL_CREDITS,
-    credits_expire_at: expiresAt,
+    credits_expire_at: null,
+    free_pass_until: passExpiresAt,
     signup_welcome_shown: true,
   });
 
-  return res.json({ credits: INITIAL_CREDITS, expiresAt });
+  return res.json({ credits: INITIAL_CREDITS, passExpiresAt });
 });
 
 // ─── POST /api/analyze (auth only, no credit deduction) ───────

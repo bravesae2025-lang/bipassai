@@ -41,7 +41,7 @@ window.bipassAuth = {
   async refreshCredits() {
     const { data: { session } } = await _sb.auth.refreshSession();
     if (!session) return null;
-    return session.user.user_metadata?.credits ?? 5000;
+    return session.user.user_metadata?.credits ?? 2000;
   },
 
   // Force-refresh the full session (gets latest user_metadata including tier)

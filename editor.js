@@ -666,29 +666,32 @@ async function pushToExtension() {
     const text = editorTextarea?.value?.trim();
     if (!text) throw new Error('No text');
 
+    // Active pass required to upload new text to the extension.
+    if (!bipassHasActivePass(session)) {
+      btn.disabled = false;
+      btn.textContent = 'Get a pass to upload →';
+      btn.onclick = () => { window.location.href = 'plans.html'; };
+      return false;
+    }
+
     const mode  = sessionStorage.getItem('bipass_mode')  || 'humanize';
     const level = sessionStorage.getItem('bipass_level') || 'easy';
-
-    // Try updating the existing saved row first
-    let pushed = false;
     const resultId = sessionStorage.getItem('bipass_result_id');
-    if (resultId) {
-      const { data } = await window.bipassAuth.client
-        .from('results')
-        .update({ ext_push: true })
-        .eq('id', resultId)
-        .eq('user_id', session.user.id)
-        .select('id');
-      if (data?.length > 0) pushed = true;
-    }
 
-    // Fall back to direct insert if update matched nothing (race condition or save failed)
-    if (!pushed) {
-      const { error } = await window.bipassAuth.client
-        .from('results')
-        .insert({ user_id: session.user.id, text, mode, level, ext_push: true });
-      if (error) throw error;
+    const token = await window.bipassAuth.getToken();
+    const res = await fetch('/api/push-to-extension', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resultId, text, mode, level }),
+    });
+
+    if (res.status === 403) {
+      btn.disabled = false;
+      btn.textContent = 'Get a pass to upload →';
+      btn.onclick = () => { window.location.href = 'plans.html'; };
+      return false;
     }
+    if (!res.ok) throw new Error('Push failed');
 
     btn.textContent = '✓ Uploaded';
     btn.classList.add('editor-btn-pushed');

@@ -344,6 +344,74 @@ app.post('/api/init-credits', async (req, res) => {
   return res.json({ credits: INITIAL_CREDITS, passExpiresAt });
 });
 
+// ─── Active-pass check ────────────────────────────────────────
+// A user can push text to the Auto Typer extension only with an active pass:
+// a paid plan that hasn't expired, OR the free 1-day signup pass.
+function hasActivePass(user) {
+  const m = user?.user_metadata || {};
+  const now = Date.now();
+  const paidActive = m.tier && m.tier !== 'free' && (!m.plan_expires_at || now < m.plan_expires_at);
+  const freeTrial  = m.free_pass_until && now < m.free_pass_until;
+  return !!(paidActive || freeTrial);
+}
+
+// ─── POST /api/push-to-extension (auth + active pass required) ─
+app.post('/api/push-to-extension', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  if (!hasActivePass(user)) {
+    return res.status(403).json({ error: 'A pass is required to upload text to the extension.' });
+  }
+
+  const { resultId, text, mode, level } = req.body || {};
+
+  const headers = {
+    'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+    'apikey':        SUPABASE_SERVICE_KEY,
+    'Content-Type':  'application/json',
+  };
+
+  try {
+    // Prefer flagging the already-saved row.
+    if (resultId) {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/results?id=eq.${encodeURIComponent(resultId)}&user_id=eq.${user.id}`,
+        { method: 'PATCH', headers: { ...headers, 'Prefer': 'return=representation' }, body: JSON.stringify({ ext_push: true }) },
+      );
+      const rows = await r.json().catch(() => []);
+      if (r.ok && Array.isArray(rows) && rows.length > 0) return res.json({ ok: true });
+    }
+
+    // Otherwise insert a fresh pushed row.
+    if (text && text.trim()) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          user_id: user.id,
+          text,
+          mode:  mode  || 'humanize',
+          level: level || 'easy',
+          ext_push: true,
+        }),
+      });
+      if (!r.ok) {
+        const err = await r.text().catch(() => '');
+        return res.status(502).json({ error: 'Failed to push', detail: err });
+      }
+      return res.json({ ok: true });
+    }
+
+    return res.status(400).json({ error: 'Nothing to push' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Push failed' });
+  }
+});
+
 // ─── POST /api/analyze (auth only, no credit deduction) ───────
 
 app.post('/api/analyze', async (req, res) => {

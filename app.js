@@ -2753,10 +2753,28 @@ function showToast(msg) {
       const session = await window.bipassAuth.getSession();
       if (!session) throw new Error('Not signed in');
 
-      const { error } = await window.bipassAuth.client
-        .from('results')
-        .insert({ user_id: session.user.id, text, mode: 'humanize', level: 'easy', ext_push: true });
-      if (error) throw error;
+      // Active pass required to upload new text to the extension.
+      if (!bipassHasActivePass(session)) {
+        btn.disabled = false;
+        label.textContent = 'Get a pass to upload →';
+        btn.onclick = () => { window.location.href = 'plans.html'; };
+        return;
+      }
+
+      const token = await window.bipassAuth.getToken();
+      const res = await fetch('/api/push-to-extension', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+
+      if (res.status === 403) {
+        btn.disabled = false;
+        label.textContent = 'Get a pass to upload →';
+        btn.onclick = () => { window.location.href = 'plans.html'; };
+        return;
+      }
+      if (!res.ok) throw new Error('Push failed');
 
       label.textContent = '✓ Pushed to Extension';
       btn.classList.add('pushed');

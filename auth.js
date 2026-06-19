@@ -51,6 +51,16 @@ window.bipassAuth = {
   },
 };
 
+// Active-pass check (UX gate — server re-checks authoritatively).
+// True if a paid plan is active OR the free 1-day signup pass is still valid.
+function bipassHasActivePass(session) {
+  const m = session?.user?.user_metadata || {};
+  const now = Date.now();
+  const paidActive = m.tier && m.tier !== 'free' && (!m.plan_expires_at || now < m.plan_expires_at);
+  const freeTrial  = m.free_pass_until && now < m.free_pass_until;
+  return !!(paidActive || freeTrial);
+}
+
 // Shared plan status widget — call on any page that has #drawer-plan
 function bipassSetupPlanStatus(session) {
   const tier = session?.user?.user_metadata?.tier || 'free';

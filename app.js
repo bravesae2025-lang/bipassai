@@ -2802,6 +2802,7 @@ function showToast(msg) {
   if (slides.length === 0) return;
 
   const fill = document.getElementById('rec-flow-progress-fill');
+  const viewport = box.querySelector('.rec-flow-viewport');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let idx = 0;
   let timer = null;
@@ -2826,13 +2827,23 @@ function showToast(msg) {
     fill.classList.add('run');
   }
 
+  // Animate the viewport to the active slide's natural height (no stretching)
+  function setHeight() {
+    if (!viewport || box.classList.contains('is-collapsed')) return;
+    const h = slides[idx].offsetHeight;
+    if (h) viewport.style.height = h + 'px';
+  }
+
   function go(i) {
     idx = (i + slides.length) % slides.length;
     track.style.transform = `translateX(-${idx * 100}%)`;
     dots.forEach((d, n) => d.classList.toggle('active', n === idx));
     slides.forEach((s, n) => s.classList.toggle('rec-flow-slide--active', n === idx));
+    setHeight();
     runProgress();
   }
+
+  window.addEventListener('resize', setHeight);
 
   function start() {
     if (reduce || timer) return;
@@ -2860,7 +2871,7 @@ function showToast(msg) {
       toggle.setAttribute('aria-label', collapsed ? 'Expand' : 'Minimize');
       toggle.title = collapsed ? 'Expand' : 'Minimize';
     }
-    if (collapsed) stop(); else start();
+    if (collapsed) stop(); else { setHeight(); start(); }
   }
   if (toggle) {
     toggle.addEventListener('click', () => {

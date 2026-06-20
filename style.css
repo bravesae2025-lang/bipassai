@@ -5626,8 +5626,8 @@ body.drawer-lock { overflow: hidden; }
 .rec-flow-box.is-collapsed .rec-flow-progress,
 .rec-flow-box.is-collapsed .rec-flow-dots { display: none; }
 
-.rec-flow-viewport { overflow: hidden; border-radius: 12px; }
-.rec-flow-track { display: flex; transition: transform 0.6s cubic-bezier(0.45, 0, 0.2, 1); }
+.rec-flow-viewport { overflow: hidden; border-radius: 12px; transition: height 0.5s cubic-bezier(0.45, 0, 0.2, 1); }
+.rec-flow-track { display: flex; align-items: flex-start; transition: transform 0.6s cubic-bezier(0.45, 0, 0.2, 1); }
 .rec-flow-slide {
   flex: 0 0 100%; min-width: 0; padding: 2px; box-sizing: border-box;
   display: flex; flex-direction: column; gap: 11px;
@@ -5637,7 +5637,6 @@ body.drawer-lock { overflow: hidden; }
 .rec-win {
   background: #fff; border: 1px solid var(--g200); border-radius: 12px;
   overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  flex: 1; display: flex; flex-direction: column;
 }
 .rec-win-bar {
   display: flex; align-items: center; gap: 5px;
@@ -5649,15 +5648,14 @@ body.drawer-lock { overflow: hidden; }
   text-transform: uppercase; color: var(--g400); margin-left: 6px;
 }
 .rec-win-body {
-  flex: 1;
-  display: flex; flex-direction: column; gap: 9px;
-  padding: 13px 14px 14px; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; box-sizing: border-box;
 }
 .rec-flow-slide--active .rec-win { animation: rec-win-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
 @keyframes rec-win-in { from { opacity: 0; transform: translateY(8px) scale(0.99); } to { opacity: 1; transform: none; } }
 
 /* Overview stepper */
-.rec-steps { flex: 1; justify-content: space-between; }
+.rec-steps { gap: 11px; }
 .rec-step {
   display: flex; align-items: center; gap: 10px;
   border: 1px solid var(--g150); border-radius: 9px; padding: 11px 13px; background: #fff;
@@ -5739,7 +5737,7 @@ body.drawer-lock { overflow: hidden; }
 .rec-gd-toolbar { display: flex; align-items: center; gap: 7px; padding: 2px 0 1px; }
 .rec-gd-toolbar span { width: 14px; height: 6px; border-radius: 2px; background: var(--g200); }
 .rec-gd-tspace { flex: 1; background: none !important; }
-.rec-gd-page { flex: 1; background: #fff; border: 1px solid var(--g150); border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+.rec-gd-page { min-height: 110px; background: #fff; border: 1px solid var(--g150); border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 8px; }
 .rec-gd-line { height: 5px; border-radius: 3px; background: var(--g200); }
 .rec-gd-typing { position: relative; background: var(--g300); }
 .rec-gd-typing::after { content: ''; position: absolute; right: -4px; top: -3px; width: 2px; height: 11px; background: #1a73e8; animation: ts-blink 1s step-end infinite; }

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bipass AI blog — guides on how to humanize AI text, avoid AI detection, bypass Turnitin, and use AI writing tools safely as a student.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://bipassai.com/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blog — Bipass AI: AI Humanizer & Auto Typer Guides">
+  <meta property="og:description" content="Guides on how to humanize AI text, avoid AI detection, bypass Turnitin, and use AI writing tools safely.">
+  <meta property="og:url" content="https://bipassai.com/blog/">
+  <meta property="og:site_name" content="Bipass AI">
+  <meta property="og:image" content="https://bipassai.com/favicon.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="https://bipassai.com/favicon.png">
+  <title>Blog — Bipass AI: AI Humanizer & Auto Typer Guides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/style.css?v=43">
+  <style>
+    .blog-hero{padding:80px 0 48px;text-align:center}
+    .blog-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,6vw,5rem);letter-spacing:.04em;line-height:1;margin:0 0 12px}
+    .blog-hero p{color:var(--g500);font-size:1.05rem;margin:0 0 32px}
+    .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:0 0 80px}
+    .blog-card{background:#fff;border:1px solid var(--g150);border-radius:12px;overflow:hidden;transition:box-shadow .2s,transform .2s;text-decoration:none;display:flex;flex-direction:column}
+    .blog-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px)}
+    .blog-card-body{padding:24px;flex:1;display:flex;flex-direction:column}
+    .blog-card-tag{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin:0 0 10px}
+    .blog-card h2{font-size:1.15rem;font-weight:700;color:#0d0d0d;margin:0 0 10px;line-height:1.4}
+    .blog-card p{font-size:.9rem;color:var(--g500);line-height:1.6;margin:0 0 20px;flex:1}
+    .blog-card-meta{font-size:.78rem;color:var(--g400);display:flex;gap:12px;align-items:center}
+    .blog-card-dot{width:3px;height:3px;border-radius:50%;background:var(--g300)}
+    .blog-index-wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+  </style>
+</head>
+<body class="editor-page">
+
+  <div class="bg-dots" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-logo" href="/home">BIPASS AI</a>
+      <div class="nav-links">
+        <a class="nav-link" href="/home">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/history.html">History</a>
+        <a class="nav-link" href="/plans.html">Plans</a>
+        <a class="nav-link" href="/howto.html">How to Use</a>
+        <a class="nav-link" href="/settings.html">Settings</a>
+      </div>
+      <div class="nav-user" id="nav-user"></div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigation menu">
+    <div class="drawer-head">
+      <span class="drawer-brand">BIPASS AI</span>
+      <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-user" id="drawer-user"></div>
+    <div class="drawer-plan" id="drawer-plan"></div>
+    <nav class="drawer-nav">
+      <a class="drawer-item" href="/home">Home</a>
+      <a class="drawer-item" href="/about.html">About</a>
+      <a class="drawer-item" href="/history.html">History</a>
+      <a class="drawer-item" href="/plans.html">Plans</a>
+      <a class="drawer-item" href="/howto.html">How to Use</a>
+      <a class="drawer-item" href="/settings.html">Settings</a>
+    </nav>
+    <div class="drawer-footer">
+      <button class="drawer-signout-btn" id="drawer-signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <div class="blog-index-wrap">
+    <div class="blog-hero">
+      <h1>Bipass AI Blog</h1>
+      <p>Guides on AI humanizing, avoiding detection, and using AI tools the right way as a student.</p>
+    </div>
+
+    <div class="blog-grid">
+
+      <a class="blog-card" href="/blog/how-to-bypass-turnitin-ai-detection.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">AI Detection</div>
+          <h2>How to Bypass Turnitin AI Detection in 2025 (What Actually Works)</h2>
+          <p>Turnitin's AI detector is not looking for "AI words" — it's looking for statistical patterns. Here's what you actually need to do to get a clean report.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>8 min read</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="blog-card" href="/blog/best-free-ai-humanizer.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">Tools</div>
+          <h2>Best Free AI Humanizer in 2025 — Ranked and Reviewed</h2>
+          <p>Not all AI humanizers are equal. We tested the most popular ones for Turnitin detection rates, writing quality, and price. Here's the honest breakdown.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>7 min read</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="blog-card" href="/blog/how-to-make-chatgpt-text-undetectable.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">How To</div>
+          <h2>How to Make ChatGPT Text Undetectable (Step-by-Step)</h2>
+          <p>Raw ChatGPT output scores 90%+ AI on every detector. This guide walks through exactly how to rewrite it so it reads like a real student — not a language model.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>6 min read</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="blog-card" href="/blog/how-to-avoid-gptzero.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">AI Detection</div>
+          <h2>How to Avoid GPTZero Detection in 2025</h2>
+          <p>GPTZero uses perplexity and burstiness scores to flag AI text. Here's what those mean, why they catch most humanizers, and how to actually get past them.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>6 min read</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="blog-card" href="/blog/ai-humanizer-vs-paraphraser.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">Comparison</div>
+          <h2>AI Humanizer vs Paraphraser — What's the Difference?</h2>
+          <p>QuillBot and Grammarly can paraphrase text. But paraphrasing doesn't fix AI detection because it doesn't change the underlying statistical patterns. Here's why.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>5 min read</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="blog-card" href="/blog/auto-typer-google-docs-extension.html">
+        <div class="blog-card-body">
+          <div class="blog-card-tag">Tools</div>
+          <h2>Auto Typer for Google Docs — Why It Matters for AI Detection</h2>
+          <p>Turnitin doesn't just analyze your text — it can analyze your revision history. An auto typer that types character by character builds that history for you.</p>
+          <div class="blog-card-meta">
+            <span>June 2025</span>
+            <span class="blog-card-dot"></span>
+            <span>5 min read</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <script src="/script.js" defer></script>
+  <script src="/auth.js?v=3" defer></script>
+</body>
+</html>

@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=37">
+  <link rel="stylesheet" href="style.css?v=38">
 </head>
 <body>
 
@@ -480,34 +480,49 @@
                 </div>
               </div>
 
-              <!-- Slide 2 — Level Adjust panel -->
+              <!-- Slide 2 — Level Adjust panel (real dark UI) -->
               <div class="rec-flow-slide">
-                <div class="rec-win">
-                  <div class="rec-win-bar">
+                <div class="rec-win rec-win-dark">
+                  <div class="rec-win-bar rec-win-bar-dark">
                     <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
                     <span class="rec-win-name">Bipass AI · Adjust Level</span>
                   </div>
-                  <div class="rec-win-body">
-                    <div class="mock-label">Level</div>
-                    <div class="mock-pill-row">
-                      <span class="mock-pill">Beginner</span>
-                      <span class="mock-pill mock-pill-active">Student</span>
-                      <span class="mock-pill">Academic</span>
-                      <span class="mock-pill">Custom</span>
+                  <div class="rec-win-body rec-lv">
+                    <div class="rec-lv-head">Adjust Level</div>
+                    <div class="rec-lv-sublabel">Presets</div>
+                    <div class="rec-lv-track-wrap">
+                      <div class="rec-lv-track">
+                        <span class="rec-lv-glider"></span>
+                        <span class="rec-lv-btn active">Beginner</span>
+                        <span class="rec-lv-btn">Student</span>
+                        <span class="rec-lv-btn">Academic</span>
+                      </div>
+                      <span class="rec-lv-btn rec-lv-custom">Custom</span>
                     </div>
-                    <div class="mock-level-desc">Average undergrad voice — natural variation in length &amp; vocabulary.</div>
-                    <div class="mock-mistake-row"><span class="mock-mistake-name">Vocabulary</span><div class="mock-mints mock-mints-sm"><span class="mock-mint">Simple</span><span class="mock-mint mock-mint-active">Student</span><span class="mock-mint">Hard</span></div></div>
-                    <div class="mock-mistake-row"><span class="mock-mistake-name">Grammar</span><div class="mock-mints mock-mints-sm"><span class="mock-mint">None</span><span class="mock-mint mock-mint-active">A little</span><span class="mock-mint">A lot</span></div></div>
-                    <div class="mock-action-btn">Adjust Level <span class="mock-btn-icon">→</span></div>
+                    <div class="rec-lv-desc">Simple words, short sentences — like a beginner English speaker wrote it</div>
+                    <div class="rec-lv-lock">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                      Free rewrite
+                    </div>
+                    <div class="rec-lv-section">Word Level</div>
+                    <div class="rec-lv-row">
+                      <span class="rec-lv-name">Vocabulary</span>
+                      <div class="rec-lv-slider"><span class="rec-lv-fill" style="width:50%"></span><span class="rec-lv-knob" style="left:50%"></span></div>
+                    </div>
+                    <div class="rec-lv-section">Human Mistakes</div>
+                    <div class="rec-lv-row">
+                      <span class="rec-lv-name">Grammar</span>
+                      <div class="rec-lv-slider"><span class="rec-lv-fill" style="width:28%"></span><span class="rec-lv-knob" style="left:28%"></span></div>
+                    </div>
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">1 · Level Adjust</span>
+                  <span class="rec-cap-title">1 · Humanize &amp; level</span>
                   <span class="rec-cap-sub">Drop it to a believable student level.</span>
                 </div>
               </div>
 
-              <!-- Slide 3 — Result (humanized) -->
+              <!-- Slide 3 — Result + Upload to Extension (real UI) -->
               <div class="rec-flow-slide">
                 <div class="rec-win">
                   <div class="rec-win-bar">
@@ -515,84 +530,55 @@
                     <span class="rec-win-name">Bipass AI · Result</span>
                   </div>
                   <div class="rec-win-body">
-                    <div class="mock-result-topbar">
-                      <span class="mock-result-badge">Result</span>
-                      <span class="mock-result-wc">298 words</span>
-                      <span class="mock-copy-btn">Copy</span>
+                    <div class="rec-res-top">
+                      <span class="rec-res-badge">Result</span>
+                      <span class="rec-res-wc">298 words</span>
+                      <span class="rec-res-copy">Copy</span>
                     </div>
-                    <div class="rec-result-text">
-                      The study <span class="rc rc-vocab">helped</span> students <span class="rc rc-tense">get</span> the idea<span class="rc rc-punct">.</span> A lot of them <span class="rc rc-vocab">tried</span> harder after.
+                    <div class="rec-res-text">
+                      The study <span class="rec-hl" data-cat="word">helped</span> students <span class="rec-hl" data-cat="tense">get</span> the idea<span class="rec-hl" data-cat="punct">,</span> and a lot of them <span class="rec-hl" data-cat="word">tried</span> harder after.
                     </div>
-                    <div class="rec-legend">
-                      <span><i class="rc-d-vocab"></i>Vocabulary</span>
-                      <span><i class="rc-d-tense"></i>Tense</span>
-                      <span><i class="rc-d-punct"></i>Punctuation</span>
+                    <div class="rec-res-legend">
+                      <span><i style="background:#e8a317"></i>Vocabulary</span>
+                      <span><i style="background:#1aa564"></i>Tense</span>
+                      <span><i style="background:#8b5cf6"></i>Punctuation</span>
+                    </div>
+                    <div class="rec-upload-btn">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M5 12l7-7 7 7"/></svg>
+                      Upload to Extension
                     </div>
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">2 · Reads human</span>
-                  <span class="rec-cap-sub">Simpler words, natural mistakes, real variation.</span>
+                  <span class="rec-cap-title">2 · Reads human → upload</span>
+                  <span class="rec-cap-sub">Real edits, then one tap to the Auto Typer.</span>
                 </div>
               </div>
 
-              <!-- Slide 4 — Push to extension -->
+              <!-- Slide 4 — Auto Typer typing into Google Docs -->
               <div class="rec-flow-slide">
                 <div class="rec-win">
-                  <div class="rec-win-bar">
-                    <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
-                    <span class="rec-win-name">Bipass AI · Result</span>
+                  <div class="rec-win-bar rec-win-bar-gdoc">
+                    <span class="rec-gd-doticon">📄</span>
+                    <span class="rec-win-name rec-gd-title">Essay — Google Docs</span>
                   </div>
-                  <div class="rec-win-body">
-                    <div class="mock-result-topbar">
-                      <span class="mock-result-badge">Result</span>
-                      <span class="mock-result-wc">298 words</span>
+                  <div class="rec-win-body rec-gd-body">
+                    <div class="rec-gd-toolbar">
+                      <span></span><span></span><span></span><span class="rec-gd-tspace"></span><span></span><span></span>
                     </div>
-                    <div class="mock-result-area">
-                      <div class="mock-line mock-line-full"></div>
-                      <div class="mock-line mock-line-lg"></div>
-                      <div class="mock-line mock-line-md"></div>
+                    <div class="rec-gd-page">
+                      <div class="rec-gd-line" style="width:100%"></div>
+                      <div class="rec-gd-line" style="width:92%"></div>
+                      <div class="rec-gd-line" style="width:96%"></div>
+                      <div class="rec-gd-line rec-gd-typing" style="width:54%"></div>
                     </div>
-                    <div class="rec-push-btn">Push to Extension <span class="mock-btn-icon">→</span></div>
-                    <div class="rec-push-hint">Sends your text straight to the Auto Typer</div>
+                    <div class="rec-gd-float" title="Auto Typer">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">3 · Push to extension</span>
-                  <span class="rec-cap-sub">One tap to send it to the Auto Typer.</span>
-                </div>
-              </div>
-
-              <!-- Slide 5 — Auto Typer -->
-              <div class="rec-flow-slide">
-                <div class="rec-win">
-                  <div class="rec-win-bar">
-                    <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
-                    <span class="rec-win-name">Bipass AI · Auto Typer</span>
-                  </div>
-                  <div class="rec-win-body">
-                    <div class="mock-label">Speed</div>
-                    <div class="mock-pill-row">
-                      <span class="mock-pill">Slow</span>
-                      <span class="mock-pill mock-pill-active">Normal</span>
-                      <span class="mock-pill">Fast</span>
-                    </div>
-                    <div class="mock-label">Duration</div>
-                    <div class="mock-pill-row">
-                      <span class="mock-pill">5m</span>
-                      <span class="mock-pill mock-pill-active">10m</span>
-                      <span class="mock-pill">20m</span>
-                    </div>
-                    <div class="rec-gdoc">
-                      <div class="rec-gdoc-line" style="width:100%"></div>
-                      <div class="rec-gdoc-line" style="width:72%"></div>
-                      <div class="rec-gdoc-line rec-gdoc-typing" style="width:48%"></div>
-                    </div>
-                    <div class="mock-action-btn">Start Typing <span class="mock-btn-icon">▶</span></div>
-                  </div>
-                </div>
-                <div class="rec-flow-cap">
-                  <span class="rec-cap-title">4 · Auto Typer</span>
+                  <span class="rec-cap-title">3 · Auto Typer</span>
                   <span class="rec-cap-sub">Types into Google Docs like a real person.</span>
                 </div>
               </div>

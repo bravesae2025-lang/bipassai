@@ -512,7 +512,7 @@ main {
 
 /* dim the level presets while the Humanize tab is active */
 .right-panel { transition: opacity 0.25s ease; }
-.workspace.mode-humanize .right-panel { opacity: 0.5; pointer-events: none; }
+.workspace.mode-humanize .col-customize { opacity: 0.5; pointer-events: none; }
 
 .soon-badge {
   font-family: var(--ff-mono);

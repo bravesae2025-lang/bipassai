@@ -2850,8 +2850,27 @@ function showToast(msg) {
   box.addEventListener('focusin', stop);
   box.addEventListener('focusout', start);
 
+  // Minimize / expand toggle (persisted)
+  const toggle = document.getElementById('rec-flow-toggle');
+  let collapsed = localStorage.getItem('rec-flow-collapsed') === '1';
+  function applyCollapsed() {
+    box.classList.toggle('is-collapsed', collapsed);
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.setAttribute('aria-label', collapsed ? 'Expand' : 'Minimize');
+    }
+    if (collapsed) stop(); else start();
+  }
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      collapsed = !collapsed;
+      localStorage.setItem('rec-flow-collapsed', collapsed ? '1' : '0');
+      applyCollapsed();
+    });
+  }
+
   go(0);
-  start();
+  applyCollapsed();
 })();
 
 // ─── Start ────────────────────────────────────────────────────

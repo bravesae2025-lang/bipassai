@@ -5592,8 +5592,7 @@ body.drawer-lock { overflow: hidden; }
 }
 @keyframes rec-accent-slide { to { background-position: -200% 0; } }
 
-.rec-flow-head { margin-bottom: 12px; }
-.rec-flow-head-text { display: flex; align-items: center; gap: 9px; }
+.rec-flow-head { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; }
 .rec-flow-badge {
   display: inline-flex; align-items: center; gap: 5px;
   background: #0d0d0d; color: #fff;
@@ -5603,13 +5602,27 @@ body.drawer-lock { overflow: hidden; }
 }
 .rec-flow-badge svg { color: #34d36b; }
 .rec-flow-title {
-  font-family: var(--ff-display); font-size: 24px; letter-spacing: 0.02em;
+  flex: 1; min-width: 0;
+  font-family: var(--ff-display); font-size: 23px; letter-spacing: 0.02em;
   color: var(--black); line-height: 1; margin: 0;
 }
-.rec-flow-sub {
-  font-family: var(--ff-mono); font-size: 10.5px; color: var(--g400);
-  margin: 6px 0 0; line-height: 1.4;
+.rec-flow-toggle {
+  flex: none; width: 26px; height: 26px; border: none; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--g400); border-radius: 7px; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
+.rec-flow-toggle:hover { background: var(--g100); color: var(--black); }
+.rec-flow-toggle .rec-toggle-max { display: none; }
+.rec-flow-box.is-collapsed .rec-flow-toggle .rec-toggle-min { display: none; }
+.rec-flow-box.is-collapsed .rec-flow-toggle .rec-toggle-max { display: block; }
+
+/* Collapsed → compact little bar */
+.rec-flow-box.is-collapsed { padding-bottom: 16px; }
+.rec-flow-box.is-collapsed .rec-flow-head { margin-bottom: 0; }
+.rec-flow-box.is-collapsed .rec-flow-viewport,
+.rec-flow-box.is-collapsed .rec-flow-progress,
+.rec-flow-box.is-collapsed .rec-flow-dots { display: none; }
 
 .rec-flow-viewport { overflow: hidden; border-radius: 12px; }
 .rec-flow-track { display: flex; transition: transform 0.6s cubic-bezier(0.45, 0, 0.2, 1); }

@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=39">
 </head>
 <body>
 
@@ -448,14 +448,15 @@
           <div class="rec-flow-accent" aria-hidden="true"></div>
 
           <div class="rec-flow-head">
-            <div class="rec-flow-head-text">
-              <span class="rec-flow-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                Recommended
-              </span>
-              <h3 class="rec-flow-title">Never get caught</h3>
-            </div>
-            <p class="rec-flow-sub">The full workflow — humanize, level, auto-type.</p>
+            <span class="rec-flow-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              Recommended
+            </span>
+            <h3 class="rec-flow-title">Never get caught</h3>
+            <button class="rec-flow-toggle" id="rec-flow-toggle" type="button" aria-label="Minimize" aria-expanded="true">
+              <svg class="rec-toggle-min" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+              <svg class="rec-toggle-max" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            </button>
           </div>
 
           <div class="rec-flow-viewport">
@@ -746,7 +747,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=2"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
   <script src="cursor.js?v=2"></script>
 
   <script>

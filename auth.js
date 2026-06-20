@@ -63,16 +63,21 @@ function bipassHasActivePass(session) {
 
 // Shared plan status widget — call on any page that has #drawer-plan
 function bipassSetupPlanStatus(session) {
-  const tier = session?.user?.user_metadata?.tier || 'free';
-  const expiresAt = session?.user?.user_metadata?.plan_expires_at;
-  const hasPlan = tier !== 'free';
+  const m = session?.user?.user_metadata || {};
+  const now = Date.now();
+  const tier = m.tier || 'free';
+
+  const paidActive  = tier !== 'free' && tier !== 'trial' && (!m.plan_expires_at || now < m.plan_expires_at);
+  const trialActive = !paidActive && m.free_pass_until && now < m.free_pass_until;
+  const hasPlan = paidActive || trialActive;
 
   const PLAN_NAMES = {
     day: 'Day Pass', weekly: 'Weekly Pass',
     monthly: 'Monthly Pass', annual: 'Annual Pass',
-    pro: 'Pro Plan', premium: 'Premium Plan',
+    pro: 'Pro Plan', premium: 'Premium Plan', trial: 'Free Trial',
   };
-  const planName = PLAN_NAMES[tier] || tier;
+  const planName = trialActive ? 'Free Trial' : (PLAN_NAMES[tier] || tier);
+  const expiresAt = trialActive ? m.free_pass_until : m.plan_expires_at;
 
   let expiryStr = 'Active';
   if (expiresAt) {

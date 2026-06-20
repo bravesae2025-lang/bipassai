@@ -2791,6 +2791,55 @@ function showToast(msg) {
   });
 })();
 
+// ─── Recommended workflow carousel ────────────────────────────
+(function () {
+  const box   = document.getElementById('rec-flow-box');
+  const track = document.getElementById('rec-flow-track');
+  const dotsEl = document.getElementById('rec-flow-dots');
+  if (!box || !track || !dotsEl) return;
+
+  const slides = Array.from(track.children);
+  if (slides.length === 0) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let idx = 0;
+  let timer = null;
+  const DELAY = 3800;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'rec-flow-dot' + (i === 0 ? ' active' : '');
+    d.type = 'button';
+    d.setAttribute('aria-label', `Step ${i + 1}`);
+    d.addEventListener('click', () => { go(i); restart(); });
+    dotsEl.appendChild(d);
+  });
+  const dots = Array.from(dotsEl.children);
+
+  function go(i) {
+    idx = (i + slides.length) % slides.length;
+    track.style.transform = `translateX(-${idx * 100}%)`;
+    dots.forEach((d, n) => d.classList.toggle('active', n === idx));
+    slides.forEach((s, n) => s.classList.toggle('rec-flow-slide--active', n === idx));
+  }
+
+  function start() {
+    if (reduce || timer) return;
+    timer = setInterval(() => go(idx + 1), DELAY);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function restart() { stop(); start(); }
+
+  box.addEventListener('pointerenter', stop);
+  box.addEventListener('pointerleave', start);
+  box.addEventListener('focusin', stop);
+  box.addEventListener('focusout', start);
+
+  go(0);
+  start();
+})();
+
 // ─── Start ────────────────────────────────────────────────────
 
 init();

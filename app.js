@@ -2801,10 +2801,12 @@ function showToast(msg) {
   const slides = Array.from(track.children);
   if (slides.length === 0) return;
 
+  const fill = document.getElementById('rec-flow-progress-fill');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let idx = 0;
   let timer = null;
-  const DELAY = 3800;
+  const DELAY = 4200;
+  if (fill) fill.style.setProperty('--rec-delay', DELAY + 'ms');
 
   // Build dots
   slides.forEach((_, i) => {
@@ -2817,18 +2819,30 @@ function showToast(msg) {
   });
   const dots = Array.from(dotsEl.children);
 
+  function runProgress() {
+    if (!fill || reduce) return;
+    fill.classList.remove('run');
+    void fill.offsetWidth; // reflow to restart the animation
+    fill.classList.add('run');
+  }
+
   function go(i) {
     idx = (i + slides.length) % slides.length;
     track.style.transform = `translateX(-${idx * 100}%)`;
     dots.forEach((d, n) => d.classList.toggle('active', n === idx));
     slides.forEach((s, n) => s.classList.toggle('rec-flow-slide--active', n === idx));
+    runProgress();
   }
 
   function start() {
     if (reduce || timer) return;
     timer = setInterval(() => go(idx + 1), DELAY);
+    runProgress();
   }
-  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (fill) fill.classList.remove('run');
+  }
   function restart() { stop(); start(); }
 
   box.addEventListener('pointerenter', stop);

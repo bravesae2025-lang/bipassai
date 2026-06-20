@@ -2858,6 +2858,7 @@ function showToast(msg) {
     if (toggle) {
       toggle.setAttribute('aria-expanded', String(!collapsed));
       toggle.setAttribute('aria-label', collapsed ? 'Expand' : 'Minimize');
+      toggle.title = collapsed ? 'Expand' : 'Minimize';
     }
     if (collapsed) stop(); else start();
   }

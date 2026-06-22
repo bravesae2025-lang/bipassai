@@ -507,7 +507,6 @@ main {
   align-items: center;
   gap: 12px;
 }
-.mode-tabs-head .mode-tabs { flex: 1; }
 .mode-block.mode-hidden { display: none; }
 
 /* dim the level presets while the Humanize tab is active */
@@ -537,37 +536,74 @@ main {
   line-height: 1.5;
 }
 
-/* ── Mode tab switcher ──────────────────────────── */
-.mode-tabs {
-  display: flex;
-  background: rgba(0,0,0,0.06);
-  border-radius: 10px;
-  padding: 3px;
-  gap: 2px;
-  flex-shrink: 0;
+/* ── Mode dropdown switcher ─────────────────────── */
+.mode-tabs-head .mode-dropdown { flex: 1; }
+.mode-dropdown {
+  position: relative;
 }
-.mode-tab {
-  flex: 1;
+.mode-dd-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 0;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 14px;
+  background: #fff;
+  border: 1.5px solid var(--black);
+  border-radius: var(--r);
   font-family: var(--ff-ui);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--g400);
+  color: var(--black);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
-.mode-tab.mode-tab-active {
-  background: var(--black);
+.mode-dd-trigger:hover { background: var(--g050); }
+.mode-dd-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.mode-dropdown.open .mode-dd-chevron { transform: rotate(180deg); }
+
+.mode-dd-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1.5px solid var(--black);
+  border-radius: var(--r);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+  display: none;
+}
+.mode-dropdown.open .mode-dd-menu { display: block; }
+.mode-dd-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g400);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.mode-dd-option:hover { background: var(--g050); color: var(--black); }
+.mode-dd-option.is-selected { background: var(--black); color: #fff; }
+.mode-dd-option.is-selected .soon-badge {
   color: #fff;
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
 }
 #generate-section.mode-hidden,
 #humanize-section.mode-hidden {

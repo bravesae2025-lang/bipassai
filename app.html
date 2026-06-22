@@ -24,7 +24,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=43">
+  <link rel="stylesheet" href="style.css?v=44">
 </head>
 <body>
 
@@ -174,9 +174,16 @@
 
         <div id="humanize-section">
           <div class="mode-tabs-head">
-            <div class="mode-tabs" role="tablist">
-              <button type="button" class="mode-tab mode-tab-active" data-mode="level">Level Adjust</button>
-              <button type="button" class="mode-tab" data-mode="humanize">Humanize<span class="soon-badge">Soon</span></button>
+            <div class="mode-dropdown" id="mode-dd">
+              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="mode-dd-current" id="mode-dd-current">Level Adjust</span>
+                <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Adjust</li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize<span class="soon-badge">Soon</span></li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Adjust<span class="soon-badge">Soon</span></li>
+              </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
           </div>
@@ -223,7 +230,7 @@
           </div>
 
           <!-- Humanize hints -->
-          <div class="humanize-hints mode-block mode-hidden" data-mode="humanize">
+          <div class="humanize-hints mode-block mode-hidden" data-mode="humanize both">
             <div class="h-hint">
               <span class="h-hint-icon">~</span>
               <span class="h-hint-title">Natural Flow</span>
@@ -258,7 +265,7 @@
           </div>
 
           <!-- Humanize action (UI base — wiring comes later) -->
-          <div class="mode-block mode-hidden" data-mode="humanize">
+          <div class="mode-block mode-hidden" data-mode="humanize both">
             <button id="humanizer-btn" class="btn-generate btn-humanize" aria-label="Humanize">
               <span class="btn-content">
                 <span id="humanizer-label">Humanize</span>
@@ -271,7 +278,7 @@
               </span>
               <span class="btn-sweep" aria-hidden="true"></span>
             </button>
-            <p class="humanizer-note" id="humanizer-note" hidden>Humanizer is coming soon — this step will be live shortly.</p>
+            <p class="humanizer-note" id="humanizer-note" hidden>Humanize is coming soon — this step will be live shortly.</p>
           </div>
         </div>
 
@@ -751,19 +758,45 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Mode toggle — switch the editor card between Level Adjust and Humanize */
+  /* Mode dropdown — switch the editor card between Level Adjust / Humanize / both */
   (function () {
     const section = document.getElementById('humanize-section');
     const ws      = document.getElementById('workspace');
     if (!section) return;
-    const tabs   = section.querySelectorAll('.mode-tab');
-    const blocks = section.querySelectorAll('.mode-block');
+    const blocks  = section.querySelectorAll('.mode-block');
+    const dd       = document.getElementById('mode-dd');
+    const trigger  = document.getElementById('mode-dd-trigger');
+    const menu     = document.getElementById('mode-dd-menu');
+    const current  = document.getElementById('mode-dd-current');
+    const options  = menu ? Array.from(menu.querySelectorAll('.mode-dd-option')) : [];
+
     function setMode(mode) {
-      tabs.forEach(t => t.classList.toggle('mode-tab-active', t.dataset.mode === mode));
-      blocks.forEach(b => b.classList.toggle('mode-hidden', b.dataset.mode !== mode));
-      if (ws) ws.classList.toggle('mode-humanize', mode === 'humanize');
+      blocks.forEach(b => {
+        const modes = (b.dataset.mode || '').split(' ');
+        b.classList.toggle('mode-hidden', !modes.includes(mode));
+      });
+      options.forEach(o => {
+        const on = o.dataset.mode === mode;
+        o.classList.toggle('is-selected', on);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on && current) current.textContent = o.firstChild.textContent.trim();
+      });
+      if (ws) ws.classList.toggle('mode-humanize', mode !== 'level');
     }
-    tabs.forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+
+    function closeMenu() {
+      dd?.classList.remove('open');
+      trigger?.setAttribute('aria-expanded', 'false');
+    }
+    function toggleMenu() {
+      const open = dd?.classList.toggle('open');
+      trigger?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    trigger?.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+    options.forEach(o => o.addEventListener('click', () => { setMode(o.dataset.mode); closeMenu(); }));
+    document.addEventListener('click', (e) => { if (dd && !dd.contains(e.target)) closeMenu(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
     // Humanize button — UI base only; show coming-soon note
     const note = document.getElementById('humanizer-note');

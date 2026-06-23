@@ -5,7 +5,7 @@
   const canvas = document.createElement('canvas');
   const ctx    = canvas.getContext('2d');
   canvas.style.cssText =
-    'position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;pointer-events:none;z-index:99999;mix-blend-mode:difference';
+    'position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;pointer-events:none;z-index:99999';
   document.body.appendChild(canvas);
 
   function resize() {
@@ -22,11 +22,6 @@
   let mx = -300, my = -300;
   let visible = true;
   let ringR = 0, ringAlpha = 0;
-
-  /* The canvas uses mix-blend-mode: difference (set above), so the same white
-     cursor stays visible on any background — white over dark, dark over light. */
-  const FILL   = '255,255,255';
-  const STROKE = '255,255,255';
 
   /* ── Events ── */
   document.addEventListener('mousemove',  e => { mx = e.clientX; my = e.clientY; });
@@ -72,15 +67,15 @@
 
       circle(
         pts[i].x, pts[i].y, Math.max(radius, 1),
-        `rgba(${FILL},${alpha.toFixed(2)})`,
-        `rgba(${STROKE},${(alpha * 0.45).toFixed(2)})`,
+        `rgba(255,255,255,${alpha.toFixed(2)})`,
+        `rgba(0,0,0,${(alpha * 0.45).toFixed(2)})`,
         1.2
       );
     }
 
     /* click ripple */
     if (ringAlpha > 0.01) {
-      circle(mx, my, ringR, null, `rgba(${FILL},${ringAlpha.toFixed(2)})`, 1);
+      circle(mx, my, ringR, null, `rgba(255,255,255,${ringAlpha.toFixed(2)})`, 1);
     }
 
     requestAnimationFrame(tick);

@@ -319,7 +319,7 @@ ${ctaBox}
 
   <script src="/script.js" defer></script>
   <script src="/auth.js?v=3" defer></script>
-  <script src="/cursor.js?v=4" defer></script>
+  <script src="/cursor.js?v=5" defer></script>
 </body>
 </html>
 `;

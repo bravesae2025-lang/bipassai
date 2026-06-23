@@ -23,6 +23,12 @@
   let visible = true;
   let ringR = 0, ringAlpha = 0;
 
+  /* Light pages (e.g. the blog) have a white background, so a white cursor is
+     invisible. Draw a dark cursor there; keep the white cursor on dark app pages. */
+  const LIGHT  = location.pathname.startsWith('/blog');
+  const FILL   = LIGHT ? '13,13,13'   : '255,255,255';
+  const STROKE = LIGHT ? '255,255,255' : '0,0,0';
+
   /* ── Events ── */
   document.addEventListener('mousemove',  e => { mx = e.clientX; my = e.clientY; });
   document.addEventListener('mouseleave', () => { visible = false; });
@@ -67,15 +73,15 @@
 
       circle(
         pts[i].x, pts[i].y, Math.max(radius, 1),
-        `rgba(255,255,255,${alpha.toFixed(2)})`,
-        `rgba(0,0,0,${(alpha * 0.45).toFixed(2)})`,
+        `rgba(${FILL},${alpha.toFixed(2)})`,
+        `rgba(${STROKE},${(alpha * 0.45).toFixed(2)})`,
         1.2
       );
     }
 
     /* click ripple */
     if (ringAlpha > 0.01) {
-      circle(mx, my, ringR, null, `rgba(255,255,255,${ringAlpha.toFixed(2)})`, 1);
+      circle(mx, my, ringR, null, `rgba(${FILL},${ringAlpha.toFixed(2)})`, 1);
     }
 
     requestAnimationFrame(tick);

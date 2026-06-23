@@ -1,0 +1,10 @@
+# Bipass AI — article topics
+# One topic per line. Blank lines and lines starting with # are ignored.
+# Generate them all with:  node generate-article.js --file topics.txt
+# Already-existing articles are skipped automatically.
+#
+# Add your topics below (delete these examples):
+
+how to bypass turnitin ai detection
+best ai humanizer for college essays
+does gptzero work on paraphrased text

@@ -5,7 +5,7 @@
   const canvas = document.createElement('canvas');
   const ctx    = canvas.getContext('2d');
   canvas.style.cssText =
-    'position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;pointer-events:none;z-index:99999';
+    'position:fixed;top:0;left:0;width:100vw;height:100vh;display:block;pointer-events:none;z-index:99999;mix-blend-mode:difference';
   document.body.appendChild(canvas);
 
   function resize() {
@@ -23,11 +23,10 @@
   let visible = true;
   let ringR = 0, ringAlpha = 0;
 
-  /* Light pages (e.g. the blog) have a white background, so a white cursor is
-     invisible. Draw a dark cursor there; keep the white cursor on dark app pages. */
-  const LIGHT  = location.pathname.startsWith('/blog');
-  const FILL   = LIGHT ? '13,13,13'   : '255,255,255';
-  const STROKE = LIGHT ? '255,255,255' : '0,0,0';
+  /* The canvas uses mix-blend-mode: difference (set above), so the same white
+     cursor stays visible on any background — white over dark, dark over light. */
+  const FILL   = '255,255,255';
+  const STROKE = '255,255,255';
 
   /* ── Events ── */
   document.addEventListener('mousemove',  e => { mx = e.clientX; my = e.clientY; });

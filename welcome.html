@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Welcome — Bipass AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+  <link rel="stylesheet" href="welcome.css?v=1">
+</head>
+<body class="onb">
+
+  <!-- atmosphere -->
+  <div class="onb-spotlight" aria-hidden="true"></div>
+  <div class="onb-grain" aria-hidden="true"></div>
+  <canvas class="onb-burst-canvas" id="onb-burst-canvas" aria-hidden="true"></canvas>
+
+  <!-- progress -->
+  <div class="onb-progress" id="onb-progress" aria-hidden="true">
+    <span class="onb-dot is-active" data-step="0"></span>
+    <span class="onb-dot" data-step="1"></span>
+    <span class="onb-dot" data-step="2"></span>
+  </div>
+
+  <main class="onb-stage" id="onb-stage">
+
+    <!-- ── STEP 1 · Survey ─────────────────────────────────────── -->
+    <section class="onb-step is-current" id="step-survey" data-step="0">
+      <p class="onb-eyebrow">Welcome to Bipass AI</p>
+      <h1 class="onb-title">How did you<br>hear about us?</h1>
+      <p class="onb-sub">Pick one — it helps us more than you'd think.</p>
+
+      <div class="onb-chips" id="source-chips" role="listbox" aria-label="How did you hear about us">
+        <button type="button" class="onb-chip" data-source="tiktok">TikTok</button>
+        <button type="button" class="onb-chip" data-source="instagram">Instagram</button>
+        <button type="button" class="onb-chip" data-source="youtube">YouTube</button>
+        <button type="button" class="onb-chip" data-source="twitter">X / Twitter</button>
+        <button type="button" class="onb-chip" data-source="reddit">Reddit</button>
+        <button type="button" class="onb-chip" data-source="google">Google Search</button>
+        <button type="button" class="onb-chip" data-source="chatgpt">ChatGPT / AI</button>
+        <button type="button" class="onb-chip" data-source="friend">A friend</button>
+        <button type="button" class="onb-chip" data-source="school">School</button>
+        <button type="button" class="onb-chip" data-source="other">Other</button>
+      </div>
+
+      <div class="onb-actions">
+        <button type="button" class="onb-btn" id="survey-continue" disabled>
+          Continue <span class="onb-btn-arrow">→</span>
+        </button>
+        <button type="button" class="onb-skip" id="survey-skip">Skip</button>
+      </div>
+    </section>
+
+    <!-- ── STEP 2 · Free gift ──────────────────────────────────── -->
+    <section class="onb-step" id="step-gift" data-step="1" hidden>
+      <div class="onb-gift-mark" aria-hidden="true">
+        <span class="onb-coin">◎</span>
+      </div>
+      <p class="onb-eyebrow onb-eyebrow-accent">Unlocked</p>
+      <h1 class="onb-title onb-title-xl">You're in.</h1>
+      <p class="onb-gift-line">
+        <strong>2,000 credits</strong> + a <strong>1-Day Pro Pass</strong> are now on your account.
+      </p>
+
+      <div class="onb-gift-stats">
+        <div class="onb-stat">
+          <span class="onb-stat-num" id="gift-credits">2,000</span>
+          <span class="onb-stat-label">credits · never expire</span>
+        </div>
+        <div class="onb-stat-div" aria-hidden="true"></div>
+        <div class="onb-stat">
+          <span class="onb-stat-num onb-countdown" id="gift-countdown">24:00:00</span>
+          <span class="onb-stat-label">pro pass remaining</span>
+        </div>
+      </div>
+
+      <div class="onb-actions">
+        <button type="button" class="onb-btn" id="gift-continue">
+          See plans <span class="onb-btn-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── STEP 3 · Discounted plans ───────────────────────────── -->
+    <section class="onb-step" id="step-plans" data-step="2" hidden>
+      <p class="onb-eyebrow">Limited-time pricing</p>
+      <h1 class="onb-title">Unlock<br>everything.</h1>
+      <p class="onb-sub">Your free pass is ticking — lock in a deal before it ends.</p>
+
+      <div class="onb-plans" id="onb-plans">
+        <button type="button" class="onb-plan" data-plan="day">
+          <span class="onb-plan-badge">STARTER</span>
+          <span class="onb-plan-name">Day Pass</span>
+          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>0<span class="onb-plan-cents">.99</span></span>
+          <span class="onb-plan-period">one time · 3,000 credits</span>
+        </button>
+
+        <button type="button" class="onb-plan" data-plan="weekly">
+          <span class="onb-plan-badge onb-plan-badge-hot">MOST POPULAR</span>
+          <span class="onb-plan-name">Weekly Pass</span>
+          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>4<span class="onb-plan-cents">.99</span></span>
+          <span class="onb-plan-period">per week · 10,000 credits</span>
+        </button>
+
+        <button type="button" class="onb-plan onb-plan-feat" data-plan="annual">
+          <span class="onb-plan-badge onb-plan-badge-best">BEST VALUE · 61% OFF</span>
+          <span class="onb-plan-name">Annual Pass</span>
+          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>11<span class="onb-plan-cents">.58</span><span class="onb-plan-mo">/mo</span></span>
+          <span class="onb-plan-period">billed yearly · 100,000 credits</span>
+        </button>
+
+        <button type="button" class="onb-plan" data-plan="monthly">
+          <span class="onb-plan-badge">SAVE 40%</span>
+          <span class="onb-plan-name">Monthly Pass</span>
+          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>17<span class="onb-plan-cents">.99</span></span>
+          <span class="onb-plan-period">per month · 30,000 credits</span>
+        </button>
+      </div>
+
+      <div class="onb-actions onb-actions-plans">
+        <button type="button" class="onb-skip onb-skip-lg" id="plans-skip">
+          Continue with my free Day Pass →
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="onb-toast hidden" id="onb-toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="auth.js"></script>
+  <script src="welcome.js?v=1"></script>
+  <script src="cursor.js"></script>
+</body>
+</html>

@@ -1486,9 +1486,11 @@ async function init() {
     if (fresh !== null && valEl) valEl.textContent = fresh.toLocaleString();
   }).catch(() => {});
 
-  // Show welcome modal for brand-new users
+  // Brand-new users → full-screen onboarding (survey → free gift → plans).
+  // welcome.html grants credits/pass and sets signup_welcome_shown, then returns to /home.
   if (!session.user.user_metadata?.signup_welcome_shown) {
-    showWelcomeModal();
+    window.location.replace('welcome.html');
+    return;
   }
 
   const autostart = sessionStorage.getItem('bipass_autostart');
@@ -1507,57 +1509,7 @@ async function init() {
   });
 }
 
-async function showWelcomeModal() {
-  const overlay = document.getElementById('welcome-modal');
-  if (!overlay) return;
-
-  overlay.classList.remove('hidden');
-  requestAnimationFrame(() => overlay.classList.add('show'));
-
-  // Initialize credits on server
-  let expiresAt = Date.now() + 86400000;
-  try {
-    const token = await window.bipassAuth.getToken();
-    const res = await fetch('/api/init-credits', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    const data = await res.json();
-    if (data.alreadyInit) {
-      overlay.classList.remove('show');
-      setTimeout(() => overlay.classList.add('hidden'), 250);
-      return;
-    }
-    if (data.passExpiresAt) expiresAt = data.passExpiresAt;
-  } catch (_) {}
-
-  // Update credit display to 2,000
-  const valEl = document.getElementById('credit-val');
-  if (valEl) valEl.textContent = (2000).toLocaleString();
-
-  // Live countdown
-  const expireEl = document.getElementById('welcome-expire-val');
-  function tick() {
-    const remaining = expiresAt - Date.now();
-    if (!expireEl) return;
-    if (remaining <= 0) { expireEl.textContent = 'Expired'; return; }
-    const h = Math.floor(remaining / 3600000);
-    const m = Math.floor((remaining % 3600000) / 60000);
-    const s = Math.floor((remaining % 60000) / 1000);
-    expireEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-  tick();
-  const timer = setInterval(tick, 1000);
-
-  document.getElementById('welcome-cta')?.addEventListener('click', () => {
-    clearInterval(timer);
-    overlay.classList.remove('show');
-    setTimeout(() => {
-      overlay.classList.add('hidden');
-      window.__bipassShowExtPopup?.();
-    }, 250);
-  });
-}
+// (Onboarding moved to the full-screen welcome.html flow — see the redirect in init().)
 
 // ─── Restore state from sessionStorage (after regenerate) ─────
 

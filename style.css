@@ -3224,6 +3224,48 @@ body.editor-page { background: var(--bg); }
   border-color: rgba(0,0,0,0.08);
 }
 
+/* Per-card discount / label badges (top-right corner pill) */
+.pricing-badge-off {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 2;
+  font-family: var(--ff-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  padding: 4px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.pricing-badge-off-hot {
+  color: var(--black);
+  background: #fff;
+  border-color: #fff;
+  font-weight: 500;
+}
+
+/* "Our plans are on discount" banner under the heading */
+.plans-discount-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--black);
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.12);
+  padding: 8px 16px;
+  border-radius: 99px;
+}
+.plans-discount-flame { font-size: 11px; line-height: 1; }
+
 .pricing-card-top {
   display: flex;
   flex-direction: column;

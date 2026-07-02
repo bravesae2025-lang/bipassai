@@ -1010,10 +1010,10 @@ function postProcessOutput(text) {
 
 // ─── Adjust Level (main action, client-side) ──────────────────
 
-// Flag the "Adjust Level" box red + shake when no level is chosen. Returns false if unmet.
+// Flag the "Adjust Level" card red + shake when no level is chosen. Returns false if unmet.
 function requireLevel() {
   if (selectedLevel) return true;
-  const box = document.getElementById('level-box');
+  const box = document.querySelector('.col-customize');   // the whole visible Adjust Level card
   if (box) {
     box.classList.remove('needs-level');
     void box.offsetWidth;              // restart the shake animation
@@ -1752,7 +1752,7 @@ function selectLevel(level) {
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
   optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
   // A valid pick clears the "pick a level" error state.
-  document.getElementById('level-box')?.classList.remove('needs-level');
+  document.querySelector('.col-customize')?.classList.remove('needs-level');
 }
 
 // ─── My Style ─────────────────────────────────────────────────

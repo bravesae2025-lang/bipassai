@@ -516,19 +516,24 @@ main {
 /* Both mode force-locks the structure, so hide the redundant lock toggle. */
 .workspace.mode-both .lock-structure-block { display: none; }
 
-/* "Pick a level first" error state on the Adjust Level box */
-#level-box.needs-level {
-  border: 1.5px solid #e0533d;
-  border-radius: 12px;
-  box-shadow: 0 0 0 4px rgba(224, 83, 61, 0.12);
-  animation: level-shake 0.4s var(--ease-snappy);
+/* "Pick a level first" error state — a clean red ring that hugs the whole
+   Adjust Level card (box-shadow follows the card's 16px radius) + a shake. */
+.col.col-customize.needs-level {
+  box-shadow:
+    0 0 0 2px #e0533d,
+    0 0 0 6px rgba(224, 83, 61, 0.16),
+    0 1px 2px rgba(0,0,0,0.25),
+    0 16px 32px rgba(0,0,0,0.28),
+    0 40px 80px rgba(224, 83, 61, 0.14);
+  animation: level-shake 0.5s var(--ease-snappy);
 }
 @keyframes level-shake {
   0%, 100% { transform: translateX(0); }
-  20%      { transform: translateX(-6px); }
-  40%      { transform: translateX(6px); }
-  60%      { transform: translateX(-4px); }
-  80%      { transform: translateX(4px); }
+  15%      { transform: translateX(-8px); }
+  30%      { transform: translateX(8px); }
+  45%      { transform: translateX(-6px); }
+  60%      { transform: translateX(6px); }
+  75%      { transform: translateX(-3px); }
 }
 
 /* ── First-visit coach-mark tour ─────────────────────────────── */

@@ -1010,9 +1010,24 @@ function postProcessOutput(text) {
 
 // ─── Adjust Level (main action, client-side) ──────────────────
 
+// Flag the "Adjust Level" box red + shake when no level is chosen. Returns false if unmet.
+function requireLevel() {
+  if (selectedLevel) return true;
+  const box = document.getElementById('level-box');
+  if (box) {
+    box.classList.remove('needs-level');
+    void box.offsetWidth;              // restart the shake animation
+    box.classList.add('needs-level');
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  showToast('Pick a level first');
+  return false;
+}
+
 async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
+  if (!requireLevel()) return;
 
   const getMistakes = () => ({
     grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
@@ -1089,56 +1104,55 @@ async function adjustLevel() {
 }
 
 // ─── Humanize (RewriteAI) ─────────────────────────────────────
-// Mode "humanize": RewriteAI on the raw input.
-// Mode "both":     Level Adjust (Gemini/Claude) first, then RewriteAI on that.
+// Stash the result and open the editor (shared by both humanize paths).
+function _goEditor(input, result, html, changed) {
+  sessionStorage.setItem('bipass_input',        input);
+  sessionStorage.setItem('bipass_result',       result);
+  sessionStorage.setItem('bipass_result_html',  html);
+  sessionStorage.setItem('bipass_mode',         'humanize');
+  sessionStorage.setItem('bipass_change_count', String(changed));
+  sessionStorage.setItem('bipass_wc',           String(countWords(input)));
+  sessionStorage.setItem('bipass_level',        selectedLevel || '');
+  window.location.href = 'editor.html';
+}
+
+// Mode "humanize":  RewriteAI on the raw input.
+// Mode "both":      Humanize first (RewriteAI), THEN level-adjust the result in the
+//                   background with a locked sentence structure, at the chosen level.
 async function runHumanize() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
-  const mode  = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
+  const mode = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
+  // The level-adjust pass in "both" mode needs a level chosen first.
+  if (mode === 'both' && !requireLevel()) return;
+
   const token = await window.bipassAuth.getToken();
+  const getMistakes = () => ({
+    grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
+    tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
+    punct:     parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value     || 0),
+    caps:      parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value      || 0),
+    spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
+    wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
+  });
 
-  setLoading(true, mode === 'both' ? 'Adjusting level…' : 'Humanizing…');
-  try {
-    let working = text;
-
-    // ── Step 1 (both only): Level Adjust via Gemini/Claude ──────
-    if (mode === 'both') {
-      const getMistakes = () => ({
-        grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
-        tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
-        punct:     parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value     || 0),
-        caps:      parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value      || 0),
-        spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
-        wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
-      });
-      const alRes = await fetch('/api/adjust-level', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body:    JSON.stringify({
-          text,
-          level: selectedLevel,
-          lockSentenceStructure,
-          mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
-        }),
-      });
-      if (alRes.status === 402) {
-        const d = await alRes.json().catch(() => ({}));
-        setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
-      }
-      if (!alRes.ok) throw new Error('Level adjust failed');
-      const alData = await alRes.json();
-      const parsed = _parseAnnotatedResult(alData.result);
-      working = parsed ? parsed.cleanText : alData.result;   // strip [[…]] markers
-      if (alData.creditsUsed != null) updateCreditDisplay(alData.creditsUsed, alData.creditsRemaining);
-    }
-
-    // ── Step 2: Humanize via RewriteAI ──────────────────────────
+  // "both" gets a manual, progress-driven loading sequence; humanize-only keeps the default phases.
+  if (mode === 'both') {
+    setLoading(true, 'Humanizing…', {
+      phases: ['Humanizing', 'Starting level adjust', 'Producing final'],
+      manual: true,
+    });
+  } else {
     setLoading(true, 'Humanizing…');
+  }
+
+  try {
+    // ── Step 1: Humanize via RewriteAI (both + humanize-only) ────
     const hRes = await fetch('/api/rw-humanize', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ text: working }),
+      body:    JSON.stringify({ text }),
     });
     if (hRes.status === 402) {
       const d = await hRes.json().catch(() => ({}));
@@ -1148,29 +1162,54 @@ async function runHumanize() {
       const d = await hRes.json().catch(() => ({}));
       throw new Error(d.error || 'Humanize failed');
     }
-    const hData  = await hRes.json();
-    const result = hData.result;
-    if (!result) throw new Error('No output from humanizer');
+    const hData     = await hRes.json();
+    const humanized = hData.result;
+    if (!humanized) throw new Error('No output from humanizer');
+    if (hData.creditsUsed != null) updateCreditDisplay(hData.creditsUsed, hData.creditsRemaining);
 
-    // Diff against the ORIGINAL input so the editor highlights every change.
-    const htmlDiff = _buildDiffHtml(text, result);
-    const changed  = _countChanges(text, result);
-
-    lfxFinish();
-    if (hData.creditsUsed != null) {
-      updateCreditDisplay(hData.creditsUsed, hData.creditsRemaining);
-      animateLoadingCredits(hData.creditsUsed);
-      await new Promise(r => setTimeout(r, 1200));
+    // ── Humanize-only: done ─────────────────────────────────────
+    if (mode !== 'both') {
+      const htmlDiff = _buildDiffHtml(text, humanized);
+      const changed  = _countChanges(text, humanized);
+      lfxFinish();
+      if (hData.creditsUsed != null) { animateLoadingCredits(hData.creditsUsed); await new Promise(r => setTimeout(r, 1200)); }
+      _goEditor(text, humanized, htmlDiff, changed);
+      return;
     }
 
-    sessionStorage.setItem('bipass_input',        text);
-    sessionStorage.setItem('bipass_result',       result);
-    sessionStorage.setItem('bipass_result_html',  htmlDiff);
-    sessionStorage.setItem('bipass_mode',         'humanize');
-    sessionStorage.setItem('bipass_change_count', String(changed));
-    sessionStorage.setItem('bipass_wc',           String(countWords(text)));
-    sessionStorage.setItem('bipass_level',        selectedLevel);
-    window.location.href = 'editor.html';
+    // ── Step 2 (both): Level-adjust the humanized text, structure locked ─
+    lfxAdvance(1);   // "Starting level adjust"
+    const alRes = await fetch('/api/adjust-level', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({
+        text: humanized,
+        level: selectedLevel,
+        lockSentenceStructure: true,     // background pass — keep the humanized structure
+        mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+      }),
+    });
+    if (alRes.status === 402) {
+      const d = await alRes.json().catch(() => ({}));
+      setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
+    }
+    if (!alRes.ok) throw new Error('Level adjust failed');
+    const alData = await alRes.json();
+
+    lfxAdvance(2);   // "Producing final"
+    // Prefer AI annotations (accurate multi-category); fall back to a computed diff.
+    const parsed   = _parseAnnotatedResult(alData.result);
+    const cleanRes = parsed ? parsed.cleanText : alData.result;
+    const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(humanized, alData.result);
+    const changed  = parsed ? parsed.total     : _countChanges(humanized, alData.result);
+
+    lfxFinish();
+    const totalUsed = (hData.creditsUsed || 0) + (alData.creditsUsed || 0);
+    if (alData.creditsRemaining != null) updateCreditDisplay(totalUsed, alData.creditsRemaining);
+    animateLoadingCredits(totalUsed);
+    await new Promise(r => setTimeout(r, 1200));
+
+    _goEditor(text, cleanRes, htmlDiff, changed);
   } catch (err) {
     setLoading(false);
     showToast(err.message || 'Something went wrong. Please try again.');
@@ -1181,7 +1220,7 @@ async function runHumanize() {
 
 // ─── State ────────────────────────────────────────────────────
 
-let selectedLevel          = 'easy';
+let selectedLevel          = null;   // nothing selected by default — user must pick
 let selectedModel          = localStorage.getItem('bipass_model') || 'gemini';
 let lockSentenceStructure  = localStorage.getItem('bipass_lock_structure') === 'true';
 let selectedWritingType    = null;
@@ -1512,8 +1551,8 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
-  const level = sessionStorage.getItem('bipass_level') || localStorage.getItem('bipass_pref_level') || 'easy';
-  selectLevel(level);
+  // No default selection — only restore a level when returning from a regenerate.
+  selectLevel(sessionStorage.getItem('bipass_level') || null);
 
   // Restore active tab
   const savedMode = sessionStorage.getItem('bipass_mode');
@@ -1690,12 +1729,25 @@ function bindEvents() {
 
 function selectLevel(level) {
   deactivateMyStyle();
-  selectedLevel = level;
+  selectedLevel = level || null;
+
+  // No selection: clear pills, hide the glider, prompt the user, hide options.
+  if (!level) {
+    pills.forEach(p => p.classList.remove('active'));
+    if (levelGlider) levelGlider.style.opacity = '0';
+    if (levelDesc) levelDesc.textContent = 'Choose a level to get started';
+    if (optionsPanel) optionsPanel.style.display = 'none';
+    return;
+  }
+
   pills.forEach(p => p.classList.toggle('active', p.dataset.level === level));
+  if (levelGlider) levelGlider.style.opacity = '';
   levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
   levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
   levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
   optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
+  // A valid pick clears the "pick a level" error state.
+  document.getElementById('level-box')?.classList.remove('needs-level');
 }
 
 // ─── My Style ─────────────────────────────────────────────────
@@ -2277,7 +2329,7 @@ function buildHumanizePrompt(text) {
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
     return prompt + `\n\nText to rewrite:\n${text}`;
   }
-  let prompt = HUMANIZE_PROMPTS[selectedLevel];
+  let prompt = HUMANIZE_PROMPTS[selectedLevel] || HUMANIZE_PROMPTS.medium;
   if (selectedLevel === 'customize') {
     const extras = buildMistakeExtras();
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
@@ -2295,7 +2347,7 @@ function buildGeneratePrompt(userPrompt) {
     if (typeModifier) prompt += typeModifier;
     return prompt + `\n\nWhat to write:\n${userPrompt}`;
   }
-  let prompt = GENERATE_PROMPTS[selectedLevel];
+  let prompt = GENERATE_PROMPTS[selectedLevel] || GENERATE_PROMPTS.medium;
   if (selectedLevel === 'customize') {
     const extras = buildMistakeExtras();
     if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
@@ -2555,6 +2607,8 @@ function showCreditWarning(msg) {
 const _lfx = { decodeRaf: 0, t1: 0, t2: 0 };
 const LFX_GLYPHS = '!<>-_\\/[]{}—=+*^?#%@&ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
 const LFX_PHASES  = ['Analyzing', 'Thinking', 'Making the change'];
+let lfxPhases = LFX_PHASES;   // active phase labels (overridable per run)
+let lfxManual = false;        // when true, phases advance on real progress, not timers
 const LFX_TARGETS = [30, 62, 90];          // bar width (%) per phase
 const LFX_FILLDUR = ['5s', '5.5s', '10s']; // ease across each stage / slow creep on hold
 const LFX_ADVANCE = [5000, 5500];          // ms: 0→1, then 1→2 (Analyzing ~5s, Thinking ~5.5s)
@@ -2605,18 +2659,26 @@ function lfxDecodeHeadline(text) {
 }
 
 function lfxSetPhase(i) {
-  lfxDecodeHeadline(LFX_PHASES[i]);
+  lfxDecodeHeadline(lfxPhases[i]);
   if (loadingCount) loadingCount.textContent = '0' + (i + 1) + ' / 03';
   if (loadingBarFill) {
     loadingBarFill.style.transitionDuration = lfxReduced() ? '0s' : LFX_FILLDUR[i];
     loadingBarFill.style.width = LFX_TARGETS[i] + '%';
   }
-  if (loadingBar) loadingBar.classList.toggle('working', i === LFX_PHASES.length - 1);
+  if (loadingBar) loadingBar.classList.toggle('working', i === lfxPhases.length - 1);
 }
 
-function startLoadingFx() {
+// Manually move to a phase (used when phases track real async progress).
+function lfxAdvance(i) {
+  if (i < 0 || i >= lfxPhases.length) return;
+  lfxSetPhase(i);
+}
+
+function startLoadingFx(opts) {
+  lfxPhases = (opts && opts.phases) || LFX_PHASES;
+  lfxManual = !!(opts && opts.manual);
   lfxSetPhase(0);
-  if (lfxReduced()) return;
+  if (lfxReduced() || lfxManual) return;   // manual runs advance themselves
   _lfx.t1 = setTimeout(() => lfxSetPhase(1), LFX_ADVANCE[0]);
   _lfx.t2 = setTimeout(() => lfxSetPhase(2), LFX_ADVANCE[0] + LFX_ADVANCE[1]);
 }
@@ -2632,6 +2694,8 @@ function stopLoadingFx() {
     loadingBarFill.style.width = '0';
   }
   if (loadingCount) loadingCount.textContent = '01 / 03';
+  lfxPhases = LFX_PHASES;   // restore defaults for the next run
+  lfxManual = false;
 }
 
 // Satisfying "done" finish: stop the phase timers and drive the bar to 100%.
@@ -2649,7 +2713,7 @@ function lfxFinish() {
   if (loadingCount) loadingCount.textContent = '03 / 03';
 }
 
-function setLoading(on, text) {
+function setLoading(on, text, opts) {
   if (generateBtn) generateBtn.disabled = on;
   humanizeBtn.disabled = on;
 
@@ -2661,7 +2725,7 @@ function setLoading(on, text) {
     workspace.style.opacity = '0';
     workspace.style.pointerEvents = 'none';
     loadingOverlay.classList.add('visible');
-    startLoadingFx();
+    startLoadingFx(opts);
     setStatus(text || 'Loading…');
   } else {
     workspace.style.opacity = '';

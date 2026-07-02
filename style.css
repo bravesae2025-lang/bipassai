@@ -509,9 +509,27 @@ main {
 }
 .mode-block.mode-hidden { display: none; }
 
-/* dim the level presets while the Humanize tab is active */
+/* dim the level presets while the Humanize-only tab is active.
+   In "Humanize + Level Adjust" (.mode-both) the box stays usable — the user picks a level. */
 .right-panel { transition: opacity 0.25s ease; }
-.workspace.mode-humanize .col-customize { opacity: 0.5; pointer-events: none; }
+.workspace.mode-humanize:not(.mode-both) .col-customize { opacity: 0.5; pointer-events: none; }
+/* Both mode force-locks the structure, so hide the redundant lock toggle. */
+.workspace.mode-both .lock-structure-block { display: none; }
+
+/* "Pick a level first" error state on the Adjust Level box */
+#level-box.needs-level {
+  border: 1.5px solid #e0533d;
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px rgba(224, 83, 61, 0.12);
+  animation: level-shake 0.4s var(--ease-snappy);
+}
+@keyframes level-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
 
 .soon-badge {
   font-family: var(--ff-mono);

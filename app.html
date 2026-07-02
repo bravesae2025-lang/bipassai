@@ -290,13 +290,13 @@
         <!-- Customize box -->
         <section class="col col-customize" data-reveal data-reveal-delay="1">
 
-          <div class="control-block">
+          <div class="control-block" id="level-box">
             <div class="control-head" id="level-heading">Adjust Level</div>
             <div class="level-presets-label">Presets</div>
             <div class="level-track-wrap">
               <div class="level-track" role="group" aria-label="Level">
                 <div class="level-glider" id="level-glider"></div>
-                <button class="level-btn active" data-level="easy">Beginner</button>
+                <button class="level-btn" data-level="easy">Beginner</button>
                 <button class="level-btn" data-level="medium">Student</button>
                 <button class="level-btn" data-level="hard">Academic</button>
               </div>
@@ -754,7 +754,10 @@
         o.setAttribute('aria-selected', on ? 'true' : 'false');
         if (on && current) current.textContent = o.firstChild.textContent.trim();
       });
-      if (ws) ws.classList.toggle('mode-humanize', mode !== 'level');
+      if (ws) {
+        ws.classList.toggle('mode-humanize', mode !== 'level');  // globe bg for humanize + both
+        ws.classList.toggle('mode-both', mode === 'both');       // keeps the level box usable in both
+      }
       // Expose the current mode so app.js knows which action to run.
       document.body.dataset.appMode = mode;
     }

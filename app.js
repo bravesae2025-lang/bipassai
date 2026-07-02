@@ -1457,11 +1457,9 @@ async function init() {
   setupDrawer(session);
   bipassSetupPlanStatus(session);
 
-  // Show no-plan banner if user has no active plan
-  const _tier = session.user.user_metadata?.tier || 'free';
-  const _planExp = session.user.user_metadata?.plan_expires_at;
-  const _hasPlan = _tier !== 'free' && (!_planExp || Date.now() < _planExp);
-  if (!_hasPlan) {
+  // Show no-plan banner only when there's no active plan AND no active free trial.
+  // (bipassHasActivePass counts the free 1-day signup pass, so trial users aren't nagged.)
+  if (!bipassHasActivePass(session)) {
     const _banner = document.getElementById('no-plan-banner');
     if (_banner) {
       _banner.classList.remove('hidden');

@@ -102,6 +102,10 @@ async function initGift() {
       });
       const data = await res.json();
       if (data.passExpiresAt) expiresAt = data.passExpiresAt;
+      // Refresh the client session so the new metadata (free_pass_until +
+      // signup_welcome_shown) lands in the token — otherwise /home and the plan
+      // status widgets read stale data ("No active plan") and /home could loop.
+      try { await window.bipassAuth.refreshSession(); } catch (_) {}
     } catch (_) {}
   }
 

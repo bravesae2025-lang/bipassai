@@ -531,6 +531,57 @@ main {
   80%      { transform: translateX(4px); }
 }
 
+/* ── First-visit coach-mark tour ─────────────────────────────── */
+.tour-catch { position: fixed; inset: 0; z-index: 1400; background: transparent; }
+.tour-spot {
+  position: fixed; z-index: 1401; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(13,13,13,0.55), 0 0 0 2px rgba(255,255,255,0.92) inset, 0 0 0 4px rgba(0,0,0,0.06);
+  transition: top .32s var(--ease-out), left .32s var(--ease-out), width .32s var(--ease-out), height .32s var(--ease-out);
+  animation: tour-spot-in .3s var(--ease-out) both;
+}
+@keyframes tour-spot-in { from { opacity: 0; } to { opacity: 1; } }
+
+.tour-pop {
+  position: fixed; z-index: 1402; width: min(320px, calc(100vw - 24px));
+  background: #fff; border: 1px solid var(--g150); border-radius: 14px;
+  padding: 18px 18px 16px; box-shadow: 0 18px 50px rgba(0,0,0,0.22), 0 4px 12px rgba(0,0,0,0.08);
+  font-family: var(--ff-ui); text-align: left;
+  animation: tour-pop-in .34s var(--ease-out) both;
+}
+@keyframes tour-pop-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.tour-pop-count {
+  font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--g300); margin-bottom: 8px;
+}
+.tour-pop-title { font-size: 17px; font-weight: 800; color: var(--black); letter-spacing: -0.01em; }
+.tour-pop-body  { font-size: 13.5px; line-height: 1.5; color: var(--g400); margin-top: 6px; }
+.tour-pop-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+.tour-pop-skip {
+  background: none; border: 0; cursor: pointer; font: inherit;
+  font-size: 12px; color: var(--g300); padding: 6px 4px; transition: color .2s;
+}
+.tour-pop-skip:hover { color: var(--black); }
+.tour-pop-next {
+  background: var(--black); color: #fff; border: 0; cursor: pointer; font: inherit;
+  font-weight: 700; font-size: 13px; padding: 10px 20px; border-radius: 99px;
+  transition: transform .2s var(--ease-out), box-shadow .2s;
+}
+.tour-pop-next:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
+
+/* arrow — points up at the target by default, down when the tip is above it */
+.tour-pop-arrow {
+  position: absolute; top: -7px; left: 50%; transform: translateX(-50%) rotate(45deg);
+  width: 13px; height: 13px; background: #fff;
+  border-left: 1px solid var(--g150); border-top: 1px solid var(--g150);
+}
+.tour-pop.tour-pop-above .tour-pop-arrow {
+  top: auto; bottom: -7px; transform: translateX(-50%) rotate(225deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot, .tour-pop { animation: none; transition: none; }
+}
+
 .soon-badge {
   font-family: var(--ff-mono);
   font-size: 9px;

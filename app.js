@@ -1536,6 +1536,11 @@ async function init() {
     setTimeout(() => { adjustLevel(); }, 50);
   }
 
+  // First-visit coach-mark tour of the controls (skip if we're auto-running something).
+  if (!autostart && !localStorage.getItem('bipass_tour_seen')) {
+    setTimeout(startTour, 600);
+  }
+
   // Refresh plan status when user returns to tab
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
@@ -2835,10 +2840,148 @@ function showToast(msg) {
 
   window.__bipassShowExtPopup = showPopup;
 
-  if (!localStorage.getItem('ext_popup_seen') && !document.getElementById('welcome-modal')) {
+  // Don't collide with the first-visit tour — the ext popup waits until the tour is done
+  // (it then auto-shows on a later visit). Still opens anytime from its nav button.
+  if (!localStorage.getItem('ext_popup_seen') && localStorage.getItem('bipass_tour_seen')) {
     setTimeout(showPopup, 1400);
   }
 })();
+
+// ─── First-visit coach-mark tour (dropdown → level → run) ─────
+const TOUR_STEPS = [
+  {
+    els: ['mode-dd', 'mode-dd-menu'],
+    title: 'Choose your mode',
+    body: 'Level Adjust rewrites at a grade level, Humanize makes AI text sound human — or do both together.',
+    onEnter: () => {
+      const dd = document.getElementById('mode-dd');
+      dd?.classList.add('open');
+      document.getElementById('mode-dd-trigger')?.setAttribute('aria-expanded', 'true');
+    },
+    onExit: () => {
+      const dd = document.getElementById('mode-dd');
+      dd?.classList.remove('open');
+      document.getElementById('mode-dd-trigger')?.setAttribute('aria-expanded', 'false');
+    },
+  },
+  {
+    els: ['level-box'],
+    title: 'Pick a writing level',
+    body: 'Beginner, Student, Academic — or Custom to fine-tune. This sets how your text gets rewritten.',
+  },
+  {
+    els: ['humanize-btn'],
+    title: 'Then run it',
+    body: 'Paste your text and hit this — your result opens in the editor, ready to copy.',
+  },
+];
+
+function startTour() {
+  if (document.getElementById('tour-catch')) return;         // already running
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0;
+
+  const catcher = document.createElement('div');
+  catcher.id = 'tour-catch';
+  catcher.className = 'tour-catch';
+
+  const spot = document.createElement('div');
+  spot.className = 'tour-spot';
+
+  const pop = document.createElement('div');
+  pop.className = 'tour-pop';
+
+  // Eat clicks so the page stays inert and the dropdown's outside-close can't fire.
+  catcher.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+
+  document.body.appendChild(catcher);
+  document.body.appendChild(spot);
+  document.body.appendChild(pop);
+
+  function unionRect(ids) {
+    let r = null;
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const b = el.getBoundingClientRect();
+      if (b.width === 0 && b.height === 0) return;
+      r = r ? {
+        top: Math.min(r.top, b.top), left: Math.min(r.left, b.left),
+        right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom),
+      } : { top: b.top, left: b.left, right: b.right, bottom: b.bottom };
+    });
+    return r;
+  }
+
+  function place() {
+    const step = TOUR_STEPS[i];
+    const r = unionRect(step.els);
+    if (!r) return;
+    const pad = 8;
+    const top = r.top - pad, left = r.left - pad;
+    const w = (r.right - r.left) + pad * 2, h = (r.bottom - r.top) + pad * 2;
+    spot.style.top = top + 'px';
+    spot.style.left = left + 'px';
+    spot.style.width = w + 'px';
+    spot.style.height = h + 'px';
+
+    // Position the tooltip below the target, flip above if not enough room, clamp to viewport.
+    const popRect = pop.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const below = top + h + 14;
+    const above = top - popRect.height - 14;
+    let pTop = (below + popRect.height < vh - 12) ? below : (above > 12 ? above : below);
+    let pLeft = left + w / 2 - popRect.width / 2;
+    pLeft = Math.max(12, Math.min(pLeft, vw - popRect.width - 12));
+    pop.style.top = pTop + 'px';
+    pop.style.left = pLeft + 'px';
+    pop.classList.toggle('tour-pop-above', pTop < top);
+  }
+
+  function render() {
+    const step = TOUR_STEPS[i];
+    const last = i === TOUR_STEPS.length - 1;
+    pop.innerHTML = `
+      <div class="tour-pop-count">${i + 1} / ${TOUR_STEPS.length}</div>
+      <div class="tour-pop-title"></div>
+      <div class="tour-pop-body"></div>
+      <div class="tour-pop-actions">
+        <button type="button" class="tour-pop-skip">Skip</button>
+        <button type="button" class="tour-pop-next">${last ? 'Got it' : 'Next →'}</button>
+      </div>
+      <span class="tour-pop-arrow" aria-hidden="true"></span>`;
+    pop.querySelector('.tour-pop-title').textContent = step.title;
+    pop.querySelector('.tour-pop-body').textContent = step.body;
+    pop.querySelector('.tour-pop-next').addEventListener('click', next);
+    pop.querySelector('.tour-pop-skip').addEventListener('click', finish);
+
+    const first = document.getElementById(step.els[0]);
+    step.onEnter?.();
+    place();                                   // position immediately (no corner flash)
+    first?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    setTimeout(place, reduce ? 0 : 300);       // re-settle after the smooth scroll
+
+  }
+
+  function next() {
+    TOUR_STEPS[i].onExit?.();
+    if (i >= TOUR_STEPS.length - 1) { finish(); return; }
+    i++;
+    render();
+  }
+
+  function finish() {
+    TOUR_STEPS[i]?.onExit?.();
+    window.removeEventListener('scroll', place, true);
+    window.removeEventListener('resize', place);
+    catcher.remove(); spot.remove(); pop.remove();
+    try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
+  }
+
+  window.addEventListener('scroll', place, true);
+  window.addEventListener('resize', place);
+  render();
+}
 
 // ─── Own Text → Extension ────────────────────────────────────
 

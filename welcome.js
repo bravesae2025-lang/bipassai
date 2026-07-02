@@ -55,6 +55,8 @@ function goToStep(index) {
 }
 
 function onStepEnter(index) {
+  // Intensify the dot-grid background on the plans step.
+  document.body.classList.toggle('is-plans', index === 2);
   if (index === 1 && !giftInitialized) initGift();
 }
 

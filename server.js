@@ -36,6 +36,20 @@ async function callClaude(prompt, stream = false) {
   });
 }
 
+// RewriteAI — purpose-built humanizer used by the Humanize / Humanize+Level modes.
+const REWRITEAI_ENDPOINT = 'https://rewriteai.com/api/v1/humanize';
+
+async function callRewriteAI(text) {
+  return fetch(REWRITEAI_ENDPOINT, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${process.env.REWRITEAI_API_KEY}`,
+    },
+    body: JSON.stringify({ text }),
+  });
+}
+
 const SUPABASE_URL     = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
@@ -654,6 +668,68 @@ app.post('/api/adjust-level', async (req, res) => {
     return res.json({ result: finalResult, creditsUsed, creditsRemaining: newCredits });
   } catch (err) {
     console.error('/api/adjust-level error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ─── POST /api/rw-humanize ─────────────────────────────────────
+// RewriteAI humanizer. Used by the "Humanize" mode, and as the 2nd step of
+// "Humanize + Level Adjust" (the client sends the already-level-adjusted text).
+app.post('/api/rw-humanize', async (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'No text provided' });
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  // ── Credit check (mirror /api/adjust-level) ───────────────────
+  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  if (planExpiresAt && Date.now() > planExpiresAt) {
+    const userTier = user.user_metadata?.tier || 'free';
+    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
+  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  if (creditsExpireAt && Date.now() > creditsExpireAt) {
+    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
+  }
+  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+
+  if (!process.env.REWRITEAI_API_KEY) return res.status(500).json({ error: 'Humanizer not configured' });
+
+  let cancelled = false;
+  req.on('close', () => { cancelled = true; });
+
+  try {
+    const rwRes = await callRewriteAI(text);
+
+    if (!rwRes.ok) {
+      const err = await rwRes.json().catch(() => ({}));
+      const msg = err?.error || err?.message;
+      // Map RewriteAI's codes to something the UI can show cleanly.
+      if (rwRes.status === 401) { console.error('[rw-humanize] bad RewriteAI key'); return res.status(500).json({ error: 'Humanizer not configured' }); }
+      if (rwRes.status === 402) return res.status(503).json({ error: 'The humanizer is temporarily out of capacity. Please try again later.' });
+      if (rwRes.status === 400) return res.status(400).json({ error: msg || 'Text too long or invalid.' });
+      return res.status(502).json({ error: msg || 'Humanizer error' });
+    }
+
+    const data   = await rwRes.json();
+    const result = data?.results?.[0]?.text?.trim();
+    if (!result) return res.status(502).json({ error: 'No output from humanizer' });
+
+    // ── Deduct credits: 1 per INPUT character (same model as adjust-level) ──
+    if (cancelled) return;
+    const creditsUsed = (text || '').length;
+    const newCredits  = Math.max(0, credits - creditsUsed);
+    await updateUserCredits(user.id, newCredits);
+
+    return res.json({ result, creditsUsed, creditsRemaining: newCredits });
+  } catch (err) {
+    console.error('/api/rw-humanize error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });

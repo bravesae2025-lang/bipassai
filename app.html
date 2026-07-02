@@ -181,8 +181,8 @@
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
                 <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Adjust</li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize<span class="soon-badge">Soon</span></li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Adjust<span class="soon-badge">Soon</span></li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize</li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Adjust</li>
               </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
@@ -278,7 +278,6 @@
               </span>
               <span class="btn-sweep" aria-hidden="true"></span>
             </button>
-            <p class="humanizer-note" id="humanizer-note" hidden>Humanize is coming soon — this step will be live shortly.</p>
           </div>
         </div>
 
@@ -782,7 +781,10 @@
         if (on && current) current.textContent = o.firstChild.textContent.trim();
       });
       if (ws) ws.classList.toggle('mode-humanize', mode !== 'level');
+      // Expose the current mode so app.js knows which action to run.
+      document.body.dataset.appMode = mode;
     }
+    document.body.dataset.appMode = 'level';
 
     function closeMenu() {
       dd?.classList.remove('open');
@@ -798,11 +800,8 @@
     document.addEventListener('click', (e) => { if (dd && !dd.contains(e.target)) closeMenu(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
-    // Humanize button — UI base only; show coming-soon note
-    const note = document.getElementById('humanizer-note');
-    document.getElementById('humanizer-btn')?.addEventListener('click', () => {
-      if (note) note.hidden = false;
-    });
+    // Humanize button is wired in app.js (runHumanize) — it reads
+    // document.body.dataset.appMode to pick humanize vs. humanize+level.
   })();
   </script>
 

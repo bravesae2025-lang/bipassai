@@ -1088,6 +1088,97 @@ async function adjustLevel() {
   }
 }
 
+// ─── Humanize (RewriteAI) ─────────────────────────────────────
+// Mode "humanize": RewriteAI on the raw input.
+// Mode "both":     Level Adjust (Gemini/Claude) first, then RewriteAI on that.
+async function runHumanize() {
+  const text = inputText.value.trim();
+  if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
+
+  const mode  = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
+  const token = await window.bipassAuth.getToken();
+
+  setLoading(true, mode === 'both' ? 'Adjusting level…' : 'Humanizing…');
+  try {
+    let working = text;
+
+    // ── Step 1 (both only): Level Adjust via Gemini/Claude ──────
+    if (mode === 'both') {
+      const getMistakes = () => ({
+        grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
+        tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
+        punct:     parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value     || 0),
+        caps:      parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value      || 0),
+        spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
+        wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
+      });
+      const alRes = await fetch('/api/adjust-level', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body:    JSON.stringify({
+          text,
+          level: selectedLevel,
+          lockSentenceStructure,
+          mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+        }),
+      });
+      if (alRes.status === 402) {
+        const d = await alRes.json().catch(() => ({}));
+        setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
+      }
+      if (!alRes.ok) throw new Error('Level adjust failed');
+      const alData = await alRes.json();
+      const parsed = _parseAnnotatedResult(alData.result);
+      working = parsed ? parsed.cleanText : alData.result;   // strip [[…]] markers
+      if (alData.creditsUsed != null) updateCreditDisplay(alData.creditsUsed, alData.creditsRemaining);
+    }
+
+    // ── Step 2: Humanize via RewriteAI ──────────────────────────
+    setLoading(true, 'Humanizing…');
+    const hRes = await fetch('/api/rw-humanize', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ text: working }),
+    });
+    if (hRes.status === 402) {
+      const d = await hRes.json().catch(() => ({}));
+      setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
+    }
+    if (!hRes.ok) {
+      const d = await hRes.json().catch(() => ({}));
+      throw new Error(d.error || 'Humanize failed');
+    }
+    const hData  = await hRes.json();
+    const result = hData.result;
+    if (!result) throw new Error('No output from humanizer');
+
+    // Diff against the ORIGINAL input so the editor highlights every change.
+    const htmlDiff = _buildDiffHtml(text, result);
+    const changed  = _countChanges(text, result);
+
+    lfxFinish();
+    if (hData.creditsUsed != null) {
+      updateCreditDisplay(hData.creditsUsed, hData.creditsRemaining);
+      animateLoadingCredits(hData.creditsUsed);
+      await new Promise(r => setTimeout(r, 1200));
+    }
+
+    sessionStorage.setItem('bipass_input',        text);
+    sessionStorage.setItem('bipass_result',       result);
+    sessionStorage.setItem('bipass_result_html',  htmlDiff);
+    sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_change_count', String(changed));
+    sessionStorage.setItem('bipass_wc',           String(countWords(text)));
+    sessionStorage.setItem('bipass_level',        selectedLevel);
+    window.location.href = 'editor.html';
+  } catch (err) {
+    setLoading(false);
+    showToast(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+}
+
 // ─── State ────────────────────────────────────────────────────
 
 let selectedLevel          = 'easy';
@@ -1558,6 +1649,7 @@ function bindEvents() {
   });
 
   humanizeBtn.addEventListener('click', adjustLevel);
+  document.getElementById('humanizer-btn')?.addEventListener('click', runHumanize);
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }

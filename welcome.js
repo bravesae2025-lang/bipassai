@@ -174,7 +174,7 @@ function fireBurst() {
 
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight * 0.4;
-  const COLORS = ['#ffffff', '#d4d4d4', '#8a8a86', '#f4f4f2'];
+  const COLORS = ['#0d0d0d', '#3d3d3d', '#5a5a5a', '#7a7a7a'];  // dark — visible on the light bg
   const N = 130;
   const parts = [];
   for (let i = 0; i < N; i++) {

@@ -2880,6 +2880,7 @@ function startTour() {
   if (document.getElementById('tour-catch')) return;         // already running
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let i = 0;
+  let rafId = 0;
 
   const catcher = document.createElement('div');
   catcher.id = 'tour-catch';
@@ -2938,6 +2939,11 @@ function startTour() {
     pop.classList.toggle('tour-pop-above', pTop < top);
   }
 
+  // Keep the spotlight + tooltip glued to the target every frame, so they follow the
+  // ADJUST LEVEL button when the right-panel workflow box collapses/expands and reflows
+  // the layout (which fires no scroll/resize event).
+  function track() { place(); rafId = requestAnimationFrame(track); }
+
   function render() {
     const step = TOUR_STEPS[i];
     const last = i === TOUR_STEPS.length - 1;
@@ -2972,6 +2978,7 @@ function startTour() {
 
   function finish() {
     TOUR_STEPS[i]?.onExit?.();
+    cancelAnimationFrame(rafId);
     window.removeEventListener('scroll', place, true);
     window.removeEventListener('resize', place);
     catcher.remove(); spot.remove(); pop.remove();
@@ -2981,6 +2988,7 @@ function startTour() {
   window.addEventListener('scroll', place, true);
   window.addEventListener('resize', place);
   render();
+  rafId = requestAnimationFrame(track);
 }
 
 // ─── Own Text → Extension ────────────────────────────────────

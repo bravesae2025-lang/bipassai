@@ -290,11 +290,17 @@ app.post('/api/create-checkout', async (req, res) => {
   const plan = req.body?.plan;
   if (!STRIPE_PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
 
+  // Checkouts started from the onboarding flow cancel back to the plans step (the
+  // "3rd paywall") instead of dumping the user on the standalone pricing page.
+  const cancelUrl = req.body?.from === 'welcome'
+    ? 'https://bipassai.com/welcome.html?step=plans'
+    : 'https://bipassai.com/plans.html';
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
     success_url: 'https://bipassai.com/plans.html?activated=1',
-    cancel_url:  'https://bipassai.com/plans.html',
+    cancel_url:  cancelUrl,
     metadata: { user_id: user.id, type: 'plan', plan },
     client_reference_id: user.id,
   });

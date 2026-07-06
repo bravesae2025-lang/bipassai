@@ -102,17 +102,17 @@ body.onb.is-plans .onb-dots { opacity: 1; }
 
 /* ── Typography (Inter) ──────────────────────────────────────── */
 .onb-eyebrow {
-  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.28em;
-  text-transform: uppercase; color: var(--onb-mute); margin-bottom: 18px;
+  font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--onb-mute); margin-bottom: 16px;
 }
 .onb-eyebrow-accent { color: var(--onb-ink); }
 .onb-title {
   font-family: var(--ff-display); font-weight: 800;
-  font-size: clamp(42px, 7.5vw, 84px); line-height: 0.98;
+  font-size: clamp(38px, 6.7vw, 76px); line-height: 0.98;
   letter-spacing: -0.03em; text-transform: uppercase;
 }
-.onb-title-xl { font-size: clamp(54px, 9.5vw, 112px); }
-.onb-sub { color: var(--onb-mute); font-size: 16px; margin-top: 18px; max-width: 42ch; }
+.onb-title-xl { font-size: clamp(48px, 8.5vw, 100px); }
+.onb-sub { color: var(--onb-mute); font-size: 14.5px; margin-top: 16px; max-width: 42ch; }
 
 /* ── Survey chips ────────────────────────────────────────────── */
 .onb-chips {
@@ -120,9 +120,9 @@ body.onb.is-plans .onb-dots { opacity: 1; }
   margin-top: 40px; max-width: 560px;
 }
 .onb-chip {
-  font-family: var(--ff-ui); font-size: 14px; font-weight: 600; color: var(--onb-ink);
+  font-family: var(--ff-ui); font-size: 13px; font-weight: 600; color: var(--onb-ink);
   background: var(--onb-card); border: 1px solid var(--onb-line);
-  padding: 12px 20px; border-radius: 99px; cursor: pointer;
+  padding: 11px 18px; border-radius: 99px; cursor: pointer;
   transition: transform .25s var(--ease-out), background .25s, border-color .25s, color .25s;
 }
 .onb-chip:hover { border-color: var(--onb-line2); transform: translateY(-2px); }
@@ -136,9 +136,9 @@ body.onb.is-plans .onb-dots { opacity: 1; }
   margin-top: 44px; display: flex; flex-direction: column; align-items: center; gap: 16px;
 }
 .onb-btn {
-  font-family: var(--ff-ui); font-size: 15px; font-weight: 700; letter-spacing: 0.02em;
+  font-family: var(--ff-ui); font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
   color: #fff; background: var(--onb-ink); border: 0;
-  padding: 16px 40px; border-radius: 99px; cursor: pointer;
+  padding: 14px 34px; border-radius: 99px; cursor: pointer;
   display: inline-flex; align-items: center; gap: 10px;
   transition: transform .3s var(--ease-out), box-shadow .3s, opacity .3s;
   box-shadow: 0 12px 34px rgba(0,0,0,0.18);
@@ -192,16 +192,16 @@ body.onb.is-plans .onb-dots { opacity: 1; }
 @keyframes onb-ring { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.5); opacity: 0; } }
 @keyframes onb-pop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
 
-.onb-gift-line { color: var(--onb-ink); font-size: 19px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
-.onb-gift-sub  { color: var(--onb-mute); font-size: 13px; margin-top: 8px; }
+.onb-gift-line { color: var(--onb-ink); font-size: 17px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
+.onb-gift-sub  { color: var(--onb-mute); font-size: 12px; margin-top: 8px; }
 
 .onb-gift-stats {
   margin-top: 26px; display: flex; align-items: center; gap: 30px;
   border-top: 1px solid var(--onb-line); padding-top: 24px; width: 100%; justify-content: center;
 }
 .onb-stat { display: flex; flex-direction: column; gap: 6px; }
-.onb-stat-num { font-family: var(--ff-display); font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-.onb-countdown { font-family: var(--ff-mono); font-weight: 500; font-size: 30px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.onb-stat-num { font-family: var(--ff-display); font-weight: 800; font-size: 36px; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.onb-countdown { font-family: var(--ff-mono); font-weight: 500; font-size: 27px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .onb-stat-label { font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--onb-faint); }
 .onb-stat-div { width: 1px; align-self: stretch; background: var(--onb-line); }
 
@@ -220,7 +220,7 @@ body.onb.is-plans .onb-dots { opacity: 1; }
 .onb-plan {
   position: relative; text-align: left; cursor: pointer;
   background: var(--onb-card); border: 1px solid var(--onb-line); border-radius: 18px;
-  padding: 34px 22px 26px; display: flex; flex-direction: column; gap: 8px; color: var(--onb-ink);
+  padding: 28px 20px 22px; display: flex; flex-direction: column; gap: 8px; color: var(--onb-ink);
   transition: transform .3s var(--ease-out), border-color .3s, background .3s, box-shadow .3s;
 }
 .onb-plan:hover { transform: translateY(-4px); border-color: var(--onb-line2); box-shadow: 0 16px 40px rgba(0,0,0,0.10); }
@@ -236,12 +236,12 @@ body.onb.is-plans .onb-dots { opacity: 1; }
 }
 .onb-plan-badge-hot  { background: var(--onb-ink); }
 .onb-plan-badge-best { background: #fff; color: var(--onb-ink); font-weight: 500; }
-.onb-plan-name { font-family: var(--ff-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--onb-mute); margin-top: 6px; }
-.onb-plan-price { font-family: var(--ff-display); font-weight: 800; font-size: 52px; line-height: 0.9; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.onb-plan-cur { font-size: 26px; vertical-align: super; font-weight: 700; }
-.onb-plan-cents { font-size: 26px; }
-.onb-plan-mo { font-size: 16px; color: var(--onb-mute); font-family: var(--ff-mono); }
-.onb-plan-period { font-size: 13px; color: var(--onb-mute); }
+.onb-plan-name { font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--onb-mute); margin-top: 6px; }
+.onb-plan-price { font-family: var(--ff-display); font-weight: 800; font-size: 46px; line-height: 0.9; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.onb-plan-cur { font-size: 23px; vertical-align: super; font-weight: 700; }
+.onb-plan-cents { font-size: 23px; }
+.onb-plan-mo { font-size: 14px; color: var(--onb-mute); font-family: var(--ff-mono); }
+.onb-plan-period { font-size: 12px; color: var(--onb-mute); }
 .onb-plan.is-loading { opacity: 0.5; pointer-events: none; }
 
 .onb-actions-plans { margin-top: 34px; }

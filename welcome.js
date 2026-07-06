@@ -149,7 +149,7 @@ async function activatePlan(plan, btn) {
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, from: 'welcome' }),
     });
     if (!res.ok) throw new Error('Failed');
     const { url } = await res.json();
@@ -224,12 +224,17 @@ function fireBurst() {
 
 // ── Boot ───────────────────────────────────────────────────────
 (async function init() {
+  // Returning from a cancelled checkout → drop the user straight back on the plans
+  // step (the "3rd paywall"), even though onboarding is already marked complete.
+  const jumpToPlans = new URLSearchParams(location.search).get('step') === 'plans';
+
   // Preview mode skips the auth gate entirely so the design can be reviewed.
   if (!PREVIEW) {
     const session = await window.bipassAuth.requireAuth();
     if (!session) return;
-    // Already onboarded → straight to the tool (no repeat, no loop).
-    if (session.user.user_metadata?.signup_welcome_shown) {
+    // Already onboarded → straight to the tool (no repeat, no loop) — unless we're
+    // deep-linking back to the plans step after a cancelled checkout.
+    if (session.user.user_metadata?.signup_welcome_shown && !jumpToPlans) {
       window.location.replace('/home');
       return;
     }
@@ -238,6 +243,23 @@ function fireBurst() {
   setupSurvey();
   setupPlans();
 
-  // Progress dots reflect the starting step.
-  document.querySelectorAll('.onb-dot').forEach((d, i) => d.classList.toggle('is-active', i === 0));
+  if (jumpToPlans) {
+    // Show the plans step immediately (no survey/gift replay).
+    STEPS.forEach((id, idx) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const active = idx === 2;
+      el.hidden = !active;
+      el.classList.toggle('is-current', active);
+    });
+    current = 2;
+    document.querySelectorAll('.onb-dot').forEach((d, i) => {
+      d.classList.toggle('is-active', i === 2);
+      d.classList.toggle('is-done', i < 2);
+    });
+    onStepEnter(2);
+  } else {
+    // Progress dots reflect the starting step.
+    document.querySelectorAll('.onb-dot').forEach((d, i) => d.classList.toggle('is-active', i === 0));
+  }
 })();

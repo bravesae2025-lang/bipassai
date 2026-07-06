@@ -1029,6 +1029,9 @@ async function adjustLevel() {
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
   if (!requireLevel()) return;
 
+  // The user actually ran the tool → retire the first-visit coach-mark tour.
+  try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
+
   const getMistakes = () => ({
     grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
     tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
@@ -2392,6 +2395,9 @@ async function humanize() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
+  // The user actually ran the tool → retire the first-visit coach-mark tour.
+  try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
+
   updateCostPreview('humanize-cost', null);
   saveState('humanize');
   setLoading(true, 'Humanizing your text…');
@@ -2982,7 +2988,9 @@ function startTour() {
     window.removeEventListener('scroll', place, true);
     window.removeEventListener('resize', place);
     catcher.remove(); spot.remove(); pop.remove();
-    try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
+    // NOTE: we intentionally do NOT mark the tour "seen" here. Dismissing/skipping
+    // shouldn't retire it — it keeps showing until the user actually runs the tool
+    // (bipass_tour_seen is set in adjustLevel()/humanize()).
   }
 
   window.addEventListener('scroll', place, true);

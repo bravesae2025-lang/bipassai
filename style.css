@@ -5652,13 +5652,24 @@ body.drawer-lock { overflow: hidden; }
 .col-own-text-box {
   margin-top: clamp(18px, 3vh, 36px);
   background: #fff;
-  border: 2px solid rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
   padding: clamp(10px, 1.4vh, 18px) 26px clamp(12px, 1.6vh, 22px);
   display: flex;
   flex-direction: column;
   gap: clamp(6px, 0.9vh, 10px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.05),
+    0 12px 32px rgba(0,0,0,0.08),
+    0 28px 56px rgba(0,0,0,0.05);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+}
+.col-own-text-box:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 18px 44px rgba(0,0,0,0.10),
+    0 36px 72px rgba(0,0,0,0.07);
 }
 
 .col-own-text-name {

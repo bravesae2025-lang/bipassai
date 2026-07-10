@@ -93,7 +93,7 @@ async function initGift() {
   giftInitialized = true;
   fireBurst();
 
-  let expiresAt = Date.now() + 86400000; // fallback: 24h
+  let expiresAt = Date.now() + 259200000; // fallback: 72h
 
   if (!PREVIEW) {
     try {

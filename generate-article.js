@@ -232,7 +232,7 @@ function buildArticlePage({ title, metaDescription, keywords, tag, readMinutes, 
   const ctaBox =
     `      <div class="blog-cta-box">\n` +
     `        <h3>Try ${CONFIG.brand} free — 2,000 credits, no card</h3>\n` +
-    `        <p>Humanize, level-adjust, and auto-type into Google Docs. New accounts get 2,000 credits and a free 24-hour pass instantly.</p>\n` +
+    `        <p>Humanize, level-adjust, and auto-type into Google Docs. New accounts get 2,000 credits and a free 3-day pass instantly.</p>\n` +
     `        <a class="blog-cta-btn" href="/home">Get Started Free &rarr;</a>\n` +
     `      </div>`;
 

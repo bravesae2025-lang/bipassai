@@ -1500,7 +1500,7 @@ async function init() {
   bipassSetupPlanStatus(session);
 
   // Show no-plan banner only when there's no active plan AND no active free trial.
-  // (bipassHasActivePass counts the free 1-day signup pass, so trial users aren't nagged.)
+  // (bipassHasActivePass counts the free 3-day signup pass, so trial users aren't nagged.)
   if (!bipassHasActivePass(session)) {
     const _banner = document.getElementById('no-plan-banner');
     if (_banner) {

@@ -52,7 +52,7 @@ window.bipassAuth = {
 };
 
 // Active-pass check (UX gate — server re-checks authoritatively).
-// True if a paid plan is active OR the free 1-day signup pass is still valid.
+// True if a paid plan is active OR the free 3-day signup pass is still valid.
 function bipassHasActivePass(session) {
   const m = session?.user?.user_metadata || {};
   const now = Date.now();

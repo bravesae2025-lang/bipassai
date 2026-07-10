@@ -350,10 +350,10 @@ app.post('/api/init-credits', async (req, res) => {
     return res.json({ alreadyInit: true });
   }
 
-  // Free signup = a 1-day pass (unlocks Auto Typer / Pro for 24h) + 2,000 credits.
+  // Free signup = a 3-day pass (unlocks Auto Typer / Pro for 72h) + 2,000 credits.
   // Credits never expire (credits_expire_at: null) so they stay usable after the
-  // pass ends; only the Pro window (free_pass_until) lapses at 24h.
-  const passExpiresAt = Date.now() + 86400000; // 24 hours
+  // pass ends; only the Pro window (free_pass_until) lapses at 72h.
+  const passExpiresAt = Date.now() + 259200000; // 72 hours (3 days)
   await updateUserMeta(user.id, {
     credits: INITIAL_CREDITS,
     credits_expire_at: null,
@@ -366,7 +366,7 @@ app.post('/api/init-credits', async (req, res) => {
 
 // ─── Active-pass check ────────────────────────────────────────
 // A user can push text to the Auto Typer extension only with an active pass:
-// a paid plan that hasn't expired, OR the free 1-day signup pass.
+// a paid plan that hasn't expired, OR the free 3-day signup pass.
 function hasActivePass(user) {
   const m = user?.user_metadata || {};
   const now = Date.now();

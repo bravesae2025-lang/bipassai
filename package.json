@@ -3,10 +3,16 @@
   "version": "1.0.1",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon --exec \"node server.js\"",
+    "preview": "browser-sync start --proxy localhost:3000 --port 3001 --files \"style.css, *.html, *.js\" --no-notify"
   },
   "dependencies": {
     "express": "^4.19.2",
     "stripe": "^22.2.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "nodemon": "^3.1.14"
   }
 }

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
-  <link rel="stylesheet" href="welcome.css?v=4">
+  <link rel="stylesheet" href="welcome.css?v=5">
 </head>
 <body class="onb">
 
@@ -55,10 +55,88 @@
       </div>
     </section>
 
-    <!-- ── STEP 2 · Free gift ──────────────────────────────────── -->
-    <section class="onb-step" id="step-gift" data-step="1" hidden>
-      <p class="onb-eyebrow onb-eyebrow-accent">Your reward</p>
-      <h1 class="onb-title onb-title-xl">You've<br>earned</h1>
+    <!-- ── STEP 2 · Name ───────────────────────────────────────── -->
+    <section class="onb-step" id="step-name" data-step="1" hidden>
+      <p class="onb-eyebrow">Nice to meet you</p>
+      <h1 class="onb-title">Let's get to know<br>you better</h1>
+      <p class="onb-sub">What should we call you?</p>
+
+      <div class="onb-name-wrap">
+        <input class="onb-name-input" id="name-input" type="text"
+               placeholder="Your first name" autocomplete="given-name"
+               maxlength="40" spellcheck="false">
+      </div>
+
+      <div class="onb-actions">
+        <button type="button" class="onb-btn" id="name-continue" disabled>
+          Continue <span class="onb-btn-arrow">→</span>
+        </button>
+        <button type="button" class="onb-skip" id="name-skip">Skip</button>
+      </div>
+    </section>
+
+    <!-- ── STEP 3 · Gacha reward ───────────────────────────────── -->
+    <section class="onb-step" id="step-gacha" data-step="2" hidden>
+
+      <!-- phase A · the sealed case -->
+      <div class="gacha-phase" id="gacha-case-phase">
+        <p class="onb-eyebrow onb-eyebrow-accent">Your reward</p>
+        <h1 class="onb-title onb-title-xl">Mystery<br>reward</h1>
+        <p class="onb-sub">Everyone wins a Pro Pass + 2,000 credits.<br>How long the pass lasts? That's up to luck.</p>
+
+        <div class="gacha-case" id="gacha-case" aria-hidden="true">
+          <div class="gacha-case-lid">
+            <span class="gacha-case-q">?</span>
+          </div>
+          <div class="gacha-case-glow"></div>
+        </div>
+
+        <p class="gacha-odds" aria-label="Drop rates">3-DAY <b>90%</b> &nbsp;·&nbsp; 1-DAY <b>7%</b> &nbsp;·&nbsp; 7-DAY <b>3%</b></p>
+
+        <div class="onb-actions">
+          <button type="button" class="onb-btn gacha-open-btn" id="gacha-open">
+            Open the case <span class="onb-btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- phase B · the reel -->
+      <div class="gacha-phase" id="gacha-reel-phase" hidden>
+        <p class="onb-eyebrow onb-eyebrow-accent">Opening…</p>
+        <div class="gacha-reel-wrap" id="gacha-reel-wrap">
+          <div class="gacha-track" id="gacha-track"></div>
+          <div class="gacha-needle" id="gacha-needle" aria-hidden="true"></div>
+          <div class="gacha-mask gacha-mask-l" aria-hidden="true"></div>
+          <div class="gacha-mask gacha-mask-r" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- phase C · the result -->
+      <div class="gacha-phase" id="gacha-result-phase" hidden>
+        <div class="gacha-flare" id="gacha-flare" aria-hidden="true"></div>
+        <p class="onb-eyebrow" id="gacha-result-eyebrow">You unboxed</p>
+        <div class="gacha-won-card" id="gacha-won-card">
+          <span class="gacha-won-days" id="gacha-won-days">3</span>
+          <span class="gacha-won-unit" id="gacha-won-unit">DAY</span>
+          <span class="gacha-won-label">PRO PASS</span>
+        </div>
+        <p class="gacha-credits-line">+ <b id="gacha-credits">0</b> credits <span class="gacha-credits-sub">· never expire</span></p>
+        <p class="onb-sub gacha-result-sub">Starts the moment you claim it.</p>
+
+        <div class="onb-actions gacha-result-actions">
+          <button type="button" class="onb-btn" id="gacha-claim-btn">
+            Sign up to claim your reward <span class="onb-btn-arrow">→</span>
+          </button>
+          <p class="gacha-note">Your reward is saved for 48 hours.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── STEP 4 · Claimed (post-signup only) ─────────────────── -->
+    <section class="onb-step" id="step-claimed" data-step="3" hidden>
+      <p class="onb-eyebrow onb-eyebrow-accent">All yours</p>
+      <h1 class="onb-title onb-title-xl">Reward<br>claimed</h1>
 
       <div class="onb-reward-card">
         <div class="onb-token" aria-hidden="true">
@@ -72,68 +150,23 @@
             <span class="onb-token-shine"></span>
           </div>
         </div>
-        <p class="onb-gift-line"><strong>2,000 credits + a 3-Day Pro Pass</strong></p>
-        <p class="onb-gift-sub">Added to your account — credits never expire.</p>
 
         <div class="onb-gift-stats">
           <div class="onb-stat">
-            <span class="onb-stat-num" id="gift-credits">2,000</span>
+            <span class="onb-stat-num" id="claimed-credits">2,000</span>
             <span class="onb-stat-label">credits · never expire</span>
           </div>
           <div class="onb-stat-div" aria-hidden="true"></div>
           <div class="onb-stat">
-            <span class="onb-stat-num onb-countdown" id="gift-countdown">72:00:00</span>
-            <span class="onb-stat-label">pro pass remaining</span>
+            <span class="onb-stat-num onb-countdown" id="claimed-countdown">—</span>
+            <span class="onb-stat-label" id="claimed-pass-label">pro pass remaining</span>
           </div>
         </div>
       </div>
 
       <div class="onb-actions">
-        <button type="button" class="onb-btn" id="gift-continue">
-          See plans <span class="onb-btn-arrow">→</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- ── STEP 3 · Discounted plans ───────────────────────────── -->
-    <section class="onb-step" id="step-plans" data-step="2" hidden>
-      <p class="onb-eyebrow">Limited-time pricing</p>
-      <h1 class="onb-title">Unlock<br>everything.</h1>
-      <p class="onb-sub">Your free pass is ticking — lock in a deal before it ends.</p>
-
-      <div class="onb-plans" id="onb-plans">
-        <button type="button" class="onb-plan" data-plan="day">
-          <span class="onb-plan-badge">STARTER</span>
-          <span class="onb-plan-name">Day Pass</span>
-          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>0<span class="onb-plan-cents">.99</span></span>
-          <span class="onb-plan-period">one time · 3,000 credits</span>
-        </button>
-
-        <button type="button" class="onb-plan" data-plan="weekly">
-          <span class="onb-plan-badge onb-plan-badge-hot">MOST POPULAR</span>
-          <span class="onb-plan-name">Weekly Pass</span>
-          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>4<span class="onb-plan-cents">.99</span></span>
-          <span class="onb-plan-period">per week · 10,000 credits</span>
-        </button>
-
-        <button type="button" class="onb-plan onb-plan-feat" data-plan="annual">
-          <span class="onb-plan-badge onb-plan-badge-best">BEST VALUE · 61% OFF</span>
-          <span class="onb-plan-name">Annual Pass</span>
-          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>11<span class="onb-plan-cents">.58</span><span class="onb-plan-mo">/mo</span></span>
-          <span class="onb-plan-period">billed yearly · 100,000 credits</span>
-        </button>
-
-        <button type="button" class="onb-plan" data-plan="monthly">
-          <span class="onb-plan-badge">SAVE 40%</span>
-          <span class="onb-plan-name">Monthly Pass</span>
-          <span class="onb-plan-price"><span class="onb-plan-cur">$</span>17<span class="onb-plan-cents">.99</span></span>
-          <span class="onb-plan-period">per month · 30,000 credits</span>
-        </button>
-      </div>
-
-      <div class="onb-actions onb-actions-plans">
-        <button type="button" class="onb-skip onb-skip-lg" id="plans-skip">
-          Continue with my free pass →
+        <button type="button" class="onb-btn" id="claimed-continue">
+          Start writing <span class="onb-btn-arrow">→</span>
         </button>
       </div>
     </section>
@@ -144,7 +177,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="welcome.js?v=4"></script>
+  <script src="welcome.js?v=5"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

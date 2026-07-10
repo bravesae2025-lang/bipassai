@@ -59,6 +59,41 @@ const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
 
 const INITIAL_CREDITS = 2000;
 
+// ─── Signup reward gacha ──────────────────────────────────────
+// The welcome flow rolls the free-pass duration server-side and hands the
+// browser a signed token, so a guest can see their prize before signing up
+// but can't forge a longer one at claim time.
+const REWARD_SECRET    = process.env.REWARD_SECRET || SUPABASE_SERVICE_KEY || 'dev-reward-secret';
+const REWARD_TOKEN_TTL = 172800000; // claimable for 48h after the roll
+const REWARD_DAYS      = new Set([1, 3, 7]);
+
+function signRewardPayload(payload) {
+  return crypto.createHmac('sha256', REWARD_SECRET).update(payload).digest('hex');
+}
+
+function rollRewardDays() {
+  const r = Math.random() * 100;
+  if (r < 90) return 3; // 90%
+  if (r < 97) return 1; // 7%
+  return 7;             // 3%
+}
+
+// Returns the rolled days if the token is authentic and fresh, else null.
+function verifyRewardToken(token) {
+  if (typeof token !== 'string') return null;
+  const [daysStr, issuedStr, sig] = token.split('.');
+  if (!daysStr || !issuedStr || !sig) return null;
+  const expected = signRewardPayload(`${daysStr}.${issuedStr}`);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  const days   = Number(daysStr);
+  const issued = Number(issuedStr);
+  if (!REWARD_DAYS.has(days)) return null;
+  if (!Number.isFinite(issued) || Date.now() - issued > REWARD_TOKEN_TTL) return null;
+  return days;
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const STRIPE_PRICES = {
@@ -290,11 +325,7 @@ app.post('/api/create-checkout', async (req, res) => {
   const plan = req.body?.plan;
   if (!STRIPE_PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
 
-  // Checkouts started from the onboarding flow cancel back to the plans step (the
-  // "3rd paywall") instead of dumping the user on the standalone pricing page.
-  const cancelUrl = req.body?.from === 'welcome'
-    ? 'https://bipassai.com/welcome.html?step=plans'
-    : 'https://bipassai.com/plans.html';
+  const cancelUrl = 'https://bipassai.com/plans.html';
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -337,6 +368,17 @@ app.post('/api/create-credit-checkout', async (req, res) => {
   }
 });
 
+// ─── POST /api/roll-reward ────────────────────────────────────
+// Pre-auth gacha roll for the welcome flow. No account needed — the signed
+// token is what makes the result claimable later via /api/init-credits.
+
+app.post('/api/roll-reward', (req, res) => {
+  const days     = rollRewardDays();
+  const issuedAt = Date.now();
+  const payload  = `${days}.${issuedAt}`;
+  return res.json({ days, token: `${payload}.${signRewardPayload(payload)}` });
+});
+
 // ─── POST /api/init-credits ───────────────────────────────────
 
 app.post('/api/init-credits', async (req, res) => {
@@ -350,18 +392,30 @@ app.post('/api/init-credits', async (req, res) => {
     return res.json({ alreadyInit: true });
   }
 
-  // Free signup = a 3-day pass (unlocks Auto Typer / Pro for 72h) + 2,000 credits.
-  // Credits never expire (credits_expire_at: null) so they stay usable after the
-  // pass ends; only the Pro window (free_pass_until) lapses at 72h.
-  const passExpiresAt = Date.now() + 259200000; // 72 hours (3 days)
-  await updateUserMeta(user.id, {
+  // Free signup = a Pro Pass + 2,000 credits. The pass length comes from the
+  // signed gacha roll (1/3/7 days); a missing or tampered token falls back to
+  // the standard 3 days. Credits never expire (credits_expire_at: null) so
+  // they stay usable after the pass ends; only the Pro window lapses.
+  const days          = verifyRewardToken(req.body?.rewardToken) ?? 3;
+  const passExpiresAt = Date.now() + days * 86400000;
+
+  const meta = {
     credits: INITIAL_CREDITS,
     credits_expire_at: null,
     free_pass_until: passExpiresAt,
     signup_welcome_shown: true,
-  });
+  };
 
-  return res.json({ credits: INITIAL_CREDITS, passExpiresAt });
+  // Onboarding answers travel with the claim (the survey now runs pre-auth,
+  // so the client can't write them to Supabase itself until this moment).
+  const firstName = typeof req.body?.firstName === 'string' ? req.body.firstName.trim().slice(0, 40) : '';
+  const source    = typeof req.body?.source === 'string' ? req.body.source.trim().slice(0, 40) : '';
+  if (firstName) meta.first_name = firstName;
+  if (source) { meta.signup_source = source; meta.signup_source_at = Date.now(); }
+
+  await updateUserMeta(user.id, meta);
+
+  return res.json({ credits: INITIAL_CREDITS, passExpiresAt, days });
 });
 
 // ─── Active-pass check ────────────────────────────────────────

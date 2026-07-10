@@ -423,7 +423,9 @@
 
     async function goToPricing() {
       const session = await window.bipassAuth.getSession();
-      window.location.href = session ? 'plans.html' : 'login.html';
+      // Guests start at the onboarding (survey → gacha reward → signup),
+      // not at a login wall.
+      window.location.href = session ? 'plans.html' : 'welcome.html';
     }
 
     // ── Level-adjust showcase ─────────────────────────────────

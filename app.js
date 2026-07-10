@@ -1526,8 +1526,9 @@ async function init() {
     if (fresh !== null && valEl) valEl.textContent = fresh.toLocaleString();
   }).catch(() => {});
 
-  // Brand-new users → full-screen onboarding (survey → free gift → plans).
-  // welcome.html grants credits/pass and sets signup_welcome_shown, then returns to /home.
+  // Brand-new users → full-screen onboarding (survey → name → gacha reward).
+  // welcome.html claims the rolled pass + credits, sets signup_welcome_shown,
+  // then returns to /home. No plans step anymore.
   if (!session.user.user_metadata?.signup_welcome_shown) {
     window.location.replace('welcome.html');
     return;

@@ -68,6 +68,17 @@ function rebindToggle() {
   });
 }
 
+// ─── Arriving from onboarding ─────────────────────────────────
+// The welcome flow sends guests here with ?mode=signup after their gacha
+// reveal; open in sign-up mode and prefill the name they already gave us.
+(() => {
+  if (new URLSearchParams(location.search).get('mode') === 'signup') toggleBtn.click();
+  try {
+    const onb = JSON.parse(localStorage.getItem('bipass_onb') || '{}');
+    if (onb.name && !nameEl.value) nameEl.value = onb.name;
+  } catch (_) {}
+})();
+
 // ─── Submit ───────────────────────────────────────────────────
 submitBtn.addEventListener('click', async () => {
   const name     = nameEl.value.trim();

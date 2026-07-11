@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
-  <link rel="stylesheet" href="welcome.css?v=5">
+  <link rel="stylesheet" href="welcome.css?v=6">
 </head>
 <body class="onb">
 
@@ -78,40 +78,32 @@
     <!-- ── STEP 3 · Gacha reward ───────────────────────────────── -->
     <section class="onb-step" id="step-gacha" data-step="2" hidden>
 
-      <!-- phase A · the sealed case -->
-      <div class="gacha-phase" id="gacha-case-phase">
-        <p class="onb-eyebrow onb-eyebrow-accent">Your reward</p>
-        <h1 class="onb-title onb-title-xl">Mystery<br>reward</h1>
-        <p class="onb-sub">Everyone wins a Pro Pass + 2,000 credits.<br>How long the pass lasts? That's up to luck.</p>
-
-        <div class="gacha-case" id="gacha-case" aria-hidden="true">
-          <div class="gacha-case-lid">
-            <span class="gacha-case-q">?</span>
-          </div>
-          <div class="gacha-case-glow"></div>
+      <!-- phase A · the reel, live from the start -->
+      <div class="gacha-phase" id="gacha-spin-phase">
+        <div class="gacha-spin-ui">
+          <p class="onb-eyebrow onb-eyebrow-accent">Your reward</p>
+          <h1 class="onb-title onb-title-xl">Mystery<br>reward</h1>
+          <p class="onb-sub">Everyone wins a Pro Pass + 2,000 credits.<br>How long the pass lasts? That's up to luck.</p>
         </div>
 
-        <p class="gacha-odds" aria-label="Drop rates">3-DAY <b>90%</b> &nbsp;·&nbsp; 1-DAY <b>7%</b> &nbsp;·&nbsp; 7-DAY <b>3%</b></p>
-
-        <div class="onb-actions">
-          <button type="button" class="onb-btn gacha-open-btn" id="gacha-open">
-            Open the case <span class="onb-btn-arrow">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- phase B · the reel -->
-      <div class="gacha-phase" id="gacha-reel-phase" hidden>
-        <p class="onb-eyebrow onb-eyebrow-accent">Opening…</p>
         <div class="gacha-reel-wrap" id="gacha-reel-wrap">
           <div class="gacha-track" id="gacha-track"></div>
           <div class="gacha-needle" id="gacha-needle" aria-hidden="true"></div>
           <div class="gacha-mask gacha-mask-l" aria-hidden="true"></div>
           <div class="gacha-mask gacha-mask-r" aria-hidden="true"></div>
         </div>
+
+        <div class="gacha-spin-ui">
+          <p class="gacha-odds" aria-label="Drop rates">3-DAY <b>90%</b> &nbsp;·&nbsp; 1-DAY <b>7%</b> &nbsp;·&nbsp; 7-DAY <b>3%</b></p>
+          <div class="onb-actions gacha-spin-actions">
+            <button type="button" class="onb-btn gacha-open-btn" id="gacha-open">
+              Spin to reveal <span class="onb-btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- phase C · the result -->
+      <!-- phase B · the result -->
       <div class="gacha-phase" id="gacha-result-phase" hidden>
         <div class="gacha-flare" id="gacha-flare" aria-hidden="true"></div>
         <p class="onb-eyebrow" id="gacha-result-eyebrow">You unboxed</p>
@@ -177,7 +169,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="welcome.js?v=5"></script>
+  <script src="welcome.js?v=6"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

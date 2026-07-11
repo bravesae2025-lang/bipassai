@@ -174,7 +174,7 @@ function getRoll() {
 }
 
 function switchPhase(id) {
-  ['gacha-case-phase', 'gacha-reel-phase', 'gacha-result-phase'].forEach(pid => {
+  ['gacha-spin-phase', 'gacha-result-phase'].forEach(pid => {
     const el = document.getElementById(pid);
     const active = pid === id;
     el.hidden = !active;
@@ -184,7 +184,7 @@ function switchPhase(id) {
 
 function initGacha() {
   gachaInitialized = true;
-  getRoll(); // start rolling while they stare at the case
+  getRoll(); // start rolling while they eye the reel
 
   // Already revealed (e.g. came back mid-flow) → skip straight to the result.
   if (loadOnb().revealed) {
@@ -192,99 +192,140 @@ function initGacha() {
     return;
   }
 
-  // The case shivers now and then, begging to be opened.
-  const caseEl = document.getElementById('gacha-case');
-  const shiver = setInterval(() => {
-    caseEl.classList.add('is-eager');
-    setTimeout(() => caseEl.classList.remove('is-eager'), 600);
-  }, 3400);
+  // The reel is on screen from the first second, cards drifting, needle armed.
+  setupReel();
 
   document.getElementById('gacha-open').addEventListener('click', async () => {
-    clearInterval(shiver);
     const { days } = await getRoll();
+    setWinnerCard(days);
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       showResult(days, { quiet: true });
       return;
     }
-    switchPhase('gacha-reel-phase');
+    // Cinema mode: titles fall away, the reel zooms, then the spin rips.
+    stopIdle();
+    document.getElementById('gacha-spin-phase').classList.add('is-spinning');
     await spinReel(days);
     showResult(days);
   }, { once: true });
 }
 
-// Build the strip of reward cards. Mostly 3-day with 1-days sprinkled in and
-// the occasional gold flashing by for tension; the real winner sits at a
-// fixed index near the end of the run.
-function buildReel(winnerDays) {
-  const track = document.getElementById('gacha-track');
-  track.innerHTML = '';
-  const TOTAL = 56, WIN_INDEX = 48;
+// ── Reel engine ────────────────────────────────────────────────
+// The strip of reward cards is built and visible the moment the step opens:
+// mostly 3-day with 1-days sprinkled in and the occasional gold flashing by
+// for tension. The real winner is swapped into a fixed slot near the end of
+// the run right before the spin (it sits far off-screen, so the swap is
+// invisible).
+const REEL_TOTAL = 56, REEL_WIN = 48;
+let reel = null; // shared state between the idle drift and the spin
 
-  for (let i = 0; i < TOTAL; i++) {
-    let days;
-    if (i === WIN_INDEX) {
-      days = winnerDays;
-    } else {
-      const r = Math.random() * 100;
-      days = r < 74 ? 3 : (r < 90 ? 1 : 7);
-    }
+function cardHTML(days) {
+  return `<span class="gacha-card-days">${days}</span>` +
+         `<span class="gacha-card-unit">${days === 1 ? 'DAY' : 'DAYS'}</span>` +
+         `<span class="gacha-card-label">PRO PASS</span>`;
+}
+
+function setupReel() {
+  const wrap   = document.getElementById('gacha-reel-wrap');
+  const track  = document.getElementById('gacha-track');
+  const needle = document.getElementById('gacha-needle');
+
+  track.innerHTML = '';
+  for (let i = 0; i < REEL_TOTAL; i++) {
+    const r = Math.random() * 100;
+    const days = r < 74 ? 3 : (r < 90 ? 1 : 7);
     const el = document.createElement('div');
     el.className = `gacha-card ${RARITY[days]}`;
-    el.innerHTML =
-      `<span class="gacha-card-days">${days}</span>` +
-      `<span class="gacha-card-unit">${days === 1 ? 'DAY' : 'DAYS'}</span>` +
-      `<span class="gacha-card-label">PRO PASS</span>`;
+    el.innerHTML = cardHTML(days);
     track.appendChild(el);
   }
-  return WIN_INDEX;
+
+  const cw  = track.children[0].getBoundingClientRect().width;
+  const gap = parseFloat(getComputedStyle(track).gap) || 12;
+  reel = {
+    wrap, track, needle,
+    cw, unit: cw + gap,
+    centre: wrap.getBoundingClientRect().width / 2,
+    x: 0, lastIdx: null, idleRaf: null,
+  };
+  reel.lastIdx = idxAt(0);
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) idleDrift();
+}
+
+function idxAt(x) { return Math.floor((x + reel.centre) / reel.unit); }
+
+// Move the track and fire a needle tick whenever a card boundary crosses it.
+function setTrackX(x) {
+  reel.x = x;
+  reel.track.style.transform = `translate3d(${-x}px, 0, 0)`;
+  const idx = idxAt(x);
+  if (idx !== reel.lastIdx && idx >= 0) {
+    reel.lastIdx = idx;
+    reel.needle.classList.remove('tick');
+    void reel.needle.offsetWidth;
+    reel.needle.classList.add('tick');
+  }
+}
+
+// Gentle conveyor sway while the reel waits — alive, but going nowhere.
+function idleDrift() {
+  const SPEED = 11;                 // px/s
+  const RANGE = reel.unit * 5;      // sway across ~5 cards, then turn back
+  let dir = 1, prev = null;
+  function frame(ts) {
+    if (prev !== null) {
+      let x = reel.x + dir * SPEED * ((ts - prev) / 1000);
+      if (x >= RANGE) { x = RANGE; dir = -1; }
+      if (x <= 0)     { x = 0;     dir = 1; }
+      setTrackX(x);
+    }
+    prev = ts;
+    reel.idleRaf = requestAnimationFrame(frame);
+  }
+  reel.idleRaf = requestAnimationFrame(frame);
+}
+
+function stopIdle() {
+  if (reel && reel.idleRaf) cancelAnimationFrame(reel.idleRaf);
+}
+
+function setWinnerCard(days) {
+  if (!reel) return;
+  const el = reel.track.children[REEL_WIN];
+  el.className = `gacha-card ${RARITY[days]}`;
+  el.innerHTML = cardHTML(days);
 }
 
 // CS:GO-style spin: rAF-driven ease-out quint so the needle ticks slow down
 // naturally with the reel, plus a near-miss jitter and a friction catch-back.
+// Starts from wherever the idle drift left the track.
 function spinReel(winnerDays) {
   return new Promise(resolve => {
-    const wrap   = document.getElementById('gacha-reel-wrap');
-    const track  = document.getElementById('gacha-track');
-    const needle = document.getElementById('gacha-needle');
-    const winIndex = buildReel(winnerDays);
-
-    const cw   = track.children[0].getBoundingClientRect().width;
-    const gap  = parseFloat(getComputedStyle(track).gap) || 12;
-    const unit = cw + gap;
-    const centre = wrap.getBoundingClientRect().width / 2;
-
+    const startX = reel.x;
     // Land just off-centre (±40% of a card) so it never looks robotic.
-    const jitter = (Math.random() * 0.8 - 0.4) * cw;
-    const target = winIndex * unit + cw / 2 - centre + jitter;
+    const jitter = (Math.random() * 0.8 - 0.4) * reel.cw;
+    const target = REEL_WIN * reel.unit + reel.cw / 2 - reel.centre + jitter;
 
     const DURATION = 6400;
-    let t0 = null, lastIdx = -1;
+    let t0 = null;
 
     function frame(ts) {
       if (t0 === null) t0 = ts;
       const p = Math.min(1, (ts - t0) / DURATION);
       const eased = 1 - Math.pow(1 - p, 5);
-      const x = target * eased;
-      track.style.transform = `translate3d(${-x}px, 0, 0)`;
-
-      const idx = Math.floor((x + centre) / unit);
-      if (idx !== lastIdx && idx >= 0) {
-        lastIdx = idx;
-        needle.classList.remove('tick');
-        void needle.offsetWidth;
-        needle.classList.add('tick');
-      }
+      setTrackX(startX + (target - startX) * eased);
 
       if (p < 1) { requestAnimationFrame(frame); return; }
 
       // Friction catch-back: the reel gives a few px back, like it snagged.
-      track.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-      track.style.transform = `translate3d(${-(target - 9)}px, 0, 0)`;
+      reel.track.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      reel.track.style.transform = `translate3d(${-(target - 9)}px, 0, 0)`;
 
       setTimeout(() => {
-        track.children[winIndex].classList.add('is-winner');
-        track.classList.add('is-settled');
+        reel.track.children[REEL_WIN].classList.add('is-winner');
+        reel.track.classList.add('is-settled');
         setTimeout(resolve, 1000); // let the pulse land, hold the beat
       }, 430);
     }

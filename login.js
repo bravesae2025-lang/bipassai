@@ -13,8 +13,6 @@ let mode = 'signin';
 // ─── Elements ─────────────────────────────────────────────────
 const titleEl      = document.getElementById('login-title');
 const subEl        = document.getElementById('login-sub');
-const nameField    = document.getElementById('name-field');
-const nameEl       = document.getElementById('name-input');
 const usernameEl   = document.getElementById('username-input');
 const passwordEl   = document.getElementById('password-input');
 const submitBtn    = document.getElementById('submit-btn');
@@ -45,8 +43,7 @@ toggleBtn.addEventListener('click', () => {
     usernameEl.autocomplete    = 'username';
     passwordEl.placeholder     = 'At least 8 characters';
     passwordEl.autocomplete    = 'new-password';
-    nameField.classList.remove('hidden');
-    nameEl.focus();
+    usernameEl.focus();
   } else {
     titleEl.textContent        = 'Welcome back';
     subEl.textContent          = 'Sign in to continue to Bipass AI';
@@ -57,7 +54,6 @@ toggleBtn.addEventListener('click', () => {
     usernameEl.autocomplete    = 'username';
     passwordEl.placeholder     = '••••••••';
     passwordEl.autocomplete    = 'current-password';
-    nameField.classList.add('hidden');
     usernameEl.focus();
   }
 
@@ -72,18 +68,14 @@ function rebindToggle() {
 
 // ─── Arriving from onboarding ─────────────────────────────────
 // The welcome flow sends guests here with ?mode=signup after their gacha
-// reveal; open in sign-up mode and prefill the name they already gave us.
+// reveal; open in sign-up mode. The name they gave earlier is claimed with
+// their reward, so we no longer collect it here.
 (() => {
   if (new URLSearchParams(location.search).get('mode') === 'signup') toggleBtn.click();
-  try {
-    const onb = JSON.parse(localStorage.getItem('bipass_onb') || '{}');
-    if (onb.name && !nameEl.value) nameEl.value = onb.name;
-  } catch (_) {}
 })();
 
 // ─── Submit ───────────────────────────────────────────────────
 submitBtn.addEventListener('click', async () => {
-  const name     = nameEl.value.trim();
   const username = usernameEl.value.trim();
   const password = passwordEl.value;
   const next     = new URLSearchParams(location.search).get('next') || '/home';
@@ -108,7 +100,7 @@ submitBtn.addEventListener('click', async () => {
     const res  = await fetch('/auth/signup', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ username, password, firstName: name || null }),
+      body:    JSON.stringify({ username, password }),
     });
     const data = await res.json().catch(() => ({}));
 
@@ -126,7 +118,6 @@ submitBtn.addEventListener('click', async () => {
 // Allow Enter key to submit
 passwordEl.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
 usernameEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.focus(); });
-nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') usernameEl.focus(); });
 
 // ─── Google OAuth ─────────────────────────────────────────────
 document.getElementById('google-btn').addEventListener('click', () => {

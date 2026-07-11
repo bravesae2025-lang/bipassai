@@ -140,6 +140,22 @@ function setupName() {
   document.getElementById('name-skip').addEventListener('click', () => goToStep(2));
 }
 
+// ── "How it works" popup (holds the drop rates) ────────────────
+function setupInfo() {
+  const btn   = document.getElementById('gacha-info-btn');
+  const pop   = document.getElementById('gacha-info-pop');
+  const close = document.getElementById('gacha-info-close');
+  if (!btn || !pop) return;
+
+  const open  = () => { pop.hidden = false; };
+  const shut  = () => { pop.hidden = true; };
+
+  btn.addEventListener('click', open);
+  close?.addEventListener('click', shut);
+  pop.addEventListener('click', e => { if (e.target === pop) shut(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) shut(); });
+}
+
 // ── Step 2 · Gacha ─────────────────────────────────────────────
 
 // Server-side roll: the browser only learns the result + a signed token it
@@ -513,6 +529,7 @@ function fireBurst(colors) {
 (async function init() {
   setupSurvey();
   setupName();
+  setupInfo();
 
   if (!PREVIEW) {
     const session = await window.bipassAuth.getSession();

@@ -243,11 +243,72 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
 .is-spinning .gacha-spin-ui:first-child { transform: translateY(-20px); }
 .is-spinning .gacha-spin-ui:last-child  { transform: translateY(20px); }
 
-.gacha-odds {
-  margin-top: 30px; font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--onb-faint);
+/* "free" pops in animated gold to sell the reward */
+.gacha-free {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--gold-3), var(--gold-2) 30%, var(--gold-1) 50%, var(--gold-2) 70%, var(--gold-3));
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(184,137,43,0.18));
+  animation: gacha-free-shimmer 3.2s linear infinite, gacha-free-pop 0.7s var(--ease-out) both;
 }
-.gacha-odds b { color: var(--onb-ink); font-weight: 500; }
+@keyframes gacha-free-shimmer { 0% { background-position: 220% 0; } 100% { background-position: -20% 0; } }
+@keyframes gacha-free-pop {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.9); }
+  60%  { transform: translateY(0) scale(1.06); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* "How it works" trigger — odds live behind this now */
+.gacha-info-btn {
+  margin-top: 24px; display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--ff-mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--onb-mute); background: none; border: 1px solid var(--onb-line); border-radius: 99px;
+  padding: 8px 15px; cursor: pointer;
+  transition: border-color .25s var(--ease-out), color .25s, transform .25s var(--ease-out);
+}
+.gacha-info-btn:hover { border-color: var(--onb-line2); color: var(--onb-ink); transform: translateY(-1px); }
+.gacha-info-i {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid currentColor; font-family: var(--ff-display); font-style: italic;
+  font-weight: 700; font-size: 10px; line-height: 1;
+}
+
+/* How-it-works popup */
+.gacha-info-pop {
+  position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px;
+  background: rgba(13,13,13,0.34); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  animation: gacha-pop-fade 0.28s var(--ease-out) both;
+}
+.gacha-info-pop[hidden] { display: none; }
+@keyframes gacha-pop-fade { from { opacity: 0; } to { opacity: 1; } }
+.gacha-info-card {
+  position: relative; width: 100%; max-width: 360px; text-align: left;
+  background: var(--onb-bg); border: 1px solid var(--onb-line); border-radius: 18px;
+  padding: 26px 24px 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  animation: onb-step-in 0.4s var(--ease-out) both;
+}
+.gacha-info-title {
+  font-family: var(--ff-display); font-weight: 800; font-size: 21px; letter-spacing: -0.02em; margin-top: 6px;
+}
+.gacha-info-text { color: var(--onb-mute); font-size: 13.5px; line-height: 1.5; margin-top: 12px; }
+.gacha-info-rates { list-style: none; margin: 18px 0 0; display: flex; flex-direction: column; }
+.gacha-info-rates li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 2px; border-top: 1px solid var(--onb-line); font-size: 13.5px;
+}
+.gacha-info-rates li:last-child { border-bottom: 1px solid var(--onb-line); }
+.gacha-info-rates span { color: var(--onb-ink); font-weight: 600; }
+.gacha-info-rates b { font-family: var(--ff-mono); font-weight: 500; color: var(--gold-3); font-size: 13px; }
+.gacha-info-note { color: var(--onb-faint); font-size: 11.5px; line-height: 1.5; margin-top: 16px; }
+.gacha-info-close {
+  position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--onb-card); border: 1px solid var(--onb-line);
+  color: var(--onb-mute); font-size: 20px; line-height: 1; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.gacha-info-close:hover { background: var(--onb-ink); color: var(--onb-bg); }
 .gacha-spin-actions { margin-top: 26px; }
 .gacha-open-btn { padding: 16px 42px; font-size: 15px; }
 

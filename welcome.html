@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
-  <link rel="stylesheet" href="welcome.css?v=6">
+  <link rel="stylesheet" href="welcome.css?v=7">
 </head>
 <body class="onb">
 
@@ -82,8 +82,11 @@
       <div class="gacha-phase" id="gacha-spin-phase">
         <div class="gacha-spin-ui">
           <p class="onb-eyebrow onb-eyebrow-accent">Your reward</p>
-          <h1 class="onb-title onb-title-xl">Mystery<br>reward</h1>
+          <h1 class="onb-title onb-title-xl">Get a <span class="gacha-free">free</span> trial<br>+ credits</h1>
           <p class="onb-sub">Everyone wins a Pro Pass + 2,000 credits.<br>How long the pass lasts? That's up to luck.</p>
+          <button type="button" class="gacha-info-btn" id="gacha-info-btn" aria-haspopup="dialog" aria-controls="gacha-info-pop">
+            <span class="gacha-info-i" aria-hidden="true">i</span> How it works
+          </button>
         </div>
 
         <div class="gacha-reel-wrap" id="gacha-reel-wrap">
@@ -94,7 +97,6 @@
         </div>
 
         <div class="gacha-spin-ui">
-          <p class="gacha-odds" aria-label="Drop rates">3-DAY <b>90%</b> &nbsp;·&nbsp; 1-DAY <b>7%</b> &nbsp;·&nbsp; 7-DAY <b>3%</b></p>
           <div class="onb-actions gacha-spin-actions">
             <button type="button" class="onb-btn gacha-open-btn" id="gacha-open">
               Spin to reveal <span class="onb-btn-arrow">→</span>
@@ -165,11 +167,27 @@
 
   </main>
 
+  <!-- ── How-it-works popup (drop rates live here now) ─────────── -->
+  <div class="gacha-info-pop" id="gacha-info-pop" hidden>
+    <div class="gacha-info-card" role="dialog" aria-modal="true" aria-labelledby="gacha-info-title">
+      <button type="button" class="gacha-info-close" id="gacha-info-close" aria-label="Close">&times;</button>
+      <p class="onb-eyebrow onb-eyebrow-accent">How it works</p>
+      <h2 class="gacha-info-title" id="gacha-info-title">Everyone wins a Pro Pass</h2>
+      <p class="gacha-info-text">Every new member gets a Pro Pass + 2,000 credits. One spin decides how long your Pro Pass runs:</p>
+      <ul class="gacha-info-rates">
+        <li><span>3-Day Pro Pass</span><b>90%</b></li>
+        <li><span>1-Day Pro Pass</span><b>7%</b></li>
+        <li><span>7-Day Pro Pass</span><b>3%</b></li>
+      </ul>
+      <p class="gacha-info-note">Your 2,000 credits never expire — only the Pro window counts down.</p>
+    </div>
+  </div>
+
   <div class="onb-toast hidden" id="onb-toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="welcome.js?v=6"></script>
+  <script src="welcome.js?v=7"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

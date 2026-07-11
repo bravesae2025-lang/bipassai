@@ -36,7 +36,6 @@ toggleBtn.addEventListener('click', () => {
     titleEl.textContent        = 'Create account';
     subEl.textContent          = 'Free to start — no credit card needed';
     submitLbl.textContent      = 'Create Account';
-    googleBtn.textContent      = '';
     googleBtn.innerHTML        = googleBtn.innerHTML.replace('Continue with Google', 'Sign up with Google');
     toggleText.innerHTML       = 'Already have an account? <button class="login-toggle-btn" id="toggle-mode-btn">Sign in</button>';
     document.getElementById('toggle-mode-btn').addEventListener('click', toggleBtn.onclick || (() => {}));

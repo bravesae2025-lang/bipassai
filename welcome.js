@@ -380,7 +380,7 @@ function showResult(days, opts = {}) {
   animateCount(document.getElementById('gacha-credits'), 0, CREDITS, 1100);
 
   const btn = document.getElementById('gacha-claim-btn');
-  btn.innerHTML = (authed ? 'Claim my reward' : 'Sign up to claim your reward') +
+  btn.innerHTML = (authed ? 'Claim my reward' : 'Sign up to unlock my reward') +
     ' <span class="onb-btn-arrow">→</span>';
   btn.addEventListener('click', () => {
     if (PREVIEW) { showClaimed(Date.now() + days * 86400000); return; }

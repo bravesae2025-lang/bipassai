@@ -693,8 +693,11 @@
     })();
 
     // ── Hero CTA button ────────────────────────────────────────
-    document.getElementById('hero-humanize-btn').addEventListener('click', () => {
-      window.location.href = '/home';
+    // Guests start at the onboarding (survey → gacha reward → signup) so they
+    // see what they're getting before signing up; members go straight to the app.
+    document.getElementById('hero-humanize-btn').addEventListener('click', async () => {
+      const session = await window.bipassAuth.getSession();
+      window.location.href = session ? '/home' : 'welcome.html';
     });
 
     // ── FAQ accordion ─────────────────────────────────────────

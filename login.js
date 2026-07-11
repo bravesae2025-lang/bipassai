@@ -15,7 +15,7 @@ const titleEl      = document.getElementById('login-title');
 const subEl        = document.getElementById('login-sub');
 const nameField    = document.getElementById('name-field');
 const nameEl       = document.getElementById('name-input');
-const emailEl      = document.getElementById('email-input');
+const usernameEl   = document.getElementById('username-input');
 const passwordEl   = document.getElementById('password-input');
 const submitBtn    = document.getElementById('submit-btn');
 const submitLbl    = submitBtn.querySelector('.login-btn-label');
@@ -42,6 +42,7 @@ toggleBtn.addEventListener('click', () => {
     googleBtn.innerHTML        = googleBtn.innerHTML.replace('Continue with Google', 'Sign up with Google');
     toggleText.innerHTML       = 'Already have an account? <button class="login-toggle-btn" id="toggle-mode-btn">Sign in</button>';
     document.getElementById('toggle-mode-btn').addEventListener('click', toggleBtn.onclick || (() => {}));
+    usernameEl.autocomplete    = 'username';
     passwordEl.placeholder     = 'At least 8 characters';
     passwordEl.autocomplete    = 'new-password';
     nameField.classList.remove('hidden');
@@ -53,10 +54,11 @@ toggleBtn.addEventListener('click', () => {
     googleBtn.innerHTML        = googleBtn.innerHTML.replace('Sign up with Google', 'Continue with Google');
     toggleText.innerHTML       = 'Don\'t have an account? <button class="login-toggle-btn" id="toggle-mode-btn">Create one</button>';
     document.getElementById('toggle-mode-btn').addEventListener('click', toggleBtn.onclick || (() => {}));
+    usernameEl.autocomplete    = 'username';
     passwordEl.placeholder     = '••••••••';
     passwordEl.autocomplete    = 'current-password';
     nameField.classList.add('hidden');
-    emailEl.focus();
+    usernameEl.focus();
   }
 
   rebindToggle();
@@ -82,37 +84,49 @@ function rebindToggle() {
 // ─── Submit ───────────────────────────────────────────────────
 submitBtn.addEventListener('click', async () => {
   const name     = nameEl.value.trim();
-  const email    = emailEl.value.trim();
+  const username = usernameEl.value.trim();
   const password = passwordEl.value;
+  const next     = new URLSearchParams(location.search).get('next') || '/home';
 
-  if (!email || !password) { showError('Enter your email and password'); return; }
+  if (!username || !password) { showError('Enter your username and password'); return; }
+  if (mode === 'signup' && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    showError('Username must be 3–20 letters, numbers or underscores'); return;
+  }
   if (mode === 'signup' && password.length < 8) { showError('Password must be at least 8 characters'); return; }
-  if (mode === 'signup' && !name) { showError('Enter your first name'); return; }
 
   clearMessages();
   setBusy(true);
 
   if (mode === 'signin') {
-    const { error } = await window.bipassAuth.client.auth.signInWithPassword({ email, password });
-    if (error) { showError(error.message); setBusy(false); return; }
-    const next = new URLSearchParams(location.search).get('next') || '/home';
+    const { error } = await window.bipassAuth.client.auth.signInWithPassword({
+      email: usernameToEmail(username), password,
+    });
+    if (error) { showError('Wrong username or password'); setBusy(false); return; }
     window.location.replace(next);
   } else {
-    const { error } = await window.bipassAuth.client.auth.signUp({
-      email,
-      password,
-      options: { data: { first_name: name } },
+    // Create the account server-side (auto-confirmed), then sign straight in.
+    const res  = await fetch('/auth/signup', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ username, password, firstName: name || null }),
     });
-    setBusy(false);
-    if (error) { showError(error.message); return; }
-    showSuccess('Account created! Check your email to confirm, then sign in.');
+    const data = await res.json().catch(() => ({}));
+
+    if (res.status === 409) { showError('That username is taken — pick another'); setBusy(false); return; }
+    if (!res.ok) { showError(data.error || 'Could not create account'); setBusy(false); return; }
+
+    const { error } = await window.bipassAuth.client.auth.signInWithPassword({
+      email: data.email || usernameToEmail(username), password,
+    });
+    if (error) { showError('Account created — please sign in'); setBusy(false); mode = 'signin'; return; }
+    window.location.replace(next);
   }
 });
 
 // Allow Enter key to submit
 passwordEl.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
-emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.focus(); });
-nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') emailEl.focus(); });
+usernameEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.focus(); });
+nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') usernameEl.focus(); });
 
 // ─── Google OAuth ─────────────────────────────────────────────
 document.getElementById('google-btn').addEventListener('click', () => {

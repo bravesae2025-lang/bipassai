@@ -57,6 +57,14 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
 
+// Username auth: Supabase is email-keyed, so each username maps to a synthetic
+// internal email that never receives mail — it's only an identifier. Keep this
+// normalization identical to usernameToEmail() in auth.js.
+const USERNAME_EMAIL_DOMAIN = 'users.bipassai.com';
+function usernameToEmail(username) {
+  return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
+}
+
 const INITIAL_CREDITS = 2000;
 
 // ─── Signup reward gacha ──────────────────────────────────────
@@ -212,6 +220,55 @@ app.use(express.static(__dirname));
 
 app.get('/config', (req, res) => {
   res.json({ googleClientId: GOOGLE_CLIENT_ID || '' });
+});
+
+// ─── POST /auth/signup (username + password) ───────────────────
+// Non-Google signups. Creates the account server-side with the admin API and
+// email_confirm:true so it's usable immediately — no confirmation email, which
+// is why the old client-side auth.signUp() flow couldn't log in afterward.
+
+app.post('/auth/signup', async (req, res) => {
+  const { username, password, firstName } = req.body || {};
+
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username || '')) {
+    return res.status(400).json({ error: 'Username must be 3–20 letters, numbers or underscores' });
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  const email = usernameToEmail(username);
+
+  try {
+    const createRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey':        SUPABASE_SERVICE_KEY,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { username, first_name: firstName || username },
+      }),
+    });
+    const data = await createRes.json();
+
+    if (!createRes.ok) {
+      const msg = (data.msg || data.error_description || data.error || '').toLowerCase();
+      if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
+        return res.status(409).json({ error: 'username_taken' });
+      }
+      throw new Error(data.msg || 'Signup failed');
+    }
+
+    return res.json({ ok: true, email });
+  } catch (err) {
+    console.error('Username signup error:', err);
+    return res.status(500).json({ error: 'Signup failed' });
+  }
 });
 
 // ─── POST /auth/google/exchange-extension ──────────────────────

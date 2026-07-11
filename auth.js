@@ -7,6 +7,13 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// Username auth: map a username to its synthetic Supabase email. Keep this
+// normalization identical to usernameToEmail() in server.js.
+const USERNAME_EMAIL_DOMAIN = 'users.bipassai.com';
+function usernameToEmail(username) {
+  return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
+}
+
 window.bipassAuth = {
   client: _sb,
 

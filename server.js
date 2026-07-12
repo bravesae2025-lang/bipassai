@@ -555,6 +555,11 @@ app.post('/api/analyze', async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
+  // Require an active pass to run — this endpoint runs the model on the user's text.
+  if (!hasActivePass(user)) {
+    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
 
@@ -703,6 +708,12 @@ app.post('/api/adjust-level', async (req, res) => {
     if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
+
+  // Require an active pass (paid plan OR the free trial) to run — credits alone
+  // don't grant access. Credits are preserved, so they work again once a pass is active.
+  if (!hasActivePass(user)) {
+    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
+  }
   // Free starter-credit expiry
   const creditsExpireAt = user.user_metadata?.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
@@ -808,6 +819,12 @@ app.post('/api/rw-humanize', async (req, res) => {
     if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
+
+  // Require an active pass (paid plan OR the free trial) to run — credits alone
+  // don't grant access. Credits are preserved, so they work again once a pass is active.
+  if (!hasActivePass(user)) {
+    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
+  }
   const creditsExpireAt = user.user_metadata?.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
     await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
@@ -873,6 +890,12 @@ app.post('/api/humanize', async (req, res) => {
     const userTier = user.user_metadata?.tier || 'free';
     if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
+
+  // Require an active pass (paid plan OR the free trial) to run — credits alone
+  // don't grant access. Credits are preserved, so they work again once a pass is active.
+  if (!hasActivePass(user)) {
+    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
   }
 
   // Expiry check for free starter credits
@@ -982,6 +1005,12 @@ app.post('/api/stream', async (req, res) => {
     const userTier = user.user_metadata?.tier || 'free';
     if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
+  }
+
+  // Require an active pass (paid plan OR the free trial) to run — credits alone
+  // don't grant access. Credits are preserved, so they work again once a pass is active.
+  if (!hasActivePass(user)) {
+    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
   }
 
   // Expiry check for free starter credits

@@ -1247,6 +1247,7 @@ const humanizeLabel  = document.getElementById('humanize-label');
 const humanizeLoader = document.getElementById('humanize-loader');
 const charCount      = document.getElementById('char-count');
 const wordCount      = document.getElementById('word-count');
+const estCost        = document.getElementById('est-cost');
 const levelDesc      = document.getElementById('level-desc');
 const levelLabel     = document.getElementById('level-label');
 const levelGlider    = document.getElementById('level-glider');
@@ -1606,6 +1607,8 @@ function restoreState() {
 function bindEvents() {
   inputText.addEventListener('input', updateStats);
   inputText.addEventListener('paste', () => setTimeout(updateStats, 0));
+  // Switching mode changes the estimate (e.g. "both" ≈ 2x) even without retyping.
+  document.addEventListener('bipass-mode-change', updateStats);
 
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
@@ -2221,13 +2224,33 @@ function updateCostPreview(elId, chars) {
   el.classList.remove('hidden');
 }
 
+// Estimated cost in credits. Billing is 1 credit per INPUT character:
+// Level Adjust and Humanize each bill the input once; "Humanize + Level
+// Adjust" runs two passes (humanize → level-adjust) so it's ~2x. Mirrors
+// /api/adjust-level and /api/rw-humanize in server.js.
+function estimateCost() {
+  const len = inputText.value.length;
+  if (!len) return null;
+  return document.body.dataset.appMode === 'both' ? len * 2 : len;
+}
+
 function updateStats() {
   const val   = inputText.value;
   const words = countWords(val);
   charCount.textContent  = val.length.toLocaleString();
   wordCount.textContent  = words.toLocaleString();
   humanizeWc.textContent = `${words} word${words !== 1 ? 's' : ''}`;
-  updateCostPreview('humanize-cost', val.length || null);
+
+  if (estCost) {
+    const est = estimateCost();
+    if (est == null) {
+      estCost.classList.add('hidden');
+      estCost.textContent = '';
+    } else {
+      estCost.textContent = `≈ ${est.toLocaleString()} credits`;
+      estCost.classList.remove('hidden');
+    }
+  }
 }
 
 // ─── Build prompts ────────────────────────────────────────────

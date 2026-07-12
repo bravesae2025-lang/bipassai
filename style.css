@@ -489,6 +489,16 @@ main {
   margin-right: 8px;
 }
 
+/* Estimated cost — sits next to the word count, a touch bolder so the
+   number reads as meaningful. See estimateCost() in app.js. */
+.box-cost {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--black);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 /* ─────────────────────────────────────────────────────────────
    Main col — white
 ───────────────────────────────────────────────────────────── */

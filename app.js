@@ -1028,6 +1028,7 @@ async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
   if (!requireLevel()) return;
+  if (!(await preflightGate())) return;
 
   // The user actually ran the tool → retire the first-visit coach-mark tour.
   try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
@@ -1129,6 +1130,7 @@ async function runHumanize() {
   const mode = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
   // The level-adjust pass in "both" mode needs a level chosen first.
   if (mode === 'both' && !requireLevel()) return;
+  if (!(await preflightGate())) return;
 
   const token = await window.bipassAuth.getToken();
   const getMistakes = () => ({
@@ -2222,6 +2224,37 @@ function updateCostPreview(elId, chars) {
   if (!chars) { el.classList.add('hidden'); el.textContent = ''; return; }
   el.textContent = `≈ ${chars.toLocaleString()} credits`;
   el.classList.remove('hidden');
+}
+
+// ─── Pre-flight gate: no tokens → no work, no plan → no work ──
+// Runs before the loading screen. Tokens checked first, then pass.
+function currentCredits() {
+  const el = document.getElementById('credit-val');
+  const raw = el ? el.textContent.replace(/[^0-9]/g, '') : '';
+  return raw === '' ? null : parseInt(raw, 10);   // "—" not loaded yet → unknown
+}
+
+function flashCreditCapsule() {
+  const cap = document.getElementById('credit-indicator');
+  if (!cap) return;
+  cap.classList.remove('credit-empty');
+  void cap.offsetWidth;                            // restart the shake
+  cap.classList.add('credit-empty');
+  setTimeout(() => cap.classList.remove('credit-empty'), 1400);
+}
+
+async function preflightGate() {
+  if (currentCredits() === 0) {                    // definitely out of credits
+    flashCreditCapsule();
+    showToast("You're out of credits — get a plan or top up on Plans");
+    return false;
+  }
+  const session = await window.bipassAuth.getSession();
+  if (!bipassHasActivePass(session)) {
+    showCreditWarning('Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.');
+    return false;
+  }
+  return true;
 }
 
 // Estimated cost in credits. Billing is 1 credit per INPUT character:

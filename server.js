@@ -210,6 +210,10 @@ app.use(express.json());
 
 // ─── Serve frontend ────────────────────────────────────────────
 
+// Google (and many clients) fall back to /favicon.ico — a 404 there is why
+// search results showed a generic globe instead of the logo.
+app.get('/favicon.ico', (_req, res) => res.sendFile(`${__dirname}/favicon.png`));
+
 app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
 app.get('/app',      (_req, res) => res.redirect(301, '/home'));
 app.get('/app.html', (_req, res) => res.redirect(301, '/home'));

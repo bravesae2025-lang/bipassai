@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=36">
+  <link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 
@@ -114,40 +114,96 @@
 
     <!-- Headline + sub -->
     <div class="hero-head">
-      <span class="hero-eyebrow">
-        <span class="hero-eyebrow-dot" aria-hidden="true"></span>
-        0% AI detected
-      </span>
       <h2 class="hero-title">Your AI text,<br>at the right level.</h2>
       <p class="hero-desc">Paste your AI essay, pick a level, and Bipass AI rewrites it to read like a real student — so it doesn't sound like AI.</p>
     </div>
 
-    <!-- Level-adjust showcase -->
+    <!-- Level-adjust showcase: watch the app get used, start to finish -->
     <div class="typeshow leveldemo" id="leveldemo" data-anim="slide-up">
       <div class="typeshow-header">
         <span class="ld-head-group">
-          <span class="typeshow-badge" id="ld-badge">LEVEL · BEGINNER</span>
-          <span class="ld-chip ld-chip-mode">MODE · LEVEL ADJUST</span>
+          <span class="typeshow-badge" id="ld-badge">STEP 1 · SET UP</span>
+          <span class="ld-chip ld-chip-mode" id="ld-mode-chip">
+            <span id="ld-mode-label">MODE · LEVEL ADJUST</span>
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+            <span class="ld-mode-menu" id="ld-mode-menu" aria-hidden="true">
+              <span class="ld-mode-opt">Level Adjust</span>
+              <span class="ld-mode-opt" id="ld-opt-humanize">Humanize</span>
+              <span class="ld-mode-opt">Humanize + Level Adjust</span>
+            </span>
+          </span>
         </span>
         <span class="ld-head-group">
           <span class="ld-chip ld-chip-lock">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <span class="ld-lock-label">Structure lock</span>
           </span>
-          <span class="ld-count" id="ld-count">0 edits</span>
+          <span class="ld-count" id="ld-count">0 words</span>
         </span>
       </div>
+
       <div class="leveldemo-main" id="ld-main">
-        <div class="typeshow-body leveldemo-body" id="ld-body"></div>
-        <aside class="changes-filter leveldemo-filter" id="ld-filter">
-          <div class="cf-head" id="ld-panel-head">Human edits added</div>
-          <div class="cf-rows" id="ld-rows"></div>
-        </aside>
+
+        <!-- Stage 1: the app input — paste, pick mode + level, go -->
+        <div class="ld-stage" id="ld-stage-input">
+          <div class="ld-inputcol">
+            <div class="ld-inputbox">
+              <div class="ld-inputbox-label">Your AI text</div>
+              <div class="ld-inputbox-text" id="ld-intext"></div>
+              <div class="ld-inputbox-foot" id="ld-infoot">
+                <span id="ld-wc">0 words</span>
+                <span id="ld-est">&approx; 0 credits</span>
+              </div>
+            </div>
+          </div>
+          <aside class="ld-setup">
+            <div class="cf-head" id="ld-setup-head">Pick a level</div>
+            <div class="ld-levels" id="ld-levels">
+              <span class="ld-level" data-level="easy"><i class="ld-radio"></i>Beginner</span>
+              <span class="ld-level" data-level="medium"><i class="ld-radio"></i>Student</span>
+              <span class="ld-level" data-level="hard"><i class="ld-radio"></i>Academic</span>
+              <span class="ld-level" data-level="customize"><i class="ld-radio"></i>Custom</span>
+            </div>
+            <div class="ld-sliders" id="ld-sliders" hidden></div>
+            <span class="ld-go" id="ld-go">Adjust Level</span>
+          </aside>
+        </div>
+
+        <!-- Stage 2: the result — highlighted edits + filter panel -->
+        <div class="ld-stage" id="ld-stage-result" hidden>
+          <div class="ld-inputcol">
+            <div class="typeshow-body leveldemo-body" id="ld-body"></div>
+            <div class="ld-actions">
+              <span class="ld-action" id="ld-act-copy">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="ld-copy-label">Copy</span>
+              </span>
+              <span class="ld-action">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
+                Regenerate
+              </span>
+              <span class="ld-action">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+                Auto Typer
+              </span>
+            </div>
+          </div>
+          <aside class="changes-filter leveldemo-filter" id="ld-filter">
+            <div class="cf-head" id="ld-panel-head">Human edits added</div>
+            <div class="cf-rows" id="ld-rows"></div>
+          </aside>
+        </div>
+
       </div>
+
       <div class="ld-caption-row">
         <span class="ld-caption" id="ld-caption"></span>
         <span class="ld-dots" id="ld-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       </div>
+
+      <span class="ld-cursor" id="ld-cursor" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="#0d0d0d" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M5.5 3.2l13.2 7.6-6.2 1.5-2.4 5.9z"/></svg>
+      </span>
     </div>
 
     <!-- Feature strip -->
@@ -591,8 +647,8 @@
 
     // ── Level-adjust showcase ─────────────────────────────────
     (function () {
-      const NAMES = { word: 'Vocabulary', caps: 'Capitals', punct: 'Punctuation', tense: 'Tense', spelling: 'Spelling', grammar: 'Grammar' };
-      const ORDER = ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'];
+      const NAMES = { word: 'Vocabulary', caps: 'Capitals', punct: 'Punctuation', tense: 'Tense', spelling: 'Spelling', grammar: 'Grammar', rephrase: 'Rephrased' };
+      const ORDER = ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar', 'rephrase'];
 
       // Shared base paragraph (~5 sentences). Editable slots get overridden per scene.
       const BASE = [
@@ -625,31 +681,30 @@
         { w: '.', glue: true },
       ];
 
-      const SCENES = [
-        { badge: 'LEVEL · BEGINNER',
-          caption: 'Preset · Beginner — simple words, real human mistakes',
-          toggle: 'punct',
-          edits: {
-            1: { to: 'have', cat: 'grammar' }, 2: { to: 'totally', cat: 'word' }, 3: { to: 'changed', cat: 'word' },
-            5: { to: 'talk', cat: 'word' }, 6: { to: ',', cat: 'punct' }, 7: { to: 'it', cat: 'caps' },
-            8: { to: 'really', cat: 'word' }, 9: { to: 'shaped', cat: 'tense' }, 13: { to: 'thing', cat: 'word' },
-            15: { to: 'real', cat: 'word' }, 19: { to: 'cant', cat: 'punct' }, 24: { to: 'definately', cat: 'spelling' } } },
-        { badge: 'LEVEL · STUDENT',
-          caption: 'Preset · Student — a natural, moderate rewrite',
-          toggle: 'word',
+      // Each scenario plays the full app flow: paste → pick mode/level → run → result.
+      const SCENARIOS = [
+        { level: 'medium', humanize: false, btn: 'Adjust Level', unit: 'edit',
+          capSetup: "Paste your AI essay and pick a level — let's try Student",
+          capResult: 'Student level — every human edit highlighted, each type toggleable',
+          panelHead: 'Human edits added', toggle: 'word',
           edits: {
             3: { to: 'changed', cat: 'word' }, 5: { to: 'comunicate', cat: 'spelling' },
             8: { to: 'really', cat: 'word' }, 9: { to: 'shaped', cat: 'tense' },
             15: { to: 'hard to deny', cat: 'word' }, 17: { to: 'Honestly', cat: 'punct' } } },
-        { badge: 'LEVEL · ACADEMIC',
-          caption: 'Preset · Academic — light touch, only AI-tell words swapped',
-          toggle: 'word',
+        { level: null, humanize: true, btn: 'Humanize', unit: 'rephrase',
+          capSetup: 'Or switch the mode — Humanize fully rewrites the text',
+          capResult: 'Humanize rewords rhythm and phrasing so nothing reads like AI',
+          panelHead: 'Humanize changes', toggle: 'rephrase',
           edits: {
-            2: { to: 'largely', cat: 'word' }, 8: { to: 'notably', cat: 'word' },
-            15: { to: 'evident', cat: 'word' }, 17: { to: 'Indeed,', cat: 'word' } } },
-        { badge: 'LEVEL · CUSTOM',
-          caption: 'Custom — you set every slider: expert words, human typos',
-          toggle: null,
+            2: { to: 'pretty much', cat: 'rephrase' }, 3: { to: 'flipped', cat: 'rephrase' },
+            8: { to: 'kind of', cat: 'rephrase' }, 9: { to: 'steers', cat: 'rephrase' },
+            13: { to: 'shift', cat: 'rephrase' }, 15: { to: 'hard to miss', cat: 'rephrase' },
+            18: { to: 'most of us', cat: 'rephrase' }, 24: { to: 'clearly', cat: 'rephrase' },
+            25: { to: 'not going anywhere', cat: 'rephrase' } } },
+        { level: 'customize', humanize: false, btn: 'Adjust Level', unit: 'edit',
+          capSetup: 'Go Custom — dial in exactly which human traits to add',
+          capResult: 'Your custom mix — expert words plus a few real typos',
+          panelHead: 'Your custom mix', toggle: 'spelling',
           sliders: [
             { cat: 'word',     name: 'Vocabulary',  val: 'Academic', pct: 75 },
             { cat: 'grammar',  name: 'Grammar',     val: 'None',     pct: 4  },
@@ -661,20 +716,51 @@
           edits: {
             2: { to: 'profoundly', cat: 'word' }, 3: { to: 'transfromed', cat: 'spelling' },
             8: { to: 'increasingly', cat: 'word' }, 24: { to: 'definetly', cat: 'spelling' } } },
+        { level: 'easy', humanize: false, btn: 'Adjust Level', unit: 'edit',
+          capSetup: 'Beginner preset — writes like a new English speaker',
+          capResult: 'Heaviest rewrite — edits across all six human categories',
+          panelHead: 'Human edits added', toggle: 'punct',
+          edits: {
+            1: { to: 'have', cat: 'grammar' }, 2: { to: 'totally', cat: 'word' }, 3: { to: 'changed', cat: 'word' },
+            5: { to: 'talk', cat: 'word' }, 6: { to: ',', cat: 'punct' }, 7: { to: 'it', cat: 'caps' },
+            8: { to: 'really', cat: 'word' }, 9: { to: 'shaped', cat: 'tense' }, 13: { to: 'thing', cat: 'word' },
+            15: { to: 'real', cat: 'word' }, 19: { to: 'cant', cat: 'punct' }, 24: { to: 'definately', cat: 'spelling' } } },
       ];
 
-      const bodyEl    = document.getElementById('ld-body');
-      const mainEl    = document.getElementById('ld-main');
-      const rowsEl    = document.getElementById('ld-rows');
-      const countEl   = document.getElementById('ld-count');
-      const badgeEl   = document.getElementById('ld-badge');
-      const captionEl = document.getElementById('ld-caption');
-      const dotsEl    = document.getElementById('ld-dots');
-      const headEl    = document.getElementById('ld-panel-head');
-      const cardEl    = document.getElementById('leveldemo');
-      if (!bodyEl || !rowsEl) return;
+      const $ = id => document.getElementById(id);
+      const bodyEl    = $('ld-body');
+      const mainEl    = $('ld-main');
+      const rowsEl    = $('ld-rows');
+      const countEl   = $('ld-count');
+      const badgeEl   = $('ld-badge');
+      const captionEl = $('ld-caption');
+      const dotsEl    = $('ld-dots');
+      const headEl    = $('ld-panel-head');
+      const cardEl    = $('leveldemo');
+      const stageIn   = $('ld-stage-input');
+      const stageOut  = $('ld-stage-result');
+      const intextEl  = $('ld-intext');
+      const infootEl  = $('ld-infoot');
+      const levelsEl  = $('ld-levels');
+      const slidersEl = $('ld-sliders');
+      const setupHead = $('ld-setup-head');
+      const goEl      = $('ld-go');
+      const cursorEl  = $('ld-cursor');
+      const modeChip  = $('ld-mode-chip');
+      const modeLabel = $('ld-mode-label');
+      const modeMenu  = $('ld-mode-menu');
+      const optHuman  = $('ld-opt-humanize');
+      const copyEl    = $('ld-act-copy');
+      const copyLabel = $('ld-copy-label');
+      if (!bodyEl || !rowsEl || !stageIn) return;
 
       const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Plain paragraph + live word/credit counts (1 credit ≈ 1 character)
+      const PLAIN = BASE.map((tok, i) => (i > 0 && !tok.glue ? ' ' : '') + tok.w).join('');
+      const WORDS = PLAIN.trim().split(/\s+/).length;
+      if ($('ld-wc'))  $('ld-wc').textContent  = WORDS + ' words';
+      if ($('ld-est')) $('ld-est').textContent = '≈ ' + PLAIN.length + ' credits';
 
       function buildPlain() {
         bodyEl.innerHTML = '';
@@ -715,7 +801,7 @@
       }
 
       function buildSliders(sliders) {
-        rowsEl.innerHTML = sliders.map(s =>
+        slidersEl.innerHTML = sliders.map(s =>
           '<div class="ld-slider' + (s.pct < 10 ? ' ld-none' : '') + '" data-cat="' + s.cat + '">' +
           '<span class="ld-slider-name">' + s.name + '</span>' +
           '<span class="ld-slider-track"><span class="ld-slider-fill"></span></span>' +
@@ -739,82 +825,197 @@
       const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
       const at = (ms, fn) => timers.push(setTimeout(fn, ms));
 
+      // ── Fake cursor ──────────────────────────────────────────
+      function cursorShow(x, y) {
+        cursorEl.style.transitionDuration = '0ms';
+        cursorEl.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+        void cursorEl.offsetWidth;
+        cursorEl.classList.add('on');
+      }
+      function cursorTo(el, ms) {
+        if (!el) return;
+        const c = cardEl.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        cursorEl.style.transitionDuration = (ms || 600) + 'ms';
+        cursorEl.style.transform = 'translate(' + (r.left - c.left + r.width * 0.55) + 'px,' + (r.top - c.top + r.height * 0.58) + 'px)';
+      }
+      function cursorClick() {
+        cursorEl.classList.add('click');
+        at(180, () => cursorEl.classList.remove('click'));
+      }
+      const cursorHide = () => cursorEl.classList.remove('on');
+
+      const levelBtn = key => levelsEl.querySelector('.ld-level[data-level="' + key + '"]');
+      function selectLevel(key) {
+        [].forEach.call(levelsEl.children, el =>
+          el.classList.toggle('active', el.dataset.level === key));
+      }
+
+      function fadeSwap(toResult, done) {
+        mainEl.classList.add('ld-fade');
+        at(420, () => {
+          stageIn.hidden = toResult;
+          stageOut.hidden = !toResult;
+          mainEl.classList.remove('ld-fade');
+          if (done) done();
+        });
+      }
+
+      // ── Scenario engine: paste → pick → run → result ─────────
       let si = 0;
-      function runScene() {
+      function runScenario() {
         clearAll();
-        const S = SCENES[si];
-        if (badgeEl) badgeEl.textContent = S.badge;
-        setCaption(S.caption);
+        const S = SCENARIOS[si];
+
+        // Reset to a clean input stage
+        stageIn.hidden = false;
+        stageOut.hidden = true;
+        mainEl.classList.remove('ld-fade');
+        badgeEl.textContent = 'STEP 1 · SET UP';
+        setCaption(S.capSetup);
         setDots(si);
-        if (headEl) headEl.textContent = S.sliders ? 'Your custom mix' : 'Human edits added';
+        modeLabel.textContent = 'MODE · LEVEL ADJUST';
+        modeMenu.classList.remove('open');
+        optHuman.classList.remove('sel');
+        setupHead.textContent = 'Pick a level';
+        levelsEl.hidden = false;
+        levelsEl.classList.remove('ld-out', 'ld-disabled');
+        slidersEl.hidden = true;
+        goEl.textContent = 'Adjust Level';
+        goEl.classList.remove('ld-pressed');
+        copyEl.classList.remove('ok');
+        copyLabel.textContent = 'Copy';
+        intextEl.textContent = '';
+        intextEl.classList.remove('ld-pasted');
+        infootEl.classList.remove('ld-in');
+        countEl.textContent = WORDS + ' words';
+        selectLevel(null);
+        cursorHide();
+
+        // Paste the AI text in
+        at(350, () => {
+          intextEl.textContent = PLAIN;
+          intextEl.classList.add('ld-pasted');
+          infootEl.classList.add('ld-in');
+        });
+        at(1050, () => {
+          const c = cardEl.getBoundingClientRect();
+          const r = intextEl.getBoundingClientRect();
+          cursorShow(r.left - c.left + r.width * 0.5, r.top - c.top + r.height * 0.8);
+        });
+
+        let pressAt;
+        if (S.humanize) {
+          // Open the mode menu and pick Humanize
+          at(1300, () => cursorTo(modeChip, 650));
+          at(2000, () => { cursorClick(); modeMenu.classList.add('open'); });
+          at(2550, () => cursorTo(optHuman, 450));
+          at(3050, () => { cursorClick(); optHuman.classList.add('sel'); });
+          at(3400, () => {
+            modeMenu.classList.remove('open');
+            modeLabel.textContent = 'MODE · HUMANIZE';
+            levelsEl.classList.add('ld-disabled');
+            setupHead.textContent = 'Presets off — full rewrite';
+            goEl.textContent = 'Humanize';
+          });
+          at(3700, () => cursorTo(goEl, 600));
+          pressAt = 4350;
+        } else if (S.sliders) {
+          // Pick Custom, then dial the sliders
+          at(1300, () => cursorTo(levelBtn(S.level), 650));
+          at(2000, () => { cursorClick(); selectLevel(S.level); });
+          at(2400, () => levelsEl.classList.add('ld-out'));
+          at(2700, () => {
+            levelsEl.hidden = true;
+            slidersEl.hidden = false;
+            setupHead.textContent = 'Your custom mix';
+            buildSliders(S.sliders);
+            const rows = slidersEl.querySelectorAll('.ld-slider');
+            S.sliders.forEach((s, k) => {
+              at(200 + k * 130, () => {
+                const fill = rows[k] && rows[k].querySelector('.ld-slider-fill');
+                if (fill) fill.style.width = s.pct + '%';
+              });
+              at(200 + k * 130 + 380, () => {
+                const val = rows[k] && rows[k].querySelector('.ld-slider-val');
+                if (val) val.textContent = s.val;
+              });
+            });
+          });
+          at(4200, () => cursorTo(goEl, 600));
+          pressAt = 4850;
+        } else {
+          // Pick a preset level
+          at(1300, () => cursorTo(levelBtn(S.level), 650));
+          at(2000, () => { cursorClick(); selectLevel(S.level); });
+          at(2450, () => cursorTo(goEl, 600));
+          pressAt = 3100;
+        }
+
+        // Press the button, show processing, then swap to the result
+        at(pressAt, () => { cursorClick(); goEl.classList.add('ld-pressed'); });
+        at(pressAt + 180, () => goEl.classList.remove('ld-pressed'));
+        at(pressAt + 260, () => goEl.textContent = 'Analyzing · 1/3');
+        at(pressAt + 720, () => goEl.textContent = 'Rewriting · 2/3');
+        at(pressAt + 1180, () => goEl.textContent = 'Cleaning up · 3/3');
+        at(pressAt + 1650, () => { cursorHide(); fadeSwap(true, () => resultPhase(S)); });
+      }
+
+      function resultPhase(S) {
+        badgeEl.textContent = 'STEP 2 · RESULT';
+        setCaption(S.capResult);
+        headEl.textContent = S.panelHead;
         buildPlain();
-        if (countEl) countEl.textContent = '0 edits';
-        if (mainEl) { mainEl.classList.remove('ld-fade'); }
+        const counts = buildRows(S.edits);
+        countEl.textContent = S.unit === 'rephrase' ? '0 rephrased' : '0 edits';
 
         const idx = Object.keys(S.edits).map(Number).sort((a, b) => a - b);
         const total = idx.length;
-        let cursor = 700;
-        let counts = null;
-
-        if (S.sliders) {
-          // Custom scene: animate the slider panel first, then apply matching edits.
-          buildSliders(S.sliders);
-          const rows = rowsEl.querySelectorAll('.ld-slider');
-          S.sliders.forEach((s, k) => {
-            at(500 + k * 140, () => {
-              const fill = rows[k] && rows[k].querySelector('.ld-slider-fill');
-              if (fill) fill.style.width = s.pct + '%';
-            });
-            at(500 + k * 140 + 420, () => {
-              const val = rows[k] && rows[k].querySelector('.ld-slider-val');
-              if (val) val.textContent = s.val;
-            });
-          });
-          cursor = 2100;
-        } else {
-          counts = buildRows(S.edits);
-        }
-
-        idx.forEach((ci, k) => at(cursor + k * 360, () => {
+        idx.forEach((ci, k) => at(400 + k * 300, () => {
           reveal(ci, S.edits[ci]);
-          if (countEl) { const n = k + 1; countEl.textContent = n + (n === 1 ? ' edit' : ' edits'); }
+          const n = k + 1;
+          countEl.textContent = S.unit === 'rephrase' ? n + ' rephrased' : n + (n === 1 ? ' edit' : ' edits');
         }));
 
-        const editsDone = cursor + total * 360;
-        const hasToggle = S.toggle && counts && counts[S.toggle] > 0;
+        const editsDone = 400 + total * 300;
+        const hasToggle = S.toggle && counts[S.toggle] > 0;
         let end;
         if (hasToggle) {
-          at(editsDone + 1400, () => toggleCat(S.toggle, true));
-          at(editsDone + 1400 + 1700, () => toggleCat(S.toggle, false));
-          end = editsDone + 1400 + 1700 + 1400;
+          at(editsDone + 1100, () => toggleCat(S.toggle, true));
+          at(editsDone + 1100 + 1500, () => toggleCat(S.toggle, false));
+          end = editsDone + 1100 + 1500 + 900;
         } else {
-          end = editsDone + 2600;
+          end = editsDone + 2300;
         }
-        at(end, () => { if (mainEl) mainEl.classList.add('ld-fade'); });
-        at(end + 500, () => { si = (si + 1) % SCENES.length; runScene(); });
+        at(end, () => { copyEl.classList.add('ok'); copyLabel.textContent = 'Copied'; });
+        at(end + 1100, () => mainEl.classList.add('ld-fade'));
+        at(end + 1550, () => { si = (si + 1) % SCENARIOS.length; runScenario(); });
       }
 
-      // Reduced motion: render the Student scene fully edited, no timers, no loop.
+      // Reduced motion: show the finished Student result, no timers, no loop.
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const S = SCENES[1];
-        if (badgeEl) badgeEl.textContent = S.badge;
-        if (captionEl) captionEl.textContent = S.caption;
-        setDots(1);
+        const S = SCENARIOS[0];
+        stageIn.hidden = true;
+        stageOut.hidden = false;
+        badgeEl.textContent = 'STEP 2 · RESULT';
+        if (captionEl) captionEl.textContent = S.capResult;
+        setDots(0);
+        headEl.textContent = S.panelHead;
         buildPlain();
         buildRows(S.edits);
         const idx = Object.keys(S.edits).map(Number).sort((a, b) => a - b);
         idx.forEach(i => reveal(i, S.edits[i]));
-        if (countEl) countEl.textContent = idx.length + ' edits';
+        countEl.textContent = idx.length + ' edits';
         return;
       }
 
       if ('IntersectionObserver' in window && cardEl) {
         const io = new IntersectionObserver((entries) => {
-          if (entries.some(e => e.isIntersecting)) { io.disconnect(); at(250, runScene); }
+          if (entries.some(e => e.isIntersecting)) { io.disconnect(); at(250, runScenario); }
         }, { threshold: 0.35 });
         io.observe(cardEl);
       } else {
-        at(900, runScene);
+        at(900, runScenario);
       }
     })();
 
@@ -897,6 +1098,93 @@
         }).join(' ');
       }).join('');
       title.innerHTML = rebuilt;
+    })();
+
+    // ── Hero title rotator — matrix scramble ──────────────────
+    (function () {
+      const title = document.querySelector('.hero-title');
+      if (!title) return;
+
+      const PHRASES = [
+        { lines: ['Your AI text,', 'at the right level.'], green: [] },
+        { lines: ['0% AI detected.', '100% human.'], green: [0] },
+        { lines: ['Undetected by AI.', 'Sounds like you.'], green: [] },
+      ];
+      const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%@$+*=';
+      const HOLD = 3400;      // ms each phrase stays readable
+      const FIRST_HOLD = 4200; // let the load-in stagger finish + first read
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const rnd = n => Math.floor(Math.random() * n);
+      let pi = 0;
+
+      function lineSpans(phrase) {
+        title.innerHTML = phrase.lines.map((_, i) =>
+          '<span class="ht-line' + (phrase.green.indexOf(i) > -1 ? ' ht-green' : '') + '"></span>'
+        ).join('<br>');
+        return title.querySelectorAll('.ht-line');
+      }
+
+      function setPlain(phrase) {
+        const spans = lineSpans(phrase);
+        spans.forEach((el, i) => { el.textContent = phrase.lines[i]; });
+      }
+
+      function scrambleTo(from, to, done) {
+        const spans = lineSpans(to);
+        // Per-character plan (times in ms): flicker window, then lock in
+        const plans = to.lines.map((text, li) => {
+          const old = from.lines[li] || '';
+          const len = Math.max(text.length, old.length);
+          const chars = [];
+          for (let i = 0; i < len; i++) {
+            const t = text[i] || '';
+            const o = old[i] || '';
+            if (t === ' ' || (t === '' && o === ' ')) {
+              chars.push({ to: t, from: o, start: 0, end: 0, cur: '', at: 0 });
+            } else {
+              const start = rnd(300);
+              chars.push({ to: t, from: o, start, end: start + 170 + rnd(400), cur: '', at: 0 });
+            }
+          }
+          return chars;
+        });
+
+        let t0 = null;
+        function tick(now) {
+          if (t0 === null) t0 = now;
+          const el = now - t0;
+          let allDone = true;
+          plans.forEach((chars, li) => {
+            let out = '';
+            chars.forEach(c => {
+              if (el >= c.end) { out += esc(c.to); return; }
+              allDone = false;
+              if (el >= c.start) {
+                if (!c.cur || el - c.at > 40) { c.cur = GLYPHS[rnd(GLYPHS.length)]; c.at = el; }
+                out += '<span class="ht-scr">' + c.cur + '</span>';
+              } else {
+                out += esc(c.from);
+              }
+            });
+            spans[li].innerHTML = out;
+          });
+          if (allDone) done();
+          else requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      function next() {
+        const from = PHRASES[pi];
+        pi = (pi + 1) % PHRASES.length;
+        const to = PHRASES[pi];
+        if (reduce) { setPlain(to); schedule(HOLD); }
+        else scrambleTo(from, to, () => schedule(HOLD));
+      }
+
+      function schedule(ms) { setTimeout(next, ms); }
+      schedule(FIRST_HOLD);
     })();
 
     // ── Scroll reveal — Intersection Observer ─────────────────

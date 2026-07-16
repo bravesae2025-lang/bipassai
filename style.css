@@ -3775,6 +3775,10 @@ body.editor-page { background: var(--bg); }
   position: relative;
   z-index: 1;
   overflow: hidden;
+  /* Body is a flex column; overflow:hidden makes flex min-height:auto
+     resolve to 0, so without this the section gets shrunk to its padding
+     and all the cards get clipped. Keep it at its natural height. */
+  flex-shrink: 0;
 }
 
 .reviews-header {
@@ -3954,12 +3958,25 @@ body.editor-page { background: var(--bg); }
   color: var(--g300);
 }
 
+.rev-date {
+  margin-left: auto;
+  align-self: flex-start;
+  flex: 0 0 auto;
+  padding-top: 2px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  color: var(--g300);
+}
+
 .rev-stars {
   color: #f5b014;
   letter-spacing: 2px;
   font-size: 14px;
   margin-bottom: 10px;
 }
+
+.rev-stars .s-off { color: var(--g200); }
 
 .rev-text {
   font-size: 13.5px;

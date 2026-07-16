@@ -1512,7 +1512,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   flex: 1 1 auto;
   min-width: 0;
   height: auto;
-  min-height: 196px;
+  min-height: 230px;
   overflow: visible;
   line-height: 2.5;
   font-size: 13.5px;
@@ -1548,10 +1548,137 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .leveldemo-body .word-change-pair.ld-pop { animation: ld-pop 0.42s var(--ease-out) both; }
 
+/* Header chips (mode + structure lock) */
+.ld-head-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.ld-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--g400);
+  background: #fff;
+  border: 1px solid var(--g150);
+  border-radius: 20px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.ld-chip svg { flex-shrink: 0; }
+.ld-count { min-width: 58px; text-align: center; }
+
+/* Caption footer + scene progress dots */
+.ld-caption-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  border-top: 1px solid var(--g100);
+  background: var(--g050);
+  min-height: 38px;
+}
+.ld-caption {
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--g400);
+  min-width: 0;
+}
+@keyframes ld-cap-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.ld-caption.ld-cap-in { animation: ld-cap-in 0.45s var(--ease-out) both; }
+.ld-dots { display: flex; gap: 5px; flex-shrink: 0; }
+.ld-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--g200);
+  transition: background 0.3s, transform 0.3s;
+}
+.ld-dots i.on { background: var(--black); transform: scale(1.3); }
+
+/* Custom-scene mini sliders (category colors come from the global [data-cat] --cc rules) */
+.ld-slider {
+  display: grid;
+  grid-template-columns: 76px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 2px;
+}
+.ld-slider-name {
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--black);
+}
+.ld-slider-track {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--g150);
+  overflow: hidden;
+}
+.ld-slider-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 3px;
+  background: var(--cc, var(--g300));
+  transition: width 0.7s var(--ease-out);
+}
+.ld-slider-val {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g400);
+  text-align: right;
+}
+.ld-slider.ld-none .ld-slider-fill { background: var(--g200); }
+.ld-slider.ld-none .ld-slider-name,
+.ld-slider.ld-none .ld-slider-val { color: var(--g300); }
+
+/* Feature strip under the card */
+.ld-features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.ld-feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--g400);
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--g150);
+  border-radius: 20px;
+  padding: 6px 12px;
+}
+.ld-feature svg { color: var(--g400); flex-shrink: 0; }
+
 @media (max-width: 720px) {
   .leveldemo-main { flex-direction: column; }
-  .leveldemo-filter { flex-basis: auto; width: 100%; }
+  .leveldemo-filter { flex-basis: auto; width: 100%; min-height: 172px; }
   .leveldemo-body { min-height: 0; }
+  .ld-chip-mode { display: none; }
+  .ld-caption-row { padding: 10px 16px; }
+}
+
+@media (max-width: 480px) {
+  .ld-lock-label { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1559,6 +1686,9 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   .hero-spotlight { display: none; }
   .leveldemo-main,
   .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
+  .ld-slider-fill { transition: none; }
+  .ld-caption.ld-cap-in { animation: none; }
+  .ld-dots i { transition: none; }
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -133,44 +133,6 @@
       </div>
     </div>
 
-    <!-- 0% AI detected — detector scan result -->
-    <div class="aidet" id="aidet" data-anim="slide-up">
-      <div class="aidet-top">
-        <span class="aidet-badge">AI DETECTION SCAN</span>
-        <span class="aidet-status" id="aidet-status">
-          <span class="aidet-status-dot"></span><span id="aidet-status-text">READY</span>
-        </span>
-      </div>
-      <div class="aidet-body">
-        <div class="aidet-gauge" id="aidet-gauge">
-          <svg class="aidet-ring" viewBox="0 0 128 128" aria-hidden="true">
-            <defs>
-              <linearGradient id="aidetGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#1aa564"/>
-                <stop offset="1" stop-color="#5ff0a6"/>
-              </linearGradient>
-            </defs>
-            <circle class="aidet-track" cx="64" cy="64" r="54"/>
-            <circle class="aidet-fill" cx="64" cy="64" r="54"/>
-          </svg>
-          <div class="aidet-readout">
-            <div class="aidet-num"><span id="aidet-pct">0</span><span class="aidet-sym">%</span></div>
-            <div class="aidet-caption">AI DETECTED</div>
-          </div>
-          <span class="aidet-scan" aria-hidden="true"></span>
-        </div>
-        <div class="aidet-info">
-          <h3 class="aidet-headline">0% AI. <span class="aidet-hl-green">100% human.</span></h3>
-          <p class="aidet-sub">Bipass AI rewrites your text so it reads like a real student wrote it — natural rhythm, varied sentences, the small imperfections a real person makes. So it doesn't read like AI.</p>
-          <div class="aidet-chips">
-            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Human tone</span>
-            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Natural variation</span>
-            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Real revision history</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Stats -->
     <div class="hero-stats" data-anim="slide-up" data-anim-delay="1">
       <div class="hero-stat">
@@ -189,8 +151,8 @@
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
-        <span class="hero-stat-val">Custom</span>
-        <span class="hero-stat-lbl">level control</span>
+        <span class="hero-stat-val hero-stat-val-ai">0%</span>
+        <span class="hero-stat-lbl">AI detected</span>
       </div>
     </div>
 
@@ -838,7 +800,6 @@
         { el: statsEl.querySelectorAll('.hero-stat-val')[0], target: 10000, format: v => Math.round(v).toLocaleString() + '+' },
         { el: statsEl.querySelectorAll('.hero-stat-val')[1], target: 10,    format: v => '<' + Math.round(v) + 's' },
         { el: statsEl.querySelectorAll('.hero-stat-val')[2], target: 3,     format: v => Math.round(v).toString() },
-        { el: statsEl.querySelectorAll('.hero-stat-val')[3], target: 100,   format: v => Math.round(v) + '%' },
       ].filter(s => s.el);
 
       let fired = false;
@@ -866,41 +827,6 @@
         if (entries[0].isIntersecting) { runCount(); obs.disconnect(); }
       }, { threshold: 0.5 });
       obs.observe(statsEl);
-    })();
-
-    // ── 0% AI detected — scan animation ───────────────────────
-    (function () {
-      const el = document.getElementById('aidet');
-      if (!el) return;
-      const pct = document.getElementById('aidet-pct');
-      const statusText = document.getElementById('aidet-status-text');
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      function run() {
-        if (reduce) {
-          el.classList.add('done');
-          if (pct) pct.textContent = '0';
-          if (statusText) statusText.textContent = 'HUMAN';
-          return;
-        }
-        el.classList.add('scanning');
-        if (statusText) statusText.textContent = 'SCANNING';
-        const flick = setInterval(() => {
-          if (pct) pct.textContent = Math.floor(Math.random() * 90) + 8;
-        }, 65);
-        setTimeout(() => {
-          clearInterval(flick);
-          el.classList.remove('scanning');
-          el.classList.add('done');
-          if (pct) pct.textContent = '0';
-          if (statusText) statusText.textContent = 'HUMAN';
-        }, 1150);
-      }
-
-      const obs = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) { run(); obs.disconnect(); }
-      }, { threshold: 0.45 });
-      obs.observe(el);
     })();
 
     // ── Hero CTA button ────────────────────────────────────────

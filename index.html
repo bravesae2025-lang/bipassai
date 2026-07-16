@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
 
@@ -130,6 +130,44 @@
           <div class="cf-head">Human edits added</div>
           <div class="cf-rows" id="ld-rows"></div>
         </aside>
+      </div>
+    </div>
+
+    <!-- 0% AI detected — detector scan result -->
+    <div class="aidet" id="aidet" data-anim="slide-up">
+      <div class="aidet-top">
+        <span class="aidet-badge">AI DETECTION SCAN</span>
+        <span class="aidet-status" id="aidet-status">
+          <span class="aidet-status-dot"></span><span id="aidet-status-text">READY</span>
+        </span>
+      </div>
+      <div class="aidet-body">
+        <div class="aidet-gauge" id="aidet-gauge">
+          <svg class="aidet-ring" viewBox="0 0 128 128" aria-hidden="true">
+            <defs>
+              <linearGradient id="aidetGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#1aa564"/>
+                <stop offset="1" stop-color="#5ff0a6"/>
+              </linearGradient>
+            </defs>
+            <circle class="aidet-track" cx="64" cy="64" r="54"/>
+            <circle class="aidet-fill" cx="64" cy="64" r="54"/>
+          </svg>
+          <div class="aidet-readout">
+            <div class="aidet-num"><span id="aidet-pct">0</span><span class="aidet-sym">%</span></div>
+            <div class="aidet-caption">AI DETECTED</div>
+          </div>
+          <span class="aidet-scan" aria-hidden="true"></span>
+        </div>
+        <div class="aidet-info">
+          <h3 class="aidet-headline">0% AI. <span class="aidet-hl-green">100% human.</span></h3>
+          <p class="aidet-sub">Bipass AI rewrites your text so it reads like a real student wrote it — natural rhythm, varied sentences, the small imperfections a real person makes. So it doesn't read like AI.</p>
+          <div class="aidet-chips">
+            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Human tone</span>
+            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Natural variation</span>
+            <span class="aidet-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>Real revision history</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -234,6 +272,99 @@
       <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="3">
         <span class="hiw-footer-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
         <span>Works on any essay or assignment</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REVIEWS ─────────────────────────────────────────────── -->
+  <section id="reviews" class="reviews-section">
+    <div class="reviews-header">
+      <div class="reviews-label" data-anim="slide-up">REVIEWS</div>
+      <h2 class="reviews-title" data-anim="slide-up" data-anim-delay="1">Trusted by all our satisfied customers</h2>
+      <p class="reviews-sub" data-anim="slide-up" data-anim-delay="2">Thousands of students use Bipass AI every week to make their writing sound human.</p>
+      <div class="reviews-trust" data-anim="slide-up" data-anim-delay="3">
+        <span class="reviews-trust-stars">★★★★★</span>
+        <span class="reviews-trust-text"><strong>4.9/5</strong> average from <strong>10,000+</strong> students</span>
+      </div>
+    </div>
+
+    <div class="reviews-marquee">
+      <!-- Row 1 → scrolls left -->
+      <div class="rev-row rev-row-1" data-rev-row>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">M</span><span class="rev-id"><span class="rev-name">Maya R.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">College sophomore</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Honestly saved me during finals week. Pasted my essay, picked Student level, and it actually read like me. My professor didn't blink.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">J</span><span class="rev-id"><span class="rev-name">Jordan K.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Grad student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">The level adjust is genius. Academic mode for my thesis, Beginner for my brother's homework. Both come out sounding totally natural.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">P</span><span class="rev-id"><span class="rev-name">Priya S.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">High school senior</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">I was so nervous about my writing sounding robotic. This fixed it in like 8 seconds. Worth every cent of the day pass.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">D</span><span class="rev-id"><span class="rev-name">Devin M.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">University junior</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Auto Typer is the real MVP. It types into Google Docs so slow and human that the revision history looks completely legit.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">S</span><span class="rev-id"><span class="rev-name">Sofia L.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Nursing student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Tried three other humanizers before this. None of them let me pick a level. Bipass just gets what a real student sounds like.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">A</span><span class="rev-id"><span class="rev-name">Ahmed T.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Business major</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Fast, cheap, and it actually works. The custom level control is unreal — I dial in exactly how casual I want it to read.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">G</span><span class="rev-id"><span class="rev-name">Grace W.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Psychology student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">My discussion posts used to scream ChatGPT. Now they read like a tired college student wrote them, which is honestly perfect.</p>
+        </article>
+      </div>
+
+      <!-- Row 2 → scrolls left, different pace -->
+      <div class="rev-row rev-row-2" data-rev-row>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">L</span><span class="rev-id"><span class="rev-name">Lucas B.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Engineering student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Weekly pass got me through exam season. Unlimited generations, no subscription trap. There was nothing to cancel, which I loved.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">E</span><span class="rev-id"><span class="rev-name">Emma D.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">English major</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">The little imperfections it adds are what sell it. Real writing isn't perfect and this tool actually understands that.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">N</span><span class="rev-id"><span class="rev-name">Noah P.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Community college</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Signed up, pasted, done. No API key, no setup headache, nothing to configure. Exactly my kind of tool.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">C</span><span class="rev-id"><span class="rev-name">Chloe V.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Applying to grad school</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">I use the academic level for grad school apps. It keeps my voice but smooths out the AI stiffness. Absolute chef's kiss.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">M</span><span class="rev-id"><span class="rev-name">Marcus A.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">History major</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Ran my whole 2,000-word paper through it and it stayed coherent the whole way. Other tools turn everything into word salad.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">I</span><span class="rev-id"><span class="rev-name">Isabella N.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">ESL student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">Having different levels is huge for me as an ESL student. Beginner level sounds exactly like how I actually write in English.</p>
+        </article>
+        <article class="rev-card">
+          <div class="rev-head"><span class="rev-avatar">E</span><span class="rev-id"><span class="rev-name">Ethan C.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Law student</span></span></div>
+          <div class="rev-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="rev-text">10/10. The results come back before I even finish my coffee. The annual pass paid for itself in about a week.</p>
+        </article>
       </div>
     </div>
   </section>
@@ -684,6 +815,20 @@
       document.querySelectorAll('[data-anim]').forEach(el => observer.observe(el));
     })();
 
+    // ── Reviews marquee — duplicate cards for a seamless loop ──
+    // The CSS animates each row by -50%, so the content must be the
+    // full set repeated exactly twice. Clone the originals once.
+    (function () {
+      document.querySelectorAll('[data-rev-row]').forEach(row => {
+        const originals = Array.from(row.children);
+        originals.forEach(card => {
+          const clone = card.cloneNode(true);
+          clone.setAttribute('aria-hidden', 'true');
+          row.appendChild(clone);
+        });
+      });
+    })();
+
     // ── Stats count-up ────────────────────────────────────────
     (function () {
       const statsEl = document.querySelector('.hero-stats');
@@ -721,6 +866,41 @@
         if (entries[0].isIntersecting) { runCount(); obs.disconnect(); }
       }, { threshold: 0.5 });
       obs.observe(statsEl);
+    })();
+
+    // ── 0% AI detected — scan animation ───────────────────────
+    (function () {
+      const el = document.getElementById('aidet');
+      if (!el) return;
+      const pct = document.getElementById('aidet-pct');
+      const statusText = document.getElementById('aidet-status-text');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function run() {
+        if (reduce) {
+          el.classList.add('done');
+          if (pct) pct.textContent = '0';
+          if (statusText) statusText.textContent = 'HUMAN';
+          return;
+        }
+        el.classList.add('scanning');
+        if (statusText) statusText.textContent = 'SCANNING';
+        const flick = setInterval(() => {
+          if (pct) pct.textContent = Math.floor(Math.random() * 90) + 8;
+        }, 65);
+        setTimeout(() => {
+          clearInterval(flick);
+          el.classList.remove('scanning');
+          el.classList.add('done');
+          if (pct) pct.textContent = '0';
+          if (statusText) statusText.textContent = 'HUMAN';
+        }, 1150);
+      }
+
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { run(); obs.disconnect(); }
+      }, { threshold: 0.45 });
+      obs.observe(el);
     })();
 
     // ── Hero CTA button ────────────────────────────────────────

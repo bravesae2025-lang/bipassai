@@ -1633,6 +1633,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   transition: opacity 0.3s var(--ease-out);
 }
 .ld-levels.ld-out { opacity: 0; }
+.ld-levels[hidden] { display: none; }
 .ld-levels.ld-disabled { opacity: 0.35; filter: grayscale(1); }
 .ld-level {
   display: flex;

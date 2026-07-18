@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=41">
+  <link rel="stylesheet" href="style.css?v=42">
 </head>
 <body>
 
@@ -169,7 +169,7 @@
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
                 Regenerate
               </span>
-              <span class="ld-action">
+              <span class="ld-action" id="ld-act-type">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
                 Auto Typer
               </span>
@@ -185,7 +185,32 @@
           </aside>
         </div>
 
-        <!-- Stage 3: AI detector check — lands on 0% AI -->
+        <!-- Stage 3: Auto Typer — types the result into Google Docs char-by-char -->
+        <div class="ld-stage ld-stage-type" id="ld-stage-type" hidden>
+          <div class="ld-inputcol">
+            <div class="ld-docbox">
+              <div class="ld-doc-bar">
+                <span class="ld-doc-dot"></span><span class="ld-doc-dot"></span><span class="ld-doc-dot"></span>
+                <span class="ld-doc-title">Essay draft &mdash; Google Docs</span>
+              </div>
+              <div class="ld-doc-page">
+                <div class="ld-doc-text" id="ld-doc-text"></div>
+              </div>
+            </div>
+          </div>
+          <aside class="ld-typepanel">
+            <div class="cf-head">Auto Typer</div>
+            <div class="ld-type-rows">
+              <div class="ld-type-row"><span class="ld-type-k">Target</span><span class="ld-type-v">Google Docs</span></div>
+              <div class="ld-type-row"><span class="ld-type-k">Speed</span><span class="ld-type-v">Normal</span></div>
+              <div class="ld-type-row"><span class="ld-type-k">Typos</span><span class="ld-type-v">Auto-fixed</span></div>
+              <div class="ld-type-row"><span class="ld-type-k">History</span><span class="ld-type-v" id="ld-type-prog">Building&hellip;</span></div>
+            </div>
+            <span class="ld-type-status"><i></i><span id="ld-type-status-text">Typing</span></span>
+          </aside>
+        </div>
+
+        <!-- Stage 4: AI detector check — lands on 0% AI -->
         <div class="ld-stage ld-stage-scan" id="ld-stage-scan" hidden>
           <div class="ld-inputcol">
             <div class="ld-scanbox">
@@ -753,7 +778,12 @@
       const optHuman  = $('ld-opt-humanize');
       const copyEl    = $('ld-act-copy');
       const copyLabel = $('ld-copy-label');
+      const typeChip  = $('ld-act-type');
       const scanChip  = $('ld-act-scan');
+      const stageType = $('ld-stage-type');
+      const docText   = $('ld-doc-text');
+      const typeStat  = $('ld-type-status-text');
+      const typeProg  = $('ld-type-prog');
       const stageScan = $('ld-stage-scan');
       const scanText  = $('ld-scan-text');
       const gaugeVal  = $('ld-gauge-val');
@@ -856,7 +886,7 @@
       function fadeTo(stage, done) {
         mainEl.classList.add('ld-fade');
         at(420, () => {
-          [stageIn, stageOut, stageScan].forEach(s => { if (s) s.hidden = s !== stage; });
+          [stageIn, stageOut, stageType, stageScan].forEach(s => { if (s) s.hidden = s !== stage; });
           mainEl.classList.remove('ld-fade');
           if (done) done();
         });
@@ -871,6 +901,9 @@
         // Reset to a clean input stage
         stageIn.hidden = false;
         stageOut.hidden = true;
+        if (stageType) { stageType.hidden = true; stageType.classList.remove('done'); }
+        if (docText) docText.innerHTML = '';
+        if (typeChip) typeChip.classList.remove('on');
         if (stageScan) { stageScan.hidden = true; stageScan.classList.remove('done'); }
         if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
@@ -997,14 +1030,51 @@
         }
         at(t, () => cursorTo(copyEl, 650));
         at(t + 750, () => { cursorClick(); copyEl.classList.add('ok'); copyLabel.textContent = 'Copied'; });
-        at(t + 1400, () => cursorTo(scanChip, 550));
-        at(t + 2050, () => { cursorClick(); if (scanChip) scanChip.classList.add('on'); });
-        at(t + 2400, () => { cursorHide(); fadeTo(stageScan, () => scanPhase(S)); });
+        at(t + 1400, () => cursorTo(typeChip, 550));
+        at(t + 2050, () => { cursorClick(); if (typeChip) typeChip.classList.add('on'); });
+        at(t + 2400, () => { cursorHide(); fadeTo(stageType, () => autoTyperPhase(S)); });
       }
 
-      // ── Stage 3: AI detector scan → 0% AI ────────────────────
+      // ── Stage 3: Auto Typer → types the result into Google Docs ─
+      function autoTyperPhase(S) {
+        badgeEl.textContent = 'STEP 3 · AUTO TYPER';
+        stageType.classList.remove('done');
+        if (typeStat) typeStat.textContent = 'Typing';
+        if (typeProg) typeProg.textContent = 'Building…';
+        const full = editedPlain(S);
+        let shown = '';
+        const render = () => { if (docText) docText.innerHTML = esc(shown) + '<span class="ld-caret"></span>'; };
+        render();
+
+        let t = 350;
+        const typoIdx = Math.floor(full.length * 0.45);
+        for (let i = 0; i < full.length; i++) {
+          const ch = full[i];
+          // one realistic typo mid-word, auto-corrected — mirrors the real extension
+          if (i === typoIdx && /[a-z]/i.test(ch)) {
+            const wrong = 'asdfghjkl'[rnd(9)];
+            at(t, () => { shown += wrong; render(); }); t += 120;
+            at(t, () => { shown = shown.slice(0, -1); render(); }); t += 150;
+          }
+          at(t, () => { shown += ch; render(); });
+          let step = 11 + rnd(15);
+          if (ch === ' ') step = 20 + rnd(16);
+          if (ch === '.' || ch === ',') step = 150 + rnd(110);
+          t += step;
+        }
+        const done = t + 250;
+        at(done, () => {
+          stageType.classList.add('done');
+          if (docText) docText.innerHTML = esc(full);
+          if (typeStat) typeStat.textContent = 'Typed into Docs';
+          if (typeProg) typeProg.textContent = 'Saved';
+        });
+        at(done + 1500, () => fadeTo(stageScan, () => scanPhase(S)));
+      }
+
+      // ── Stage 4: AI detector scan → 0% AI ────────────────────
       function scanPhase(S) {
-        badgeEl.textContent = 'STEP 3 · AI CHECK';
+        badgeEl.textContent = 'STEP 4 · AI CHECK';
         stageScan.classList.remove('done');
         if (scanText) scanText.textContent = editedPlain(S);
         if (gaugeVal) gaugeVal.textContent = '––';

@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=39">
 </head>
 <body>
 
@@ -186,11 +186,40 @@
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
                 Auto Typer
               </span>
+              <span class="ld-action" id="ld-act-scan">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Check AI
+              </span>
             </div>
           </div>
           <aside class="changes-filter leveldemo-filter" id="ld-filter">
             <div class="cf-head" id="ld-panel-head">Human edits added</div>
             <div class="cf-rows" id="ld-rows"></div>
+          </aside>
+        </div>
+
+        <!-- Stage 3: AI detector check — lands on 0% AI -->
+        <div class="ld-stage ld-stage-scan" id="ld-stage-scan" hidden>
+          <div class="ld-inputcol">
+            <div class="ld-scanbox">
+              <div class="ld-inputbox-label">Checking with AI detector</div>
+              <div class="ld-scan-text" id="ld-scan-text"></div>
+              <span class="ld-scanline" aria-hidden="true"></span>
+            </div>
+          </div>
+          <aside class="ld-scanpanel">
+            <div class="cf-head">AI detection scan</div>
+            <div class="ld-gauge">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ld-gauge-track" cx="60" cy="60" r="52"/>
+                <circle class="ld-gauge-fill" cx="60" cy="60" r="52"/>
+              </svg>
+              <div class="ld-gauge-read">
+                <span class="ld-gauge-val" id="ld-gauge-val">&ndash;&ndash;</span>
+                <span class="ld-gauge-lbl">AI detected</span>
+              </div>
+            </div>
+            <span class="ld-scan-status"><i></i><span id="ld-scan-status-text">Scanning</span></span>
           </aside>
         </div>
 
@@ -202,7 +231,7 @@
       </div>
 
       <span class="ld-cursor" id="ld-cursor" aria-hidden="true">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="#0d0d0d" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M5.5 3.2l13.2 7.6-6.2 1.5-2.4 5.9z"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#0d0d0d" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M5.5 3.2l13.2 7.6-6.2 1.5-2.4 5.9z"/></svg>
       </span>
     </div>
 
@@ -752,13 +781,23 @@
       const optHuman  = $('ld-opt-humanize');
       const copyEl    = $('ld-act-copy');
       const copyLabel = $('ld-copy-label');
+      const scanChip  = $('ld-act-scan');
+      const stageScan = $('ld-stage-scan');
+      const scanText  = $('ld-scan-text');
+      const gaugeVal  = $('ld-gauge-val');
+      const scanStat  = $('ld-scan-status-text');
       if (!bodyEl || !rowsEl || !stageIn) return;
 
       const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const rnd = n => Math.floor(Math.random() * n);
 
       // Plain paragraph + live word/credit counts (1 credit ≈ 1 character)
       const PLAIN = BASE.map((tok, i) => (i > 0 && !tok.glue ? ' ' : '') + tok.w).join('');
       const WORDS = PLAIN.trim().split(/\s+/).length;
+      const editedPlain = S => BASE.map((tok, i) => {
+        const w = S.edits[i] ? S.edits[i].to : tok.w;
+        return (i > 0 && !tok.glue ? ' ' : '') + w;
+      }).join('');
       if ($('ld-wc'))  $('ld-wc').textContent  = WORDS + ' words';
       if ($('ld-est')) $('ld-est').textContent = '≈ ' + PLAIN.length + ' credits';
 
@@ -841,7 +880,11 @@
       }
       function cursorClick() {
         cursorEl.classList.add('click');
+        cursorEl.classList.remove('ripple');
+        void cursorEl.offsetWidth;
+        cursorEl.classList.add('ripple');
         at(180, () => cursorEl.classList.remove('click'));
+        at(540, () => cursorEl.classList.remove('ripple'));
       }
       const cursorHide = () => cursorEl.classList.remove('on');
 
@@ -851,11 +894,10 @@
           el.classList.toggle('active', el.dataset.level === key));
       }
 
-      function fadeSwap(toResult, done) {
+      function fadeTo(stage, done) {
         mainEl.classList.add('ld-fade');
         at(420, () => {
-          stageIn.hidden = toResult;
-          stageOut.hidden = !toResult;
+          [stageIn, stageOut, stageScan].forEach(s => { if (s) s.hidden = s !== stage; });
           mainEl.classList.remove('ld-fade');
           if (done) done();
         });
@@ -870,6 +912,8 @@
         // Reset to a clean input stage
         stageIn.hidden = false;
         stageOut.hidden = true;
+        if (stageScan) { stageScan.hidden = true; stageScan.classList.remove('done'); }
+        if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
         badgeEl.textContent = 'STEP 1 · SET UP';
         setCaption(S.capSetup);
@@ -958,7 +1002,7 @@
         at(pressAt + 260, () => goEl.textContent = 'Analyzing · 1/3');
         at(pressAt + 720, () => goEl.textContent = 'Rewriting · 2/3');
         at(pressAt + 1180, () => goEl.textContent = 'Cleaning up · 3/3');
-        at(pressAt + 1650, () => { cursorHide(); fadeSwap(true, () => resultPhase(S)); });
+        at(pressAt + 1650, () => { cursorHide(); fadeTo(stageOut, () => resultPhase(S)); });
       }
 
       function resultPhase(S) {
@@ -979,17 +1023,48 @@
 
         const editsDone = 400 + total * 300;
         const hasToggle = S.toggle && counts[S.toggle] > 0;
-        let end;
+        let t = editsDone;
+
+        // Cursor comes back and works the result: toggle a filter, copy, check AI
+        at(t + 200, () => {
+          const c = cardEl.getBoundingClientRect();
+          const r = bodyEl.getBoundingClientRect();
+          cursorShow(r.left - c.left + r.width * 0.55, r.top - c.top + r.height * 0.6);
+        });
         if (hasToggle) {
-          at(editsDone + 1100, () => toggleCat(S.toggle, true));
-          at(editsDone + 1100 + 1500, () => toggleCat(S.toggle, false));
-          end = editsDone + 1100 + 1500 + 900;
+          at(t + 350, () => cursorTo(rowsEl.querySelector('.cf-row[data-cat="' + S.toggle + '"] .cf-switch'), 700));
+          at(t + 1150, () => { cursorClick(); toggleCat(S.toggle, true); });
+          at(t + 2450, () => { cursorClick(); toggleCat(S.toggle, false); });
+          t += 2900;
         } else {
-          end = editsDone + 2300;
+          t += 500;
         }
-        at(end, () => { copyEl.classList.add('ok'); copyLabel.textContent = 'Copied'; });
-        at(end + 1100, () => mainEl.classList.add('ld-fade'));
-        at(end + 1550, () => { si = (si + 1) % SCENARIOS.length; runScenario(); });
+        at(t, () => cursorTo(copyEl, 650));
+        at(t + 750, () => { cursorClick(); copyEl.classList.add('ok'); copyLabel.textContent = 'Copied'; });
+        at(t + 1400, () => cursorTo(scanChip, 550));
+        at(t + 2050, () => { cursorClick(); if (scanChip) scanChip.classList.add('on'); });
+        at(t + 2400, () => { cursorHide(); fadeTo(stageScan, () => scanPhase(S)); });
+      }
+
+      // ── Stage 3: AI detector scan → 0% AI ────────────────────
+      function scanPhase(S) {
+        badgeEl.textContent = 'STEP 3 · AI CHECK';
+        setCaption('Run it through an AI detector — 0% AI, 100% human');
+        stageScan.classList.remove('done');
+        if (scanText) scanText.textContent = editedPlain(S);
+        if (gaugeVal) gaugeVal.textContent = '––';
+        if (scanStat) scanStat.textContent = 'Scanning';
+
+        for (let k = 0; k < 22; k++) {
+          at(250 + k * 95, () => { gaugeVal.textContent = (7 + rnd(90)) + '%'; });
+        }
+        at(2500, () => {
+          stageScan.classList.add('done');
+          if (gaugeVal) gaugeVal.textContent = '0%';
+          if (scanStat) scanStat.textContent = 'Human';
+        });
+        at(4100, () => mainEl.classList.add('ld-fade'));
+        at(4550, () => { si = (si + 1) % SCENARIOS.length; runScenario(); });
       }
 
       // Reduced motion: show the finished Student result, no timers, no loop.

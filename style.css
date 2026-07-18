@@ -1543,7 +1543,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   width: 196px;
   margin-top: 12px;
 }
-.leveldemo-filter .cf-row { cursor: default; }
+.leveldemo-filter .cf-row { cursor: default; padding-right: 8px; }
 .leveldemo-filter .cf-switch,
 .leveldemo-filter .cf-switch::after { transition-duration: 0.28s; }
 
@@ -1866,13 +1866,32 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .ld-stage-scan.done .ld-scan-status i { background: #1aa564; animation: none; }
 .ld-action.on { color: #fff; background: var(--black); border-color: var(--black); }
 
-/* Mode dropdown (inside the mode chip) */
-.ld-chip-mode { position: relative; }
+/* Mode select (top of the setup panel) + its dropdown */
+.ld-modesel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--black);
+  background: #fff;
+  border: 1px solid var(--g150);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+.ld-modesel > svg { color: var(--g300); flex-shrink: 0; }
 .ld-mode-menu {
   position: absolute;
-  top: calc(100% + 7px);
-  left: -1px;
-  min-width: 178px;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1903,66 +1922,10 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .ld-mode-opt.sel { background: var(--black); color: #fff; }
 
-/* Humanize rephrase marks: neutral black (scoped to the demo card) */
-.leveldemo [data-cat="rephrase"] { --cc: #0d0d0d; }
+/* Humanize rephrase marks: brand green, same highlight style as the other examples */
+.leveldemo [data-cat="rephrase"] { --cc: #1aa564; }
 
-/* Header chips (mode + structure lock) */
-.ld-head-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.ld-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--ff-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--g400);
-  background: #fff;
-  border: 1px solid var(--g150);
-  border-radius: 20px;
-  padding: 3px 9px;
-  white-space: nowrap;
-}
-.ld-chip svg { flex-shrink: 0; }
 .ld-count { min-width: 58px; text-align: center; }
-
-/* Caption footer + scene progress dots */
-.ld-caption-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--g100);
-  background: var(--g050);
-  min-height: 38px;
-}
-.ld-caption {
-  font-family: var(--ff-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  color: var(--g400);
-  min-width: 0;
-}
-@keyframes ld-cap-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: none; }
-}
-.ld-caption.ld-cap-in { animation: ld-cap-in 0.45s var(--ease-out) both; }
-.ld-dots { display: flex; gap: 5px; flex-shrink: 0; }
-.ld-dots i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--g200);
-  transition: background 0.3s, transform 0.3s;
-}
-.ld-dots i.on { background: var(--black); transform: scale(1.3); }
 
 /* Custom-scene mini sliders (category colors come from the global [data-cat] --cc rules) */
 .ld-slider {
@@ -2031,8 +1994,6 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   .ld-stage { flex-direction: column; min-height: 0; }
   .leveldemo-filter { flex-basis: auto; width: 100%; min-height: 172px; }
   .leveldemo-body { min-height: 0; }
-  .ld-chip-lock { display: none; }
-  .ld-caption-row { padding: 10px 16px; }
   .ld-setup { flex-basis: auto; width: 100%; }
   .ld-levels { display: grid; grid-template-columns: 1fr 1fr; }
   .ld-go { margin-top: 12px; }
@@ -2046,8 +2007,6 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   .leveldemo-main,
   .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
   .ld-slider-fill { transition: none; }
-  .ld-caption.ld-cap-in { animation: none; }
-  .ld-dots i { transition: none; }
   .ld-cursor { display: none; }
   .ld-mode-menu { transition: none; }
   .ld-inputbox-text.ld-pasted { animation: none; }

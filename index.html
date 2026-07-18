@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=39">
+  <link rel="stylesheet" href="style.css?v=40">
 </head>
 <body>
 
@@ -121,25 +121,8 @@
     <!-- Level-adjust showcase: watch the app get used, start to finish -->
     <div class="typeshow leveldemo" id="leveldemo" data-anim="slide-up">
       <div class="typeshow-header">
-        <span class="ld-head-group">
-          <span class="typeshow-badge" id="ld-badge">STEP 1 · SET UP</span>
-          <span class="ld-chip ld-chip-mode" id="ld-mode-chip">
-            <span id="ld-mode-label">MODE · LEVEL ADJUST</span>
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
-            <span class="ld-mode-menu" id="ld-mode-menu" aria-hidden="true">
-              <span class="ld-mode-opt">Level Adjust</span>
-              <span class="ld-mode-opt" id="ld-opt-humanize">Humanize</span>
-              <span class="ld-mode-opt">Humanize + Level Adjust</span>
-            </span>
-          </span>
-        </span>
-        <span class="ld-head-group">
-          <span class="ld-chip ld-chip-lock">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span class="ld-lock-label">Structure lock</span>
-          </span>
-          <span class="ld-count" id="ld-count">0 words</span>
-        </span>
+        <span class="typeshow-badge" id="ld-badge">STEP 1 · SET UP</span>
+        <span class="ld-count" id="ld-count">0 words</span>
       </div>
 
       <div class="leveldemo-main" id="ld-main">
@@ -157,6 +140,15 @@
             </div>
           </div>
           <aside class="ld-setup">
+            <span class="ld-modesel" id="ld-modesel">
+              <span id="ld-mode-label">Level Adjust</span>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+              <span class="ld-mode-menu" id="ld-mode-menu" aria-hidden="true">
+                <span class="ld-mode-opt">Level Adjust</span>
+                <span class="ld-mode-opt" id="ld-opt-humanize">Humanize</span>
+                <span class="ld-mode-opt">Humanize + Level Adjust</span>
+              </span>
+            </span>
             <div class="cf-head" id="ld-setup-head">Pick a level</div>
             <div class="ld-levels" id="ld-levels">
               <span class="ld-level" data-level="easy"><i class="ld-radio"></i>Beginner</span>
@@ -223,11 +215,6 @@
           </aside>
         </div>
 
-      </div>
-
-      <div class="ld-caption-row">
-        <span class="ld-caption" id="ld-caption"></span>
-        <span class="ld-dots" id="ld-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       </div>
 
       <span class="ld-cursor" id="ld-cursor" aria-hidden="true">
@@ -713,16 +700,12 @@
       // Each scenario plays the full app flow: paste → pick mode/level → run → result.
       const SCENARIOS = [
         { level: 'medium', humanize: false, btn: 'Adjust Level', unit: 'edit',
-          capSetup: "Paste your AI essay and pick a level — let's try Student",
-          capResult: 'Student level — every human edit highlighted, each type toggleable',
           panelHead: 'Human edits added', toggle: 'word',
           edits: {
             3: { to: 'changed', cat: 'word' }, 5: { to: 'comunicate', cat: 'spelling' },
             8: { to: 'really', cat: 'word' }, 9: { to: 'shaped', cat: 'tense' },
             15: { to: 'hard to deny', cat: 'word' }, 17: { to: 'Honestly', cat: 'punct' } } },
         { level: null, humanize: true, btn: 'Humanize', unit: 'rephrase',
-          capSetup: 'Or switch the mode — Humanize fully rewrites the text',
-          capResult: 'Humanize rewords rhythm and phrasing so nothing reads like AI',
           panelHead: 'Humanize changes', toggle: 'rephrase',
           edits: {
             2: { to: 'pretty much', cat: 'rephrase' }, 3: { to: 'flipped', cat: 'rephrase' },
@@ -731,8 +714,6 @@
             18: { to: 'most of us', cat: 'rephrase' }, 24: { to: 'clearly', cat: 'rephrase' },
             25: { to: 'not going anywhere', cat: 'rephrase' } } },
         { level: 'customize', humanize: false, btn: 'Adjust Level', unit: 'edit',
-          capSetup: 'Go Custom — dial in exactly which human traits to add',
-          capResult: 'Your custom mix — expert words plus a few real typos',
           panelHead: 'Your custom mix', toggle: 'spelling',
           sliders: [
             { cat: 'word',     name: 'Vocabulary',  val: 'Academic', pct: 75 },
@@ -746,8 +727,6 @@
             2: { to: 'profoundly', cat: 'word' }, 3: { to: 'transfromed', cat: 'spelling' },
             8: { to: 'increasingly', cat: 'word' }, 24: { to: 'definetly', cat: 'spelling' } } },
         { level: 'easy', humanize: false, btn: 'Adjust Level', unit: 'edit',
-          capSetup: 'Beginner preset — writes like a new English speaker',
-          capResult: 'Heaviest rewrite — edits across all six human categories',
           panelHead: 'Human edits added', toggle: 'punct',
           edits: {
             1: { to: 'have', cat: 'grammar' }, 2: { to: 'totally', cat: 'word' }, 3: { to: 'changed', cat: 'word' },
@@ -762,8 +741,6 @@
       const rowsEl    = $('ld-rows');
       const countEl   = $('ld-count');
       const badgeEl   = $('ld-badge');
-      const captionEl = $('ld-caption');
-      const dotsEl    = $('ld-dots');
       const headEl    = $('ld-panel-head');
       const cardEl    = $('leveldemo');
       const stageIn   = $('ld-stage-input');
@@ -775,7 +752,7 @@
       const setupHead = $('ld-setup-head');
       const goEl      = $('ld-go');
       const cursorEl  = $('ld-cursor');
-      const modeChip  = $('ld-mode-chip');
+      const modeSel   = $('ld-modesel');
       const modeLabel = $('ld-mode-label');
       const modeMenu  = $('ld-mode-menu');
       const optHuman  = $('ld-opt-humanize');
@@ -847,19 +824,6 @@
           '<span class="ld-slider-val">&ndash;</span></div>').join('');
       }
 
-      function setCaption(text) {
-        if (!captionEl) return;
-        captionEl.classList.remove('ld-cap-in');
-        void captionEl.offsetWidth;
-        captionEl.textContent = text;
-        captionEl.classList.add('ld-cap-in');
-      }
-
-      function setDots(i) {
-        if (!dotsEl) return;
-        [].forEach.call(dotsEl.children, (d, k) => d.classList.toggle('on', k === i));
-      }
-
       let timers = [];
       const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
       const at = (ms, fn) => timers.push(setTimeout(fn, ms));
@@ -916,9 +880,7 @@
         if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
         badgeEl.textContent = 'STEP 1 · SET UP';
-        setCaption(S.capSetup);
-        setDots(si);
-        modeLabel.textContent = 'MODE · LEVEL ADJUST';
+        modeLabel.textContent = 'Level Adjust';
         modeMenu.classList.remove('open');
         optHuman.classList.remove('sel');
         setupHead.textContent = 'Pick a level';
@@ -951,15 +913,15 @@
         let pressAt;
         if (S.humanize) {
           // Open the mode menu and pick Humanize
-          at(1300, () => cursorTo(modeChip, 650));
+          at(1300, () => cursorTo(modeSel, 650));
           at(2000, () => { cursorClick(); modeMenu.classList.add('open'); });
           at(2550, () => cursorTo(optHuman, 450));
           at(3050, () => { cursorClick(); optHuman.classList.add('sel'); });
           at(3400, () => {
             modeMenu.classList.remove('open');
-            modeLabel.textContent = 'MODE · HUMANIZE';
+            modeLabel.textContent = 'Humanize';
             levelsEl.classList.add('ld-disabled');
-            setupHead.textContent = 'Presets off — full rewrite';
+            setupHead.textContent = 'Presets off';
             goEl.textContent = 'Humanize';
           });
           at(3700, () => cursorTo(goEl, 600));
@@ -1007,7 +969,6 @@
 
       function resultPhase(S) {
         badgeEl.textContent = 'STEP 2 · RESULT';
-        setCaption(S.capResult);
         headEl.textContent = S.panelHead;
         buildPlain();
         const counts = buildRows(S.edits);
@@ -1049,7 +1010,6 @@
       // ── Stage 3: AI detector scan → 0% AI ────────────────────
       function scanPhase(S) {
         badgeEl.textContent = 'STEP 3 · AI CHECK';
-        setCaption('Run it through an AI detector — 0% AI, 100% human');
         stageScan.classList.remove('done');
         if (scanText) scanText.textContent = editedPlain(S);
         if (gaugeVal) gaugeVal.textContent = '––';
@@ -1073,8 +1033,6 @@
         stageIn.hidden = true;
         stageOut.hidden = false;
         badgeEl.textContent = 'STEP 2 · RESULT';
-        if (captionEl) captionEl.textContent = S.capResult;
-        setDots(0);
         headEl.textContent = S.panelHead;
         buildPlain();
         buildRows(S.edits);

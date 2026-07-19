@@ -4296,9 +4296,6 @@ body.editor-page { background: var(--bg); }
 .rev-row-1 { animation: rev-scroll 60s linear infinite; }
 .rev-row-2 { animation: rev-scroll 78s linear infinite; }
 
-/* Pause the whole marquee when the reader hovers it */
-.reviews-marquee:hover .rev-row { animation-play-state: paused; }
-
 @keyframes rev-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }

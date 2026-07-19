@@ -2013,8 +2013,9 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .ld-mode-opt.sel { background: var(--black); color: #fff; }
 
-/* Humanize rephrase marks: brand green, same highlight style as the other examples */
-.leveldemo [data-cat="rephrase"] { --cc: #1aa564; }
+/* Humanize rephrase marks: brand green, same highlight style as the other
+   examples — global so the editor's humanize results get it too */
+[data-cat="rephrase"] { --cc: #1aa564; }
 
 .ld-count { min-width: 58px; text-align: center; }
 
@@ -8968,6 +8969,55 @@ mark.word-changed.change-reverted { display: none; }
 .cf-row[data-cat="spelling"] { --cc: #e0533d; }
 .cf-row[data-cat="tense"]    { --cc: #1aa564; }
 .cf-row[data-cat="grammar"]  { --cc: #d6336c; }
+.cf-row[data-cat="rephrase"] { --cc: #1aa564; }
+
+/* ── Humanize result panel: green master row + a plain list of the changes ── */
+.hz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--g100);
+  max-height: 340px;
+  overflow-y: auto;
+}
+.hz-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-family: var(--ff-ui);
+  font-size: 12.5px;
+  line-height: 1.5;
+  transition: background 0.15s;
+}
+.hz-item:hover { background: var(--g050); }
+.hz-item s {
+  color: var(--g400);
+  text-decoration-color: color-mix(in srgb, #1aa564 55%, transparent);
+  min-width: 0;
+}
+.hz-item .hz-arrow { color: var(--g300); flex-shrink: 0; font-size: 11px; }
+.hz-item b { color: var(--black); font-weight: 600; min-width: 0; }
+.hz-panel.hz-off .hz-item b { color: var(--g300); }
+.hz-panel.hz-off .hz-item s { text-decoration: none; color: var(--black); }
+
+/* Flash the change a list item points at */
+@keyframes hz-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(26,165,100,0.45); }
+  100% { box-shadow: 0 0 0 9px rgba(26,165,100,0); }
+}
+.word-change-pair.hz-flash > mark.word-changed,
+mark.word-changed.hz-flash {
+  animation: hz-flash 0.9s var(--ease-out) 2;
+}
 
 .changes-view {
   width: 100%;

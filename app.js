@@ -830,7 +830,7 @@ function _parseAnnotatedResult(annotated) {
   return { cleanText: cleanText.trim(), html: html.replace(/\n/g, '<br>\n'), counts, total };
 }
 
-function _buildDiffHtml(original, result) {
+function _buildDiffHtml(original, result, forceCat) {
   const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
   // Split into alternating [word, whitespace, word, ...] tokens
   const allToks  = s => s.match(/\S+|\s+/g) || [];
@@ -887,7 +887,7 @@ function _buildDiffHtml(original, result) {
     if (changed.has(wordIdx)) {
       const orig    = origFor.get(wordIdx);
       const origRaw = origRawFor.get(wordIdx) || '';
-      const cat     = _classifyChange(origRaw, tok);
+      const cat     = forceCat || _classifyChange(origRaw, tok);
       html += orig
         ? `<span class="word-change-pair" data-cat="${cat}"><mark class="word-changed">${safe}</mark><span class="word-original">${orig}</span></span>`
         : `<mark class="word-changed" data-cat="${cat}">${safe}</mark>`;
@@ -1085,6 +1085,9 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_result',       cleanRes);
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
     sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_flow',         'level');
+    sessionStorage.removeItem('bipass_humanized');
+    sessionStorage.removeItem('bipass_humanized_html');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
@@ -1098,6 +1101,9 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_result',       result);
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
     sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_flow',         'level');
+    sessionStorage.removeItem('bipass_humanized');
+    sessionStorage.removeItem('bipass_humanized_html');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
@@ -1109,11 +1115,17 @@ async function adjustLevel() {
 
 // ─── Humanize (RewriteAI) ─────────────────────────────────────
 // Stash the result and open the editor (shared by both humanize paths).
-function _goEditor(input, result, html, changed) {
+// flow: 'humanize' | 'both' — tells the editor which result UI to render.
+function _goEditor(input, result, html, changed, flow) {
   sessionStorage.setItem('bipass_input',        input);
   sessionStorage.setItem('bipass_result',       result);
   sessionStorage.setItem('bipass_result_html',  html);
   sessionStorage.setItem('bipass_mode',         'humanize');
+  sessionStorage.setItem('bipass_flow',         flow || 'humanize');
+  if (flow !== 'both') {
+    sessionStorage.removeItem('bipass_humanized');
+    sessionStorage.removeItem('bipass_humanized_html');
+  }
   sessionStorage.setItem('bipass_change_count', String(changed));
   sessionStorage.setItem('bipass_wc',           String(countWords(input)));
   sessionStorage.setItem('bipass_level',        selectedLevel || '');
@@ -1174,11 +1186,13 @@ async function runHumanize() {
 
     // ── Humanize-only: done ─────────────────────────────────────
     if (mode !== 'both') {
-      const htmlDiff = _buildDiffHtml(text, humanized);
+      // Single green "rephrase" highlight — the humanizer has no real
+      // per-category data, so don't pretend with classified colors.
+      const htmlDiff = _buildDiffHtml(text, humanized, 'rephrase');
       const changed  = _countChanges(text, humanized);
       lfxFinish();
       if (hData.creditsUsed != null) { animateLoadingCredits(hData.creditsUsed); await new Promise(r => setTimeout(r, 1200)); }
-      _goEditor(text, humanized, htmlDiff, changed);
+      _goEditor(text, humanized, htmlDiff, changed, 'humanize');
       return;
     }
 
@@ -1214,7 +1228,11 @@ async function runHumanize() {
     animateLoadingCredits(totalUsed);
     await new Promise(r => setTimeout(r, 1200));
 
-    _goEditor(text, cleanRes, htmlDiff, changed);
+    // Keep the humanized draft so the editor can offer a Humanized/Final
+    // switcher (final highlights are level-adjust edits vs this draft).
+    sessionStorage.setItem('bipass_humanized', humanized);
+    sessionStorage.setItem('bipass_humanized_html', _buildDiffHtml(text, humanized, 'rephrase'));
+    _goEditor(text, cleanRes, htmlDiff, changed, 'both');
   } catch (err) {
     setLoading(false);
     showToast(err.message || 'Something went wrong. Please try again.');

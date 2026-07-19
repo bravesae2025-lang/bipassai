@@ -165,7 +165,12 @@ async function init() {
     return;
   }
 
-  editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Adjusted';
+  const flow = sessionStorage.getItem('bipass_flow') || '';
+  editorBadge.textContent =
+    mode === 'generate'   ? 'Generated' :
+    flow === 'humanize'   ? 'Humanized' :
+    flow === 'both'       ? 'Humanized + Adjusted' :
+    'Adjusted';
 
   const changeCount = parseInt(sessionStorage.getItem('bipass_change_count') || '0');
   const changeEl = document.getElementById('editor-change-count');
@@ -224,12 +229,16 @@ function showPlainResult(text) {
 }
 
 function setupViewToggle(result, mode) {
-  const changesView = document.getElementById('changes-view');
-  const filter      = document.getElementById('changes-filter');
-  const layout      = document.getElementById('changes-layout');
-  const aiBox       = document.getElementById('ai-prompt-box');
-  const resultHtml  = sessionStorage.getItem('bipass_result_html') || '';
-  const hasHtml     = !!resultHtml.trim();
+  const changesView   = document.getElementById('changes-view');
+  const filter        = document.getElementById('changes-filter');
+  const hzPanel       = document.getElementById('hz-panel');
+  const viewPill      = document.getElementById('editor-view-toggle');
+  const layout        = document.getElementById('changes-layout');
+  const aiBox         = document.getElementById('ai-prompt-box');
+  const flow          = sessionStorage.getItem('bipass_flow') || '';
+  const resultHtml    = sessionStorage.getItem('bipass_result_html') || '';
+  const humanizedHtml = sessionStorage.getItem('bipass_humanized_html') || '';
+  const hasHtml       = !!resultHtml.trim();
 
   // Only the Changes view remains. Without diff HTML (e.g. generate mode),
   // leave the plain textarea showing as-is and drop the buttons to the bottom.
@@ -299,21 +308,102 @@ function setupViewToggle(result, mode) {
     });
   });
 
+  // ── Humanize panel: single green "Rephrased" toggle + list of changes ──
+  const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const changeEls = () => Array.from(
+    changesView.querySelectorAll('.word-change-pair, mark.word-changed')
+  ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
+
+  function loadHzPanel() {
+    if (!hzPanel || !changesView) return;
+    const els = changeEls();
+    const countEl = document.getElementById('hz-count');
+    if (countEl) countEl.textContent = els.length;
+    const list = document.getElementById('hz-list');
+    if (list) {
+      list.innerHTML = '';
+      els.forEach(el => {
+        const mark = el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed');
+        const orig = el.querySelector ? (el.querySelector('.word-original')?.textContent || '') : '';
+        const now  = (mark || el).textContent;
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'hz-item';
+        item.innerHTML = orig
+          ? `<s>${escHtml(orig)}</s><span class="hz-arrow" aria-hidden="true">&rarr;</span><b>${escHtml(now)}</b>`
+          : `<span class="hz-arrow" aria-hidden="true">+</span><b>${escHtml(now)}</b>`;
+        item.addEventListener('click', () => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.remove('hz-flash');
+          void el.offsetWidth;
+          el.classList.add('hz-flash');
+        });
+        list.appendChild(item);
+      });
+    }
+    // Master toggle: show the rephrased text vs revert everything to the original
+    const box = document.getElementById('hz-toggle');
+    if (box) {
+      box.checked = true;
+      box.closest('.cf-row').classList.remove('cf-off');
+      hzPanel.classList.remove('hz-off');
+      if (!box.dataset.wired) {
+        box.dataset.wired = '1';
+        box.addEventListener('change', () => {
+          box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
+          hzPanel.classList.toggle('hz-off', !box.checked);
+          changeEls().forEach(el => el.classList.toggle('change-reverted', !box.checked));
+        });
+      }
+    }
+  }
+
+  // Swap the diff html + matching side panel ('cats' = 6-category filter, 'hz' = green list)
+  function loadView(html, panel) {
+    changesView.innerHTML = html;
+    changesView.querySelectorAll('.word-original').forEach(el => {
+      el.contentEditable = 'false';
+    });
+    if (filter)  filter.classList.toggle('hidden', panel !== 'cats');
+    if (hzPanel) hzPanel.classList.toggle('hidden', panel !== 'hz');
+    if (panel === 'cats') { refreshCounts(); applyFilters(); }
+    else loadHzPanel();
+  }
+
   // Show the Changes view only
   mountActionsSide();
   editorTextarea.classList.add('hidden');
   if (aiBox) aiBox.style.display = 'none';
   if (layout) layout.classList.remove('hidden');
-  if (changesView) {
-    changesView.innerHTML = resultHtml;
-    changesView.contentEditable = 'true';
-    changesView.spellcheck = true;
-    changesView.querySelectorAll('.word-original').forEach(el => {
-      el.contentEditable = 'false';
-    });
+  changesView.contentEditable = 'true';
+  changesView.spellcheck = true;
+
+  if (flow === 'humanize') {
+    // Pure Humanize: green marks + change list, no fake categories
+    loadView(resultHtml, 'hz');
+  } else if (flow === 'both' && humanizedHtml.trim()) {
+    // Humanize + Level Adjust: switch between the humanized draft (green vs
+    // original) and the final (level-adjust edits vs the draft, colored).
+    const slots = { final: resultHtml, humanized: humanizedHtml };
+    let active = 'final';
+    loadView(slots.final, 'cats');
+    if (viewPill) {
+      viewPill.classList.remove('hidden');
+      viewPill.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const v = btn.dataset.view;
+          if (v === active) return;
+          slots[active] = changesView.innerHTML;   // keep in-view edits
+          active = v;
+          viewPill.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+          loadView(slots[v], v === 'final' ? 'cats' : 'hz');
+        });
+      });
+    }
+  } else {
+    // Level Adjust (or legacy results without a flow tag)
+    loadView(resultHtml, 'cats');
   }
-  refreshCounts();
-  applyFilters();
 }
 
 async function saveResult(text, mode, session) {

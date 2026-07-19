@@ -1517,15 +1517,12 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .leveldemo-body::after { content: none; }
 
 .leveldemo-filter {
-  flex: 0 0 196px;
-  width: 196px;
+  flex: 0 0 240px;
+  width: 240px;
   margin-top: 12px;
+  padding-right: 18px;
 }
-.leveldemo-filter .cf-row {
-  cursor: default;
-  padding-right: 14px;
-  grid-template-columns: 14px 1fr auto 32px;
-}
+.leveldemo-filter .cf-row { cursor: default; }
 .leveldemo-filter .cf-switch,
 .leveldemo-filter .cf-switch::after { transition-duration: 0.28s; }
 
@@ -1772,8 +1769,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .ld-stage-scan.done .ld-scanline { display: none; }
 
 .ld-scanpanel {
-  flex: 0 0 196px;
-  width: 196px;
+  flex: 0 0 240px;
+  width: 240px;
   margin-top: 12px;
   display: flex;
   flex-direction: column;
@@ -1848,7 +1845,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .ld-stage-scan.done .ld-scan-status i { background: #1aa564; animation: none; }
 .ld-action.on { color: #fff; background: var(--black); border-color: var(--black); }
 
-/* ── Stage: Auto Typer (types into a Google-Docs-style page) ── */
+/* ── Stage: Auto Typer — mirrors the real Google-Docs mock (.rec-gd-*) ── */
 .ld-docbox {
   display: flex;
   flex-direction: column;
@@ -1857,47 +1854,54 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   border: 1px solid var(--g150);
   border-radius: 10px;
   overflow: hidden;
-  background: var(--g100);
 }
 .ld-doc-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 12px;
   background: #fff;
   border-bottom: 1px solid var(--g150);
 }
-.ld-doc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g200); }
+.ld-doc-icon { font-size: 12px; line-height: 1; }
 .ld-doc-title {
-  margin-left: 8px;
   font-family: var(--ff-mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--g400);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
+.ld-doc-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #f1f3f4;
+}
+.ld-doc-toolbar { display: flex; align-items: center; gap: 7px; }
+.ld-doc-toolbar span { width: 14px; height: 6px; border-radius: 2px; background: var(--g200); }
+.ld-doc-tspace { flex: 1; background: none !important; }
 .ld-doc-page {
   flex: 1;
-  margin: 10px;
-  padding: 16px 18px;
   background: #fff;
+  border: 1px solid var(--g150);
   border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 16px 18px;
 }
 .ld-doc-text {
   font-family: var(--ff-mono);
   font-size: 12.5px;
   line-height: 1.95;
   color: var(--g700);
-  min-height: 110px;
+  min-height: 96px;
 }
 .ld-caret {
   display: inline-block;
-  width: 1.5px;
+  width: 2px;
   height: 1.05em;
-  background: var(--black);
+  background: #1a73e8;
   vertical-align: -0.18em;
   margin-left: 1px;
   animation: ld-caret-blink 1s steps(1) infinite;
@@ -1905,8 +1909,8 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 @keyframes ld-caret-blink { 50% { opacity: 0; } }
 
 .ld-typepanel {
-  flex: 0 0 196px;
-  width: 196px;
+  flex: 0 0 240px;
+  width: 240px;
   margin-top: 12px;
   display: flex;
   flex-direction: column;

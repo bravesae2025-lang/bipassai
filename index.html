@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=42">
+  <link rel="stylesheet" href="style.css?v=43">
 </head>
 <body>
 
@@ -189,11 +189,14 @@
           <div class="ld-inputcol">
             <div class="ld-docbox">
               <div class="ld-doc-bar">
-                <span class="ld-doc-dot"></span><span class="ld-doc-dot"></span><span class="ld-doc-dot"></span>
-                <span class="ld-doc-title">Essay draft &mdash; Google Docs</span>
+                <span class="ld-doc-icon">📄</span>
+                <span class="ld-doc-title">Essay &mdash; Google Docs</span>
               </div>
-              <div class="ld-doc-page">
-                <div class="ld-doc-text" id="ld-doc-text"></div>
+              <div class="ld-doc-body">
+                <div class="ld-doc-toolbar"><span></span><span></span><span></span><span class="ld-doc-tspace"></span><span></span><span></span></div>
+                <div class="ld-doc-page">
+                  <div class="ld-doc-text" id="ld-doc-text"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -1045,18 +1048,31 @@
         const render = () => { if (docText) docText.innerHTML = esc(shown) + '<span class="ld-caret"></span>'; };
         render();
 
+        // two spots where the typist fumbles — types a wrong burst, notices,
+        // backspaces it, and retypes correctly (like a real person)
+        const KEYS = 'etaoinshrdlucmfwypgb';
+        const fumbles = {};
+        fumbles[Math.floor(full.length * 0.28)] = 3;
+        fumbles[Math.floor(full.length * 0.63)] = 4;
+
         let t = 350;
-        const typoIdx = Math.floor(full.length * 0.45);
         for (let i = 0; i < full.length; i++) {
           const ch = full[i];
-          // one realistic typo mid-word, auto-corrected — mirrors the real extension
-          if (i === typoIdx && /[a-z]/i.test(ch)) {
-            const wrong = 'asdfghjkl'[rnd(9)];
-            at(t, () => { shown += wrong; render(); }); t += 120;
-            at(t, () => { shown = shown.slice(0, -1); render(); }); t += 150;
+          if (fumbles[i] && /[a-z]/i.test(ch)) {
+            const n = fumbles[i];
+            for (let w = 0; w < n; w++) {                 // type the wrong letters
+              at(t, () => { shown += KEYS[rnd(KEYS.length)]; render(); });
+              t += 55 + rnd(45);
+            }
+            t += 280;                                     // pause — notice the mistake
+            for (let w = 0; w < n; w++) {                 // backspace them one by one
+              at(t, () => { shown = shown.slice(0, -1); render(); });
+              t += 65 + rnd(35);
+            }
+            t += 150;                                     // beat before retyping
           }
           at(t, () => { shown += ch; render(); });
-          let step = 11 + rnd(15);
+          let step = 11 + rnd(14);
           if (ch === ' ') step = 20 + rnd(16);
           if (ch === '.' || ch === ',') step = 150 + rnd(110);
           t += step;

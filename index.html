@@ -60,7 +60,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=45">
 </head>
 <body>
 
@@ -200,15 +200,32 @@
               </div>
             </div>
           </div>
-          <aside class="ld-typepanel">
-            <div class="cf-head">Auto Typer</div>
-            <div class="ld-type-rows">
-              <div class="ld-type-row"><span class="ld-type-k">Target</span><span class="ld-type-v">Google Docs</span></div>
-              <div class="ld-type-row"><span class="ld-type-k">Speed</span><span class="ld-type-v">Normal</span></div>
-              <div class="ld-type-row"><span class="ld-type-k">Typos</span><span class="ld-type-v">Auto-fixed</span></div>
-              <div class="ld-type-row"><span class="ld-type-k">History</span><span class="ld-type-v" id="ld-type-prog">Building&hellip;</span></div>
+          <!-- The real Auto Typer Chrome-extension popup -->
+          <aside class="ld-ext">
+            <div class="ld-ext-head">
+              <span class="ld-ext-logo">Bipass AI</span>
+              <span class="ld-ext-tag">Auto Typer</span>
             </div>
-            <span class="ld-type-status"><i></i><span id="ld-type-status-text">Typing</span></span>
+            <div class="ld-ext-body">
+              <div class="ld-ext-field">
+                <span class="ld-ext-label">Typing speed</span>
+                <div class="ld-ext-seg" id="ld-spd">
+                  <button class="ld-ext-seg-btn" data-spd="slow">Slow</button>
+                  <button class="ld-ext-seg-btn active" data-spd="normal">Normal</button>
+                  <button class="ld-ext-seg-btn" data-spd="fast">Fast</button>
+                </div>
+              </div>
+              <div class="ld-ext-field">
+                <span class="ld-ext-label">Mistyping</span>
+                <div class="ld-ext-slider">
+                  <span class="ld-ext-slider-fill" id="ld-mist-fill"></span>
+                  <span class="ld-ext-slider-knob" id="ld-mist-knob"></span>
+                  <span class="ld-ext-slider-val" id="ld-mist-val">Human</span>
+                </div>
+              </div>
+              <button class="ld-ext-start" id="ld-ext-start">Start typing &rarr;</button>
+              <div class="ld-ext-status" id="ld-ext-status"><i></i><span id="ld-ext-status-text">Typing into Google Docs&hellip;</span></div>
+            </div>
           </aside>
         </div>
 
@@ -784,8 +801,13 @@
       const scanChip  = $('ld-act-scan');
       const stageType = $('ld-stage-type');
       const docText   = $('ld-doc-text');
-      const typeStat  = $('ld-type-status-text');
-      const typeProg  = $('ld-type-prog');
+      const extEl     = document.querySelector('.ld-ext');
+      const extSpd    = $('ld-spd');
+      const extStart  = $('ld-ext-start');
+      const extStatus = $('ld-ext-status-text');
+      const mistFill  = $('ld-mist-fill');
+      const mistKnob  = $('ld-mist-knob');
+      const mistVal   = $('ld-mist-val');
       const stageScan = $('ld-stage-scan');
       const scanText  = $('ld-scan-text');
       const gaugeVal  = $('ld-gauge-val');
@@ -904,6 +926,7 @@
         stageIn.hidden = false;
         stageOut.hidden = true;
         if (stageType) { stageType.hidden = true; stageType.classList.remove('done'); }
+        if (extEl) extEl.classList.remove('armed', 'done');
         if (docText) docText.innerHTML = '';
         if (typeChip) typeChip.classList.remove('on');
         if (stageScan) { stageScan.hidden = true; stageScan.classList.remove('done'); }
@@ -1037,16 +1060,59 @@
         at(t + 2400, () => { cursorHide(); fadeTo(stageType, () => autoTyperPhase(S)); });
       }
 
-      // ── Stage 3: Auto Typer → types the result into Google Docs ─
+      // ── Stage 3: Auto Typer → set the speed in the extension, then type ─
       function autoTyperPhase(S) {
         badgeEl.textContent = 'STEP 3 · AUTO TYPER';
         stageType.classList.remove('done');
-        if (typeStat) typeStat.textContent = 'Typing';
-        if (typeProg) typeProg.textContent = 'Building…';
+        if (extEl) extEl.classList.remove('armed', 'done');
+        // Reset the extension controls to their defaults
+        const spdBtns = extSpd ? [].slice.call(extSpd.querySelectorAll('.ld-ext-seg-btn')) : [];
+        spdBtns.forEach(b => b.classList.toggle('active', b.dataset.spd === 'normal'));
+        if (mistFill) mistFill.style.width = '45%';
+        if (mistKnob) mistKnob.style.left = '45%';
+        if (mistVal)  mistVal.textContent = 'Human';
+        if (extStatus) extStatus.textContent = 'Typing into Google Docs…';
+        docText.innerHTML = '<span class="ld-caret"></span>';
+
+        const fastBtn  = spdBtns.find(b => b.dataset.spd === 'fast');
+        const normBtn  = spdBtns.find(b => b.dataset.spd === 'normal');
+        let fast = false;   // the cursor bumps this to Fast below
+
+        // Cursor drives the extension: pick Fast speed, nudge mistyping, hit Start
+        at(300, () => {
+          const c = cardEl.getBoundingClientRect();
+          const b = (extEl || cardEl).getBoundingClientRect();
+          cursorShow(b.left - c.left + 30, b.top - c.top + 70);
+        });
+        at(650,  () => cursorTo(fastBtn, 620));
+        at(1250, () => {
+          cursorClick();
+          if (normBtn) normBtn.classList.remove('active');
+          if (fastBtn) fastBtn.classList.add('active');
+          fast = true;
+        });
+        at(1650, () => cursorTo(mistKnob, 520));
+        at(2150, () => {
+          cursorClick();
+          if (mistFill) mistFill.style.width = '62%';
+          if (mistKnob) mistKnob.style.left = '62%';
+          if (mistVal)  mistVal.textContent = 'More';
+        });
+        at(2550, () => cursorTo(extStart, 520));
+        at(3150, () => {
+          cursorClick();
+          extStart.classList.add('pressed');
+          if (extEl) extEl.classList.add('armed');   // → shows "Typing into Google Docs…"
+        });
+        at(3450, () => { extStart.classList.remove('pressed'); cursorHide(); });
+
+        // ── Type the result into the doc, char by char ──
         const full = editedPlain(S);
         let shown = '';
         const render = () => { if (docText) docText.innerHTML = esc(shown) + '<span class="ld-caret"></span>'; };
-        render();
+
+        // Fast speed types quicker (matches the button the cursor picked)
+        const base = () => fast ? 7 + rnd(9) : 12 + rnd(15);
 
         // two spots where the typist fumbles — types a wrong burst, notices,
         // backspaces it, and retypes correctly (like a real person)
@@ -1055,34 +1121,34 @@
         fumbles[Math.floor(full.length * 0.28)] = 3;
         fumbles[Math.floor(full.length * 0.63)] = 4;
 
-        let t = 350;
+        let t = 3550;
         for (let i = 0; i < full.length; i++) {
           const ch = full[i];
           if (fumbles[i] && /[a-z]/i.test(ch)) {
             const n = fumbles[i];
             for (let w = 0; w < n; w++) {                 // type the wrong letters
               at(t, () => { shown += KEYS[rnd(KEYS.length)]; render(); });
-              t += 55 + rnd(45);
+              t += 50 + rnd(40);
             }
-            t += 280;                                     // pause — notice the mistake
+            t += 260;                                     // pause — notice the mistake
             for (let w = 0; w < n; w++) {                 // backspace them one by one
               at(t, () => { shown = shown.slice(0, -1); render(); });
-              t += 65 + rnd(35);
+              t += 55 + rnd(30);
             }
-            t += 150;                                     // beat before retyping
+            t += 130;                                     // beat before retyping
           }
           at(t, () => { shown += ch; render(); });
-          let step = 11 + rnd(14);
-          if (ch === ' ') step = 20 + rnd(16);
-          if (ch === '.' || ch === ',') step = 150 + rnd(110);
+          let step = base();
+          if (ch === ' ') step += 8;
+          if (ch === '.' || ch === ',') step = 130 + rnd(90);
           t += step;
         }
         const done = t + 250;
         at(done, () => {
           stageType.classList.add('done');
+          if (extEl) extEl.classList.add('done');
           if (docText) docText.innerHTML = esc(full);
-          if (typeStat) typeStat.textContent = 'Typed into Docs';
-          if (typeProg) typeProg.textContent = 'Saved';
+          if (extStatus) extStatus.textContent = 'Done — typed into Docs';
         });
         at(done + 1500, () => fadeTo(stageScan, () => scanPhase(S)));
       }

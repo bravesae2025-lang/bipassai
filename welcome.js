@@ -18,6 +18,7 @@ const STEPS = ['step-survey', 'step-name', 'step-gacha', 'step-claimed'];
 const ONB_KEY = PREVIEW ? 'bipass_onb_preview' : 'bipass_onb';
 const RARITY = { 1: 'r-common', 3: 'r-rare', 7: 'r-legend' };
 const CREDITS = 2000;
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 let current = 0;
 let authed = false;
@@ -219,10 +220,20 @@ function initGacha() {
       showResult(days, { quiet: true });
       return;
     }
-    // Cinema mode: titles fall away, the reel zooms, then the spin rips.
+    // Cinema mode: titles fall away, the reel lifts to the middle of the
+    // screen and zooms in (kills the blank space above), spins there, then
+    // zooms back out before the prize reveal.
     stopIdle();
-    document.getElementById('gacha-spin-phase').classList.add('is-spinning');
-    await spinReel(days);
+    const phase = document.getElementById('gacha-spin-phase');
+    const r = reel.wrap.getBoundingClientRect();
+    const dy = Math.round(window.innerHeight / 2 - (r.top + r.height / 2));
+    reel.wrap.style.setProperty('--cinema-dy', dy + 'px');
+    phase.classList.add('is-spinning');                              // fade title/button, dim backdrop
+    requestAnimationFrame(() => phase.classList.add('cinema-zoom')); // lift + zoom to centre
+    await wait(620);                                                 // let the zoom-in settle
+    await spinReel(days);                                            // spin, land, hold
+    phase.classList.add('cinema-out');                              // zoom back out
+    await wait(520);
     showResult(days);
   }, { once: true });
 }
@@ -324,7 +335,7 @@ function spinReel(winnerDays) {
     const jitter = (Math.random() * 0.8 - 0.4) * reel.cw;
     const target = REEL_WIN * reel.unit + reel.cw / 2 - reel.centre + jitter;
 
-    const DURATION = 6400;
+    const DURATION = 5600;
     let t0 = null;
 
     function frame(ts) {

@@ -318,26 +318,18 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   height: calc(var(--gacha-card-h) + 56px); overflow: hidden;
   transform-origin: 50% 50%;
 }
-/* Cinema mode: the reel lifts to the middle of the viewport and punches in
+/* Cinema mode: the reel glides to the middle of the viewport and eases in
    while it spins (fills the dead space the faded title/button leave behind),
-   then zooms back out on landing. --cinema-dy is set in JS at spin time. */
+   then eases back out on landing. --cinema-dy is set in JS at spin time. */
 .cinema-zoom .gacha-reel-wrap {
   z-index: 50;
-  transform: translateY(var(--cinema-dy, 0px)) scale(1.28);
-  transition: transform 0.6s var(--ease-out);
+  transform: translateY(var(--cinema-dy, 0px)) scale(1.26);
+  transition: transform 0.9s var(--ease-out);
 }
 .cinema-out .gacha-reel-wrap {
   transform: translateY(0) scale(1);
-  transition: transform 0.5s var(--ease-out);
+  transition: transform 0.8s var(--ease-out);
 }
-/* soft spotlight vignette behind the centred reel */
-.gacha-cinema {
-  position: fixed; inset: 0; z-index: 45; pointer-events: none;
-  opacity: 0; transition: opacity 0.6s var(--ease-out);
-  background: radial-gradient(125% 90% at 50% 50%, transparent 42%, rgba(12,12,14,0.18) 100%);
-}
-.is-spinning .gacha-cinema { opacity: 1; }
-.cinema-out  .gacha-cinema { opacity: 0; }
 .gacha-track {
   position: absolute; left: 0; top: 28px;
   display: flex; gap: var(--gacha-gap); will-change: transform;
@@ -506,5 +498,4 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   .is-spinning .gacha-reel-wrap,
   .cinema-zoom .gacha-reel-wrap,
   .cinema-out  .gacha-reel-wrap { transform: none; transition: none; }
-  .gacha-cinema { display: none; }
 }

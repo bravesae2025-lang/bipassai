@@ -228,12 +228,12 @@ function initGacha() {
     const r = reel.wrap.getBoundingClientRect();
     const dy = Math.round(window.innerHeight / 2 - (r.top + r.height / 2));
     reel.wrap.style.setProperty('--cinema-dy', dy + 'px');
-    phase.classList.add('is-spinning');                              // fade title/button, dim backdrop
-    requestAnimationFrame(() => phase.classList.add('cinema-zoom')); // lift + zoom to centre
-    await wait(620);                                                 // let the zoom-in settle
+    phase.classList.add('is-spinning');                              // fade title/button away
+    requestAnimationFrame(() => phase.classList.add('cinema-zoom')); // glide + ease to centre
+    await wait(960);                                                 // let the zoom-in settle
     await spinReel(days);                                            // spin, land, hold
-    phase.classList.add('cinema-out');                              // zoom back out
-    await wait(520);
+    phase.classList.add('cinema-out');                              // ease back out
+    await wait(760);
     showResult(days);
   }, { once: true });
 }
@@ -325,36 +325,37 @@ function setWinnerCard(days) {
   el.innerHTML = cardHTML(days);
 }
 
-// CS:GO-style spin: rAF-driven ease-out quint so the needle ticks slow down
-// naturally with the reel, plus a near-miss jitter and a friction catch-back.
-// Starts from wherever the idle drift left the track.
+// CS:GO-style spin: rAF-driven, long buttery ease-out so the needle ticks
+// slow down naturally with the reel, plus a near-miss jitter and a soft
+// friction catch-back. Starts from wherever the idle drift left the track.
 function spinReel(winnerDays) {
   return new Promise(resolve => {
     const startX = reel.x;
-    // Land just off-centre (±40% of a card) so it never looks robotic.
-    const jitter = (Math.random() * 0.8 - 0.4) * reel.cw;
+    // Land just off-centre (±35% of a card) so it never looks robotic.
+    const jitter = (Math.random() * 0.7 - 0.35) * reel.cw;
     const target = REEL_WIN * reel.unit + reel.cw / 2 - reel.centre + jitter;
 
-    const DURATION = 5600;
+    const DURATION = 6600;
     let t0 = null;
 
     function frame(ts) {
       if (t0 === null) t0 = ts;
       const p = Math.min(1, (ts - t0) / DURATION);
-      const eased = 1 - Math.pow(1 - p, 5);
+      // Blend quart→quint for a fluid glide that eases to a gentle stop.
+      const eased = 1 - (0.45 * Math.pow(1 - p, 4) + 0.55 * Math.pow(1 - p, 5));
       setTrackX(startX + (target - startX) * eased);
 
       if (p < 1) { requestAnimationFrame(frame); return; }
 
       // Friction catch-back: the reel gives a few px back, like it snagged.
-      reel.track.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-      reel.track.style.transform = `translate3d(${-(target - 9)}px, 0, 0)`;
+      reel.track.style.transition = 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
+      reel.track.style.transform = `translate3d(${-(target - 6)}px, 0, 0)`;
 
       setTimeout(() => {
         reel.track.children[REEL_WIN].classList.add('is-winner');
         reel.track.classList.add('is-settled');
-        setTimeout(resolve, 1000); // let the pulse land, hold the beat
-      }, 430);
+        setTimeout(resolve, 1100); // let the pulse land, hold the beat
+      }, 660);
     }
     requestAnimationFrame(frame);
   });

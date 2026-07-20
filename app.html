@@ -3,24 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
+  <meta name="description" content="Paste your AI text and Bipass AI rewrites it to sound human â beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
   <meta name="keywords" content="humanize AI text, make AI text sound human, AI humanizer tool, rewrite ChatGPT to sound human, AI writing levels">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://bipassai.com/home">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Bipass AI — Make AI Text Sound Human">
-  <meta property="og:description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
+  <meta property="og:title" content="Bipass AI â Make AI Text Sound Human">
+  <meta property="og:description" content="Paste your AI text and Bipass AI rewrites it to sound human â beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
   <meta property="og:url" content="https://bipassai.com/home">
   <meta property="og:site_name" content="Bipass AI">
-  <meta property="og:image" content="https://bipassai.com/favicon.png">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://bipassai.com/favicon.png">
-  <meta name="twitter:title" content="Bipass AI — Make AI Text Sound Human">
-  <meta name="twitter:description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
-  <title>Bipass AI — Make AI Text Sound Human</title>
+  <meta property="og:image" content="https://bipassai.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Bipass AI — make your AI text sound human">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://bipassai.com/og-image.png">
+  <meta name="twitter:title" content="Bipass AI â Make AI Text Sound Human">
+  <meta name="twitter:description" content="Paste your AI text and Bipass AI rewrites it to sound human â beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
+  <title>Bipass AI â Make AI Text Sound Human</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -31,7 +35,7 @@
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
 
-  <!-- Loading overlay — shown while API call is in progress -->
+  <!-- Loading overlay â shown while API call is in progress -->
   <div class="loading-overlay" id="loading-overlay" aria-live="polite">
     <div class="loading-grain" aria-hidden="true"></div>
     <div class="loading-inner">
@@ -84,7 +88,7 @@
               <text x="8" y="8" text-anchor="middle" dominant-baseline="central" font-family="Syne, sans-serif" font-weight="800" font-size="7" fill="currentColor">B</text>
             </svg>
           </span>
-          <span class="credit-val" id="credit-val">—</span>
+          <span class="credit-val" id="credit-val">â</span>
           <span class="credit-label">credits</span>
           <span class="credit-used-badge hidden" id="credit-used-badge"></span>
         </div>
@@ -123,39 +127,39 @@
   <!-- No-plan banner -->
   <div class="no-plan-banner hidden" id="no-plan-banner">
     <span class="no-plan-banner-text">You don't have an active plan.</span>
-    <a href="plans.html" class="no-plan-banner-link">View Plans →</a>
-    <button class="no-plan-banner-close" id="no-plan-banner-close" aria-label="Dismiss">✕</button>
+    <a href="plans.html" class="no-plan-banner-link">View Plans â</a>
+    <button class="no-plan-banner-close" id="no-plan-banner-close" aria-label="Dismiss">â</button>
   </div>
 
   <!-- Scrolling ticker bar -->
   <div class="app-statsbar app-ticker-bar" id="ticker-bar">
     <div class="ticker-track">
       <span class="ticker-item">your level, dialed in</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">beginner to academic</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">reads like a real student</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">customize to your level</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">built-in auto typer</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">sounds human</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">your level, dialed in</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">beginner to academic</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">reads like a real student</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">customize to your level</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">built-in auto typer</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
       <span class="ticker-item">sounds human</span>
-      <span class="ticker-sep">✦</span>
+      <span class="ticker-sep">â¦</span>
     </div>
-    <button class="ticker-close-btn" id="ticker-close-btn" aria-label="Dismiss">✕</button>
+    <button class="ticker-close-btn" id="ticker-close-btn" aria-label="Dismiss">â</button>
   </div>
   <!-- Hidden elements kept for JS stat tracking -->
   <span id="word-count" style="display:none">0</span>
@@ -169,7 +173,7 @@
     </div>
     <div class="workspace" id="workspace">
 
-      <!-- ── LEFT COLUMN: Humanize / Level Adjust (tabbed) ─────── -->
+      <!-- ââ LEFT COLUMN: Humanize / Level Adjust (tabbed) âââââââ -->
       <section class="col col-main" data-reveal>
 
         <div id="humanize-section">
@@ -186,7 +190,7 @@
               </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
-            <span class="box-cost hidden" id="est-cost" title="Estimated cost — 1 credit ≈ 1 character"></span>
+            <span class="box-cost hidden" id="est-cost" title="Estimated cost â 1 credit â 1 character"></span>
           </div>
 
           <div class="file-upload-row">
@@ -202,7 +206,7 @@
           <div class="textarea-wrap">
             <textarea
               id="input-text"
-              placeholder="Paste your text here — AI-generated or your own…"
+              placeholder="Paste your text here â AI-generated or your ownâ¦"
               spellcheck="false"
             ></textarea>
             <div class="textarea-corner tl"></div>
@@ -214,17 +218,17 @@
           <!-- Level Adjust hints -->
           <div class="humanize-hints mode-block" data-mode="level">
             <div class="h-hint">
-              <span class="h-hint-icon">↓</span>
+              <span class="h-hint-icon">â</span>
               <span class="h-hint-title">Word Swap</span>
               <span class="h-hint-sub">Replaces AI vocabulary</span>
             </div>
             <div class="h-hint">
-              <span class="h-hint-icon">≈</span>
+              <span class="h-hint-icon">â</span>
               <span class="h-hint-title">Your Meaning</span>
               <span class="h-hint-sub">Keeps original intent</span>
             </div>
             <div class="h-hint">
-              <span class="h-hint-icon">✓</span>
+              <span class="h-hint-icon">â</span>
               <span class="h-hint-title">Level Match</span>
               <span class="h-hint-sub">Sounds like your level</span>
             </div>
@@ -238,12 +242,12 @@
               <span class="h-hint-sub">Smooths robotic phrasing</span>
             </div>
             <div class="h-hint">
-              <span class="h-hint-icon">◴</span>
+              <span class="h-hint-icon">â´</span>
               <span class="h-hint-title">Human Tone</span>
               <span class="h-hint-sub">Sounds like a person</span>
             </div>
             <div class="h-hint">
-              <span class="h-hint-icon">✓</span>
+              <span class="h-hint-icon">â</span>
               <span class="h-hint-title">Keeps Meaning</span>
               <span class="h-hint-sub">Same point, your words</span>
             </div>
@@ -265,7 +269,7 @@
             </button>
           </div>
 
-          <!-- Humanize action (UI base — wiring comes later) -->
+          <!-- Humanize action (UI base â wiring comes later) -->
           <div class="mode-block mode-hidden" data-mode="humanize both">
             <button id="humanizer-btn" class="btn-generate btn-humanize" aria-label="Humanize">
               <span class="btn-content">
@@ -284,7 +288,7 @@
 
       </section>
 
-      <!-- ── RIGHT PANEL ──────────────────────────────────────── -->
+      <!-- ââ RIGHT PANEL ââââââââââââââââââââââââââââââââââââââââ -->
       <div class="right-panel-wrap">
       <div class="right-panel">
 
@@ -303,7 +307,7 @@
               </div>
               <button class="level-btn level-btn-custom" data-level="customize">Custom</button>
             </div>
-            <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
+            <p class="level-desc" id="level-desc">Simple words, short sentences â like a beginner English speaker wrote it</p>
           </div>
 
           <div class="control-block lock-structure-block">
@@ -403,8 +407,8 @@
               </div>
               <div id="sample-container">
                 <div class="sample-row">
-                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4"></textarea>
-                  <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
+                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing hereâ¦" rows="4"></textarea>
+                  <button class="sample-delete-btn" type="button" aria-label="Remove sample">Ã</button>
                   <span class="sample-wc">0 / 50</span>
                 </div>
               </div>
@@ -427,19 +431,19 @@
 
         </section>
 
-        <!-- Own Text — paste custom text and push to extension -->
+        <!-- Own Text â paste custom text and push to extension -->
         <div class="col-own-text-box" id="own-text-block">
 
           <div class="col-label">
             <span class="col-name col-own-text-name">Push My Own Text</span>
           </div>
 
-          <p class="own-text-sub">Already have humanized text? Push it to our Auto Typer — needs an active pass.</p>
+          <p class="own-text-sub">Already have humanized text? Push it to our Auto Typer â needs an active pass.</p>
 
           <textarea
             class="own-text-textarea"
             id="own-text-textarea"
-            placeholder="Paste your text here…"
+            placeholder="Paste your text hereâ¦"
           ></textarea>
 
           <button class="own-text-push-btn" id="own-text-push-btn" type="button">
@@ -449,7 +453,7 @@
 
         </div>
 
-        <!-- Recommended workflow — auto-sliding carousel of real app screens -->
+        <!-- Recommended workflow â auto-sliding carousel of real app screens -->
         <div class="rec-flow-box" id="rec-flow-box">
 
           <div class="rec-flow-accent" aria-hidden="true"></div>
@@ -469,7 +473,7 @@
           <div class="rec-flow-viewport">
             <div class="rec-flow-track" id="rec-flow-track">
 
-              <!-- Slide 1 — Overview -->
+              <!-- Slide 1 â Overview -->
               <div class="rec-flow-slide">
                 <div class="rec-win">
                   <div class="rec-win-bar">
@@ -477,23 +481,23 @@
                     <span class="rec-win-name">Bipass AI</span>
                   </div>
                   <div class="rec-win-body rec-steps">
-                    <div class="rec-step"><span class="rec-step-num">01</span><span class="rec-step-name">Humanize</span><span class="rec-step-tick">✓</span></div>
-                    <div class="rec-step"><span class="rec-step-num">02</span><span class="rec-step-name">Level Adjust</span><span class="rec-step-tick">✓</span></div>
-                    <div class="rec-step"><span class="rec-step-num">03</span><span class="rec-step-name">Auto Type</span><span class="rec-step-tick">✓</span></div>
+                    <div class="rec-step"><span class="rec-step-num">01</span><span class="rec-step-name">Humanize</span><span class="rec-step-tick">â</span></div>
+                    <div class="rec-step"><span class="rec-step-num">02</span><span class="rec-step-name">Level Adjust</span><span class="rec-step-tick">â</span></div>
+                    <div class="rec-step"><span class="rec-step-num">03</span><span class="rec-step-name">Auto Type</span><span class="rec-step-tick">â</span></div>
                   </div>
                 </div>
                 <div class="rec-flow-cap">
                   <span class="rec-cap-title">The full workflow</span>
-                  <span class="rec-cap-sub">Three steps — and it reads 100% human.</span>
+                  <span class="rec-cap-sub">Three steps â and it reads 100% human.</span>
                 </div>
               </div>
 
-              <!-- Slide 2 — Level Adjust panel (real dark UI) -->
+              <!-- Slide 2 â Level Adjust panel (real dark UI) -->
               <div class="rec-flow-slide">
                 <div class="rec-win rec-win-dark">
                   <div class="rec-win-bar rec-win-bar-dark">
                     <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
-                    <span class="rec-win-name">Bipass AI · Adjust Level</span>
+                    <span class="rec-win-name">Bipass AI Â· Adjust Level</span>
                   </div>
                   <div class="rec-win-body rec-lv">
                     <div class="rec-lv-head">Adjust Level</div>
@@ -507,7 +511,7 @@
                       </div>
                       <span class="rec-lv-btn rec-lv-custom">Custom</span>
                     </div>
-                    <div class="rec-lv-desc">Simple words, short sentences — like a beginner English speaker wrote it</div>
+                    <div class="rec-lv-desc">Simple words, short sentences â like a beginner English speaker wrote it</div>
                     <div class="rec-lv-lock">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                       Free rewrite
@@ -525,17 +529,17 @@
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">1 · Humanize &amp; level</span>
+                  <span class="rec-cap-title">1 Â· Humanize &amp; level</span>
                   <span class="rec-cap-sub">Drop it to a believable student level.</span>
                 </div>
               </div>
 
-              <!-- Slide 3 — Result + Upload to Extension (real UI) -->
+              <!-- Slide 3 â Result + Upload to Extension (real UI) -->
               <div class="rec-flow-slide">
                 <div class="rec-win">
                   <div class="rec-win-bar">
                     <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
-                    <span class="rec-win-name">Bipass AI · Result</span>
+                    <span class="rec-win-name">Bipass AI Â· Result</span>
                   </div>
                   <div class="rec-win-body">
                     <div class="rec-res-top">
@@ -558,17 +562,17 @@
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">2 · Reads human → upload</span>
+                  <span class="rec-cap-title">2 Â· Reads human â upload</span>
                   <span class="rec-cap-sub">Real edits, then one tap to the Auto Typer.</span>
                 </div>
               </div>
 
-              <!-- Slide 4 — Auto Typer typing into Google Docs -->
+              <!-- Slide 4 â Auto Typer typing into Google Docs -->
               <div class="rec-flow-slide">
                 <div class="rec-win">
                   <div class="rec-win-bar rec-win-bar-gdoc">
-                    <span class="rec-gd-doticon">📄</span>
-                    <span class="rec-win-name rec-gd-title">Essay — Google Docs</span>
+                    <span class="rec-gd-doticon">ð</span>
+                    <span class="rec-win-name rec-gd-title">Essay â Google Docs</span>
                   </div>
                   <div class="rec-win-body rec-gd-body">
                     <div class="rec-gd-toolbar">
@@ -586,7 +590,7 @@
                   </div>
                 </div>
                 <div class="rec-flow-cap">
-                  <span class="rec-cap-title">3 · Auto Typer</span>
+                  <span class="rec-cap-title">3 Â· Auto Typer</span>
                   <span class="rec-cap-sub">Types into Google Docs like a real person.</span>
                 </div>
               </div>
@@ -610,7 +614,7 @@
 
   <!-- Onboarding (welcome / free-gift) now lives in the full-screen welcome.html flow. -->
 
-  <!-- Extension feature popup — first-visit onboarding -->
+  <!-- Extension feature popup â first-visit onboarding -->
   <div class="ext-popup" id="ext-popup" role="dialog" aria-label="About the Auto Typer extension">
     <div class="ext-popup-arrow"></div>
 
@@ -625,7 +629,7 @@
     </div>
 
     <h3 class="ext-popup-title">Typed.<br>Not pasted.</h3>
-    <p class="ext-popup-sub">Our extension types your text character by character — varied speed, natural pauses, real mistakes — so it looks like you wrote it live.</p>
+    <p class="ext-popup-sub">Our extension types your text character by character â varied speed, natural pauses, real mistakes â so it looks like you wrote it live.</p>
     <div class="ext-popup-steps">
 
       <div class="ext-popup-step">
@@ -644,7 +648,7 @@
           <div class="ext-mock-selected-card">
             <div class="ext-mock-selected-top">
               <span class="ext-mock-badge ext-mock-badge-hi">Leveled</span>
-              <span class="ext-mock-check">✓</span>
+              <span class="ext-mock-check">â</span>
             </div>
             <div class="ext-mock-text-lines">
               <div class="ext-mock-tline"></div>
@@ -671,7 +675,7 @@
             <span class="ext-mock-spd ext-mock-spd-active">Normal</span>
             <span class="ext-mock-spd">Fast</span>
           </div>
-          <div class="ext-mock-start">Start Typing →</div>
+          <div class="ext-mock-start">Start Typing â</div>
         </div>
       </div>
 
@@ -682,7 +686,7 @@
           <span class="ext-popup-step-num">03</span>
           <div>
             <div class="ext-popup-step-title">Let it type for you</div>
-            <div class="ext-popup-step-desc">Press ▶ — it types your text just like a real person would</div>
+            <div class="ext-popup-step-desc">Press â¶ â it types your text just like a real person would</div>
           </div>
         </div>
         <div class="ext-mock ext-mock-float-scene">
@@ -690,7 +694,7 @@
           <div class="ext-mock-page-line" style="width:70%"></div>
           <div class="ext-mock-page-line" style="width:55%"></div>
           <div class="ext-mock-float-btn">
-            <span class="ext-mock-float-icon">▶</span>
+            <span class="ext-mock-float-icon">â¶</span>
             <span class="ext-mock-float-label">Start Typing</span>
           </div>
         </div>
@@ -703,16 +707,16 @@
           <span class="ext-popup-step-num">04</span>
           <div>
             <div class="ext-popup-step-title">Typing mistake motion</div>
-            <div class="ext-popup-step-desc">Makes realistic typos mid-text — then catches and corrects them</div>
+            <div class="ext-popup-step-desc">Makes realistic typos mid-text â then catches and corrects them</div>
           </div>
         </div>
         <div class="ext-mock ext-mock-mistake">
           <div class="ext-mock-mis-row">
             <span class="ext-mock-mis-wrong">teh</span>
-            <span class="ext-mock-mis-arr">→</span>
+            <span class="ext-mock-mis-arr">â</span>
             <span class="ext-mock-mis-right">the</span>
           </div>
-          <div class="ext-mock-mis-sub">⌫ auto-corrects</div>
+          <div class="ext-mock-mis-sub">â« auto-corrects</div>
         </div>
       </div>
 
@@ -732,7 +736,7 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Mode dropdown — switch the editor card between Level Adjust / Humanize / both */
+  /* Mode dropdown â switch the editor card between Level Adjust / Humanize / both */
   (function () {
     const section = document.getElementById('humanize-section');
     const ws      = document.getElementById('workspace');
@@ -780,13 +784,13 @@
     document.addEventListener('click', (e) => { if (dd && !dd.contains(e.target)) closeMenu(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
-    // Humanize button is wired in app.js (runHumanize) — it reads
+    // Humanize button is wired in app.js (runHumanize) â it reads
     // document.body.dataset.appMode to pick humanize vs. humanize+level.
   })();
   </script>
 
   <script>
-  /* Interactive background — two modes: dot-cloud (level) + geodesic globe (humanize) */
+  /* Interactive background â two modes: dot-cloud (level) + geodesic globe (humanize) */
   (function () {
     const bg     = document.getElementById('appbg');
     const canvas = document.getElementById('appbg-canvas');
@@ -807,7 +811,7 @@
     let gt = 0;               // galaxy time (humanize mode)
     const tiltX = 0.32;
 
-    // ── build ────────────────────────────────────────────────
+    // ââ build ââââââââââââââââââââââââââââââââââââââââââââââââ
     function build() {
       W = bg.offsetWidth;
       H = bg.offsetHeight;
@@ -863,7 +867,7 @@
           rn: rn,
           r: rn * diskR,
           ang0: ang0,
-          // real vertical thickness — fat bulge at the core, thin in the arms
+          // real vertical thickness â fat bulge at the core, thin in the arms
           zh: (Math.random() - 0.5) * thickness * (0.35 + 0.65 * (1 - rn)),
           w: 0.0009 + 0.0022 * (1 - rn),                  // inner orbits faster
           size: 0.7 + Math.random() * 1.1,
@@ -887,7 +891,7 @@
       }
     }
 
-    // ── step / render ────────────────────────────────────────
+    // ââ step / render ââââââââââââââââââââââââââââââââââââââââ
     function step(still) {
       ctx.clearRect(0, 0, W, H);
       if (!still) angY += 0.0011;
@@ -984,7 +988,7 @@
       const pgx = active ? (mx - cx) : 0;
       const pgy = active ? (my - cy) : 0;
 
-      // ── faint deep-space starfield (behind, parallax) ──
+      // ââ faint deep-space starfield (behind, parallax) ââ
       for (let i = 0; i < hstars.length; i++) {
         const s = hstars[i];
         const sx = s.x + pgx * 0.015 * s.dz;
@@ -996,12 +1000,12 @@
         ctx.fill();
       }
 
-      // ── galaxy dots (true 3D volume) ──
+      // ââ galaxy dots (true 3D volume) ââ
       for (let i = 0; i < hpts.length; i++) {
         const p = hpts[i];
-        const a = p.ang0 + gt * p.w;          // differential rotation → spiral arms
+        const a = p.ang0 + gt * p.w;          // differential rotation â spiral arms
         const px = Math.cos(a) * p.r, py = Math.sin(a) * p.r, pz = p.zh;
-        // rotate X (tilt) then Y (spin) — full 3D, pz gives real depth
+        // rotate X (tilt) then Y (spin) â full 3D, pz gives real depth
         const y1 = py * cosX - pz * sinX;
         const z1 = py * sinX + pz * cosX;
         const x2 = px * cosY + z1 * sinY;
@@ -1011,7 +1015,7 @@
         p.sy = cy + y1 * sc;
         p.sc = sc;
 
-        // cursor gravity-lens — push nearby dots outward, ease back
+        // cursor gravity-lens â push nearby dots outward, ease back
         let tox = 0, toy = 0;
         if (active && !still) {
           const dx = p.sx - mx, dy = p.sy - my;
@@ -1048,7 +1052,7 @@
       if (reduced) step(true);
     }
 
-    // ── input / lifecycle ────────────────────────────────────
+    // ââ input / lifecycle ââââââââââââââââââââââââââââââââââââ
     window.addEventListener('pointermove', e => {
       const r = bg.getBoundingClientRect();
       mx = e.clientX - r.left;
@@ -1075,8 +1079,8 @@
   </script>
 
   <footer class="site-footer">
-    <span>© 2026 Bipass AI</span>
-    <span class="site-footer-sep">·</span>
+    <span>Â© 2026 Bipass AI</span>
+    <span class="site-footer-sep">Â·</span>
     <a href="privacy.html">Privacy Policy</a>
   </footer>
 

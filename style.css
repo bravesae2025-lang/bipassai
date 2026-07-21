@@ -2941,6 +2941,7 @@ body.editor-page { background: var(--bg); }
 
 .col.col-customize {
   margin-top: 16px;
+  gap: 11px;
   background: linear-gradient(160deg, #1e2028 0%, #131318 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2951,8 +2952,8 @@ body.editor-page { background: var(--bg); }
     0 16px 32px rgba(0,0,0,0.28),
     0 40px 80px rgba(0,0,0,0.22);
   transition: opacity 0.3s ease, transform 0.3s var(--ease-out), box-shadow 0.3s ease;
-  padding-top: clamp(16px, 2.5vh, 32px);
-  padding-bottom: clamp(14px, 2vh, 24px);
+  padding-top: clamp(14px, 2vh, 22px);
+  padding-bottom: clamp(12px, 1.6vh, 18px);
 }
 
 /* Permanently cancel data-reveal on this element so it never restarts and makes the box invisible */
@@ -3050,7 +3051,10 @@ body.editor-page { background: var(--bg); }
   border-bottom: none;
   font-size: 13px;
   letter-spacing: 0.13em;
+  padding-bottom: 3px;
 }
+.col-customize .control-block { gap: 8px; }
+.col-customize .mistake-slider-track { gap: 2px; }
 
 .control-sub {
   font-size: 11px;
@@ -3077,6 +3081,7 @@ body.editor-page { background: var(--bg); }
 .col-customize .level-track {
   background: #1a1a1a;
   border-color: rgba(255,255,255,0.18);
+  height: 32px;
 }
 .col-customize .level-btn {
   color: rgba(255,255,255,0.42);
@@ -6218,7 +6223,7 @@ body.drawer-lock { overflow: hidden; }
 
 .style-sample-textarea {
   width: 100%;
-  height: clamp(60px, 8vh, 100px);
+  height: clamp(52px, 6vh, 78px);
   min-height: 0;
   padding: 10px 12px;
   font-family: var(--ff-mono);
@@ -8128,7 +8133,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .level-track-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .level-track-wrap .level-track {
   width: 100%;
@@ -8161,7 +8166,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .level-btn-custom:hover { color: var(--black); border-color: var(--g400); }
 .level-btn-custom.active { background: var(--black); color: #fff; border-color: var(--black); }
-.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); }
+.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); height: 32px; }
 .col-customize .level-btn-custom:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom.active { background: #fff; color: #000; border-color: #fff; }
 

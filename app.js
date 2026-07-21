@@ -1730,7 +1730,7 @@ function bindEvents() {
     row.appendChild(makeSampleDeleteBtn(row));
     const wc = document.createElement('span');
     wc.className = 'sample-wc';
-    wc.textContent = '0 / 50';
+    wc.textContent = '0 / 50 words min';
     row.appendChild(wc);
     sampleContainer.appendChild(row);
     if (sampleCount >= 5) addSampleBtn.style.display = 'none';
@@ -1750,7 +1750,7 @@ function bindEvents() {
     const words = ta.value.trim() === '' ? 0 : ta.value.trim().split(/\s+/).length;
     const wc = ta.closest('.sample-row')?.querySelector('.sample-wc');
     if (wc) {
-      wc.textContent = `${words} / 50`;
+      wc.textContent = words >= 50 ? `${words} words ✓` : `${words} / 50 words min`;
       wc.classList.toggle('wc-ok', words >= 50);
     }
   });

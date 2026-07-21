@@ -6256,6 +6256,14 @@ body.drawer-lock { overflow: hidden; }
   gap: 0;
 }
 
+.my-style-hint {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 2px 0 12px;
+}
+
 .style-name-field {
   display: flex;
   flex-direction: column;
@@ -6319,6 +6327,7 @@ body.drawer-lock { overflow: hidden; }
   position: absolute;
   bottom: 6px;
   right: 34px;
+  white-space: nowrap;
   font-family: var(--ff-ui);
   font-size: 9.5px;
   font-weight: 600;

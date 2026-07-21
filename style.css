@@ -3056,27 +3056,6 @@ body.editor-page { background: var(--bg); }
 .col-customize .control-block { gap: 8px; }
 .col-customize .mistake-slider-track { gap: 2px; }
 
-/* Custom open: don't grow the page / balloon the input box. The options
-   fill the leftover column height and scroll internally, below a divider. */
-#options-panel {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-top: 1px solid rgba(255,255,255,0.09);
-  padding-top: 12px;
-  margin-top: 2px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.25) transparent;
-}
-#options-panel::-webkit-scrollbar { width: 8px; }
-#options-panel::-webkit-scrollbar-track { background: transparent; }
-#options-panel::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  border-radius: 99px;
-}
-#options-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.32); }
-
 .control-sub {
   font-size: 11px;
   color: var(--g400);

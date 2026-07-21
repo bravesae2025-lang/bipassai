@@ -801,13 +801,14 @@
       F = R * 2.2;
 
       if (mode === 'humanize') buildHumanize();
+      else if (mode === 'both') { buildLevel(); buildHumanize(); }
       else buildLevel();
 
       if (reduced) step(true);
     }
 
     function buildLevel() {
-      const n = Math.max(360, Math.min(520, Math.round(R * 0.6)));
+      const n = Math.round((mode === 'both' ? 0.6 : 1) * Math.max(360, Math.min(520, Math.round(R * 0.6))));
       const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
       D3D = spacing * 1.05;
       D2  = D3D * D3D;
@@ -830,7 +831,7 @@
       // Rotating 3D nebula / spiral galaxy of fine dots (no lines)
       const diskR = 0.62 * Math.hypot(W, H);
       const thickness = diskR * 0.16;
-      const n = Math.max(600, Math.min(1600, Math.round(W * H / 1500)));
+      const n = Math.round((mode === 'both' ? 0.72 : 1) * Math.max(600, Math.min(1600, Math.round(W * H / 1500))));
       const ARMS = 3;
       hpts = [];
       for (let i = 0; i < n; i++) {
@@ -852,7 +853,7 @@
         });
       }
       // faint deep-space starfield behind the galaxy (parallax depth)
-      const sn = Math.round(W * H / 9000);
+      const sn = Math.round((mode === 'both' ? 0.62 : 1) * W * H / 9000);
       hstars = [];
       for (let i = 0; i < sn; i++) {
         hstars.push({
@@ -872,6 +873,13 @@
       const cosY = Math.cos(angY), sinY = Math.sin(angY);
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
       if (mode === 'humanize') stepHumanize(still);
+      else if (mode === 'both') {
+        // Mix of both backgrounds: galaxy as an atmospheric base, the
+        // dot-cloud network layered on top — each dimmed so it reads clean.
+        ctx.globalAlpha = 0.62; stepHumanize(still);
+        ctx.globalAlpha = 0.7;  stepLevel(still, cosY, sinY, cosX, sinX);
+        ctx.globalAlpha = 1;
+      }
       else stepLevel(still, cosY, sinY, cosX, sinX);
     }
 
@@ -1043,7 +1051,8 @@
     // watch the editor mode toggle (workspace gets .mode-humanize)
     if (ws && window.MutationObserver) {
       new MutationObserver(() => {
-        setMode(ws.classList.contains('mode-humanize') ? 'humanize' : 'level');
+        setMode(ws.classList.contains('mode-both') ? 'both'
+              : ws.classList.contains('mode-humanize') ? 'humanize' : 'level');
       }).observe(ws, { attributes: true, attributeFilter: ['class'] });
     }
 

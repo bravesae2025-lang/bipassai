@@ -166,8 +166,8 @@
           const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
           const d2 = dx * dx + dy * dy + dz * dz;
           if (d2 < D2) {
-            const al = (1 - Math.sqrt(d2) / D3D) * 0.34 * ((a.sc + b.sc) * 0.5);
-            ctx.strokeStyle = 'rgba(36,36,36,' + al.toFixed(3) + ')';
+            const al = (1 - Math.sqrt(d2) / D3D) * 0.42 * ((a.sc + b.sc) * 0.5);
+            ctx.strokeStyle = 'rgba(32,32,32,' + al.toFixed(3) + ')';
             ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
           }
         }
@@ -189,9 +189,9 @@
         const rad = Math.max(0.5, 1.7 * p.sc);
         let near = false;
         if (active && !still) { const dx = p.sx - mx, dy = p.sy - my; near = (dx * dx + dy * dy) < MR2; }
-        const alpha = Math.max(0.34, Math.min(0.92, 0.54 + (p.sc - 0.6) * 0.6));
+        const alpha = Math.max(0.44, Math.min(0.95, 0.64 + (p.sc - 0.6) * 0.6));
         ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, TAU);
-        ctx.fillStyle = near ? 'rgba(20,20,20,0.85)' : 'rgba(38,38,38,' + alpha.toFixed(3) + ')';
+        ctx.fillStyle = near ? 'rgba(18,18,18,0.9)' : 'rgba(32,32,32,' + alpha.toFixed(3) + ')';
         ctx.fill();
       }
     }

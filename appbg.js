@@ -166,8 +166,8 @@
           const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
           const d2 = dx * dx + dy * dy + dz * dz;
           if (d2 < D2) {
-            const al = (1 - Math.sqrt(d2) / D3D) * 0.2 * ((a.sc + b.sc) * 0.5);
-            ctx.strokeStyle = 'rgba(45,45,45,' + al.toFixed(3) + ')';
+            const al = (1 - Math.sqrt(d2) / D3D) * 0.34 * ((a.sc + b.sc) * 0.5);
+            ctx.strokeStyle = 'rgba(36,36,36,' + al.toFixed(3) + ')';
             ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
           }
         }
@@ -178,20 +178,20 @@
           const dx = p.sx - mx, dy = p.sy - my;
           const d2 = dx * dx + dy * dy;
           if (d2 < MR2) {
-            const al = (1 - Math.sqrt(d2) / MR) * 0.3;
-            ctx.strokeStyle = 'rgba(30,30,30,' + al.toFixed(3) + ')';
+            const al = (1 - Math.sqrt(d2) / MR) * 0.45;
+            ctx.strokeStyle = 'rgba(28,28,28,' + al.toFixed(3) + ')';
             ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(mx, my); ctx.stroke();
           }
         }
       }
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
-        const rad = Math.max(0.4, 1.5 * p.sc);
+        const rad = Math.max(0.5, 1.7 * p.sc);
         let near = false;
         if (active && !still) { const dx = p.sx - mx, dy = p.sy - my; near = (dx * dx + dy * dy) < MR2; }
-        const alpha = Math.max(0.18, Math.min(0.75, 0.36 + (p.sc - 0.6) * 0.6));
+        const alpha = Math.max(0.34, Math.min(0.92, 0.54 + (p.sc - 0.6) * 0.6));
         ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, TAU);
-        ctx.fillStyle = near ? 'rgba(28,28,28,0.8)' : 'rgba(50,50,50,' + alpha.toFixed(3) + ')';
+        ctx.fillStyle = near ? 'rgba(20,20,20,0.85)' : 'rgba(38,38,38,' + alpha.toFixed(3) + ')';
         ctx.fill();
       }
     }

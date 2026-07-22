@@ -5064,6 +5064,12 @@ body.login-page {
   gap: 6px;
 }
 
+/* Author-level display:flex overrides the browser's default [hidden] rule.
+   Keep confirmation completely absent from the Sign In layout. */
+.login-field[hidden] {
+  display: none;
+}
+
 .login-label {
   font-family: var(--ff-ui);
   font-size: 12px;

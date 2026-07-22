@@ -126,6 +126,22 @@ for (const viewport of viewports) {
     if (path === '/login.html' || path === '/login.html?mode=signup') {
       const shouldStartInSignup = path.includes('mode=signup');
       if (!shouldStartInSignup) {
+        const { result: signinResult } = await client.send('Runtime.evaluate', {
+          expression: `(() => {
+            const field = document.getElementById('confirm-password-field');
+            const confirm = document.getElementById('confirm-password-input');
+            return {
+              fieldVisible: field ? getComputedStyle(field).display !== 'none' : false,
+              confirmDisabled: confirm?.disabled,
+            };
+          })()`,
+          returnByValue: true,
+        });
+        if (signinResult.value.fieldVisible || !signinResult.value.confirmDisabled) {
+          pageIssues.push('confirm-password field is visible or enabled during sign in');
+        }
+      }
+      if (!shouldStartInSignup) {
         await client.send('Runtime.evaluate', {
           expression: `document.getElementById('toggle-mode-btn').click()`,
         });
@@ -138,7 +154,7 @@ for (const viewport of viewports) {
           const password = document.getElementById('password-input');
           return {
             title: document.getElementById('login-title')?.textContent,
-            fieldVisible: field ? !field.hidden : false,
+            fieldVisible: field ? getComputedStyle(field).display !== 'none' : false,
             confirmEnabled: confirm ? !confirm.disabled : false,
             confirmAutocomplete: confirm?.autocomplete,
             passwordAutocomplete: password?.autocomplete,
@@ -203,7 +219,7 @@ for (const viewport of viewports) {
           const state = {
             title: document.getElementById('login-title')?.textContent,
             success: document.getElementById('login-success')?.textContent,
-            confirmHidden: document.getElementById('confirm-password-field')?.hidden,
+            confirmHidden: getComputedStyle(document.getElementById('confirm-password-field')).display === 'none',
             buttonEnabled: !document.getElementById('submit-btn')?.disabled,
           };
           window.fetch = window.__auditFetch;

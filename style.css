@@ -1476,6 +1476,9 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .app-main > .workspace { position: relative; z-index: 1; }
 
+/* Full-page fixed variant of the dot-cloud background (plans / paywall page) */
+.appbg-page { position: fixed; }
+
 /* Level-adjust showcase (full app-flow simulation; reuses .typeshow shell + real changes-view classes) */
 .leveldemo { position: relative; }
 
@@ -4832,7 +4835,10 @@ body.editor-page { background: var(--bg); }
 
 body.login-page {
   background: var(--bg);
-  overflow: hidden;
+  /* The sign-up card is taller because it includes password confirmation.
+     Keep the page scrollable on short laptop/browser windows so no action is
+     ever clipped below the viewport. */
+  overflow: auto;
 }
 
 .login-wrap {
@@ -4937,6 +4943,12 @@ body.login-page {
   flex-direction: column;
   gap: 18px;
   animation: card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 @keyframes card-in {
@@ -5804,6 +5816,8 @@ body.drawer-lock { overflow: hidden; }
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .plans-head {

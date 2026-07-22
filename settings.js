@@ -26,7 +26,7 @@ function setupDrawer(session) {
 
   const email = session.user.email || '';
   const displayName = session.user.user_metadata?.display_name || '';
-  const tier = session.user.user_metadata?.tier || 'free';
+  const tier = bipassAccountMeta(session).tier || 'free';
   const initial = (displayName || email || '?')[0].toUpperCase();
 
   drawerUser.innerHTML = `
@@ -66,7 +66,7 @@ function setupProfile(session) {
   const user = session.user;
   const email = user.email || '';
   let displayName = user.user_metadata?.display_name || '';
-  const tier = user.user_metadata?.tier || 'free';
+  const tier = bipassAccountMeta(user).tier || 'free';
 
   const avatarEl = document.getElementById('settings-avatar');
   const emailEl  = document.getElementById('settings-email');
@@ -134,7 +134,7 @@ function setupCredits(session) {
     numEl.textContent = typeof n === 'number' ? n.toLocaleString() : '—';
   }
 
-  display(session.user.user_metadata?.credits ?? 2000);
+  display(bipassAccountMeta(session).credits ?? 2000);
 
   refreshBtn.addEventListener('click', async () => {
     refreshBtn.disabled = true;

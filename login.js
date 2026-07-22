@@ -1,138 +1,190 @@
-// ─── Redirect if already signed in ────────────────────────────
-(async () => {
-  const session = await window.bipassAuth.getSession();
-  if (session) {
-    const next = new URLSearchParams(location.search).get('next') || '/home';
-    window.location.replace(next);
-  }
-})();
-
-// ─── State ────────────────────────────────────────────────────
+// ─── State and elements ───────────────────────────────────────────────────
 let mode = 'signin';
 
-// ─── Elements ─────────────────────────────────────────────────
-const titleEl      = document.getElementById('login-title');
-const subEl        = document.getElementById('login-sub');
-const usernameEl   = document.getElementById('username-input');
-const passwordEl   = document.getElementById('password-input');
-const submitBtn    = document.getElementById('submit-btn');
-const submitLbl    = submitBtn.querySelector('.login-btn-label');
-const toggleBtn    = document.getElementById('toggle-mode-btn');
-const toggleText   = toggleBtn.closest('p');
-const errorEl      = document.getElementById('login-error');
-const successEl    = document.getElementById('login-success');
-const googleBtn    = document.getElementById('google-btn');
-const card         = document.querySelector('.login-card');
+const form             = document.getElementById('login-form');
+const titleEl          = document.getElementById('login-title');
+const subEl            = document.getElementById('login-sub');
+const usernameEl       = document.getElementById('username-input');
+const passwordEl       = document.getElementById('password-input');
+const confirmField     = document.getElementById('confirm-password-field');
+const confirmPasswordEl = document.getElementById('confirm-password-input');
+const submitBtn        = document.getElementById('submit-btn');
+const submitLbl        = submitBtn.querySelector('.login-btn-label');
+const toggleBtn        = document.getElementById('toggle-mode-btn');
+const toggleCopy       = document.getElementById('toggle-mode-copy');
+const errorEl          = document.getElementById('login-error');
+const successEl        = document.getElementById('login-success');
+const googleBtn        = document.getElementById('google-btn');
+const googleBtnLabel   = document.getElementById('google-btn-label');
+const card             = document.querySelector('.login-card');
 
-// ─── Toggle sign-in / sign-up ─────────────────────────────────
-toggleBtn.addEventListener('click', () => {
-  mode = mode === 'signin' ? 'signup' : 'signin';
-  clearMessages();
-
-  card.classList.add('login-switching');
-  setTimeout(() => card.classList.remove('login-switching'), 320);
-
-  if (mode === 'signup') {
-    titleEl.textContent        = 'Create account';
-    subEl.textContent          = 'Free to start — no credit card needed';
-    submitLbl.textContent      = 'Create Account';
-    googleBtn.innerHTML        = googleBtn.innerHTML.replace('Continue with Google', 'Sign up with Google');
-    toggleText.innerHTML       = 'Already have an account? <button class="login-toggle-btn" id="toggle-mode-btn">Sign in</button>';
-    document.getElementById('toggle-mode-btn').addEventListener('click', toggleBtn.onclick || (() => {}));
-    usernameEl.autocomplete    = 'username';
-    passwordEl.placeholder     = 'At least 8 characters';
-    passwordEl.autocomplete    = 'new-password';
-    usernameEl.focus();
-  } else {
-    titleEl.textContent        = 'Welcome back';
-    subEl.textContent          = 'Sign in to continue to Bipass AI';
-    submitLbl.textContent      = 'Sign In';
-    googleBtn.innerHTML        = googleBtn.innerHTML.replace('Sign up with Google', 'Continue with Google');
-    toggleText.innerHTML       = 'Don\'t have an account? <button class="login-toggle-btn" id="toggle-mode-btn">Create one</button>';
-    document.getElementById('toggle-mode-btn').addEventListener('click', toggleBtn.onclick || (() => {}));
-    usernameEl.autocomplete    = 'username';
-    passwordEl.placeholder     = '••••••••';
-    passwordEl.autocomplete    = 'current-password';
-    usernameEl.focus();
-  }
-
-  rebindToggle();
-});
-
-function rebindToggle() {
-  document.getElementById('toggle-mode-btn').addEventListener('click', () => {
-    toggleBtn.click();
-  });
+function nextPath() {
+  const requested = new URLSearchParams(location.search).get('next');
+  if (typeof bipassSafeNext === 'function') return bipassSafeNext(requested);
+  return '/home';
 }
 
-// ─── Arriving from onboarding ─────────────────────────────────
-// The welcome flow sends guests here with ?mode=signup after their gacha
-// reveal; open in sign-up mode. The name they gave earlier is claimed with
-// their reward, so we no longer collect it here.
-(() => {
-  if (new URLSearchParams(location.search).get('mode') === 'signup') toggleBtn.click();
-})();
+// ─── Sign-in / sign-up mode ─────────────────────────────────────────
+function setMode(nextMode, animate = false) {
+  mode = nextMode === 'signup' ? 'signup' : 'signin';
+  clearMessages();
 
-// ─── Submit ───────────────────────────────────────────────────
-submitBtn.addEventListener('click', async () => {
+  if (animate) {
+    card.classList.remove('login-switching');
+    void card.offsetWidth;
+    card.classList.add('login-switching');
+    setTimeout(() => card.classList.remove('login-switching'), 320);
+  }
+
+  const signingUp = mode === 'signup';
+  titleEl.textContent = signingUp ? 'Create account' : 'Welcome back';
+  subEl.textContent = signingUp
+    ? 'Free to start — no credit card needed'
+    : 'Sign in to continue to Bipass AI';
+  submitLbl.textContent = signingUp ? 'Create Account' : 'Sign In';
+  googleBtnLabel.textContent = signingUp ? 'Sign up with Google' : 'Continue with Google';
+  toggleCopy.textContent = signingUp ? 'Already have an account?' : 'Don\'t have an account?';
+  toggleBtn.textContent = signingUp ? 'Sign in' : 'Create one';
+  passwordEl.placeholder = signingUp ? 'At least 8 characters' : '••••••••';
+  passwordEl.autocomplete = signingUp ? 'new-password' : 'current-password';
+  confirmField.hidden = !signingUp;
+  confirmPasswordEl.disabled = !signingUp;
+  confirmPasswordEl.required = signingUp;
+  if (!signingUp) confirmPasswordEl.value = '';
+  document.title = signingUp ? 'Create Account — Bipass AI' : 'Bipass AI — Sign In';
+}
+
+toggleBtn.addEventListener('click', () => {
+  setMode(mode === 'signin' ? 'signup' : 'signin', true);
+  usernameEl.focus();
+});
+
+// ─── Submit ─────────────────────────────────────────────────────────────────
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (submitBtn.disabled) return;
+
   const username = usernameEl.value.trim();
   const password = passwordEl.value;
-  const next     = new URLSearchParams(location.search).get('next') || '/home';
+  const confirmPassword = confirmPasswordEl.value;
 
-  if (!username || !password) { showError('Enter your username and password'); return; }
-  if (mode === 'signup' && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
-    showError('Username must be 3–20 letters, numbers or underscores'); return;
+  if (!username || !password) {
+    showError('Enter your username and password');
+    (!username ? usernameEl : passwordEl).focus();
+    return;
   }
-  if (mode === 'signup' && password.length < 8) { showError('Password must be at least 8 characters'); return; }
+  if (mode === 'signup' && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    showError('Username must be 3–20 letters, numbers or underscores');
+    usernameEl.focus();
+    return;
+  }
+  if (mode === 'signup' && password.length < 8) {
+    showError('Password must be at least 8 characters');
+    passwordEl.focus();
+    return;
+  }
+  if (mode === 'signup' && !confirmPassword) {
+    showError('Type your password again to confirm it');
+    confirmPasswordEl.focus();
+    return;
+  }
+  if (mode === 'signup' && password !== confirmPassword) {
+    showError('Passwords do not match');
+    confirmPasswordEl.focus();
+    return;
+  }
+  if (!window.bipassAuth?.client?.auth) {
+    showError('Sign-in service did not load. Refresh the page and try again.');
+    return;
+  }
 
   clearMessages();
   setBusy(true);
 
-  if (mode === 'signin') {
-    const { error } = await window.bipassAuth.client.auth.signInWithPassword({
-      email: usernameToEmail(username), password,
-    });
-    if (error) { showError('Wrong username or password'); setBusy(false); return; }
-    window.location.replace(next);
-  } else {
-    // Create the account server-side (auto-confirmed), then sign straight in.
-    const res  = await fetch('/auth/signup', {
-      method:  'POST',
+  try {
+    if (mode === 'signin') {
+      const { error } = await window.bipassAuth.client.auth.signInWithPassword({
+        email: usernameToEmail(username),
+        password,
+      });
+      if (error) {
+        showError('Wrong username or password');
+        return;
+      }
+      window.location.replace(nextPath());
+      return;
+    }
+
+    // Username accounts use an internal email identifier and are confirmed by
+    // the server, so there is no email-confirmation step for the user.
+    const response = await fetch('/auth/signup', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password }),
     });
-    const data = await res.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({}));
 
-    if (res.status === 409) { showError('That username is taken — pick another'); setBusy(false); return; }
-    if (!res.ok) { showError(data.error || 'Could not create account'); setBusy(false); return; }
+    if (response.status === 409) {
+      showError('That username is taken — pick another');
+      usernameEl.focus();
+      return;
+    }
+    if (response.status === 429) {
+      showError('Too many account attempts. Wait a moment and try again.');
+      return;
+    }
+    if (!response.ok) {
+      showError(data.error || 'Could not create account. Try again.');
+      return;
+    }
 
     const { error } = await window.bipassAuth.client.auth.signInWithPassword({
-      email: data.email || usernameToEmail(username), password,
+      email: data.email || usernameToEmail(username),
+      password,
     });
-    if (error) { showError('Account created — please sign in'); setBusy(false); mode = 'signin'; return; }
-    window.location.replace(next);
+    if (error) {
+      setMode('signin');
+      showSuccess('Account created. Please sign in with your new password.');
+      passwordEl.focus();
+      return;
+    }
+    window.location.replace(nextPath());
+  } catch (error) {
+    console.error('Authentication request failed:', error);
+    showError('Could not connect to the sign-in service. Check your connection and try again.');
+  } finally {
+    setBusy(false);
   }
 });
 
-// Allow Enter key to submit
-passwordEl.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
-usernameEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.focus(); });
-
-// ─── Google OAuth ─────────────────────────────────────────────
-document.getElementById('google-btn').addEventListener('click', () => {
-  const next = new URLSearchParams(location.search).get('next') || '/home';
-  window.location.href = `/auth/google?next=${encodeURIComponent(next)}`;
+usernameEl.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    passwordEl.focus();
+  }
 });
 
-// ─── Helpers ──────────────────────────────────────────────────
-function showError(msg) {
-  errorEl.textContent = msg;
+passwordEl.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && mode === 'signup') {
+    event.preventDefault();
+    confirmPasswordEl.focus();
+  }
+});
+
+// ─── Google OAuth ──────────────────────────────────────────────────────────
+googleBtn.addEventListener('click', () => {
+  window.location.href = `/auth/google?next=${encodeURIComponent(nextPath())}`;
+});
+
+// ─── Helpers and initial state ──────────────────────────────────────────────────
+function showError(message) {
+  errorEl.textContent = message;
   errorEl.classList.remove('hidden');
   successEl.classList.add('hidden');
 }
 
-function showSuccess(msg) {
-  successEl.textContent = msg;
+function showSuccess(message) {
+  successEl.textContent = message;
   successEl.classList.remove('hidden');
   errorEl.classList.add('hidden');
 }
@@ -143,6 +195,29 @@ function clearMessages() {
 }
 
 function setBusy(on) {
-  submitBtn.disabled    = on;
+  submitBtn.disabled = on;
+  submitBtn.setAttribute('aria-busy', String(on));
   submitLbl.textContent = on ? 'Loading…' : (mode === 'signin' ? 'Sign In' : 'Create Account');
 }
+
+const params = new URLSearchParams(location.search);
+setMode(params.get('mode') === 'signup' ? 'signup' : 'signin');
+
+const authErrors = {
+  google_denied: 'Google sign-in was cancelled.',
+  invalid_state: 'That Google sign-in link expired. Please try again.',
+  oauth_failed: 'Google sign-in could not be completed. Please try again.',
+  missing_token: 'That sign-in link is incomplete. Please try again.',
+  auth_failed: 'That sign-in link expired or was already used. Please try again.',
+};
+if (authErrors[params.get('error')]) showError(authErrors[params.get('error')]);
+
+(async () => {
+  try {
+    const session = await window.bipassAuth?.getSession();
+    if (session) window.location.replace(nextPath());
+  } catch (error) {
+    console.error('Could not check the current session:', error);
+    showError('Sign-in service did not load. Refresh the page and try again.');
+  }
+})();

@@ -4,6 +4,9 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
+    "preDeployCommand": [
+      "npm run migrate:billing:apply"
+    ],
     "startCommand": "node server.js"
   }
 }

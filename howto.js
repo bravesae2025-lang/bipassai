@@ -10,7 +10,7 @@ async function init() {
       navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
       document.getElementById('nav-signout-btn')?.addEventListener('click', () => window.bipassAuth.signOut());
     } else {
-      navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
+      navUser.innerHTML = `<a class="nav-link" href="/login.html">Sign in</a>`;
     }
   }
 
@@ -25,7 +25,7 @@ async function init() {
   if (session) {
     const email = session.user.email || '';
     const displayName = session.user.user_metadata?.display_name || '';
-    const tier = session.user.user_metadata?.tier || 'free';
+    const tier = bipassAccountMeta(session).tier || 'free';
     const initial = (displayName || email || '?')[0].toUpperCase();
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">

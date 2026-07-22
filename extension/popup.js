@@ -1,6 +1,11 @@
 const SUPABASE_URL  = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const BIPASS_URL    = 'https://bipassai.com';
+const USERNAME_EMAIL_DOMAIN = 'users.bipassai.com';
+
+function usernameToEmail(username) {
+  return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
+}
 
 let currentText     = '';
 let currentSpeed    = 90;
@@ -32,7 +37,7 @@ function formatDate(iso) {
 }
 
 async function storeSession(data) {
-  const tier = data.user?.user_metadata?.tier || 'free';
+  const tier = data.user?.app_metadata?.tier || 'free';
   const email = data.user?.email || '';
   await chrome.storage.local.set({
     access_token:  data.access_token,
@@ -153,7 +158,7 @@ async function init() {
 // ── Email / password login ──────────────────────────────────────
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email    = document.getElementById('login-email').value.trim();
+  const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   const errEl    = document.getElementById('login-error');
   const btn      = document.getElementById('login-btn');
@@ -166,10 +171,10 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: usernameToEmail(username), password }),
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error_description || 'Invalid email or password.'; return; }
+    if (!res.ok) { errEl.textContent = 'Invalid username or password.'; return; }
     const session = await storeSession(data);
     await fetchResults(session.access_token, session.user_id, session.tier);
   } catch {
@@ -297,7 +302,7 @@ document.getElementById('open-bipass').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/app.html' });
 });
 document.getElementById('signup-link').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'https://bipassai.com/login.html' });
+  chrome.tabs.create({ url: 'https://bipassai.com/login.html?mode=signup' });
 });
 document.getElementById('open-upgrade').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/plans.html' });

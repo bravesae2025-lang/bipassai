@@ -232,17 +232,17 @@
           </aside>
         </div>
 
-        <!-- Stage 4: AI detector check — lands on 0% AI -->
+        <!-- Stage 4: reminder that detector results are not guaranteed -->
         <div class="ld-stage ld-stage-scan" id="ld-stage-scan" hidden>
           <div class="ld-inputcol">
             <div class="ld-scanbox">
-              <div class="ld-inputbox-label">Checking with AI detector</div>
+              <div class="ld-inputbox-label">Final review</div>
               <div class="ld-scan-text" id="ld-scan-text"></div>
               <span class="ld-scanline" aria-hidden="true"></span>
             </div>
           </div>
           <aside class="ld-scanpanel">
-            <div class="cf-head">AI detection scan</div>
+            <div class="cf-head">Detector reminder</div>
             <div class="ld-gauge">
               <svg viewBox="0 0 120 120" aria-hidden="true">
                 <circle class="ld-gauge-track" cx="60" cy="60" r="52"/>
@@ -250,10 +250,10 @@
               </svg>
               <div class="ld-gauge-read">
                 <span class="ld-gauge-val" id="ld-gauge-val">&ndash;&ndash;</span>
-                <span class="ld-gauge-lbl">AI detected</span>
+                <span class="ld-gauge-lbl">by detector</span>
               </div>
             </div>
-            <span class="ld-scan-status"><i></i><span id="ld-scan-status-text">Scanning</span></span>
+            <span class="ld-scan-status"><i></i><span id="ld-scan-status-text">No score guaranteed</span></span>
           </aside>
         </div>
 
@@ -287,13 +287,13 @@
     <!-- Stats -->
     <div class="hero-stats" data-anim="slide-up" data-anim-delay="2">
       <div class="hero-stat">
-        <span class="hero-stat-val">10k+</span>
-        <span class="hero-stat-lbl">texts humanized</span>
+        <span class="hero-stat-val">3</span>
+        <span class="hero-stat-lbl">rewrite modes</span>
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
-        <span class="hero-stat-val">&lt;10s</span>
-        <span class="hero-stat-lbl">average result time</span>
+        <span class="hero-stat-val">LIVE</span>
+        <span class="hero-stat-lbl">progress updates</span>
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
@@ -302,8 +302,8 @@
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
-        <span class="hero-stat-val hero-stat-val-ai">0%</span>
-        <span class="hero-stat-lbl">AI detected</span>
+        <span class="hero-stat-val hero-stat-val-ai">VARIES</span>
+        <span class="hero-stat-lbl">detector scores</span>
       </div>
     </div>
 
@@ -316,7 +316,7 @@
         </span>
         <span class="hero-cta-sweep" aria-hidden="true"></span>
       </button>
-      <p class="hero-cta-sub">Paste your text in the app &mdash; results in under 10 seconds</p>
+      <p class="hero-cta-sub">Paste your text in the app &mdash; processing time varies with length</p>
     </div>
 
   </section>
@@ -325,11 +325,11 @@
   <section id="reviews" class="reviews-section">
     <div class="reviews-header">
       <div class="reviews-label" data-anim="slide-up">REVIEWS</div>
-      <h2 class="reviews-title" data-anim="slide-up" data-anim-delay="1">Trusted by all our satisfied customers</h2>
-      <p class="reviews-sub" data-anim="slide-up" data-anim-delay="2">Thousands of students use Bipass AI every week to make their writing sound human.</p>
+      <h2 class="reviews-title" data-anim="slide-up" data-anim-delay="1">What users say</h2>
+      <p class="reviews-sub" data-anim="slide-up" data-anim-delay="2">Feedback from students using Bipass AI in their writing workflow.</p>
       <div class="reviews-trust" data-anim="slide-up" data-anim-delay="3">
         <span class="reviews-trust-stars">★★★★★</span>
-        <span class="reviews-trust-text"><strong>4.9/5</strong> average from <strong>10,000+</strong> students</span>
+        <span class="reviews-trust-text">Selected user feedback</span>
       </div>
     </div>
 
@@ -357,7 +357,6 @@
           <p class="rev-text">auto typer is the real one. types into google docs slow enough that the version history actually looks like i wrote it over time</p>
         </article>
         <article class="rev-card">
-          <div class="rev-head"><span class="rev-avatar">S</span><span class="rev-id"><span class="rev-name">Sofia L.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Nursing student</span></span><span class="rev-date">6d</span></div>
           <div class="rev-stars" aria-label="4 out of 5 stars">★★★★<span class="s-off">★</span></div>
           <p class="rev-text">tried a few humanizers, this is the only one with actual levels. wish there were more than 4 presets tbh but custom mode kinda covers it</p>
         </article>
@@ -461,7 +460,7 @@
           </svg>
         </div>
         <h3 class="step-title">Auto type it in</h3>
-        <p class="step-desc">Paste the output into the Auto Typer extension. It types into Google Docs character by character — building a real revision history.</p>
+        <p class="step-desc">Paste reviewed output into the Auto Typer extension. It enters the text into Google Docs character by character for typing convenience.</p>
       </div>
 
     </div>
@@ -473,7 +472,7 @@
       </div>
       <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="2">
         <span class="hiw-footer-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-        <span>Results in under 10 seconds</span>
+        <span>Processing time varies by text length</span>
       </div>
       <div class="hiw-footer-card" data-anim="slide-up" data-anim-delay="3">
         <span class="hiw-footer-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
@@ -502,7 +501,7 @@
           <div class="pricing-credits-bonus">◎ 3,000 credits included</div>
         </div>
         <ul class="pricing-features">
-          <li>Unlimited generations for 24 hours</li>
+          <li>24-hour app access</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -517,11 +516,11 @@
           <div class="pricing-price">
             <span class="pricing-currency">$</span>4<span class="pricing-cents">.99</span>
           </div>
-          <div class="pricing-period">per week</div>
+          <div class="pricing-period">one-time payment</div>
           <div class="pricing-credits-bonus">◎ 10,000 credits included</div>
         </div>
         <ul class="pricing-features">
-          <li>Unlimited generations for 7 days</li>
+          <li>7-day app access</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -536,11 +535,11 @@
           <div class="pricing-price">
             <span class="pricing-currency">$</span>17<span class="pricing-cents">.99</span>
           </div>
-          <div class="pricing-period">per month</div>
+          <div class="pricing-period">one-time payment</div>
           <div class="pricing-credits-bonus">◎ 30,000 credits included</div>
         </div>
         <ul class="pricing-features">
-          <li>Unlimited generations for 30 days</li>
+          <li>30-day app access</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -554,12 +553,13 @@
         <div class="pricing-card-top">
           <div class="pricing-plan">Annual Pass</div>
           <div class="pricing-price">
-            <span class="pricing-currency">$</span>11<span class="pricing-cents">.58</span><span class="pricing-per-month"> /month</span>
+            <span class="pricing-currency">$</span>138<span class="pricing-cents">.96</span>
           </div>
+          <div class="pricing-period">one-time payment · $11.58/month equivalent</div>
           <div class="pricing-credits-bonus pricing-credits-bonus-featured">◎ 100,000 credits included</div>
         </div>
         <ul class="pricing-features">
-          <li>Unlimited generations for 365 days</li>
+          <li>365-day app access</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -639,7 +639,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>Your results are saved to your account so you can find them again in History — and you can delete any of them there at any time. We never sell your text or share it with anyone. Your account and results are stored securely with Supabase, and payments run through Stripe, so we never handle your card details.</p>
+          <p>Your results are saved to your account so you can find them again in History, and you can delete them there at any time. We do not sell your text or use it for advertising. Text you ask us to process is sent to the providers listed in our Privacy Policy; account data is stored with Supabase and payments run through Stripe.</p>
         </div>
       </div>
 
@@ -651,7 +651,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>The Auto Typer Chrome extension types your text into Google Docs character by character, at a natural human speed with slight timing variation. This builds a real revision history inside Google Docs — so it looks like you typed it yourself over time, not pasted it in one shot.</p>
+          <p>The Auto Typer Chrome extension enters reviewed text into Google Docs character by character, with adjustable speed and timing variation. It is a typing convenience and does not recreate your research or drafting process.</p>
         </div>
       </div>
 
@@ -1156,24 +1156,20 @@
         at(done + 1500, () => fadeTo(stageScan, () => scanPhase(S)));
       }
 
-      // ── Stage 4: AI detector scan → 0% AI ────────────────────
+      // ── Stage 4: final-review reminder ───────────────────────
       function scanPhase(S) {
-        badgeEl.textContent = 'STEP 4 · AI CHECK';
+        badgeEl.textContent = 'STEP 4 · FINAL REVIEW';
         stageScan.classList.remove('done');
         if (scanText) scanText.textContent = editedPlain(S);
-        if (gaugeVal) gaugeVal.textContent = '––';
-        if (scanStat) scanStat.textContent = 'Scanning';
+        if (gaugeVal) gaugeVal.textContent = 'VARIES';
+        if (scanStat) scanStat.textContent = 'No score guaranteed';
 
-        for (let k = 0; k < 22; k++) {
-          at(250 + k * 95, () => { gaugeVal.textContent = (7 + rnd(90)) + '%'; });
-        }
-        at(2500, () => {
+        at(1200, () => {
           stageScan.classList.add('done');
-          if (gaugeVal) gaugeVal.textContent = '0%';
-          if (scanStat) scanStat.textContent = 'Human';
+          if (scanStat) scanStat.textContent = 'Review before submitting';
         });
-        at(4100, () => mainEl.classList.add('ld-fade'));
-        at(4550, () => { si = (si + 1) % SCENARIOS.length; runScenario(); });
+        at(3200, () => mainEl.classList.add('ld-fade'));
+        at(3650, () => { si = (si + 1) % SCENARIOS.length; runScenario(); });
       }
 
       // Reduced motion: show the finished Student result, no timers, no loop.
@@ -1289,8 +1285,8 @@
 
       const PHRASES = [
         { lines: ['Your AI text,', 'at the right level.'], green: [] },
-        { lines: ['0% AI detected.', '100% human.'], green: [] },
-        { lines: ['Undetected by AI.', 'Sounds like you.'], green: [] },
+        { lines: ['Review every draft.', 'Keep your own voice.'], green: [] },
+        { lines: ['Less robotic.', 'More like you.'], green: [] },
       ];
       const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%@$+*=';
       const HOLD = 3400;      // ms each phrase stays readable
@@ -1403,9 +1399,8 @@
       if (!statsEl) return;
 
       const stats = [
-        { el: statsEl.querySelectorAll('.hero-stat-val')[0], target: 10000, format: v => Math.round(v).toLocaleString() + '+' },
-        { el: statsEl.querySelectorAll('.hero-stat-val')[1], target: 10,    format: v => '<' + Math.round(v) + 's' },
-        { el: statsEl.querySelectorAll('.hero-stat-val')[2], target: 3,     format: v => Math.round(v).toString() },
+        { el: statsEl.querySelectorAll('.hero-stat-val')[0], target: 3, format: v => Math.round(v).toString() },
+        { el: statsEl.querySelectorAll('.hero-stat-val')[2], target: 4, format: v => Math.round(v).toString() },
       ].filter(s => s.el);
 
       let fired = false;

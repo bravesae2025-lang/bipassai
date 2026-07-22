@@ -73,7 +73,7 @@
   <main class="privacy-main">
 
     <h1 class="privacy-title">Privacy Policy</h1>
-    <p class="privacy-date">Last updated: June 2, 2026</p>
+    <p class="privacy-date">Last updated: July 22, 2026</p>
 
     <div class="privacy-section">
       <h2>Who we are</h2>
@@ -83,9 +83,9 @@
     <div class="privacy-section">
       <h2>What we collect</h2>
       <ul>
-        <li><strong>Account information</strong> — your email address and display name, provided when you sign in with Google or email and password.</li>
+        <li><strong>Account information</strong> — your chosen username, or your email address and display name when you sign in with Google.</li>
         <li><strong>Text results</strong> — the adjusted or generated text your account produces, stored so you can access your history and use the Auto Typer extension.</li>
-        <li><strong>Authentication tokens</strong> — access and refresh tokens stored locally in your browser (via <code>chrome.storage.local</code> for the extension, or session cookies for the website) to keep you signed in.</li>
+        <li><strong>Authentication tokens</strong> — access and refresh tokens stored locally in your browser (via <code>chrome.storage.local</code> for the extension and Supabase browser storage for the website) to keep you signed in.</li>
         <li><strong>Usage tier</strong> — whether your account is on the free or paid plan, stored in your account metadata.</li>
       </ul>
     </div>
@@ -103,10 +103,11 @@
       <h2>How we use your data</h2>
       <ul>
         <li>To authenticate your account and keep you signed in.</li>
+        <li>To send text you ask us to process to the selected writing-model provider and return the result.</li>
         <li>To store and display your text results in History and the extension.</li>
         <li>To track your credit balance and plan status.</li>
       </ul>
-      <p>We do not sell, rent, or share your personal data with third parties for advertising or any other purpose.</p>
+      <p>We do not sell or rent your personal data, and we do not share it for advertising. We share only the data needed with the service providers listed below to operate the product.</p>
     </div>
 
     <div class="privacy-section">
@@ -115,6 +116,9 @@
         <li><strong>Supabase</strong> — our database and authentication provider. Your account data and results are stored on Supabase servers. See <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase's privacy policy</a>.</li>
         <li><strong>Stripe</strong> — used to process payments on the Pro plan. We do not store your card details. See <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe's privacy policy</a>.</li>
         <li><strong>Google OAuth</strong> — used as an optional sign-in method. We only receive your email and display name.</li>
+        <li><strong>Google Gemini</strong> — processes text for writing-level adjustment, generation, and style analysis.</li>
+        <li><strong>Anthropic Claude</strong> — may process generated text for an additional rewrite pass when that feature is enabled.</li>
+        <li><strong>RewriteAI</strong> — processes text when you choose Humanize or Humanize + Level Adjust.</li>
       </ul>
     </div>
 
@@ -125,7 +129,7 @@
 
     <div class="privacy-section">
       <h2>Your rights</h2>
-      <p>You can delete your results at any time from the History page. To request full account deletion or a copy of your data, contact us at the address below.</p>
+      <p>You can delete results from History and delete your account from Settings. To request a copy of your data, contact us at the address below.</p>
     </div>
 
     <div class="privacy-section privacy-contact">

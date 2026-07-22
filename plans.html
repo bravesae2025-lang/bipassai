@@ -27,11 +27,12 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="editor-page">
 
   <div class="bg-dots" aria-hidden="true"></div>
+  <div class="appbg appbg-page" id="appbg" aria-hidden="true"><canvas class="appbg-canvas" id="appbg-canvas"></canvas></div>
   <div class="grain" aria-hidden="true"></div>
 
   <nav class="navbar">
@@ -80,7 +81,7 @@
         <h1 class="plans-title">Choose Your Plan</h1>
         <div class="plans-discount-banner" data-anim="slide-up">
           <span class="plans-discount-flame" aria-hidden="true">★</span>
-          Our plans are on discount — limited-time launch pricing
+          Flexible one-time passes — no recurring subscription
         </div>
         <div class="plans-current-plan" id="plans-current-plan"></div>
       </div>
@@ -115,7 +116,7 @@
             <div class="pricing-credits-bonus">◎ 3,000 credits included</div>
           </div>
           <ul class="pricing-features">
-            <li>Unlimited generations for 24 hours</li>
+            <li>24-hour app access</li>
             <li>All writing levels</li>
             <li>Grammar &amp; punctuation options</li>
             <li>Cloud storage for texts</li>
@@ -131,11 +132,11 @@
             <div class="pricing-price">
               <span class="pricing-currency">$</span>4<span class="pricing-cents">.99</span>
             </div>
-            <div class="pricing-period">per week</div>
+            <div class="pricing-period">one-time payment</div>
             <div class="pricing-credits-bonus">◎ 10,000 credits included</div>
           </div>
           <ul class="pricing-features">
-            <li>Unlimited generations for 7 days</li>
+            <li>7-day app access</li>
             <li>All writing levels</li>
             <li>Grammar &amp; punctuation options</li>
             <li>Cloud storage for texts</li>
@@ -149,12 +150,13 @@
           <div class="pricing-card-top">
             <div class="pricing-plan">Annual Pass</div>
             <div class="pricing-price">
-              <span class="pricing-currency">$</span>11<span class="pricing-cents">.58</span><span class="pricing-per-month"> /month</span>
+              <span class="pricing-currency">$</span>138<span class="pricing-cents">.96</span>
             </div>
+            <div class="pricing-period">one-time payment · $11.58/month equivalent</div>
             <div class="pricing-credits-bonus pricing-credits-bonus-featured">◎ 100,000 credits included</div>
           </div>
           <ul class="pricing-features">
-            <li>Unlimited generations for 365 days</li>
+            <li>365-day app access</li>
             <li>All writing levels</li>
             <li>Grammar &amp; punctuation options</li>
             <li>Cloud storage for texts</li>
@@ -171,11 +173,11 @@
             <div class="pricing-price">
               <span class="pricing-currency">$</span>17<span class="pricing-cents">.99</span>
             </div>
-            <div class="pricing-period">per month</div>
+            <div class="pricing-period">one-time payment</div>
             <div class="pricing-credits-bonus">◎ 30,000 credits included</div>
           </div>
           <ul class="pricing-features">
-            <li>Unlimited generations for 30 days</li>
+            <li>30-day app access</li>
             <li>All writing levels</li>
             <li>Grammar &amp; punctuation options</li>
             <li>Cloud storage for texts</li>
@@ -239,6 +241,7 @@
   <script src="auth.js?v=3"></script>
   <script src="plans.js?v=2"></script>
   <script src="cursor.js?v=2"></script>
+  <script src="appbg.js?v=1"></script>
 
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>

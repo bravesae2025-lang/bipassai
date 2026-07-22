@@ -11,7 +11,7 @@ function setupDrawer(session) {
 
   const email = session ? session.user.email : '';
   let displayName = session ? (session.user.user_metadata?.display_name || '') : '';
-  const tier = session ? (session.user.user_metadata?.tier || 'free') : 'free';
+  const tier = session ? (bipassAccountMeta(session).tier || 'free') : 'free';
   const initials = () => (displayName || email || '?')[0].toUpperCase();
 
   function renderProfile() {

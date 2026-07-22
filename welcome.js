@@ -549,7 +549,7 @@ function fireBurst(colors) {
 
     if (session) {
       // Already onboarded → straight to the tool (no repeat, no loop).
-      if (session.user.user_metadata?.signup_welcome_shown) {
+      if (bipassAccountMeta(session).signup_welcome_shown) {
         window.location.replace('/home');
         return;
       }

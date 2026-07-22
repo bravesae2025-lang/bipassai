@@ -9,6 +9,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Express 4 does not automatically forward rejected async route promises.
+// Wrap every async handler so transient provider/database failures become a
+// controlled 500 response instead of an unhandled rejection.
+const asyncHandler = (handler) => (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
+};
+
 const GEMINI_ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
@@ -57,6 +64,30 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const REDIRECT_URI         = 'https://bipassai.com/auth/google/callback';
 
+function sanitizeNextPath(value) {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/home';
+  try {
+    const parsed = new URL(value, 'https://bipassai.com');
+    if (parsed.origin !== 'https://bipassai.com') return '/home';
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return '/home';
+  }
+}
+
+function isValidExtensionRedirect(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:'
+      && /^[a-p]{32}\.chromiumapp\.org$/.test(url.hostname)
+      && url.pathname === '/'
+      && !url.search
+      && !url.hash;
+  } catch {
+    return false;
+  }
+}
+
 // Username auth: Supabase is email-keyed, so each username maps to a synthetic
 // internal email that never receives mail — it's only an identifier. Keep this
 // normalization identical to usernameToEmail() in auth.js.
@@ -65,13 +96,27 @@ function usernameToEmail(username) {
   return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
 }
 
+function validateSignupInput(input) {
+  const { username, password } = input || {};
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username || '')) {
+    return 'Username must be 3–20 letters, numbers or underscores';
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    return 'Password must be at least 8 characters';
+  }
+  return null;
+}
+
 const INITIAL_CREDITS = 2000;
 
 // ─── Signup reward gacha ──────────────────────────────────────
 // The welcome flow rolls the free-pass duration server-side and hands the
 // browser a signed token, so a guest can see their prize before signing up
 // but can't forge a longer one at claim time.
-const REWARD_SECRET    = process.env.REWARD_SECRET || SUPABASE_SERVICE_KEY || 'dev-reward-secret';
+// A random process-local fallback keeps unsigned local development usable
+// without shipping a predictable secret. Production should use the service key
+// or a dedicated REWARD_SECRET so tokens remain valid across instances/restarts.
+const REWARD_SECRET    = process.env.REWARD_SECRET || SUPABASE_SERVICE_KEY || crypto.randomBytes(32).toString('hex');
 const REWARD_TOKEN_TTL = 172800000; // claimable for 48h after the roll
 const REWARD_DAYS      = new Set([1, 3, 7]);
 
@@ -102,7 +147,12 @@ function verifyRewardToken(token) {
   return days;
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Keep non-payment routes available in local/dev environments where Stripe is
+// intentionally not configured. Payment endpoints return a clear 503 instead
+// of crashing the entire server at startup.
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
 const STRIPE_PRICES = {
   day:     'price_1TeiVy0rExXCXCyXY6r0dH7a',
@@ -110,6 +160,57 @@ const STRIPE_PRICES = {
   monthly: 'price_1TeiXE0rExXCXCyXI5c3l9Hk',
   annual:  'price_1TeiXo0rExXCXCyXVTDAL1cD',
 };
+
+function getBillingMeta(user) {
+  return user?.app_metadata || {};
+}
+
+async function writeUserMetadata(userId, field, metaFields) {
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method:  'PUT',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'apikey':        SUPABASE_SERVICE_KEY,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({ [field]: metaFields }),
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`Failed to update ${field}: ${response.status} ${detail}`.trim());
+  }
+  return response.json().catch(() => null);
+}
+
+async function getAdminUserRaw(userId) {
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'apikey':        SUPABASE_SERVICE_KEY,
+    },
+  });
+  if (!response.ok) return null;
+  return response.json();
+}
+
+async function updateUserMeta(userId, metaFields) {
+  const current = await getAdminUserRaw(userId);
+  if (!current) throw new Error(`Could not load user before updating user_metadata: ${userId}`);
+  return writeUserMetadata(userId, 'user_metadata', {
+    ...(current.user_metadata || {}),
+    ...metaFields,
+  });
+}
+
+async function updateUserAppMeta(userId, metaFields) {
+  const current = await getAdminUserRaw(userId);
+  if (!current) throw new Error(`Could not load user before updating app_metadata: ${userId}`);
+  return writeUserMetadata(userId, 'app_metadata', {
+    ...(current.app_metadata || {}),
+    ...metaFields,
+    bipass_billing_migrated: true,
+  });
+}
 
 async function getUserFromToken(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
@@ -119,28 +220,12 @@ async function getUserFromToken(token) {
   return res.json();
 }
 
-async function updateUserMeta(userId, metaFields) {
-  await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
-    method:  'PUT',
-    headers: {
-      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-      'apikey':        SUPABASE_SERVICE_KEY,
-      'Content-Type':  'application/json',
-    },
-    body: JSON.stringify({ user_metadata: metaFields }),
-  });
-}
-
 async function updateUserCredits(userId, credits) {
-  await updateUserMeta(userId, { credits });
+  await updateUserAppMeta(userId, { credits });
 }
 
 async function getUserById(userId) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
-    headers: { 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`, 'apikey': SUPABASE_SERVICE_KEY },
-  });
-  if (!res.ok) return null;
-  return res.json();
+  return getAdminUserRaw(userId);
 }
 
 const CREDIT_PACKAGES = {
@@ -162,10 +247,10 @@ const oauthStates = new Map();
 
 // ─── Stripe webhook (raw body — must be before express.json()) ─
 
-app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), asyncHandler(async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!webhookSecret) return res.status(500).json({ error: 'Webhook secret not configured' });
+  if (!stripe || !webhookSecret) return res.status(503).json({ error: 'Payments not configured' });
 
   let event;
   try {
@@ -174,35 +259,55 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const userId = session.metadata?.user_id;
-    const type   = session.metadata?.type;
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const userId = session.metadata?.user_id;
+      const type   = session.metadata?.type;
 
-    if (type === 'credits') {
-      const pkg    = session.metadata?.pkg;
-      const amount = CREDIT_PACKAGES[pkg];
-      if (userId && amount) {
-        const user    = await getUserById(userId);
-        const current = user?.user_metadata?.credits ?? 0;
-        await updateUserMeta(userId, { credits: current + amount });
-      }
-    } else if (type === 'plan') {
-      const plan   = session.metadata?.plan;
-      const config = PLAN_CONFIG[plan];
-      if (userId && config) {
-        await updateUserMeta(userId, {
-          tier: plan,
-          plan_expires_at: Date.now() + config.ms,
-          credits: config.credits,
-          credits_expire_at: null,
-        });
+      if (userId && (type === 'credits' || type === 'plan')) {
+        const user = await getUserById(userId);
+        if (!user) throw new Error(`Stripe fulfillment user not found: ${userId}`);
+
+        const meta = getBillingMeta(user);
+        const processed = Array.isArray(meta.processed_stripe_sessions)
+          ? meta.processed_stripe_sessions
+          : [];
+
+        // Stripe retries webhooks. Record fulfilled Checkout Session IDs so a
+        // retry cannot add the same credits more than once.
+        if (!processed.includes(session.id)) {
+          const fields = {
+            processed_stripe_sessions: [...processed.slice(-24), session.id],
+          };
+
+          if (type === 'credits') {
+            const amount = CREDIT_PACKAGES[session.metadata?.pkg];
+            if (!amount) throw new Error(`Unknown credit package: ${session.metadata?.pkg}`);
+            fields.credits = (meta.credits ?? 0) + amount;
+          } else {
+            const plan   = session.metadata?.plan;
+            const config = PLAN_CONFIG[plan];
+            if (!config) throw new Error(`Unknown plan: ${plan}`);
+            fields.tier = plan;
+            fields.plan_expires_at = Date.now() + config.ms;
+            // Buying a pass must not erase credits the customer already owns.
+            fields.credits = (meta.credits ?? 0) + config.credits;
+            fields.credits_expire_at = null;
+          }
+
+          await updateUserAppMeta(userId, fields);
+        }
       }
     }
+  } catch (err) {
+    console.error('Stripe fulfillment error:', err);
+    // Non-2xx tells Stripe to retry rather than silently losing a purchase.
+    return res.status(500).json({ error: 'Fulfillment failed' });
   }
 
   res.json({ received: true });
-});
+}));
 
 // ─── Middleware ────────────────────────────────────────────────
 
@@ -231,17 +336,18 @@ app.get('/config', (req, res) => {
 // email_confirm:true so it's usable immediately — no confirmation email, which
 // is why the old client-side auth.signUp() flow couldn't log in afterward.
 
-app.post('/auth/signup', async (req, res) => {
+app.post('/auth/signup', asyncHandler(async (req, res) => {
   const { username, password, firstName } = req.body || {};
-
-  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username || '')) {
-    return res.status(400).json({ error: 'Username must be 3–20 letters, numbers or underscores' });
-  }
-  if (typeof password !== 'string' || password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  const validationError = validateSignupInput(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(503).json({ error: 'Account creation is temporarily unavailable' });
   }
 
   const email = usernameToEmail(username);
+  const displayName = typeof firstName === 'string' && firstName.trim()
+    ? firstName.trim().slice(0, 80)
+    : username;
 
   try {
     const createRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
@@ -255,7 +361,7 @@ app.post('/auth/signup', async (req, res) => {
         email,
         password,
         email_confirm: true,
-        user_metadata: { username, first_name: firstName || username },
+        user_metadata: { username, first_name: displayName },
       }),
     });
     const data = await createRes.json();
@@ -265,7 +371,10 @@ app.post('/auth/signup', async (req, res) => {
       if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
         return res.status(409).json({ error: 'username_taken' });
       }
-      throw new Error(data.msg || 'Signup failed');
+      if (createRes.status === 429) {
+        return res.status(429).json({ error: 'Too many account attempts. Please wait and try again.' });
+      }
+      throw new Error(`Supabase signup failed (${createRes.status}): ${data.msg || data.error || 'unknown error'}`);
     }
 
     return res.json({ ok: true, email });
@@ -273,14 +382,14 @@ app.post('/auth/signup', async (req, res) => {
     console.error('Username signup error:', err);
     return res.status(500).json({ error: 'Signup failed' });
   }
-});
+}));
 
 // ─── POST /auth/google/exchange-extension ──────────────────────
 
-app.post('/auth/google/exchange-extension', async (req, res) => {
-  const { code, redirect_uri } = req.body;
+app.post('/auth/google/exchange-extension', asyncHandler(async (req, res) => {
+  const { code, redirect_uri } = req.body || {};
   if (!code || !redirect_uri) return res.status(400).json({ error: 'Missing params' });
-  if (!redirect_uri.endsWith('.chromiumapp.org/')) return res.status(400).json({ error: 'Invalid redirect_uri' });
+  if (!isValidExtensionRedirect(redirect_uri)) return res.status(400).json({ error: 'Invalid redirect_uri' });
 
   try {
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -319,11 +428,11 @@ app.post('/auth/google/exchange-extension', async (req, res) => {
     console.error('Extension auth error:', err);
     res.status(500).json({ error: 'Auth failed' });
   }
-});
+}));
 
 // ─── POST /api/reset-credits (admin only) ────────────────────
 
-app.post('/api/reset-credits', async (req, res) => {
+app.post('/api/reset-credits', asyncHandler(async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -337,12 +446,10 @@ app.post('/api/reset-credits', async (req, res) => {
   const meta = { credits: amount, credits_expire_at: null };
   if (req.body?.tier) meta.tier = req.body.tier;
   if (req.body?.plan_expires_at) meta.plan_expires_at = req.body.plan_expires_at;
-  await updateUserMeta(user.id, meta);
+  await updateUserAppMeta(user.id, meta);
 
   return res.json({ ok: true, credits: amount });
-});
-
-// ─── POST /api/activate-plan ──────────────────────────────────
+}));
 
 const PLAN_CONFIG = {
   day:     { ms: 86_400_000,             credits: 3_000   },
@@ -351,32 +458,10 @@ const PLAN_CONFIG = {
   annual:  { ms: 365 * 86_400_000,       credits: 100_000 },
 };
 
-app.post('/api/activate-plan', async (req, res) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-
-  const user = await getUserFromToken(token);
-  if (!user) return res.status(401).json({ error: 'Invalid token' });
-
-  const plan = req.body?.plan;
-  const config = PLAN_CONFIG[plan];
-  if (!config) return res.status(400).json({ error: 'Invalid plan' });
-
-  const plan_expires_at = Date.now() + config.ms;
-
-  await updateUserMeta(user.id, {
-    tier: plan,
-    plan_expires_at,
-    credits: config.credits,
-    credits_expire_at: null,
-  });
-
-  return res.json({ ok: true, plan, plan_expires_at, credits: config.credits });
-});
-
 // ─── POST /api/create-checkout ───────────────────────────────
 
-app.post('/api/create-checkout', async (req, res) => {
+app.post('/api/create-checkout', asyncHandler(async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Payments are not configured' });
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -388,21 +473,27 @@ app.post('/api/create-checkout', async (req, res) => {
 
   const cancelUrl = 'https://bipassai.com/plans.html';
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
-    success_url: 'https://bipassai.com/plans.html?activated=1',
-    cancel_url:  cancelUrl,
-    metadata: { user_id: user.id, type: 'plan', plan },
-    client_reference_id: user.id,
-  });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
+      success_url: 'https://bipassai.com/plans.html?activated=1',
+      cancel_url:  cancelUrl,
+      metadata: { user_id: user.id, type: 'plan', plan },
+      client_reference_id: user.id,
+    });
 
-  return res.json({ url: session.url });
-});
+    return res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe plan checkout error:', err.message);
+    return res.status(502).json({ error: 'Payment setup failed. Please try again.' });
+  }
+}));
 
 // ─── POST /api/create-credit-checkout ────────────────────────
 
-app.post('/api/create-credit-checkout', async (req, res) => {
+app.post('/api/create-credit-checkout', asyncHandler(async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Payments are not configured' });
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -427,7 +518,7 @@ app.post('/api/create-credit-checkout', async (req, res) => {
     console.error('Stripe credit checkout error:', err.message);
     return res.status(500).json({ error: 'Payment setup failed. Please try again.' });
   }
-});
+}));
 
 // ─── POST /api/roll-reward ────────────────────────────────────
 // Pre-auth gacha roll for the welcome flow. No account needed — the signed
@@ -442,14 +533,14 @@ app.post('/api/roll-reward', (req, res) => {
 
 // ─── POST /api/init-credits ───────────────────────────────────
 
-app.post('/api/init-credits', async (req, res) => {
+app.post('/api/init-credits', asyncHandler(async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
-  if (user.user_metadata?.signup_welcome_shown) {
+  if (getBillingMeta(user).signup_welcome_shown) {
     return res.json({ alreadyInit: true });
   }
 
@@ -460,7 +551,7 @@ app.post('/api/init-credits', async (req, res) => {
   const days          = verifyRewardToken(req.body?.rewardToken) ?? 3;
   const passExpiresAt = Date.now() + days * 86400000;
 
-  const meta = {
+  const billingMeta = {
     credits: INITIAL_CREDITS,
     credits_expire_at: null,
     free_pass_until: passExpiresAt,
@@ -471,19 +562,21 @@ app.post('/api/init-credits', async (req, res) => {
   // so the client can't write them to Supabase itself until this moment).
   const firstName = typeof req.body?.firstName === 'string' ? req.body.firstName.trim().slice(0, 40) : '';
   const source    = typeof req.body?.source === 'string' ? req.body.source.trim().slice(0, 40) : '';
-  if (firstName) meta.first_name = firstName;
-  if (source) { meta.signup_source = source; meta.signup_source_at = Date.now(); }
+  const profileMeta = {};
+  if (firstName) profileMeta.first_name = firstName;
+  if (source) { profileMeta.signup_source = source; profileMeta.signup_source_at = Date.now(); }
 
-  await updateUserMeta(user.id, meta);
+  await updateUserAppMeta(user.id, billingMeta);
+  if (Object.keys(profileMeta).length) await updateUserMeta(user.id, profileMeta);
 
   return res.json({ credits: INITIAL_CREDITS, passExpiresAt, days });
-});
+}));
 
 // ─── Active-pass check ────────────────────────────────────────
 // A user can push text to the Auto Typer extension only with an active pass:
-// a paid plan that hasn't expired, OR the free 3-day signup pass.
+// a paid plan that hasn't expired, OR the free signup pass.
 function hasActivePass(user) {
-  const m = user?.user_metadata || {};
+  const m = getBillingMeta(user);
   const now = Date.now();
   const paidActive = m.tier && m.tier !== 'free' && (!m.plan_expires_at || now < m.plan_expires_at);
   const freeTrial  = m.free_pass_until && now < m.free_pass_until;
@@ -491,7 +584,7 @@ function hasActivePass(user) {
 }
 
 // ─── POST /api/push-to-extension (auth + active pass required) ─
-app.post('/api/push-to-extension', async (req, res) => {
+app.post('/api/push-to-extension', asyncHandler(async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -545,13 +638,13 @@ app.post('/api/push-to-extension', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Push failed' });
   }
-});
+}));
 
 // ─── POST /api/analyze (auth only, no credit deduction) ───────
 
-app.post('/api/analyze', async (req, res) => {
-  const { prompt } = req.body;
-  if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
+app.post('/api/analyze', asyncHandler(async (req, res) => {
+  const { prompt } = req.body || {};
+  if (typeof prompt !== 'string' || !prompt.trim()) return res.status(400).json({ error: 'No prompt provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -591,7 +684,7 @@ app.post('/api/analyze', async (req, res) => {
     console.error('/api/analyze error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
-});
+}));
 
 // ─── POST /api/adjust-level ───────────────────────────────────
 
@@ -695,9 +788,9 @@ EXAMPLES:
 Do NOT add any explanation or commentary — return only the tagged text.`;
 }
 
-app.post('/api/adjust-level', async (req, res) => {
-  const { text, level, lockSentenceStructure, mistakes } = req.body;
-  if (!text) return res.status(400).json({ error: 'No text provided' });
+app.post('/api/adjust-level', asyncHandler(async (req, res) => {
+  const { text, level, lockSentenceStructure, mistakes } = req.body || {};
+  if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -706,10 +799,11 @@ app.post('/api/adjust-level', async (req, res) => {
 
   // ── Credit check (mirror /api/humanize) ───────────────────────
   // Plan expiry — blocks regardless of tier to prevent slip-through after demotion
-  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const billing = getBillingMeta(user);
+  const planExpiresAt = billing.plan_expires_at;
   if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = user.user_metadata?.tier || 'free';
-    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    const userTier = billing.tier || 'free';
+    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
 
@@ -719,14 +813,20 @@ app.post('/api/adjust-level', async (req, res) => {
     return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
   }
   // Free starter-credit expiry
-  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  const creditsExpireAt = billing.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
-  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  const credits = billing.credits ?? INITIAL_CREDITS;
   if (credits <= 0) {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+  }
+  if (credits < text.length) {
+    return res.status(402).json({
+      error: `This text needs ${text.length.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
+      creditsRemaining: credits,
+    });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -802,14 +902,14 @@ app.post('/api/adjust-level', async (req, res) => {
     console.error('/api/adjust-level error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
-});
+}));
 
 // ─── POST /api/rw-humanize ─────────────────────────────────────
 // RewriteAI humanizer. Used by the "Humanize" mode, and as the 2nd step of
 // "Humanize + Level Adjust" (the client sends the already-level-adjusted text).
-app.post('/api/rw-humanize', async (req, res) => {
-  const { text } = req.body;
-  if (!text || !text.trim()) return res.status(400).json({ error: 'No text provided' });
+app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
+  const { text } = req.body || {};
+  if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -817,10 +917,11 @@ app.post('/api/rw-humanize', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
   // ── Credit check (mirror /api/adjust-level) ───────────────────
-  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const billing = getBillingMeta(user);
+  const planExpiresAt = billing.plan_expires_at;
   if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = user.user_metadata?.tier || 'free';
-    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    const userTier = billing.tier || 'free';
+    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
 
@@ -829,13 +930,19 @@ app.post('/api/rw-humanize', async (req, res) => {
   if (!hasActivePass(user)) {
     return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
   }
-  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  const creditsExpireAt = billing.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
-  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  const credits = billing.credits ?? INITIAL_CREDITS;
   if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
+  if (credits < text.length) {
+    return res.status(402).json({
+      error: `This text needs ${text.length.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
+      creditsRemaining: credits,
+    });
+  }
 
   if (!process.env.REWRITEAI_API_KEY) return res.status(500).json({ error: 'Humanizer not configured' });
 
@@ -870,14 +977,14 @@ app.post('/api/rw-humanize', async (req, res) => {
     console.error('/api/rw-humanize error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
-});
+}));
 
 // ─── POST /api/humanize ────────────────────────────────────────
 
-app.post('/api/humanize', async (req, res) => {
-  const { prompt, model = 'gemini' } = req.body;
+app.post('/api/humanize', asyncHandler(async (req, res) => {
+  const { prompt, model = 'gemini' } = req.body || {};
 
-  if (!prompt) {
+  if (typeof prompt !== 'string' || !prompt.trim()) {
     return res.status(400).json({ error: 'No prompt provided' });
   }
 
@@ -889,10 +996,11 @@ app.post('/api/humanize', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
   // Plan expiry check — blocks regardless of current tier to prevent slip-through after demotion
-  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const billing = getBillingMeta(user);
+  const planExpiresAt = billing.plan_expires_at;
   if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = user.user_metadata?.tier || 'free';
-    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    const userTier = billing.tier || 'free';
+    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
 
@@ -903,13 +1011,13 @@ app.post('/api/humanize', async (req, res) => {
   }
 
   // Expiry check for free starter credits
-  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  const creditsExpireAt = billing.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
 
-  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  const credits = billing.credits ?? INITIAL_CREDITS;
   if (credits <= 0) {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
   }
@@ -956,7 +1064,7 @@ app.post('/api/humanize', async (req, res) => {
     // ── Self-detection pass: find + rewrite most AI-sounding sentences ───
     if (process.env.ANTHROPIC_API_KEY) {
       try {
-        const detectPrompt = `You are reviewing this text to help it pass AI detectors like GPTZero.
+        const detectPrompt = `You are reviewing this text to remove generic or robotic phrasing while preserving the writer's meaning and voice.
 
 Find the 8-10 sentences that sound most AI-generated: overly formal phrasing, predictable structure, academic vocabulary, generic statements, or sentences that follow typical AI patterns.
 
@@ -976,7 +1084,9 @@ ${result}`;
     }
 
     // ── Deduct credits (only on success, only if client didn't cancel) ───
-    const resultText  = result.trim();
+    // Never return more billable output than the account can pay for. The UI
+    // preflights normal requests; this is the authoritative server safeguard.
+    const resultText  = result.trim().slice(0, credits);
     if (cancelled) return;
 
     const creditsUsed = resultText.length;
@@ -989,13 +1099,13 @@ ${result}`;
     console.error(err);
     return res.status(500).json({ error: 'Server error' });
   }
-});
+}));
 
 // ─── POST /api/stream ─────────────────────────────────────────
 
-app.post('/api/stream', async (req, res) => {
-  const { prompt, model = 'gemini' } = req.body;
-  if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
+app.post('/api/stream', asyncHandler(async (req, res) => {
+  const { prompt, model = 'gemini' } = req.body || {};
+  if (typeof prompt !== 'string' || !prompt.trim()) return res.status(400).json({ error: 'No prompt provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -1004,10 +1114,11 @@ app.post('/api/stream', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
   // Plan expiry check — blocks regardless of current tier to prevent slip-through after demotion
-  const planExpiresAt = user.user_metadata?.plan_expires_at;
+  const billing = getBillingMeta(user);
+  const planExpiresAt = billing.plan_expires_at;
   if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = user.user_metadata?.tier || 'free';
-    if (userTier !== 'free') await updateUserMeta(user.id, { tier: 'free' });
+    const userTier = billing.tier || 'free';
+    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
     return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
   }
 
@@ -1018,13 +1129,13 @@ app.post('/api/stream', async (req, res) => {
   }
 
   // Expiry check for free starter credits
-  const creditsExpireAt = user.user_metadata?.credits_expire_at;
+  const creditsExpireAt = billing.credits_expire_at;
   if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserMeta(user.id, { credits: 0, credits_expire_at: null });
+    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
 
-  const credits = user.user_metadata?.credits ?? INITIAL_CREDITS;
+  const credits = billing.credits ?? INITIAL_CREDITS;
   if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -1042,6 +1153,17 @@ app.post('/api/stream', async (req, res) => {
     let fullText     = '';
     let inputTokens  = 0;
     let outputTokens = 0;
+    let creditLimitReached = false;
+
+    const sendAffordableChunk = (chunk) => {
+      const remaining = Math.max(0, credits - fullText.length);
+      const affordable = chunk.slice(0, remaining);
+      if (affordable) {
+        fullText += affordable;
+        res.write(`data: ${JSON.stringify({ chunk: affordable, chars: fullText.length })}\n\n`);
+      }
+      if (affordable.length < chunk.length || fullText.length >= credits) creditLimitReached = true;
+    };
 
     if (model === 'claude') {
       if (!process.env.ANTHROPIC_API_KEY) {
@@ -1060,7 +1182,7 @@ app.post('/api/stream', async (req, res) => {
       const decoder = new TextDecoder();
       let buffer    = '';
 
-      while (!cancelled) {
+      while (!cancelled && !creditLimitReached) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -1073,8 +1195,7 @@ app.post('/api/stream', async (req, res) => {
           try {
             const json = JSON.parse(line.slice(6));
             if (json.type === 'content_block_delta' && json.delta?.text) {
-              fullText += json.delta.text;
-              res.write(`data: ${JSON.stringify({ chunk: json.delta.text, chars: fullText.length })}\n\n`);
+              sendAffordableChunk(json.delta.text);
             }
             if (json.type === 'message_start' && json.message?.usage) {
               inputTokens = json.message.usage.input_tokens || 0;
@@ -1085,6 +1206,7 @@ app.post('/api/stream', async (req, res) => {
           } catch {}
         }
       }
+      if (creditLimitReached) await reader.cancel().catch(() => {});
     } else {
       const geminiRes = await fetch(`${GEMINI_STREAM_ENDPOINT}?key=${apiKey}&alt=sse`, {
         method:  'POST',
@@ -1106,7 +1228,7 @@ app.post('/api/stream', async (req, res) => {
       let buffer    = '';
       let lastUsage = null;
 
-      while (!cancelled) {
+      while (!cancelled && !creditLimitReached) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -1119,14 +1241,12 @@ app.post('/api/stream', async (req, res) => {
           try {
             const json = JSON.parse(line.slice(6));
             const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (text) {
-              fullText += text;
-              res.write(`data: ${JSON.stringify({ chunk: text, chars: fullText.length })}\n\n`);
-            }
+            if (text) sendAffordableChunk(text);
             if (json.usageMetadata) lastUsage = json.usageMetadata;
           } catch {}
         }
       }
+      if (creditLimitReached) await reader.cancel().catch(() => {});
 
       inputTokens  = lastUsage?.promptTokenCount     || 0;
       outputTokens = lastUsage?.candidatesTokenCount || 0;
@@ -1140,7 +1260,7 @@ app.post('/api/stream', async (req, res) => {
       let resultText = fullText.trim();
       if (process.env.ANTHROPIC_API_KEY) {
         try {
-          const detectPrompt = `You are reviewing this text to help it pass AI detectors like GPTZero.
+          const detectPrompt = `You are reviewing this text to remove generic or robotic phrasing while preserving the writer's meaning and voice.
 
 Find the 8-10 sentences that sound most AI-generated: overly formal phrasing, predictable structure, academic vocabulary, generic statements, or sentences that follow typical AI patterns.
 
@@ -1154,7 +1274,7 @@ ${resultText}`;
           if (detectRes.ok) {
             const detectData = await detectRes.json();
             const improved = detectData?.content?.[0]?.text?.trim();
-            if (improved) resultText = improved;
+          if (improved) resultText = improved.slice(0, credits);
           }
         } catch {}
       }
@@ -1173,7 +1293,7 @@ ${resultText}`;
     console.error('Stream error:', err);
     res.end();
   }
-});
+}));
 
 // ─── GET /auth/google ──────────────────────────────────────────
 
@@ -1181,7 +1301,7 @@ app.get('/auth/google', (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(500).send('Google OAuth not configured');
 
   const state = crypto.randomBytes(16).toString('hex');
-  const next  = req.query.next || '/home';
+  const next  = sanitizeNextPath(req.query.next);
   oauthStates.set(state, { next, created: Date.now() });
 
   // Clean up states older than 10 minutes
@@ -1204,7 +1324,7 @@ app.get('/auth/google', (req, res) => {
 
 // ─── GET /auth/google/callback ─────────────────────────────────
 
-app.get('/auth/google/callback', async (req, res) => {
+app.get('/auth/google/callback', asyncHandler(async (req, res) => {
   const { code, state, error } = req.query;
 
   if (error) return res.redirect('/login.html?error=google_denied');
@@ -1261,11 +1381,11 @@ app.get('/auth/google/callback', async (req, res) => {
     console.error('Google OAuth error:', err);
     res.redirect('/login.html?error=oauth_failed');
   }
-});
+}));
 
 // ─── DELETE /api/account ───────────────────────────────────────
 
-app.delete('/api/account', async (req, res) => {
+app.delete('/api/account', asyncHandler(async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -1273,14 +1393,18 @@ app.delete('/api/account', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
   try {
-    // Delete style profile first
-    await fetch(`${SUPABASE_URL}/rest/v1/user_styles?user_id=eq.${user.id}`, {
-      method:  'DELETE',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-        'apikey':        SUPABASE_SERVICE_KEY,
-      },
-    });
+    // Remove stored user content explicitly before deleting the auth record;
+    // do not rely on database cascade rules that may differ by deployment.
+    for (const table of ['results', 'user_styles']) {
+      const deleteDataRes = await fetch(`${SUPABASE_URL}/rest/v1/${table}?user_id=eq.${user.id}`, {
+        method:  'DELETE',
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'apikey':        SUPABASE_SERVICE_KEY,
+        },
+      });
+      if (!deleteDataRes.ok) throw new Error(`Failed to delete ${table}`);
+    }
 
     // Delete the auth user
     const deleteRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
@@ -1301,11 +1425,30 @@ app.delete('/api/account', async (req, res) => {
     console.error('Delete account error:', err);
     return res.status(500).json({ error: 'Failed to delete account' });
   }
-});
+}));
 
 // ─── Start ─────────────────────────────────────────────────────
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Bipass AI running on port ${PORT}`);
-  console.log(`API key present: ${!!(process.env.GEMINI_API_KEY)}`);
+app.use((err, _req, res, next) => {
+  console.error('Unhandled request error:', err);
+  if (res.headersSent) return next(err);
+  return res.status(500).json({ error: 'Server error' });
 });
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Bipass AI running on port ${PORT}`);
+    console.log(`API key present: ${!!(process.env.GEMINI_API_KEY)}`);
+  });
+}
+
+export {
+  app,
+  getBillingMeta,
+  hasActivePass,
+  isValidExtensionRedirect,
+  sanitizeNextPath,
+  usernameToEmail,
+  validateSignupInput,
+  verifyRewardToken,
+};

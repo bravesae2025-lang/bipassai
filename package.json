@@ -6,7 +6,13 @@
     "start": "node server.js",
     "dev": "nodemon --exec \"node --env-file=.env server.js\"",
     "preview": "browser-sync start --proxy localhost:3000 --port 3001 --files \"style.css, *.html, *.js\" --no-notify",
-    "static": "browser-sync start --server --port 3001 --files \"style.css, *.html, *.js\" --no-notify"
+    "static": "browser-sync start --server --port 3001 --files \"style.css, *.html, *.js\" --no-notify",
+    "test": "node --test",
+    "audit": "node scripts/site-audit.mjs",
+    "audit:browser": "node scripts/browser-audit.mjs",
+    "check": "npm run audit && npm test",
+    "migrate:billing": "node --env-file=.env scripts/migrate-billing-metadata.mjs",
+    "migrate:billing:apply": "node scripts/migrate-billing-metadata.mjs --apply"
   },
   "dependencies": {
     "express": "^4.19.2",

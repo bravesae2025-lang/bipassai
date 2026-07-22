@@ -14,6 +14,26 @@ function usernameToEmail(username) {
   return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
 }
 
+// Profile fields remain in user_metadata, while credits and pass status live
+// in server-controlled app_metadata. App values win during the legacy
+// migration window.
+function bipassAccountMeta(subject) {
+  const user = subject?.user || subject || {};
+  return { ...(user.user_metadata || {}), ...(user.app_metadata || {}) };
+}
+
+function bipassSafeNext(value) {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/home';
+  try {
+    const parsed = new URL(value, window.location.origin);
+    return parsed.origin === window.location.origin
+      ? `${parsed.pathname}${parsed.search}${parsed.hash}`
+      : '/home';
+  } catch {
+    return '/home';
+  }
+}
+
 window.bipassAuth = {
   client: _sb,
 
@@ -35,7 +55,7 @@ window.bipassAuth = {
 
   async signOut() {
     await _sb.auth.signOut();
-    window.location.replace('login.html');
+    window.location.replace('/login.html');
   },
 
   // Returns current access token for API calls
@@ -48,7 +68,7 @@ window.bipassAuth = {
   async refreshCredits() {
     const { data: { session } } = await _sb.auth.refreshSession();
     if (!session) return null;
-    return session.user.user_metadata?.credits ?? 2000;
+    return bipassAccountMeta(session).credits ?? 2000;
   },
 
   // Force-refresh the full session (gets latest user_metadata including tier)
@@ -59,9 +79,9 @@ window.bipassAuth = {
 };
 
 // Active-pass check (UX gate — server re-checks authoritatively).
-// True if a paid plan is active OR the free 3-day signup pass is still valid.
+// True if a paid plan is active OR the free signup pass is still valid.
 function bipassHasActivePass(session) {
-  const m = session?.user?.user_metadata || {};
+  const m = bipassAccountMeta(session);
   const now = Date.now();
   const paidActive = m.tier && m.tier !== 'free' && (!m.plan_expires_at || now < m.plan_expires_at);
   const freeTrial  = m.free_pass_until && now < m.free_pass_until;
@@ -70,7 +90,7 @@ function bipassHasActivePass(session) {
 
 // Shared plan status widget — call on any page that has #drawer-plan
 function bipassSetupPlanStatus(session) {
-  const m = session?.user?.user_metadata || {};
+  const m = bipassAccountMeta(session);
   const now = Date.now();
   const tier = m.tier || 'free';
 

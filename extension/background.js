@@ -56,7 +56,7 @@ async function handleGoogleAuth() {
   const verifyData = await verifyRes.json();
   if (!verifyRes.ok) throw new Error(verifyData.msg || 'Session verification failed.');
 
-  const tier  = verifyData.user?.user_metadata?.tier || 'free';
+  const tier  = verifyData.user?.app_metadata?.tier || 'free';
   const email = verifyData.user?.email || '';
   await chrome.storage.local.set({
     access_token:  verifyData.access_token,

@@ -8,7 +8,7 @@ const LEVEL_DESCRIPTIONS = {
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 
 const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. This must be completely undetectable by AI detectors. Follow every rule strictly.
+  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -61,7 +61,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No clean topic sentences. No conclusion.
 Return only the rewritten text, nothing else.`,
 
-  medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
+  medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -142,7 +142,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the rewritten text, nothing else.`,
 
-  hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. This must be completely undetectable by AI detectors. Humanness is in rhythm and personality.
+  hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. Aim for natural writing, but do not claim or imply any guaranteed detector result. Humanness is in rhythm and personality.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -196,7 +196,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No parallel structure. No balanced paragraphs.
 Return only the rewritten text, nothing else.`,
 
-  customize: `Rewrite the following text to sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
+  customize: `Rewrite the following text to sound naturally human-written. Aim for natural writing, but do not claim or imply any guaranteed detector result. Apply only the specific human traits listed below.
 
 Always follow these regardless of the traits listed:
 - NO DASHES: Never write em dashes (—) or use hyphens as em dashes (word - word). Biggest AI tell. Use a comma or new sentence instead.
@@ -213,7 +213,7 @@ Return only the rewritten text, nothing else.`,
 };
 
 const GENERATE_PROMPTS = {
-  easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. This must be completely undetectable by AI detectors. Follow every rule strictly.
+  easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -266,7 +266,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No clean topic sentences. No conclusion.
 Return only the written text, nothing else.`,
 
-  medium: `Read the task or topic below and write a complete original response the way a real student would — quickly, without editing. This must be completely undetectable by AI detectors. Follow every rule strictly.
+  medium: `Read the task or topic below and write a complete original response the way a real student would — quickly, without editing. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -345,7 +345,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No perfect punctuation. No equal sentence energy.
 Return only the written text, nothing else.`,
 
-  hard: `Read the task or topic below and write a complete original response the way a confident real person would — direct, opinionated, not over-polished. This must be completely undetectable by AI detectors. Humanness is subtle.
+  hard: `Read the task or topic below and write a complete original response the way a confident real person would — direct, opinionated, not over-polished. Aim for natural writing, but do not claim or imply any guaranteed detector result. Humanness is subtle.
 
 NO DASHES — #1 AI tell:
 NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
@@ -396,7 +396,7 @@ BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, signif
 No passive voice. No parallel structure. No balanced paragraphs.
 Return only the written text, nothing else.`,
 
-  customize: `Read the task or topic below and write a complete original response. Make it sound naturally human-written and completely undetectable by AI detectors. Apply only the specific human traits listed below.
+  customize: `Read the task or topic below and write a complete original response. Make it sound naturally human-written. Aim for natural writing, but do not claim or imply any guaranteed detector result. Apply only the specific human traits listed below.
 
 Always follow these regardless:
 - NO DASHES: Never write em dashes (—) or use hyphens as em dashes (word - word). Biggest AI tell. Use a comma or new sentence instead.
@@ -1063,7 +1063,10 @@ async function adjustLevel() {
       showCreditWarning(d.error || 'No credits remaining');
       return;
     }
-    if (!res.ok) throw new Error('API error');
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || 'Level adjustment failed');
+    }
     const data   = await res.json();
     const result = data.result;
 
@@ -1092,22 +1095,8 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
     window.location.href = 'editor.html';
-  } catch {
-    // Fallback to client-side dictionary if API fails
-    const result = selectedLevel === 'customize' ? adjustLevelCustom(text) : adjustLevelOutput(text, selectedLevel);
-    const htmlDiff = _buildDiffHtml(text, result);
-    const changed  = _countChanges(text, result);
-    sessionStorage.setItem('bipass_input',        text);
-    sessionStorage.setItem('bipass_result',       result);
-    sessionStorage.setItem('bipass_result_html',  htmlDiff);
-    sessionStorage.setItem('bipass_mode',         'humanize');
-    sessionStorage.setItem('bipass_flow',         'level');
-    sessionStorage.removeItem('bipass_humanized');
-    sessionStorage.removeItem('bipass_humanized_html');
-    sessionStorage.setItem('bipass_change_count', String(changed));
-    sessionStorage.setItem('bipass_wc',           String(countWords(text)));
-    sessionStorage.setItem('bipass_level',        selectedLevel);
-    window.location.href = 'editor.html';
+  } catch (err) {
+    showToast(err.message || 'Level adjustment failed. Please try again.');
   } finally {
     setLoading(false);
   }
@@ -1452,7 +1441,7 @@ function setupDrawer(session) {
 
   const email = session ? session.user.email : '';
   let displayName = session ? (session.user.user_metadata?.display_name || '') : '';
-  const tier = session ? (session.user.user_metadata?.tier || 'free') : 'free';
+  const tier = session ? (bipassAccountMeta(session).tier || 'free') : 'free';
   const initials = () => (displayName || email || '?')[0].toUpperCase();
 
   function renderProfile() {
@@ -1521,7 +1510,7 @@ async function init() {
   bipassSetupPlanStatus(session);
 
   // Show no-plan banner only when there's no active plan AND no active free trial.
-  // (bipassHasActivePass counts the free 3-day signup pass, so trial users aren't nagged.)
+  // (bipassHasActivePass counts the free signup pass, so trial users aren't nagged.)
   if (!bipassHasActivePass(session)) {
     const _banner = document.getElementById('no-plan-banner');
     if (_banner) {
@@ -1540,7 +1529,7 @@ async function init() {
   // Seed credit display from session metadata, then immediately refresh from server
   const valEl = document.getElementById('credit-val');
   if (valEl) {
-    const cached = session.user.user_metadata?.credits ?? 2000;
+    const cached = bipassAccountMeta(session).credits ?? 2000;
     valEl.textContent = cached.toLocaleString();
   }
   window.bipassAuth.refreshCredits().then(fresh => {
@@ -1550,7 +1539,7 @@ async function init() {
   // Brand-new users → full-screen onboarding (survey → name → gacha reward).
   // welcome.html claims the rolled pass + credits, sets signup_welcome_shown,
   // then returns to /home. No plans step anymore.
-  if (!session.user.user_metadata?.signup_welcome_shown) {
+  if (!bipassAccountMeta(session).signup_welcome_shown) {
     window.location.replace('welcome.html');
     return;
   }
@@ -2262,9 +2251,16 @@ function flashCreditCapsule() {
 }
 
 async function preflightGate() {
-  if (currentCredits() === 0) {                    // definitely out of credits
+  const available = currentCredits();
+  if (available === 0) {                           // definitely out of credits
     flashCreditCapsule();
     showToast("You're out of credits — get a plan or top up on Plans");
+    return false;
+  }
+  const needed = estimateCost();
+  if (available != null && needed != null && available < needed) {
+    flashCreditCapsule();
+    showToast(`This run needs about ${needed.toLocaleString()} credits; you have ${available.toLocaleString()}.`);
     return false;
   }
   const session = await window.bipassAuth.getSession();
@@ -2558,7 +2554,7 @@ async function callAPIStream(prompt) {
           accumulated += json.chunk;
         }
         if (json.polishing) {
-          setLoading(true, 'Polishing to reduce AI detection…');
+          setLoading(true, 'Polishing the draft…');
         }
         if (json.done) {
           finalResult = json.result;

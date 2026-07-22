@@ -317,8 +317,17 @@ ${ctaBox}
     </div>
   </div>
 
-  <script src="/script.js" defer></script>
-  <script src="/auth.js?v=3" defer></script>
+  <footer class="site-footer">
+    <span>© 2026 Bipass AI</span>
+    <span class="site-footer-sep">·</span>
+    <a href="/privacy.html">Privacy Policy</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/terms.html">Terms &amp; Refund Policy</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/auth.js?v=3"></script>
+  <script src="/howto.js?v=2"></script>
   <script src="/cursor.js?v=5" defer></script>
 </body>
 </html>

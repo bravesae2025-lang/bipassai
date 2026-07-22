@@ -458,6 +458,12 @@ const PLAN_CONFIG = {
   annual:  { ms: 365 * 86_400_000,       credits: 100_000 },
 };
 
+export const PURCHASE_TERMS_VERSION = '2026-07-22';
+
+export function hasAcceptedPurchaseTerms(body) {
+  return body?.termsAccepted === true && body?.termsVersion === PURCHASE_TERMS_VERSION;
+}
+
 // ─── POST /api/create-checkout ───────────────────────────────
 
 app.post('/api/create-checkout', asyncHandler(async (req, res) => {
@@ -467,6 +473,9 @@ app.post('/api/create-checkout', asyncHandler(async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  if (!hasAcceptedPurchaseTerms(req.body)) {
+    return res.status(400).json({ error: 'You must accept the current Terms & Refund Policy' });
+  }
 
   const plan = req.body?.plan;
   if (!STRIPE_PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
@@ -479,7 +488,13 @@ app.post('/api/create-checkout', asyncHandler(async (req, res) => {
       line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
       success_url: 'https://bipassai.com/plans.html?activated=1',
       cancel_url:  cancelUrl,
-      metadata: { user_id: user.id, type: 'plan', plan },
+      metadata: {
+        user_id: user.id,
+        type: 'plan',
+        plan,
+        terms_version: PURCHASE_TERMS_VERSION,
+        terms_accepted_at: new Date().toISOString(),
+      },
       client_reference_id: user.id,
     });
 
@@ -499,6 +514,9 @@ app.post('/api/create-credit-checkout', asyncHandler(async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  if (!hasAcceptedPurchaseTerms(req.body)) {
+    return res.status(400).json({ error: 'You must accept the current Terms & Refund Policy' });
+  }
 
   const pkg = req.body?.pkg;
   if (!STRIPE_CREDIT_PRICES[pkg] || STRIPE_CREDIT_PRICES[pkg] === 'price_PLACEHOLDER')
@@ -510,7 +528,13 @@ app.post('/api/create-credit-checkout', asyncHandler(async (req, res) => {
       line_items: [{ price: STRIPE_CREDIT_PRICES[pkg], quantity: 1 }],
       success_url: 'https://bipassai.com/plans.html?credits_added=1',
       cancel_url:  'https://bipassai.com/plans.html',
-      metadata: { user_id: user.id, type: 'credits', pkg },
+      metadata: {
+        user_id: user.id,
+        type: 'credits',
+        pkg,
+        terms_version: PURCHASE_TERMS_VERSION,
+        terms_accepted_at: new Date().toISOString(),
+      },
       client_reference_id: user.id,
     });
     return res.json({ url: session.url });

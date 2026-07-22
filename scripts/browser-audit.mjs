@@ -10,7 +10,7 @@ const blogPaths = readdirSync(resolve(root, 'blog'))
   .map((name) => `/blog/${name}`);
 const paths = [
   '/', '/home', '/login.html', '/login.html?mode=signup', '/about.html', '/turnitin.html', '/howto.html',
-  '/plans.html', '/privacy.html', '/blog/', ...blogPaths,
+  '/plans.html', '/privacy.html', '/terms.html', '/blog/', ...blogPaths,
 ];
 const viewports = [
   { name: 'desktop', width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
@@ -158,6 +158,7 @@ for (const viewport of viewports) {
             confirmEnabled: confirm ? !confirm.disabled : false,
             confirmAutocomplete: confirm?.autocomplete,
             passwordAutocomplete: password?.autocomplete,
+            legalNoticeVisible: !document.getElementById('signup-legal')?.hidden,
             formTag: document.getElementById('login-form')?.tagName,
             pageCanScroll: document.scrollingElement.scrollHeight <= innerHeight
               || getComputedStyle(document.body).overflowY !== 'hidden',
@@ -171,6 +172,7 @@ for (const viewport of viewports) {
       if (signup.confirmAutocomplete !== 'new-password' || signup.passwordAutocomplete !== 'new-password') {
         pageIssues.push('signup password autocomplete attributes are incorrect');
       }
+      if (!signup.legalNoticeVisible) pageIssues.push('signup legal notice is not visible');
       if (signup.formTag !== 'FORM') pageIssues.push('login controls are not in a semantic form');
       if (!signup.pageCanScroll) pageIssues.push('signup actions can be clipped on a short viewport');
 

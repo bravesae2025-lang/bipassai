@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   getBillingMeta,
+  hasAcceptedPurchaseTerms,
   hasActivePass,
   isValidExtensionRedirect,
   sanitizeNextPath,
@@ -9,6 +10,13 @@ import {
   validateSignupInput,
   verifyRewardToken,
 } from '../server.js';
+
+test('purchase checkout requires explicit acceptance of the current terms', () => {
+  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: true, termsVersion: '2026-07-22' }), true);
+  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: false, termsVersion: '2026-07-22' }), false);
+  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: true, termsVersion: 'old-version' }), false);
+  assert.equal(hasAcceptedPurchaseTerms({}), false);
+});
 
 test('sanitizeNextPath keeps safe same-site paths', () => {
   assert.equal(sanitizeNextPath('/home'), '/home');

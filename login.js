@@ -16,6 +16,7 @@ const errorEl          = document.getElementById('login-error');
 const successEl        = document.getElementById('login-success');
 const googleBtn        = document.getElementById('google-btn');
 const googleBtnLabel   = document.getElementById('google-btn-label');
+const signupLegal      = document.getElementById('signup-legal');
 const card             = document.querySelector('.login-card');
 
 function nextPath() {
@@ -48,6 +49,7 @@ function setMode(nextMode, animate = false) {
   passwordEl.placeholder = signingUp ? 'At least 8 characters' : '••••••••';
   passwordEl.autocomplete = signingUp ? 'new-password' : 'current-password';
   confirmField.hidden = !signingUp;
+  signupLegal.hidden = !signingUp;
   confirmPasswordEl.disabled = !signingUp;
   confirmPasswordEl.required = signingUp;
   if (!signingUp) confirmPasswordEl.value = '';

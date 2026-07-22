@@ -27,7 +27,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body class="editor-page">
 
@@ -101,6 +101,14 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Credits never expire
         </span>
+      </div>
+
+      <div class="purchase-terms" id="plan-purchase-terms">
+        <input type="checkbox" id="plan-terms-accepted">
+        <label for="plan-terms-accepted">
+          I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Refund Policy</a>, request immediate access, and understand that delivery can affect my cancellation rights. This does not limit rights that cannot be excluded by law.
+        </label>
+        <p class="purchase-terms-error" id="plan-terms-error" role="alert" hidden>Please agree before choosing a pass.</p>
       </div>
 
       <div class="pricing-grid">
@@ -195,6 +203,14 @@
           <p class="credits-sub">Need a quick top-up? Add credits to your account instantly.</p>
         </div>
 
+        <div class="purchase-terms" id="credit-purchase-terms">
+          <input type="checkbox" id="credit-terms-accepted">
+          <label for="credit-terms-accepted">
+            I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Refund Policy</a>, request immediate credit delivery, and understand that delivery can affect my cancellation rights. This does not limit rights that cannot be excluded by law.
+          </label>
+          <p class="purchase-terms-error" id="credit-terms-error" role="alert" hidden>Please agree before buying credits.</p>
+        </div>
+
         <div class="credits-grid">
           <div class="credit-card">
             <div class="credit-amount">5,000</div>
@@ -239,7 +255,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="plans.js?v=2"></script>
+  <script src="plans.js?v=3"></script>
   <script src="cursor.js?v=2"></script>
   <script src="appbg.js?v=3"></script>
 
@@ -247,6 +263,8 @@
     <span>© 2026 Bipass AI</span>
     <span class="site-footer-sep">·</span>
     <a href="privacy.html">Privacy Policy</a>
+    <span class="site-footer-sep">·</span>
+    <a href="terms.html">Terms &amp; Refund Policy</a>
   </footer>
 </body>
 </html>

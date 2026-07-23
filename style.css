@@ -1477,6 +1477,20 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
   display: block;
   transition: opacity 0.4s ease;
 }
+/* Own-text mode does not rewrite anything, so keep its backdrop quiet and
+   familiar: the standard site dot grid instead of either animated canvas. */
+body[data-app-mode="own"] .appbg {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+  animation: dots-drift 16s linear infinite;
+}
+body[data-app-mode="own"] .appbg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255,255,255,0.7) 0%, transparent 70%);
+}
+body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
 .app-main > .workspace { position: relative; z-index: 1; }
 
 /* Full-page fixed variant of the dot-cloud background (plans / paywall page) */

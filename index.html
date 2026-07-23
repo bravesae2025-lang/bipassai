@@ -91,13 +91,13 @@
       <span>DON'T READ LIKE AI</span><span class="tick-dot">·</span>
       <span>BIPASS AI</span><span class="tick-dot">·</span>
       <span>READS LIKE A REAL STUDENT</span><span class="tick-dot">·</span>
-      <span>ADJUST YOUR WRITING LEVEL</span><span class="tick-dot">·</span>
+      <span>MATCH YOUR WRITING LEVEL</span><span class="tick-dot">·</span>
       <span>POWERED BY GEMINI</span><span class="tick-dot">·</span>
       <span>SOUND HUMAN</span><span class="tick-dot">·</span>
       <span>DON'T READ LIKE AI</span><span class="tick-dot">·</span>
       <span>BIPASS AI</span><span class="tick-dot">·</span>
       <span>READS LIKE A REAL STUDENT</span><span class="tick-dot">·</span>
-      <span>ADJUST YOUR WRITING LEVEL</span><span class="tick-dot">·</span>
+      <span>MATCH YOUR WRITING LEVEL</span><span class="tick-dot">·</span>
       <span>POWERED BY GEMINI</span><span class="tick-dot">·</span>
     </div>
   </div>
@@ -115,7 +115,7 @@
       <h2 class="hero-title">Your AI text,<br>at the right level.</h2>
     </div>
 
-    <!-- Level-adjust showcase: watch the app get used, start to finish -->
+    <!-- Level-matching showcase: watch the app get used, start to finish -->
     <div class="typeshow leveldemo" id="leveldemo" data-anim="slide-up">
       <div class="typeshow-header">
         <span class="typeshow-badge" id="ld-badge">STEP 1 · SET UP</span>
@@ -138,12 +138,12 @@
           </div>
           <aside class="ld-setup">
             <span class="ld-modesel" id="ld-modesel">
-              <span id="ld-mode-label">Level Adjust</span>
+              <span id="ld-mode-label">Level Matching</span>
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
               <span class="ld-mode-menu" id="ld-mode-menu" aria-hidden="true">
-                <span class="ld-mode-opt">Level Adjust</span>
+                <span class="ld-mode-opt">Level Matching</span>
                 <span class="ld-mode-opt" id="ld-opt-humanize">Humanize</span>
-                <span class="ld-mode-opt">Humanize + Level Adjust</span>
+                <span class="ld-mode-opt">Humanize + Level Matching</span>
               </span>
             </span>
             <div class="cf-head" id="ld-setup-head">Pick a level</div>
@@ -154,7 +154,7 @@
               <span class="ld-level" data-level="customize"><i class="ld-radio"></i>Custom</span>
             </div>
             <div class="ld-sliders" id="ld-sliders" hidden></div>
-            <span class="ld-go" id="ld-go">Adjust Level</span>
+            <span class="ld-go" id="ld-go">Match My Level</span>
           </aside>
         </div>
 
@@ -703,7 +703,7 @@
       window.location.href = session ? 'plans.html' : 'welcome.html';
     }
 
-    // ── Level-adjust showcase ─────────────────────────────────
+    // ── Level-matching showcase ─────────────────────────────────
     (function () {
       const NAMES = { word: 'Vocabulary', caps: 'Capitals', punct: 'Punctuation', tense: 'Tense', spelling: 'Spelling', grammar: 'Grammar', rephrase: 'Rephrased' };
       const ORDER = ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar', 'rephrase'];
@@ -741,7 +741,7 @@
 
       // Each scenario plays the full app flow: paste → pick mode/level → run → result.
       const SCENARIOS = [
-        { level: 'medium', humanize: false, btn: 'Adjust Level', unit: 'edit',
+        { level: 'medium', humanize: false, btn: 'Match My Level', unit: 'edit',
           panelHead: 'Human edits added', toggle: 'word',
           edits: {
             3: { to: 'changed', cat: 'word' }, 5: { to: 'comunicate', cat: 'spelling' },
@@ -755,7 +755,7 @@
             13: { to: 'shift', cat: 'rephrase' }, 15: { to: 'hard to miss', cat: 'rephrase' },
             18: { to: 'most of us', cat: 'rephrase' }, 24: { to: 'clearly', cat: 'rephrase' },
             25: { to: 'not going anywhere', cat: 'rephrase' } } },
-        { level: 'customize', humanize: false, btn: 'Adjust Level', unit: 'edit',
+        { level: 'customize', humanize: false, btn: 'Match My Level', unit: 'edit',
           panelHead: 'Your custom mix', toggle: 'spelling',
           sliders: [
             { cat: 'word',     name: 'Vocabulary',  val: 'Academic', pct: 75 },
@@ -768,7 +768,7 @@
           edits: {
             2: { to: 'profoundly', cat: 'word' }, 3: { to: 'transfromed', cat: 'spelling' },
             8: { to: 'increasingly', cat: 'word' }, 24: { to: 'definetly', cat: 'spelling' } } },
-        { level: 'easy', humanize: false, btn: 'Adjust Level', unit: 'edit',
+        { level: 'easy', humanize: false, btn: 'Match My Level', unit: 'edit',
           panelHead: 'Human edits added', toggle: 'punct',
           edits: {
             1: { to: 'have', cat: 'grammar' }, 2: { to: 'totally', cat: 'word' }, 3: { to: 'changed', cat: 'word' },
@@ -936,14 +936,14 @@
         if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
         badgeEl.textContent = 'STEP 1 · SET UP';
-        modeLabel.textContent = 'Level Adjust';
+        modeLabel.textContent = 'Level Matching';
         modeMenu.classList.remove('open');
         optHuman.classList.remove('sel');
         setupHead.textContent = 'Pick a level';
         levelsEl.hidden = false;
         levelsEl.classList.remove('ld-out', 'ld-disabled');
         slidersEl.hidden = true;
-        goEl.textContent = 'Adjust Level';
+        goEl.textContent = 'Match My Level';
         goEl.classList.remove('ld-pressed');
         copyEl.classList.remove('ok');
         copyLabel.textContent = 'Copy';

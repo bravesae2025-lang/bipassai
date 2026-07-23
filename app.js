@@ -423,7 +423,7 @@ const WRITING_TYPE_PROMPTS = {
 
 // ─── Post-process AI output ───────────────────────────────────
 
-// ─── Level Adjust (client-side, no API) ──────────────────────
+// ─── Level Matching (client-side, no API) ──────────────────────
 
 function _swapCase(original, replacement) {
   return original[0] === original[0].toUpperCase() && original[0] !== original[0].toLowerCase()
@@ -1008,12 +1008,12 @@ function postProcessOutput(text) {
   return adjustLevelOutput(text, selectedLevel || 'medium');
 }
 
-// ─── Adjust Level (main action, client-side) ──────────────────
+// ─── Match My Level (main action, client-side) ──────────────────
 
-// Flag the "Adjust Level" card red + shake when no level is chosen. Returns false if unmet.
+// Flag the Level Matching card red + shake when no level is chosen. Returns false if unmet.
 function requireLevel() {
   if (selectedLevel) return true;
-  const box = document.querySelector('.col-customize');   // the whole visible Adjust Level card
+  const box = document.querySelector('.col-customize');   // the whole visible Level Matching card
   if (box) {
     box.classList.remove('needs-level');
     void box.offsetWidth;              // restart the shake animation
@@ -1042,7 +1042,7 @@ async function adjustLevel() {
     wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
   });
 
-  setLoading(true, 'Adjusting level…');
+  setLoading(true, 'Matching level…');
   try {
     const token  = await window.bipassAuth.getToken();
     const res    = await fetch('/api/adjust-level', {
@@ -1065,7 +1065,7 @@ async function adjustLevel() {
     }
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
-      throw new Error(d.error || 'Level adjustment failed');
+      throw new Error(d.error || 'Level matching failed');
     }
     const data   = await res.json();
     const result = data.result;
@@ -1096,7 +1096,7 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_level',        selectedLevel);
     window.location.href = 'editor.html';
   } catch (err) {
-    showToast(err.message || 'Level adjustment failed. Please try again.');
+    showToast(err.message || 'Level matching failed. Please try again.');
   } finally {
     setLoading(false);
   }
@@ -1122,14 +1122,14 @@ function _goEditor(input, result, html, changed, flow) {
 }
 
 // Mode "humanize":  RewriteAI on the raw input.
-// Mode "both":      Humanize first (RewriteAI), THEN level-adjust the result in the
+// Mode "both":      Humanize first (RewriteAI), THEN level-match the result in the
 //                   background with a locked sentence structure, at the chosen level.
 async function runHumanize() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
 
   const mode = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
-  // The level-adjust pass in "both" mode needs a level chosen first.
+  // The level-matching pass in "both" mode needs a level chosen first.
   if (mode === 'both' && !requireLevel()) return;
   if (!(await preflightGate())) return;
 
@@ -1146,7 +1146,7 @@ async function runHumanize() {
   // "both" gets a manual, progress-driven loading sequence; humanize-only keeps the default phases.
   if (mode === 'both') {
     setLoading(true, 'Humanizing…', {
-      phases: ['Humanizing', 'Starting level adjust', 'Producing final'],
+      phases: ['Humanizing', 'Starting level matching', 'Producing final'],
       manual: true,
     });
   } else {
@@ -1185,8 +1185,8 @@ async function runHumanize() {
       return;
     }
 
-    // ── Step 2 (both): Level-adjust the humanized text, structure locked ─
-    lfxAdvance(1);   // "Starting level adjust"
+    // ── Step 2 (both): Level-match the humanized text, structure locked ─
+    lfxAdvance(1);   // "Starting level matching"
     const alRes = await fetch('/api/adjust-level', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1201,7 +1201,7 @@ async function runHumanize() {
       const d = await alRes.json().catch(() => ({}));
       setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
     }
-    if (!alRes.ok) throw new Error('Level adjust failed');
+    if (!alRes.ok) throw new Error('Level matching failed');
     const alData = await alRes.json();
 
     lfxAdvance(2);   // "Producing final"
@@ -1218,7 +1218,7 @@ async function runHumanize() {
     await new Promise(r => setTimeout(r, 1200));
 
     // Keep the humanized draft so the editor can offer a Humanized/Final
-    // switcher (final highlights are level-adjust edits vs this draft).
+    // switcher (final highlights are level-matching edits vs this draft).
     sessionStorage.setItem('bipass_humanized', humanized);
     sessionStorage.setItem('bipass_humanized_html', _buildDiffHtml(text, humanized, 'rephrase'));
     _goEditor(text, cleanRes, htmlDiff, changed, 'both');
@@ -2272,8 +2272,8 @@ async function preflightGate() {
 }
 
 // Estimated cost in credits. Billing is 1 credit per INPUT character:
-// Level Adjust and Humanize each bill the input once; "Humanize + Level
-// Adjust" runs two passes (humanize → level-adjust) so it's ~2x. Mirrors
+// Level Matching and Humanize each bill the input once; "Humanize + Level
+// Matching" runs two passes (humanize → level-matching) so it's ~2x. Mirrors
 // /api/adjust-level and /api/rw-humanize in server.js.
 function estimateCost() {
   const len = inputText.value.length;
@@ -2929,7 +2929,7 @@ const TOUR_STEPS = [
   {
     els: ['mode-dd', 'mode-dd-menu'],
     title: 'Choose your mode',
-    body: 'Level Adjust rewrites at a grade level, Humanize makes AI text sound human — or do both together.',
+    body: 'Level Matching rewrites text to match a grade level, while Humanize makes AI text sound human — or do both together.',
     onEnter: () => {
       const dd = document.getElementById('mode-dd');
       dd?.classList.add('open');
@@ -3017,7 +3017,7 @@ function startTour() {
   }
 
   // Keep the spotlight + tooltip glued to the target every frame, so they follow the
-  // ADJUST LEVEL button when the right-panel workflow box collapses/expands and reflows
+  // MATCH LEVEL button when the right-panel workflow box collapses/expands and reflows
   // the layout (which fires no scroll/resize event).
   function track() { place(); rafId = requestAnimationFrame(track); }
 

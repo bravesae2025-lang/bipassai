@@ -169,8 +169,8 @@ async function init() {
   editorBadge.textContent =
     mode === 'generate'   ? 'Generated' :
     flow === 'humanize'   ? 'Humanized' :
-    flow === 'both'       ? 'Humanized + Adjusted' :
-    'Adjusted';
+    flow === 'both'       ? 'Humanized + Level Matched' :
+    'Level Matched';
 
   const changeCount = parseInt(sessionStorage.getItem('bipass_change_count') || '0');
   const changeEl = document.getElementById('editor-change-count');
@@ -382,8 +382,8 @@ function setupViewToggle(result, mode) {
     // Pure Humanize: green marks + change list, no fake categories
     loadView(resultHtml, 'hz');
   } else if (flow === 'both' && humanizedHtml.trim()) {
-    // Humanize + Level Adjust: switch between the humanized draft (green vs
-    // original) and the final (level-adjust edits vs the draft, colored).
+    // Humanize + Level Matching: switch between the humanized draft (green vs
+    // original) and the final (level-matching edits vs the draft, colored).
     const slots = { final: resultHtml, humanized: humanizedHtml };
     let active = 'final';
     loadView(slots.final, 'cats');
@@ -401,7 +401,7 @@ function setupViewToggle(result, mode) {
       });
     }
   } else {
-    // Level Adjust (or legacy results without a flow tag)
+    // Level Matching (or legacy results without a flow tag)
     loadView(resultHtml, 'cats');
   }
 }

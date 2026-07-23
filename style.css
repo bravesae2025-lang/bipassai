@@ -511,7 +511,7 @@ main {
   z-index: 1;
 }
 
-/* ── Mode toggle header (Level Adjust / Humanize) ── */
+/* ── Mode toggle header (Level Matching / Humanize) ── */
 .mode-tabs-head {
   display: flex;
   align-items: center;
@@ -520,14 +520,14 @@ main {
 .mode-block.mode-hidden { display: none; }
 
 /* dim the level presets while the Humanize-only tab is active.
-   In "Humanize + Level Adjust" (.mode-both) the box stays usable — the user picks a level. */
+   In "Humanize + Level Matching" (.mode-both) the box stays usable — the user picks a level. */
 .right-panel { transition: opacity 0.25s ease; }
 .workspace.mode-humanize:not(.mode-both) .col-customize { opacity: 0.5; pointer-events: none; }
 /* Both mode force-locks the structure, so hide the redundant lock toggle. */
 .workspace.mode-both .lock-structure-block { display: none; }
 
 /* "Pick a level first" error state — a clean red ring that hugs the whole
-   Adjust Level card (box-shadow follows the card's 16px radius) + a shake. */
+   Level Matching card (box-shadow follows the card's 16px radius) + a shake. */
 .col.col-customize.needs-level {
   box-shadow:
     0 0 0 2px #e0533d,
@@ -1425,7 +1425,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .typeshow { user-select: none; }
 
 /* ─────────────────────────────────────────────────────────────
-   Hero interactive background + level-adjust showcase
+   Hero interactive background + level-matching showcase
 ───────────────────────────────────────────────────────────── */
 
 .hero-section { isolation: isolate; }
@@ -1479,7 +1479,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 /* Full-page fixed variant of the dot-cloud background (plans / paywall page) */
 .appbg-page { position: fixed; }
 
-/* Level-adjust showcase (full app-flow simulation; reuses .typeshow shell + real changes-view classes) */
+/* Level-matching showcase (full app-flow simulation; reuses .typeshow shell + real changes-view classes) */
 .leveldemo { position: relative; }
 
 .leveldemo-main {
@@ -2116,7 +2116,7 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 }
 .ld-mode-opt.sel { background: var(--black); color: #fff; }
 
-/* Humanize rephrase marks: neutral slate — distinct from the 6 level-adjust
+/* Humanize rephrase marks: neutral slate — distinct from the 6 level-matching
    examples — global so the editor's humanize results get it too */
 [data-cat="rephrase"] { --cc: #64748b; }
 
@@ -6890,7 +6890,7 @@ body.drawer-lock { overflow: hidden; }
 .rec-flow-slide--active .rec-step:nth-child(2) { animation-delay: 0.1s; }
 .rec-flow-slide--active .rec-step:nth-child(3) { animation-delay: 0.2s; }
 
-/* ── Slide 2: real DARK Level Adjust panel ── */
+/* ── Slide 2: real DARK Level Matching panel ── */
 .rec-win-dark { border-color: rgba(255,255,255,0.08); }
 .rec-win-bar-dark { background: #15161c; border-bottom-color: rgba(255,255,255,0.07); }
 .rec-win-bar-dark .rec-win-dot { background: rgba(255,255,255,0.22); }

@@ -172,20 +172,20 @@
     </div>
     <div class="workspace" id="workspace">
 
-      <!-- ── LEFT COLUMN: Humanize / Level Adjust (tabbed) ─────── -->
+      <!-- ── LEFT COLUMN: Humanize / Level Matching (tabbed) ─────── -->
       <section class="col col-main" data-reveal>
 
         <div id="humanize-section">
           <div class="mode-tabs-head">
             <div class="mode-dropdown" id="mode-dd">
               <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="mode-dd-current" id="mode-dd-current">Level Adjust</span>
+                <span class="mode-dd-current" id="mode-dd-current">Level Matching</span>
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Adjust</li>
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Matching</li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize</li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Adjust</li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Matching</li>
               </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
@@ -214,7 +214,7 @@
             <div class="textarea-corner br"></div>
           </div>
 
-          <!-- Level Adjust hints -->
+          <!-- Level Matching hints -->
           <div class="humanize-hints mode-block" data-mode="level">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
@@ -252,11 +252,11 @@
             </div>
           </div>
 
-          <!-- Level Adjust action -->
+          <!-- Level Matching action -->
           <div class="mode-block" data-mode="level">
-            <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Adjust level">
+            <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Match my level">
               <span class="btn-content">
-                <span id="humanize-label">Adjust Level</span>
+                <span id="humanize-label">Match My Level</span>
                 <span id="humanize-loader" class="spinner hidden"></span>
               </span>
               <span class="btn-arrow" aria-hidden="true">
@@ -295,7 +295,7 @@
         <section class="col col-customize" data-reveal data-reveal-delay="1">
 
           <div class="control-block" id="level-box">
-            <div class="control-head" id="level-heading">Adjust Level</div>
+            <div class="control-head" id="level-heading">Level Matching</div>
             <div class="level-presets-label">Presets</div>
             <div class="level-track-wrap">
               <div class="level-track" role="group" aria-label="Level">
@@ -456,7 +456,7 @@
                   </div>
                   <div class="rec-win-body rec-steps">
                     <div class="rec-step"><span class="rec-step-num">01</span><span class="rec-step-name">Humanize</span><span class="rec-step-tick">✓</span></div>
-                    <div class="rec-step"><span class="rec-step-num">02</span><span class="rec-step-name">Level Adjust</span><span class="rec-step-tick">✓</span></div>
+                    <div class="rec-step"><span class="rec-step-num">02</span><span class="rec-step-name">Level Matching</span><span class="rec-step-tick">✓</span></div>
                     <div class="rec-step"><span class="rec-step-num">03</span><span class="rec-step-name">Auto Type</span><span class="rec-step-tick">✓</span></div>
                   </div>
                 </div>
@@ -466,15 +466,15 @@
                 </div>
               </div>
 
-              <!-- Slide 2 — Level Adjust panel (real dark UI) -->
+              <!-- Slide 2 — Level Matching panel (real dark UI) -->
               <div class="rec-flow-slide">
                 <div class="rec-win rec-win-dark">
                   <div class="rec-win-bar rec-win-bar-dark">
                     <span class="rec-win-dot"></span><span class="rec-win-dot"></span><span class="rec-win-dot"></span>
-                    <span class="rec-win-name">Bipass AI · Adjust Level</span>
+                    <span class="rec-win-name">Bipass AI · Level Matching</span>
                   </div>
                   <div class="rec-win-body rec-lv">
-                    <div class="rec-lv-head">Adjust Level</div>
+                    <div class="rec-lv-head">Level Matching</div>
                     <div class="rec-lv-sublabel">Presets</div>
                     <div class="rec-lv-track-wrap">
                       <div class="rec-lv-track">
@@ -621,7 +621,7 @@
           </div>
           <div class="ext-mock-selected-card">
             <div class="ext-mock-selected-top">
-              <span class="ext-mock-badge ext-mock-badge-hi">Leveled</span>
+              <span class="ext-mock-badge ext-mock-badge-hi">Level Matched</span>
               <span class="ext-mock-check">✓</span>
             </div>
             <div class="ext-mock-text-lines">
@@ -710,7 +710,7 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Mode dropdown — switch the editor card between Level Adjust / Humanize / both */
+  /* Mode dropdown — switch the editor card between Level Matching / Humanize / both */
   (function () {
     const section = document.getElementById('humanize-section');
     const ws      = document.getElementById('workspace');

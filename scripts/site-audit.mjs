@@ -90,6 +90,8 @@ const extensionHtml = readFileSync(extensionHtmlFile, 'utf8');
 const extensionJs = readFileSync(extensionJsFile, 'utf8');
 const extensionManifest = JSON.parse(readFileSync(extensionManifestFile, 'utf8'));
 const privacyHtml = readFileSync(privacyFile, 'utf8');
+const indexFile = join(root, 'index.html');
+const indexHtml = readFileSync(indexFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -99,10 +101,29 @@ if (!/login\.html\?mode=signup/.test(extensionJs)) {
 if (!/usernameToEmail\(username\)/.test(extensionJs)) {
   add(extensionJsFile, 'username login must use the same internal email mapping as the website');
 }
+if (extensionManifest.homepage_url !== 'https://bipassai.com/' || extensionManifest.author !== 'Bipass AI') {
+  add(extensionManifestFile, 'extension branding must identify Bipass AI and its canonical homepage');
+}
 for (const permission of extensionManifest.permissions || []) {
   if (!privacyHtml.includes(`<code>${permission}</code>`)) {
     add(privacyFile, `missing explanation for extension permission "${permission}"`);
   }
+}
+
+const indexStructuredData = [...indexHtml.matchAll(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+  .map((match) => JSON.parse(match[1]));
+const organization = indexStructuredData.find((item) => item['@type'] === 'Organization');
+if (!organization
+    || organization['@id'] !== 'https://bipassai.com/#organization'
+    || organization.url !== 'https://bipassai.com'
+    || !organization.logo
+    || !organization.contactPoint?.email
+    || !Array.isArray(organization.sameAs)
+    || !organization.sameAs.some((url) => url.includes('chromewebstore.google.com/'))) {
+  add(indexFile, 'official Organization structured data is incomplete');
+}
+if (!/not affiliated with BypassAI/i.test(indexHtml)) {
+  add(indexFile, 'missing similarly named service affiliation clarification');
 }
 
 for (const name of ['index.html', 'plans.html', 'howto.html']) {

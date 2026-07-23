@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Bipass AI — Auto Typer",
-  "version": "1.0.5",
-  "description": "Automatically type your Bipass AI results into any text field",
+  "version": "1.0.6",
+  "description": "Official Auto Typer for Bipass AI at bipassai.com. Types reviewed Bipass AI results into the active text field.",
+  "author": "Bipass AI",
+  "homepage_url": "https://bipassai.com/",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Bipass AI Auto Typer"

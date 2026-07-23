@@ -35,6 +35,7 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": "https://bipassai.com/#software",
     "name": "Bipass AI",
     "url": "https://bipassai.com",
     "applicationCategory": "WritingApplication",
@@ -45,26 +46,41 @@
       "highPrice": "138.96",
       "priceCurrency": "USD"
     },
-    "operatingSystem": "Web"
+    "operatingSystem": "Web",
+    "publisher": { "@id": "https://bipassai.com/#organization" }
   }
   </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://bipassai.com/#organization",
     "name": "Bipass AI",
-    "alternateName": ["BipassAI", "Bipass"],
+    "alternateName": "BipassAI",
     "url": "https://bipassai.com",
-    "logo": "https://bipassai.com/favicon.png"
+    "logo": "https://bipassai.com/favicon.png",
+    "description": "Bipass AI provides writing-level matching, AI text rewriting, writing-style analysis, and the Bipass AI Auto Typer Chrome extension.",
+    "email": "bipassaiofficial@gmail.com",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "bipassaiofficial@gmail.com",
+      "availableLanguage": "English"
+    },
+    "sameAs": [
+      "https://chromewebstore.google.com/detail/bipass-ai-%E2%80%94-auto-typer/ncaogcdecfhjepnpmlmalibeloipbjkm"
+    ]
   }
   </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://bipassai.com/#website",
     "name": "Bipass AI",
     "alternateName": "BipassAI",
-    "url": "https://bipassai.com"
+    "url": "https://bipassai.com",
+    "publisher": { "@id": "https://bipassai.com/#organization" }
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -662,6 +678,18 @@
         </button>
         <div class="faq-a">
           <p>The Auto Typer Chrome extension enters reviewed text into Google Docs character by character, with adjustable speed and timing variation. It is a typing convenience and does not recreate your research or drafting process. Its four Chrome permissions and the reason for each are explained in the <a href="privacy.html#extension-permissions">Privacy Policy</a>.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>Is Bipass AI affiliated with BypassAI?</span>
+          <span class="faq-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">
+          <p>No. Bipass AI is the independent writing service at <strong>bipassai.com</strong>. It is not affiliated with BypassAI or other similarly named “bypassai” websites.</p>
         </div>
       </div>
 

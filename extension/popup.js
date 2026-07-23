@@ -299,7 +299,7 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
 
 // ── Navigation ──────────────────────────────────────────────────
 document.getElementById('open-bipass').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'https://bipassai.com/app.html' });
+  chrome.tabs.create({ url: 'https://bipassai.com/home' });
 });
 document.getElementById('signup-link').addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://bipassai.com/login.html?mode=signup' });

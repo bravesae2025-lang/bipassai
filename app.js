@@ -1933,6 +1933,10 @@ function showStyleDeleteModal(styleName, onConfirm) {
 function renderStyleList() {
   myStyleInputs.style.display = 'none';
   styleCardsList.style.display = 'flex';
+  const canCreateMore = window.BipassStyleProfile.canCreateStyle(savedStyles);
+  const createControl = canCreateMore
+    ? '<button class="create-another-btn" id="create-another-btn">+ Create another style</button>'
+    : `<div class="style-limit-note"><strong>${savedStyles.length} / ${window.BipassStyleProfile.MAX_SAVED_STYLES}</strong> styles used · Delete one to create another</div>`;
 
   styleCardsList.innerHTML = savedStyles.map(style => {
     const isActive = style.id === activeStyleId && myStyleActive;
@@ -1950,7 +1954,7 @@ function renderStyleList() {
           </div>
         </div>
       </div>`;
-  }).join('') + `<button class="create-another-btn" id="create-another-btn">+ Create another style</button>`;
+  }).join('') + createControl;
 
   styleCardsList.querySelectorAll('.style-card-name').forEach(input => {
     input.addEventListener('input', () => {
@@ -2012,6 +2016,11 @@ function renderStyleList() {
 
 
   document.getElementById('create-another-btn')?.addEventListener('click', () => {
+    if (!window.BipassStyleProfile.canCreateStyle(savedStyles)) {
+      showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} styles`);
+      renderStyleList();
+      return;
+    }
     styleCardsList.style.display = 'none';
     myStyleInputs.style.display = '';
     if (!document.getElementById('back-to-styles-btn')) {
@@ -2072,6 +2081,11 @@ async function loadSavedStyle(session) {
 }
 
 async function analyzeStyle() {
+  if (!window.BipassStyleProfile.canCreateStyle(savedStyles)) {
+    showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} styles`);
+    renderStyleList();
+    return;
+  }
   let valid = true;
 
   // Validate style name

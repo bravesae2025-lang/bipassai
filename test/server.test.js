@@ -17,7 +17,7 @@ import {
   verifyRewardToken,
 } from '../server.js';
 
-const { fromAnalysisPayload, sliderValuesFromStyle } = globalThis.BipassStyleProfile;
+const { MAX_SAVED_STYLES, canCreateStyle, fromAnalysisPayload, sliderValuesFromStyle } = globalThis.BipassStyleProfile;
 
 test('purchase checkout requires explicit acceptance of the current terms', () => {
   assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: true, termsVersion: '2026-07-22' }), true);
@@ -118,6 +118,14 @@ test('browser rejects incomplete AI profiles instead of silently using stale sli
     traits: [],
     style_prompt: 'Match this style.',
   }), /Incomplete style analysis/);
+});
+
+test('users can save no more than three writing-style profiles', () => {
+  assert.equal(MAX_SAVED_STYLES, 3);
+  assert.equal(canCreateStyle([]), true);
+  assert.equal(canCreateStyle([{}, {}]), true);
+  assert.equal(canCreateStyle([{}, {}, {}]), false);
+  assert.equal(canCreateStyle([{}, {}, {}, {}]), false);
 });
 
 test('style analysis always maps into the six controls used by Custom mode', () => {

@@ -8583,6 +8583,22 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .create-another-btn:hover { color: var(--black); border-color: var(--black); }
 
+.style-limit-note {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px dashed var(--g150);
+  border-radius: 8px;
+  color: var(--g300);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  line-height: 1.45;
+  text-align: center;
+}
+.style-limit-note strong { color: var(--g500); font-weight: 700; }
+.col-customize .style-limit-note { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.15); }
+.col-customize .style-limit-note strong { color: rgba(255,255,255,0.75); }
+
 /* Reset mint-btn for white inset — overrides .col-customize .mint-btn dark styles */
 .col-my-style-box .mint-btn {
   background: transparent;

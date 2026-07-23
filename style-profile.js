@@ -1,4 +1,5 @@
 (function initStyleProfile(root) {
+  const MAX_SAVED_STYLES = 3;
   const SCORE_KEYS = ['wordLevel', 'grammar', 'tense', 'punct', 'caps', 'spelling'];
   const TRAIT_ALIASES = {
     wordLevel: ['vocabulary', 'word level', 'reading level'],
@@ -64,8 +65,14 @@
     };
   }
 
+  function canCreateStyle(styles) {
+    return Array.isArray(styles) && styles.length < MAX_SAVED_STYLES;
+  }
+
   root.BipassStyleProfile = Object.freeze({
+    MAX_SAVED_STYLES,
     SCORE_KEYS: Object.freeze([...SCORE_KEYS]),
+    canCreateStyle,
     fromAnalysisPayload,
     readTraits,
     sliderValuesFromStyle,

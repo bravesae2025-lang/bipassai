@@ -27,7 +27,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=49">
+  <link rel="stylesheet" href="style.css?v=50">
 </head>
 <body>
 
@@ -186,13 +186,14 @@
                 <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Matching</li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize</li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Matching</li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="own">Push My Own Text</li>
               </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
             <span class="box-cost hidden" id="est-cost" title="Estimated cost — 1 credit ≈ 1 character"></span>
           </div>
 
-          <div class="file-upload-row">
+          <div class="file-upload-row mode-block" data-mode="level humanize both">
             <label class="file-upload-btn" for="file-upload-input">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               Upload file
@@ -202,7 +203,7 @@
             <span class="file-upload-name hidden" id="file-upload-name"></span>
           </div>
 
-          <div class="textarea-wrap">
+          <div class="textarea-wrap mode-block" data-mode="level humanize both">
             <textarea
               id="input-text"
               placeholder="Paste your text here — AI-generated or your own…"
@@ -281,6 +282,22 @@
                 </svg>
               </span>
               <span class="btn-sweep" aria-hidden="true"></span>
+            </button>
+          </div>
+          <!-- Push custom text directly to the Auto Typer extension -->
+          <div class="own-text-mode mode-block mode-hidden" data-mode="own" id="own-text-block">
+            <p class="own-text-sub">Already have humanized text? Paste it below and push it to our Auto Typer. An active pass is required.</p>
+
+            <textarea
+              class="own-text-textarea"
+              id="own-text-textarea"
+              placeholder="Paste your text here…"
+              spellcheck="false"
+            ></textarea>
+
+            <button class="own-text-push-btn" id="own-text-push-btn" type="button">
+              <span id="own-text-btn-label">Push to Extension</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
           </div>
         </div>
@@ -404,28 +421,6 @@
           </div>
 
         </section>
-
-        <!-- Own Text — paste custom text and push to extension -->
-        <div class="col-own-text-box" id="own-text-block">
-
-          <div class="col-label">
-            <span class="col-name col-own-text-name">Push My Own Text</span>
-          </div>
-
-          <p class="own-text-sub">Already have humanized text? Push it to our Auto Typer — needs an active pass.</p>
-
-          <textarea
-            class="own-text-textarea"
-            id="own-text-textarea"
-            placeholder="Paste your text here…"
-          ></textarea>
-
-          <button class="own-text-push-btn" id="own-text-push-btn" type="button">
-            <span id="own-text-btn-label">Push to Extension</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
-
-        </div>
 
         <!-- Recommended workflow — auto-sliding carousel of real app screens -->
         <div class="rec-flow-box" id="rec-flow-box">
@@ -710,7 +705,7 @@
   <script src="cursor.js?v=2"></script>
 
   <script>
-  /* Mode dropdown — switch the editor card between Level Matching / Humanize / both */
+  /* Mode dropdown — switch the editor card between rewriting and extension modes */
   (function () {
     const section = document.getElementById('humanize-section');
     const ws      = document.getElementById('workspace');
@@ -734,8 +729,9 @@
         if (on && current) current.textContent = o.firstChild.textContent.trim();
       });
       if (ws) {
-        ws.classList.toggle('mode-humanize', mode !== 'level');  // globe bg for humanize + both
+        ws.classList.toggle('mode-humanize', mode === 'humanize' || mode === 'both');
         ws.classList.toggle('mode-both', mode === 'both');       // keeps the level box usable in both
+        ws.classList.toggle('mode-own', mode === 'own');
       }
       // Expose the current mode so app.js knows which action to run.
       document.body.dataset.appMode = mode;

@@ -523,6 +523,9 @@ main {
    In "Humanize + Level Matching" (.mode-both) the box stays usable — the user picks a level. */
 .right-panel { transition: opacity 0.25s ease; }
 .workspace.mode-humanize:not(.mode-both) .col-customize { opacity: 0.5; pointer-events: none; }
+.workspace.mode-own .col-customize { opacity: 0.5; pointer-events: none; }
+.workspace.mode-own #humanize-wc,
+.workspace.mode-own #est-cost { display: none !important; }
 /* Both mode force-locks the structure, so hide the redundant lock toggle. */
 .workspace.mode-both .lock-structure-block { display: none; }
 
@@ -6692,44 +6695,20 @@ body.drawer-lock { overflow: hidden; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Own Text → Extension box
-───────────────────────────────────────────────────────────── */
+   Own Text → Extension dropdown mode
+──────────────────────────────────────────────────────────── */
 
-.col-own-text-box {
-  margin-top: clamp(18px, 3vh, 36px);
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 16px;
-  padding: clamp(10px, 1.4vh, 18px) 26px clamp(12px, 1.6vh, 22px);
+.own-text-mode {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(6px, 0.9vh, 10px);
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.05),
-    0 12px 32px rgba(0,0,0,0.08),
-    0 28px 56px rgba(0,0,0,0.05);
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
-}
-.col-own-text-box:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 18px 44px rgba(0,0,0,0.10),
-    0 36px 72px rgba(0,0,0,0.07);
-}
-
-.col-own-text-name {
-  font-family: var(--ff-ui);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--black);
+  gap: 16px;
 }
 
 .own-text-sub {
   font-family: var(--ff-ui);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--g400);
   line-height: 1.55;
   margin: 0;
@@ -6738,8 +6717,10 @@ body.drawer-lock { overflow: hidden; }
 .own-text-textarea {
   width: 100%;
   box-sizing: border-box;
-  height: clamp(72px, 9vh, 130px);
-  resize: none;
+  flex: 1;
+  height: auto;
+  min-height: clamp(300px, calc(100vh - 460px), 620px);
+  resize: vertical;
   font-family: var(--ff-mono);
   font-size: 12px;
   line-height: 1.65;
@@ -6763,13 +6744,14 @@ body.drawer-lock { overflow: hidden; }
   justify-content: center;
   gap: 7px;
   width: 100%;
-  padding: 10px 16px;
+  min-height: 52px;
+  padding: 12px 18px;
   background: #0d0d0d;
   color: #fff;
   border: none;
   border-radius: 9px;
   font-family: var(--ff-ui);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

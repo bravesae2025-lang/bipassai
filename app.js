@@ -1809,15 +1809,7 @@ function saveStyleTraits() {
 }
 
 function getTraits() {
-  let raw = [];
-  try { raw = JSON.parse(savedStyle.style_summary); } catch (_) { raw = [savedStyle.style_summary]; }
-  return raw.map(t => {
-    if (typeof t === 'string') return { name: t, intensity: 10 };
-    const intensity = t.intensity ?? 10;
-    // Migrate old 0/1/2 scale → 0/5/10
-    const migrated = intensity <= 2 ? intensity * 5 : intensity;
-    return { name: t.name, intensity: migrated };
-  });
+  return window.BipassStyleProfile.readTraits(savedStyle);
 }
 
 function updateSliderFill(slider) {
@@ -2116,66 +2108,42 @@ async function analyzeStyle() {
     analyzeLoader.textContent = 'Analyzing' + '.'.repeat(_dotCount);
   }, 450);
 
-  const prompt = `Analyze these writing samples. Return ONLY a single-line JSON object — no markdown, no code fences, no line breaks inside the JSON, no explanation before or after.
-
-Look for personal writing habits that appear regardless of topic: spelling errors, grammar mistakes, missing or wrong capitalisation, punctuation habits, repeated words, run-on sentences, vocabulary level. Ignore sentence length or writing structure — those depend on the topic.
-
-Use this exact format (replace the example values with real findings, keep it on ONE LINE):
-{"traits":[{"name":"Grammar mistakes","intensity":7},{"name":"Missing capitals","intensity":4},{"name":"Word repetition","intensity":9}],"style_prompt":"A single paragraph describing this person's specific writing quirks for an AI to replicate. End with: Apply these personal quirks to whatever format the user requests."}
-
-intensity must be 0–10 where 0=none, 1–2=very subtle, 3–4=subtle, 5–6=moderate, 7–8=strong, 9–10=heavy. Use the full range to accurately reflect how prominently each trait appears in the samples. Include up to 7 traits.
-
-Writing samples:
-${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
-
   try {
     const token = await window.bipassAuth.getToken();
     if (!token) throw new Error('Not signed in');
     const res   = await fetch('/api/analyze', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ prompt }),
+      body:    JSON.stringify({ samples }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err?.error || `Server error ${res.status}`);
     }
     const data = await res.json();
-    console.log('[analyze] raw result:', data.result);
-    const rawStr = (data.result || '').replace(/```json|```/g, '').trim();
-    const jsonStr = rawStr.match(/\{[\s\S]*\}/)?.[0] || rawStr;
-    let json;
-    try {
-      json = JSON.parse(jsonStr);
-    } catch {
-      const cleaned = jsonStr.replace(/[\r\n\t]/g, ' ').replace(/\s{2,}/g, ' ');
-      json = JSON.parse(cleaned);
-    }
-    if (!json.traits || !json.style_prompt) throw new Error('Missing traits or style_prompt in response');
-
-    // Normalise traits — accept both {name,intensity} objects and plain strings
-    const normTraits = json.traits.map(t =>
-      typeof t === 'string' ? { name: t, intensity: 2 } : { name: t.name, intensity: t.intensity ?? 2 }
-    );
+    const profile = window.BipassStyleProfile.fromAnalysisPayload(data);
+    const normTraits = profile.traits;
 
     const styleName = document.getElementById('style-name-input')?.value.trim() || '';
     const newStyle = {
       id: Date.now().toString(),
       name: styleName,
       style_summary: JSON.stringify(normTraits),
-      style_prompt: json.style_prompt,
+      style_prompt: profile.stylePrompt,
+      analysis_version: 2,
+      style_analysis: profile.analysis,
     };
     savedStyles.push(newStyle);
     activeStyleId = newStyle.id;
     savedStyle = newStyle;
     saveStoredStyles();
     document.getElementById('back-to-styles-btn')?.remove();
+    myStyleActive = true;
+    sessionStorage.setItem('bipass_my_style', 'true');
     renderStyleList();
     const nameInput = document.getElementById('style-name-input');
     if (nameInput) nameInput.value = '';
-    showToast('Style analyzed');
-    myStyleActive = true;
-    sessionStorage.setItem('bipass_my_style', 'true');
+    showToast('Style analyzed and applied');
     setSlidersFromStyle(newStyle);
 
     try {
@@ -2183,7 +2151,7 @@ ${samples.map((s, i) => `Sample ${i + 1}: ${s}`).join('\n')}`;
       await window.bipassAuth.client.from('user_styles').upsert({
         user_id:       session.user.id,
         style_summary: JSON.stringify(normTraits),
-        style_prompt:  json.style_prompt,
+        style_prompt:  profile.stylePrompt,
         sample_count:  samples.length,
         updated_at:    new Date().toISOString(),
       }, { onConflict: 'user_id' });
@@ -2302,14 +2270,6 @@ function updateStats() {
 
 // ─── Build prompts ────────────────────────────────────────────
 
-const MISTAKE_KEYWORDS = {
-  grammar:  ['grammar', 'grammatical'],
-  tense:    ['tense', 'verb'],
-  punct:    ['punctuation', 'punct', 'comma', 'period'],
-  caps:     ['capital', 'capitalization'],
-  spelling: ['spelling', 'typo', 'spell'],
-};
-
 const MISTAKE_PROMPTS = {
   grammar: [
     null,
@@ -2360,20 +2320,24 @@ function resetSlidersToNone() {
 }
 
 function setSlidersFromStyle(style) {
-  let traits = [];
-  try { traits = JSON.parse(style.style_summary); } catch (_) {}
-  if (!Array.isArray(traits)) traits = [];
-
-  for (const [type, kws] of Object.entries(MISTAKE_KEYWORDS)) {
-    const trait = traits.find(t => kws.some(k => t.name?.toLowerCase().includes(k)));
+  const values = window.BipassStyleProfile.sliderValuesFromStyle(style);
+  for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
     const slider = optionsPanel?.querySelector(`input.mistake-slider[data-mistake="${type}"]`);
     if (!slider) continue;
-    const intensity = trait ? Math.round(typeof trait.intensity === 'number' ? trait.intensity : 0) : 0;
-    const mapped = intensity <= 2 ? intensity * 5 : intensity; // migrate old 0/1/2 scale
-    slider.value = Math.min(10, mapped);
+    slider.value = values[type];
     updateSliderFill(slider);
     const valEl = optionsPanel?.querySelector(`.mistake-slider-val[data-mistake="${type}"]`);
     if (valEl) valEl.textContent = mistakeLabel(slider.value);
+    sessionStorage.setItem(`bipass_m_${type}`, slider.value);
+  }
+
+  const wordLevelSlider = optionsPanel?.querySelector('input.mistake-slider[data-mistake="wordlevel"]');
+  if (wordLevelSlider) {
+    wordLevelSlider.value = values.wordLevel;
+    updateSliderFill(wordLevelSlider);
+    const valueLabel = optionsPanel?.querySelector('.mistake-slider-val[data-mistake="wordlevel"]');
+    if (valueLabel) valueLabel.textContent = wordLevelLabel(values.wordLevel);
+    sessionStorage.setItem('bipass_m_wordlevel', String(values.wordLevel));
   }
 }
 

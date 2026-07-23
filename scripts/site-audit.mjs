@@ -84,8 +84,12 @@ for (const file of htmlFiles) {
 
 const extensionHtmlFile = join(root, 'extension', 'popup.html');
 const extensionJsFile = join(root, 'extension', 'popup.js');
+const extensionManifestFile = join(root, 'extension', 'manifest.json');
+const privacyFile = join(root, 'privacy.html');
 const extensionHtml = readFileSync(extensionHtmlFile, 'utf8');
 const extensionJs = readFileSync(extensionJsFile, 'utf8');
+const extensionManifest = JSON.parse(readFileSync(extensionManifestFile, 'utf8'));
+const privacyHtml = readFileSync(privacyFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -94,6 +98,22 @@ if (!/login\.html\?mode=signup/.test(extensionJs)) {
 }
 if (!/usernameToEmail\(username\)/.test(extensionJs)) {
   add(extensionJsFile, 'username login must use the same internal email mapping as the website');
+}
+for (const permission of extensionManifest.permissions || []) {
+  if (!privacyHtml.includes(`<code>${permission}</code>`)) {
+    add(privacyFile, `missing explanation for extension permission "${permission}"`);
+  }
+}
+
+for (const name of ['index.html', 'plans.html', 'howto.html']) {
+  const file = join(root, name);
+  const html = readFileSync(file, 'utf8');
+  if (!/1 credit per input character/i.test(html)) {
+    add(file, 'must explain input-character billing for Level Matching');
+  }
+  if (/1 credit\s*=\s*1 character in the output/i.test(html)) {
+    add(file, 'contains obsolete output-character billing claim for Level Matching');
+  }
 }
 
 if (errors.length) {

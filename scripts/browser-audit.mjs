@@ -251,7 +251,16 @@ for (const viewport of viewports) {
 const apiChecks = [
   { name: 'config', path: '/config', options: {}, status: 200 },
   { name: 'invalid signup', path: '/auth/signup', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }, status: 400 },
-  { name: 'protected analyze', path: '/api/analyze', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"prompt":"test"}' }, status: 401 },
+  {
+    name: 'protected analyze',
+    path: '/api/analyze',
+    options: {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ samples: ['Writing sample '.repeat(50)] }),
+    },
+    status: 401,
+  },
   { name: 'removed direct plan activation', path: '/api/activate-plan', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"plan":"annual"}' }, status: 404 },
   { name: 'protected account deletion', path: '/api/account', options: { method: 'DELETE' }, status: 401 },
 ];

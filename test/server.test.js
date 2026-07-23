@@ -10,6 +10,7 @@ import {
   hasActivePass,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
+  resolveLevelMatchProfile,
   sanitizeNextPath,
   styleAnalysisTraits,
   usernameToEmail,
@@ -222,4 +223,43 @@ test('custom matching changes vocabulary to the selected level without a forced 
   assert.match(academic, /Preserve accurate advanced vocabulary/);
   assert.match(elementary, /Do not force extra synonym swaps after the text matches the target/);
   assert.doesNotMatch(elementary, /\d+–\d+%|\d+-\d+%/);
+});
+
+test('level presets resolve to distinct, calibrated output profiles', () => {
+  assert.deepEqual(resolveLevelMatchProfile('easy'), {
+    wordLevel: 0, grammar: 7, tense: 8, punct: 8, caps: 6, spelling: 7,
+  });
+  assert.deepEqual(resolveLevelMatchProfile('medium'), {
+    wordLevel: 5, grammar: 3, tense: 3, punct: 3, caps: 2, spelling: 2,
+  });
+  assert.deepEqual(resolveLevelMatchProfile('hard'), {
+    wordLevel: 8, grammar: 1, tense: 1, punct: 1, caps: 0, spelling: 1,
+  });
+});
+
+test('custom level settings are preserved and safely clamped for regeneration', () => {
+  assert.deepEqual(resolveLevelMatchProfile('customize', {
+    wordLevel: 9,
+    grammar: 2,
+    tense: -4,
+    punct: 6,
+    caps: 99,
+    spelling: '3',
+  }), {
+    wordLevel: 9, grammar: 2, tense: 0, punct: 6, caps: 10, spelling: 3,
+  });
+  assert.deepEqual(resolveLevelMatchProfile('unknown'), resolveLevelMatchProfile('medium'));
+});
+
+test('preset prompts scale mistakes down from Beginner to Academic', () => {
+  const beginner = buildCustomizePrompt(resolveLevelMatchProfile('easy'), false, 180);
+  const student = buildCustomizePrompt(resolveLevelMatchProfile('medium'), false, 180);
+  const academic = buildCustomizePrompt(resolveLevelMatchProfile('hard'), false, 180);
+
+  assert.match(beginner, /WORD LEVEL — ELEMENTARY/);
+  assert.match(student, /WORD LEVEL — STUDENT/);
+  assert.match(academic, /WORD LEVEL — ACADEMIC/);
+  assert.match(beginner, /approximately 6 minor punctuation slips/);
+  assert.match(student, /approximately 2 minor punctuation slips/);
+  assert.match(academic, /approximately 1 minor punctuation slip/);
 });

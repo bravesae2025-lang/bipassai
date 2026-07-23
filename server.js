@@ -971,6 +971,30 @@ EXAMPLES:
 Do NOT add any explanation or commentary — return only the tagged text.`;
 }
 
+const LEVEL_MATCH_PROFILES = Object.freeze({
+  // Beginner — strongest simplification and the most visible human slips.
+  easy: Object.freeze({ wordLevel: 0, grammar: 7, tense: 8, punct: 8, caps: 6, spelling: 7 }),
+  // Student — moderate simplification with occasional slips.
+  medium: Object.freeze({ wordLevel: 5, grammar: 3, tense: 3, punct: 3, caps: 2, spelling: 2 }),
+  // Academic — preserve advanced vocabulary and keep mistakes subtle.
+  hard: Object.freeze({ wordLevel: 8, grammar: 1, tense: 1, punct: 1, caps: 0, spelling: 1 }),
+});
+
+function resolveLevelMatchProfile(level, mistakes) {
+  const source = level === 'customize'
+    ? (mistakes || {})
+    : (LEVEL_MATCH_PROFILES[level] || LEVEL_MATCH_PROFILES.medium);
+
+  return {
+    wordLevel: clampStyleScore(source.wordLevel, 5),
+    grammar: clampStyleScore(source.grammar, 0),
+    tense: clampStyleScore(source.tense, 0),
+    punct: clampStyleScore(source.punct, 0),
+    caps: clampStyleScore(source.caps, 0),
+    spelling: clampStyleScore(source.spelling, 0),
+  };
+}
+
 app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   const { text, level, lockSentenceStructure, mistakes } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
@@ -1018,22 +1042,8 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   let cancelled = false;
   req.on('close', () => { cancelled = true; });
 
-  // Presets reuse the SAME annotation prompt as Custom — each maps to a preset
-  // mistakes/word-level config so they emit [[orig|new|cats]] tags and produce
-  // real multi-category changes (no more "150 grammar" diff artifact).
-  const PRESET_MISTAKES = {
-    // Beginner — most aggressive: simplest words, lots of human errors
-    easy:   { wordLevel: 0, grammar: 7, tense: 8, punct: 8, caps: 6, spelling: 7 },
-    // Student — moderate simplification, occasional slips
-    medium: { wordLevel: 5, grammar: 3, tense: 3, punct: 3, caps: 2, spelling: 2 },
-    // Academic — light touch: keep advanced vocab, only obvious AI words, minimal errors
-    hard:   { wordLevel: 8, grammar: 1, tense: 1, punct: 1, caps: 0, spelling: 1 },
-  };
-
   const wordCount = (text.trim().match(/\S+/g) || []).length;
-  const presetCfg = level === 'customize'
-    ? (mistakes || {})
-    : (PRESET_MISTAKES[level] || PRESET_MISTAKES.medium);
+  const presetCfg = resolveLevelMatchProfile(level, mistakes);
   const systemPrompt = buildCustomizePrompt(presetCfg, lockSentenceStructure, wordCount);
 
   const fullPrompt = `${systemPrompt}\n\nText:\n${text}`;
@@ -1634,6 +1644,7 @@ export {
   hasActivePass,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
+  resolveLevelMatchProfile,
   sanitizeNextPath,
   styleAnalysisTraits,
   usernameToEmail,

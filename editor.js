@@ -1,51 +1,3 @@
-// ─── Post-process AI output ───────────────────────────────────
-
-function postProcessOutput(text) {
-  text = text.replace(/\s*—\s*/g, ', ');
-  text = text.replace(/\s*–\s*/g, ', ');
-  text = text.replace(/ - /g, ', ');
-
-  const swaps = {
-    'utilize': 'use', 'utilizes': 'uses', 'utilized': 'used', 'utilizing': 'using',
-    'assist': 'help', 'assists': 'helps', 'assisted': 'helped', 'assisting': 'helping',
-    'individuals': 'people', 'individual': 'person',
-    'various': 'different', 'numerous': 'many',
-    'ensure': 'make sure', 'ensures': 'makes sure', 'ensured': 'made sure',
-    'obtain': 'get', 'obtains': 'gets', 'obtained': 'got',
-    'regarding': 'about',
-    'hence': 'so', 'thus': 'so', 'furthermore': 'also', 'moreover': 'also',
-    'nevertheless': 'but', 'nonetheless': 'but',
-    'whilst': 'while', 'purchase': 'buy', 'purchases': 'buys', 'purchased': 'bought',
-    'commence': 'start', 'commences': 'starts', 'commenced': 'started',
-    'leverage': 'use', 'leverages': 'uses', 'leveraged': 'used', 'leveraging': 'using',
-    'facilitate': 'help', 'facilitates': 'helps', 'facilitated': 'helped',
-    'constitute': 'make up', 'constitutes': 'makes up',
-    'mitigate': 'reduce', 'mitigates': 'reduces', 'mitigated': 'reduced',
-    'foster': 'build', 'fosters': 'builds', 'fostered': 'built',
-    'harness': 'use', 'harnessing': 'using',
-    'empower': 'help', 'empowers': 'helps',
-    'encompass': 'include', 'encompasses': 'includes',
-    'crucial': 'really important', 'pivotal': 'key', 'paramount': 'most important',
-    'meticulous': 'careful', 'meticulously': 'carefully',
-    'comprehensive': 'complete', 'robust': 'strong', 'versatile': 'flexible',
-    'seamless': 'smooth', 'seamlessly': 'smoothly',
-    'transformative': 'life-changing', 'methodology': 'method',
-    'realm': 'area', 'ultimately': 'in the end',
-    'fundamental': 'basic', 'intricate': 'complex',
-    'bolster': 'strengthen', 'bolsters': 'strengthens',
-  };
-
-  for (const [ai, human] of Object.entries(swaps)) {
-    const re = new RegExp(`\\b${ai}\\b`, 'gi');
-    text = text.replace(re, m =>
-      m[0] === m[0].toUpperCase() && m[0] !== m[0].toLowerCase()
-        ? human.charAt(0).toUpperCase() + human.slice(1)
-        : human
-    );
-  }
-  return text;
-}
-
 // ─── Nav user ─────────────────────────────────────────────────
 
 async function setupNavUser() {
@@ -569,15 +521,20 @@ async function editWithAI() {
   aiPromptApply.textContent = 'Editing…';
   copyBtn.disabled = true;
 
+  const level = sessionStorage.getItem('bipass_level');
+  const levelName = { easy: 'Beginner', medium: 'Student', hard: 'Academic', customize: 'Custom' }[level];
+  const preserveLevel = levelName
+    ? ` Preserve the current ${levelName} writing level and its intentional human-like imperfections unless the instruction explicitly asks you to change them.`
+    : '';
   const prompt = `The user wants to edit the following text. Their instruction: "${instruction}"
 
-Apply the instruction while keeping the text sounding natural and human. Do not make it sound AI-generated. Return only the edited text, nothing else.
+Apply the instruction while keeping the text sounding natural and human.${preserveLevel} Do not make it sound AI-generated. Return only the edited text, nothing else.
 
 Text:
 ${text}`;
 
   try {
-    const result = postProcessOutput(await callEditorStream(prompt));
+    const result = await callEditorStream(prompt);
     editorTextarea.value = result;
     sessionStorage.setItem('bipass_result', result);
     updateWc();
@@ -668,30 +625,92 @@ function buildRegeneratePrompt(userPrompt, level) {
   return `Write a fresh version of the following task. Write it the way a ${levelDesc} would — naturally human, not AI-generated. Return only the text, nothing else.\n\nTask: ${userPrompt}`;
 }
 
+function storedMatchSettings() {
+  const read = (key, fallback = 0) => {
+    const value = Number.parseInt(sessionStorage.getItem(`bipass_m_${key}`) ?? String(fallback), 10);
+    return Number.isFinite(value) ? Math.max(0, Math.min(10, value)) : fallback;
+  };
+  return {
+    grammar: read('grammar'),
+    tense: read('tense'),
+    punct: read('punct'),
+    caps: read('caps'),
+    spelling: read('spelling'),
+    wordLevel: read('wordlevel', 5),
+  };
+}
+
+function cleanAnnotatedResult(text) {
+  return String(text || '')
+    .replace(/\[\[([^\]|]*)\|([^\]|]*)\|([^\]]*)\]\]/g, '$2')
+    .replace(/\[\[|\]\]/g, '')
+    .trim();
+}
+
+async function callEditorJson(path, body, token) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  if (!data.result) throw new Error('No output returned');
+  return data.result;
+}
+
+async function regenerateMatchedText(input, level, flow, token) {
+  let matchInput = input;
+  if (flow === 'both') {
+    matchInput = await callEditorJson('/api/rw-humanize', { text: input }, token);
+    sessionStorage.setItem('bipass_humanized', matchInput);
+  }
+
+  const annotated = await callEditorJson('/api/adjust-level', {
+    text: matchInput,
+    level,
+    lockSentenceStructure: flow === 'both'
+      ? true
+      : localStorage.getItem('bipass_lock_structure') === 'true',
+    mistakes: level === 'customize' ? storedMatchSettings() : undefined,
+  }, token);
+  return cleanAnnotatedResult(annotated);
+}
+
 async function regenerate() {
   const mode    = sessionStorage.getItem('bipass_mode');
   const level   = sessionStorage.getItem('bipass_level') || 'easy';
-  const grammar = parseInt(sessionStorage.getItem('bipass_m_grammar') || '0') > 0;
-  const punct   = parseInt(sessionStorage.getItem('bipass_m_punct')   || '0') > 0;
-
-  let prompt;
-  if (mode === 'humanize') {
-    const text = sessionStorage.getItem('bipass_input') || '';
-    if (!text) { showToast('No original text found'); return; }
-    prompt = buildHumanizePrompt(text, level, grammar, punct);
-  } else {
-    const userPrompt = sessionStorage.getItem('bipass_prompt') || '';
-    if (!userPrompt) { showToast('No prompt found'); return; }
-    prompt = buildRegeneratePrompt(userPrompt, level);
-  }
+  const flow    = sessionStorage.getItem('bipass_flow') || '';
 
   const regenBtn = document.getElementById('regen-btn');
   regenBtn.disabled = true;
   setLoading(true);
 
   try {
-    const result = await callEditorStream(prompt);
+    let result;
+    if (mode === 'humanize') {
+      const input = sessionStorage.getItem('bipass_input') || '';
+      if (!input) throw new Error('No original text found');
+      const token = await window.bipassAuth.getToken();
+
+      if (flow === 'humanize') {
+        result = await callEditorJson('/api/rw-humanize', { text: input }, token);
+      } else {
+        // Level Matching and Humanize + Level Matching must use the same
+        // calibrated endpoint and exact settings as the original run.
+        result = await regenerateMatchedText(input, level, flow, token);
+      }
+    } else {
+      const userPrompt = sessionStorage.getItem('bipass_prompt') || '';
+      if (!userPrompt) throw new Error('No prompt found');
+      result = await callEditorStream(buildRegeneratePrompt(userPrompt, level));
+    }
+
     sessionStorage.setItem('bipass_result', result);
+    // The regenerated output is plain text; stale change markup belongs to the
+    // previous run and must never be shown or copied after a refresh.
+    sessionStorage.removeItem('bipass_result_html');
+    sessionStorage.removeItem('bipass_humanized_html');
     showPlainResult(result);   // regenerated text has no diff — show it plainly
     showToast('Regenerated');
   } catch (err) {

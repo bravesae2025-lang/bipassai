@@ -37,6 +37,9 @@ for (const file of htmlFiles) {
   if (!/^\s*<!doctype html>/i.test(html)) add(file, 'missing HTML5 doctype');
   if (!/<meta\s+name=["']viewport["']/i.test(html)) add(file, 'missing viewport meta tag');
   if (!/<title>[^<]+<\/title>/i.test(html)) add(file, 'missing or empty title');
+  if (file !== join(root, 'app.html') && /\bclass=["'][^"']*\bappbg(?:\s|["'])/i.test(html)) {
+    add(file, 'interactive app background is only allowed on app.html; use bg-dots on regular pages');
+  }
 
   const ids = [...html.matchAll(/\sid=["']([^"']+)["']/gi)].map((match) => match[1]);
   for (const id of new Set(ids)) {

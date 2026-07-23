@@ -1493,9 +1493,6 @@ body[data-app-mode="own"] .appbg::after {
 body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
 .app-main > .workspace { position: relative; z-index: 1; }
 
-/* Full-page fixed variant of the dot-cloud background (plans / paywall page) */
-.appbg-page { position: fixed; }
-
 /* Level-matching showcase (full app-flow simulation; reuses .typeshow shell + real changes-view classes) */
 .leveldemo { position: relative; }
 

@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=52">
+  <link rel="stylesheet" href="style.css?v=53">
 </head>
 <body>
 
@@ -188,19 +188,39 @@
         <div id="humanize-section">
           <div class="mode-tabs-head">
             <div class="mode-dropdown" id="mode-dd">
-              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-describedby="mode-recommendation-text">
                 <span class="mode-dd-current" id="mode-dd-current">Level Matching</span>
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">Level Matching</li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">Humanize</li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">Humanize + Level Matching</li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="own">Push My Own Text</li>
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">
+                  <span class="mode-dd-option-title">Level Matching</span>
+                  <span class="mode-dd-option-desc">Best when your teacher focuses on writing level rather than AI-detector scores.</span>
+                </li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">
+                  <span class="mode-dd-option-title">Humanize</span>
+                  <span class="mode-dd-option-desc">Makes wording and rhythm feel more natural. AI-detector results can vary.</span>
+                </li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">
+                  <span class="mode-dd-option-title-row">
+                    <span class="mode-dd-option-title">Humanize + Level Matching</span>
+                    <span class="mode-dd-recommended">Recommended</span>
+                  </span>
+                  <span class="mode-dd-option-desc">Best overall balance when both your teacher and AI-detection software may review the text.</span>
+                </li>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="own">
+                  <span class="mode-dd-option-title">Push My Own Text</span>
+                  <span class="mode-dd-option-desc">Send your finished text to Auto Typer without rewriting it.</span>
+                </li>
               </ul>
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
             <span class="box-cost hidden" id="est-cost" title="Estimated cost — 1 credit per input character; combined mode runs two passes"></span>
+          </div>
+
+          <div class="mode-recommendation" id="mode-recommendation">
+            <span class="mode-recommendation-label" aria-hidden="true">Best for</span>
+            <span class="mode-recommendation-text" id="mode-recommendation-text"></span>
           </div>
 
           <div class="file-upload-row mode-block" data-mode="level humanize both">
@@ -726,7 +746,37 @@
     const trigger  = document.getElementById('mode-dd-trigger');
     const menu     = document.getElementById('mode-dd-menu');
     const current  = document.getElementById('mode-dd-current');
+    const recommendation = document.getElementById('mode-recommendation-text');
     const options  = menu ? Array.from(menu.querySelectorAll('.mode-dd-option')) : [];
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let typeTimer = 0;
+
+    function updateRecommendation(mode, animate) {
+      if (!recommendation) return;
+      const option = options.find(o => o.dataset.mode === mode);
+      const message = option?.querySelector('.mode-dd-option-desc')?.textContent.trim() || '';
+      window.clearTimeout(typeTimer);
+      recommendation.classList.remove('is-typing');
+
+      if (!animate || reducedMotion) {
+        recommendation.textContent = message;
+        return;
+      }
+
+      recommendation.textContent = '';
+      recommendation.classList.add('is-typing');
+      let index = 0;
+      function typeNext() {
+        index += 1;
+        recommendation.textContent = message.slice(0, index);
+        if (index < message.length) {
+          typeTimer = window.setTimeout(typeNext, 15);
+        } else {
+          recommendation.classList.remove('is-typing');
+        }
+      }
+      typeTimer = window.setTimeout(typeNext, 100);
+    }
 
     function setMode(mode) {
       blocks.forEach(b => {
@@ -737,7 +787,7 @@
         const on = o.dataset.mode === mode;
         o.classList.toggle('is-selected', on);
         o.setAttribute('aria-selected', on ? 'true' : 'false');
-        if (on && current) current.textContent = o.firstChild.textContent.trim();
+        if (on && current) current.textContent = o.querySelector('.mode-dd-option-title')?.textContent.trim() || '';
       });
       if (ws) {
         ws.classList.toggle('mode-humanize', mode === 'humanize' || mode === 'both');
@@ -748,8 +798,10 @@
       document.body.dataset.appMode = mode;
       // Let app.js refresh the cost estimate (it changes with mode, not just text).
       document.dispatchEvent(new CustomEvent('bipass-mode-change'));
+      updateRecommendation(mode, true);
     }
     document.body.dataset.appMode = 'level';
+    updateRecommendation('level', true);
 
     function closeMenu() {
       dd?.classList.remove('open');

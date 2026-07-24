@@ -266,33 +266,62 @@ function setupViewToggle(result, mode) {
     changesView.querySelectorAll('.word-change-pair, mark.word-changed')
   ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
 
+  const HZ_PAGE_SIZE = 6;
+  let hzPage = 0;
+  let hzItems = [];
+
+  function renderHzPage() {
+    const list = document.getElementById('hz-list');
+    const status = document.getElementById('hz-page-status');
+    const nav = document.getElementById('hz-list-nav');
+    const prev = document.getElementById('hz-page-prev');
+    const next = document.getElementById('hz-page-next');
+    if (!list) return;
+
+    const totalPages = Math.max(1, Math.ceil(hzItems.length / HZ_PAGE_SIZE));
+    hzPage = Math.max(0, Math.min(hzPage, totalPages - 1));
+    const start = hzPage * HZ_PAGE_SIZE;
+    const end = Math.min(start + HZ_PAGE_SIZE, hzItems.length);
+    list.innerHTML = '';
+
+    hzItems.slice(start, end).forEach(el => {
+      const mark = el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed');
+      const orig = el.querySelector ? (el.querySelector('.word-original')?.textContent || '') : '';
+      const now  = (mark || el).textContent;
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = `hz-item${orig ? '' : ' hz-item-insert'}`;
+      item.innerHTML = orig
+        ? `<s>${escHtml(orig)}</s><span class="hz-arrow" aria-hidden="true">&rarr;</span><b>${escHtml(now)}</b>`
+        : `<span class="hz-arrow" aria-hidden="true">+</span><b>${escHtml(now)}</b>`;
+      item.addEventListener('click', () => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.remove('hz-flash');
+        void el.offsetWidth;
+        el.classList.add('hz-flash');
+      });
+      list.appendChild(item);
+    });
+
+    if (status) status.textContent = hzItems.length ? `${start + 1}–${end} of ${hzItems.length}` : 'No changes';
+    if (nav) nav.classList.toggle('hidden', hzItems.length <= HZ_PAGE_SIZE);
+    if (prev) prev.disabled = hzPage === 0;
+    if (next) next.disabled = hzPage >= totalPages - 1;
+  }
+
+  const hzPrev = document.getElementById('hz-page-prev');
+  const hzNext = document.getElementById('hz-page-next');
+  hzPrev?.addEventListener('click', () => { hzPage -= 1; renderHzPage(); });
+  hzNext?.addEventListener('click', () => { hzPage += 1; renderHzPage(); });
+
   function loadHzPanel() {
     if (!hzPanel || !changesView) return;
     const els = changeEls();
     const countEl = document.getElementById('hz-count');
     if (countEl) countEl.textContent = els.length;
-    const list = document.getElementById('hz-list');
-    if (list) {
-      list.innerHTML = '';
-      els.forEach(el => {
-        const mark = el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed');
-        const orig = el.querySelector ? (el.querySelector('.word-original')?.textContent || '') : '';
-        const now  = (mark || el).textContent;
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'hz-item';
-        item.innerHTML = orig
-          ? `<s>${escHtml(orig)}</s><span class="hz-arrow" aria-hidden="true">&rarr;</span><b>${escHtml(now)}</b>`
-          : `<span class="hz-arrow" aria-hidden="true">+</span><b>${escHtml(now)}</b>`;
-        item.addEventListener('click', () => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.remove('hz-flash');
-          void el.offsetWidth;
-          el.classList.add('hz-flash');
-        });
-        list.appendChild(item);
-      });
-    }
+    hzItems = els;
+    hzPage = 0;
+    renderHzPage();
     // Master toggle: show the rephrased text vs revert everything to the original
     const box = document.getElementById('hz-toggle');
     if (box) {

@@ -9255,19 +9255,37 @@ mark.word-changed.change-reverted { display: none; }
 .cf-row[data-cat="grammar"]  { --cc: #d6336c; }
 .cf-row[data-cat="rephrase"] { --cc: #64748b; }
 
-/* ── Humanize result panel: slate master row + a plain list of the changes ── */
+/* ── Humanize result panel: slate master row + compact paged preview ── */
+.hz-list-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--g100);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g300);
+}
+#hz-page-status {
+  color: var(--g400);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 .hz-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--g100);
-  max-height: 340px;
-  overflow-y: auto;
+  margin-top: 5px;
+  overflow: hidden;
 }
 .hz-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: baseline;
   gap: 7px;
   width: 100%;
@@ -9282,16 +9300,42 @@ mark.word-changed.change-reverted { display: none; }
   line-height: 1.5;
   transition: background 0.15s;
 }
+.hz-item-insert { grid-template-columns: auto minmax(0, 1fr); }
 .hz-item:hover { background: var(--g050); }
 .hz-item s {
   color: var(--g400);
   text-decoration-color: color-mix(in srgb, #64748b 55%, transparent);
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .hz-item .hz-arrow { color: var(--g300); flex-shrink: 0; font-size: 11px; }
-.hz-item b { color: var(--black); font-weight: 600; min-width: 0; }
+.hz-item b { color: var(--black); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .hz-panel.hz-off .hz-item b { color: var(--g300); }
 .hz-panel.hz-off .hz-item s { text-decoration: none; color: var(--black); }
+.hz-list-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+.hz-list-nav.hidden { display: none; }
+.hz-page-btn {
+  width: 30px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--g150);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--black);
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.hz-page-btn:not(:disabled):hover { background: var(--g050); border-color: var(--g300); }
+.hz-page-btn:disabled { opacity: 0.3; cursor: default; }
 
 /* Flash the change a list item points at */
 @keyframes hz-flash {

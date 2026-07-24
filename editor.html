@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=57">
+  <link rel="stylesheet" href="style.css?v=58">
 </head>
 <body class="editor-page">
 
@@ -107,13 +107,21 @@
             </div>
           </aside>
 
-          <!-- Humanize results: one slate category + a plain list of the changes -->
+          <!-- Humanize results: one slate category + a compact paged preview -->
           <aside class="changes-filter hz-panel hidden" id="hz-panel">
             <div class="cf-head">Humanize changes</div>
             <div class="cf-rows">
               <label class="cf-row" data-cat="rephrase"><span class="cf-dot"></span><span class="cf-name">Rephrased</span><span class="cf-count" id="hz-count">0</span><input type="checkbox" id="hz-toggle" checked><span class="cf-switch"></span></label>
             </div>
+            <div class="hz-list-meta">
+              <span>Change preview</span>
+              <span id="hz-page-status" aria-live="polite"></span>
+            </div>
             <div class="hz-list" id="hz-list"></div>
+            <div class="hz-list-nav" id="hz-list-nav">
+              <button class="hz-page-btn" id="hz-page-prev" type="button" aria-label="Previous changes">&larr;</button>
+              <button class="hz-page-btn" id="hz-page-next" type="button" aria-label="Next changes">&rarr;</button>
+            </div>
           </aside>
 
           <div class="editor-actions" id="editor-actions">
@@ -180,7 +188,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="editor.js?v=14"></script>
+  <script src="editor.js?v=15"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

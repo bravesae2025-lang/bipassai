@@ -830,6 +830,20 @@ function _parseAnnotatedResult(annotated) {
   return { cleanText: cleanText.trim(), html: html.replace(/\n/g, '<br>\n'), counts, total };
 }
 
+// Make the result's paragraph spacing mirror the input's. If the input used
+// blank lines between paragraphs, so does the output; if it used single line
+// breaks, so does the output — and any runaway multi-blank-line gap from the
+// model is collapsed to that style. Only touches newlines/trailing spaces, so
+// it is safe on annotated ([[orig|repl|cats]]) result strings.
+function _matchParagraphSpacing(output, reference) {
+  if (typeof output !== 'string') return output;
+  const sep = /\n[ \t]*\n/.test(reference || '') ? '\n\n' : '\n';
+  return output
+    .replace(/[ \t]+\n/g, '\n')                 // strip trailing spaces on lines
+    .replace(/(?:[ \t]*\n[ \t]*){2,}/g, sep)     // collapse blank-line runs to input's style
+    .trim();
+}
+
 function _buildDiffHtml(original, result, forceCat) {
   const norm = w => w.replace(/[.,!?;:'"()\[\]]/g, '').toLowerCase();
   // Split into alternating [word, whitespace, word, ...] tokens
@@ -1067,7 +1081,8 @@ async function adjustLevel() {
       throw new Error(d.error || 'Level matching failed');
     }
     const data   = await res.json();
-    const result = data.result;
+    // Mirror the input's paragraph spacing so the result isn't over-spaced.
+    const result = _matchParagraphSpacing(data.result, text);
 
     // Prefer AI annotations (accurate multi-category); fall back to the diff.
     const parsed   = _parseAnnotatedResult(result);
@@ -1168,7 +1183,8 @@ async function runHumanize() {
       throw new Error(d.error || 'Humanize failed');
     }
     const hData     = await hRes.json();
-    const humanized = hData.result;
+    // Mirror the input's paragraph spacing so the result isn't over-spaced.
+    const humanized = _matchParagraphSpacing(hData.result, text);
     if (!humanized) throw new Error('No output from humanizer');
     if (hData.creditsUsed != null) updateCreditDisplay(hData.creditsUsed, hData.creditsRemaining);
 
@@ -1201,13 +1217,15 @@ async function runHumanize() {
     }
     if (!alRes.ok) throw new Error('Level matching failed');
     const alData = await alRes.json();
+    // Mirror the input's paragraph spacing (Gemini can reflow into extra gaps).
+    const alResult = _matchParagraphSpacing(alData.result, text);
 
     lfxAdvance(2);   // "Producing final"
     // Prefer AI annotations (accurate multi-category); fall back to a computed diff.
-    const parsed   = _parseAnnotatedResult(alData.result);
-    const cleanRes = parsed ? parsed.cleanText : alData.result;
-    const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(humanized, alData.result);
-    const changed  = parsed ? parsed.total     : _countChanges(humanized, alData.result);
+    const parsed   = _parseAnnotatedResult(alResult);
+    const cleanRes = parsed ? parsed.cleanText : alResult;
+    const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(humanized, alResult);
+    const changed  = parsed ? parsed.total     : _countChanges(humanized, alResult);
 
     lfxFinish();
     const totalUsed = (hData.creditsUsed || 0) + (alData.creditsUsed || 0);

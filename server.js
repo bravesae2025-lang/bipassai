@@ -52,29 +52,16 @@ const REWRITEAI_ENDPOINT = 'https://rewriteai.com/api/v1/humanize';
 // safely under RewriteAI's per-request cap; tune if their limit is known.
 const REWRITEAI_MAX_CHARS = 3000;
 
-// Split text into humanizer-sized chunks without breaking words. Packs whole
-// paragraphs greedily up to `max`; a paragraph over `max` is split on sentence
-// boundaries, and a lone over-long sentence is hard-split on whitespace.
+// Split text into humanizer-sized chunks without breaking words, preserving
+// paragraph structure. Returns `[{ text, joiner }]` where `joiner` is the string
+// to place AFTER that chunk when stitching results back: '\n\n' at a real
+// paragraph boundary, ' ' when a single over-long paragraph had to be split
+// mid-way (so its pieces rejoin into one paragraph, not two), '' for the last.
+// Whole paragraphs are packed greedily to keep the API-call count low.
 function splitForHumanize(text, max = REWRITEAI_MAX_CHARS) {
-  if (text.length <= max) return [text];
+  if (text.length <= max) return [{ text, joiner: '' }];
 
-  const packBySeparator = (str, separator) => {
-    const parts = str.split(separator).filter((p) => p.length);
-    const out = [];
-    let current = '';
-    for (const part of parts) {
-      const candidate = current ? current + separator + part : part;
-      if (candidate.length <= max) {
-        current = candidate;
-      } else {
-        if (current) out.push(current);
-        current = part;
-      }
-    }
-    if (current) out.push(current);
-    return out;
-  };
-
+  // A single over-long sentence gets hard-split on whitespace (last resort).
   const hardSplit = (str) => {
     const out = [];
     const words = str.split(/(\s+)/); // keep whitespace tokens
@@ -84,8 +71,7 @@ function splitForHumanize(text, max = REWRITEAI_MAX_CHARS) {
         current += w;
       } else {
         if (current) out.push(current);
-        // A single word longer than max: slice it outright.
-        if (w.length > max) {
+        if (w.length > max) { // a single word longer than max: slice it outright
           for (let i = 0; i < w.length; i += max) out.push(w.slice(i, i + max));
           current = '';
         } else {
@@ -97,34 +83,58 @@ function splitForHumanize(text, max = REWRITEAI_MAX_CHARS) {
     return out;
   };
 
-  const chunks = [];
-  for (const para of packBySeparator(text, '\n\n')) {
-    if (para.length <= max) { chunks.push(para); continue; }
-    // Paragraph too big → split on sentences, then hard-split anything still over.
-    for (const sentGroup of packBySeparatorSentences(para, max)) {
-      if (sentGroup.length <= max) chunks.push(sentGroup);
-      else chunks.push(...hardSplit(sentGroup));
+  // Pack sentences (split on end punctuation + space) up to `max`.
+  const packSentences = (str) => {
+    const sentences = str.split(/(?<=[.!?])\s+/).filter((s) => s.length);
+    const out = [];
+    let current = '';
+    for (const s of sentences) {
+      const candidate = current ? current + ' ' + s : s;
+      if (candidate.length <= max) current = candidate;
+      else { if (current) out.push(current); current = s; }
     }
-  }
-  return chunks;
-}
+    if (current) out.push(current);
+    return out;
+  };
 
-// Pack sentences (split on end punctuation + space) up to `max`.
-function packBySeparatorSentences(str, max) {
-  const sentences = str.split(/(?<=[.!?])\s+/).filter((s) => s.length);
-  const out = [];
-  let current = '';
-  for (const s of sentences) {
-    const candidate = current ? current + ' ' + s : s;
+  // 1) Flatten into pieces, each tagged with the joiner that follows it.
+  //    Pieces inside a split paragraph join with ' '; paragraphs join with '\n\n'.
+  const paras = text.split(/\n[ \t]*\n/).map((p) => p.replace(/[ \t]+\n/g, '\n')).filter((p) => p.trim().length);
+  const pieces = [];
+  paras.forEach((para, pi) => {
+    const afterPara = pi < paras.length - 1 ? '\n\n' : '';
+    if (para.length <= max) {
+      pieces.push({ text: para, joiner: afterPara });
+      return;
+    }
+    const subs = [];
+    for (const grp of packSentences(para)) {
+      if (grp.length <= max) subs.push(grp);
+      else subs.push(...hardSplit(grp));
+    }
+    subs.forEach((s, si) => {
+      const last = si === subs.length - 1;
+      pieces.push({ text: s, joiner: last ? afterPara : ' ' });
+    });
+  });
+
+  // 2) Greedily pack consecutive pieces into chunks (merging across their
+  //    joiners), remembering the joiner that follows each finished chunk.
+  const chunks = [];
+  let cur = '', curJoiner = '';
+  for (const pc of pieces) {
+    const candidate = cur ? cur + curJoiner + pc.text : pc.text;
     if (candidate.length <= max) {
-      current = candidate;
+      cur = candidate;
+      curJoiner = pc.joiner;
     } else {
-      if (current) out.push(current);
-      current = s;
+      if (cur) chunks.push({ text: cur, joiner: curJoiner });
+      cur = pc.text;
+      curJoiner = pc.joiner;
     }
   }
-  if (current) out.push(current);
-  return out;
+  if (cur) chunks.push({ text: cur, joiner: curJoiner });
+  return chunks;
 }
 
 async function callRewriteAI(text) {
@@ -1230,13 +1240,14 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
 
   try {
     // Long text exceeds RewriteAI's per-request cap, so humanize it in chunks
-    // and stitch the results. Short text yields a single chunk (unchanged path).
+    // and stitch the results back with each chunk's original joiner (so paragraph
+    // structure is preserved). Short text yields a single chunk (unchanged path).
     const chunks = splitForHumanize(text);
-    const humanizedParts = [];
+    let result = '';
 
     for (const chunk of chunks) {
       if (cancelled) return;
-      const rwRes = await callRewriteAI(chunk);
+      const rwRes = await callRewriteAI(chunk.text);
 
       if (!rwRes.ok) {
         const err = await rwRes.json().catch(() => ({}));
@@ -1251,10 +1262,10 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
       const data = await rwRes.json();
       const part = data?.results?.[0]?.text?.trim();
       if (!part) return res.status(502).json({ error: 'No output from humanizer' });
-      humanizedParts.push(part);
+      result += part + chunk.joiner;
     }
 
-    const result = humanizedParts.join('\n\n');
+    result = result.trim();
 
     // ── Deduct credits: 1 per INPUT character (same model as adjust-level) ──
     if (cancelled) return;

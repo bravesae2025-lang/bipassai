@@ -8270,7 +8270,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 }
 .level-btn-custom:hover { color: var(--black); border-color: var(--g400); }
 .level-btn-custom.active { background: var(--black); color: #fff; border-color: var(--black); }
-.col-customize .level-btn-custom { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); height: 32px; }
+.col-customize .level-btn-custom { background: #1a1a1a; border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.5); height: 32px; }
 .col-customize .level-btn-custom:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
 .col-customize .level-btn-custom.active { background: #fff; color: #000; border-color: #fff; }
 

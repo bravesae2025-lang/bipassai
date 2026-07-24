@@ -2739,7 +2739,7 @@ body.editor-page { background: var(--bg); }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--black);
-  background: transparent;
+  background: #fff;
   border: 1px solid var(--g200);
   border-radius: 6px;
   padding: 7px 18px;
@@ -2943,7 +2943,7 @@ body.editor-page { background: var(--bg); }
   position: relative;
   overflow: hidden;
   color: var(--g400);
-  background: transparent;
+  background: #fff;
   border-color: var(--g150);
   transition: border-color 0.25s, color 0.25s;
 }
@@ -8943,14 +8943,14 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .editor-btn-regen {
   color: var(--black);
-  background: transparent;
+  background: #fff;
   border-color: var(--g150);
 }
 .editor-btn-regen:hover { color: #fff; background: var(--black); border-color: var(--black); }
 .editor-btn-regen:disabled { opacity: 0.4; cursor: not-allowed; }
 .editor-btn-push {
   color: var(--black);
-  background: transparent;
+  background: #fff;
   border-color: var(--g150);
 }
 .editor-btn-push:hover:not(:disabled) { border-color: var(--black); }

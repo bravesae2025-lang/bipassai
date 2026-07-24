@@ -870,7 +870,7 @@ app.post('/api/analyze', asyncHandler(async (req, res) => {
 
 // ─── POST /api/adjust-level ───────────────────────────────────
 
-function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) {
+function buildCustomizePrompt(mistakes, wordCount = 200) {
   const score = (value) => clampStyleScore(value, 0);
   const cfg = {
     grammar: score(mistakes?.grammar),
@@ -929,9 +929,6 @@ function buildCustomizePrompt(mistakes, lockSentenceStructure, wordCount = 200) 
     ? `\n\nWORD LEVEL — ACADEMIC: Preserve accurate advanced vocabulary, but replace obvious AI buzzwords such as utilize, leverage, facilitate, comprehensive, paramount, groundbreaking, transformative, seamless, and delve. Do not inflate simple, clear wording just to sound harder.`
     : `\n\nWORD LEVEL — EXPERT: Preserve sophisticated and technical vocabulary. Replace only glaring AI-specific wording (utilize→use, leverage→use, facilitate→help), and do not make clear sentences needlessly complicated.`;
 
-  const lockLine = lockSentenceStructure
-    ? '\n- STRUCTURE LOCK: every sentence must stay one sentence — word count per sentence must be identical or differ by at most one word.'
-    : '';
   return `Scan this text for AI-detection signals and fix them word by word. Your job is word-level replacement only — no sentence restructuring, no paraphrasing.
 
 WHAT TO FIX:
@@ -947,7 +944,8 @@ STRICT RULES:
 - Keep proper nouns, numbers, and technical terms unchanged
 - NEVER TOUCH NAMES: leave every person, place, organisation, brand, product, and title name exactly as written — never change its spelling, never lowercase its capital letter, never apply any vocabulary/tense/spelling/capital mistake to it. This overrides every mistake instruction above. (If a sentence happens to START with a name, skip the lowercase-first-letter mistake for that sentence and apply it elsewhere.)
 - NEVER TOUCH QUOTES: any text inside quotation marks ("…", '…', “…”, ‘…’) is a direct quote — reproduce it character-for-character, including its original capitals, spelling, and punctuation. Apply NO changes or mistakes inside quotation marks.
-- Never expand one word into a full phrase that changes sentence rhythm${lockLine}
+- Never expand one word into a full phrase that changes sentence rhythm
+- STRUCTURE LOCK: every sentence must stay one sentence — word count per sentence must be identical or differ by at most one word.
 - No em dashes — replace any with a comma
 - NO hyphens joining words — write "life changing" not "life-changing", "long term" not "long-term", "state of the art" not "state-of-the-art". If the original has a hyphenated word, split it into separate words.
 
@@ -996,7 +994,7 @@ function resolveLevelMatchProfile(level, mistakes) {
 }
 
 app.post('/api/adjust-level', asyncHandler(async (req, res) => {
-  const { text, level, lockSentenceStructure, mistakes } = req.body || {};
+  const { text, level, mistakes } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -1044,7 +1042,7 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
 
   const wordCount = (text.trim().match(/\S+/g) || []).length;
   const presetCfg = resolveLevelMatchProfile(level, mistakes);
-  const systemPrompt = buildCustomizePrompt(presetCfg, lockSentenceStructure, wordCount);
+  const systemPrompt = buildCustomizePrompt(presetCfg, wordCount);
 
   const fullPrompt = `${systemPrompt}\n\nText:\n${text}`;
 

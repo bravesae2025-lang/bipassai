@@ -526,9 +526,6 @@ main {
 .workspace.mode-own .col-customize { opacity: 0.5; pointer-events: none; }
 .workspace.mode-own #humanize-wc,
 .workspace.mode-own #est-cost { display: none !important; }
-/* Both mode force-locks the structure, so hide the redundant lock toggle. */
-.workspace.mode-both .lock-structure-block { display: none; }
-
 /* "Pick a level first" error state — a clean red ring that hugs the whole
    Level Matching card (box-shadow follows the card's 16px radius) + a shake. */
 .col.col-customize.needs-level {
@@ -10028,45 +10025,6 @@ mark.word-changed.hz-flash {
   user-select: none;
   pointer-events: none;
 }
-
-/* ── Lock sentence structure toggle ── */
-.lock-structure-block { margin-top: 12px; }
-.lock-structure-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px 8px 12px;
-  border: 1.5px solid #000;
-  border-radius: 20px;
-  background: #000;
-  font-family: var(--ff-ui, inherit);
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.2s, transform 0.2s;
-  user-select: none;
-}
-.lock-structure-btn:hover {
-  background: #1a1a1a;
-  border-color: #1a1a1a;
-}
-.lock-structure-btn.active {
-  border-color: #fff;
-  background: #000;
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
-  transform: translateY(-2px);
-}
-.lock-structure-btn.active:hover {
-  background: #1a1a1a;
-}
-.lock-structure-icon { display: flex; align-items: center; flex-shrink: 0; }
-/* Show/hide correct padlock icon based on state */
-.lock-structure-btn .icon-locked  { display: none; }
-.lock-structure-btn.active .icon-unlocked { display: none; }
-.lock-structure-btn.active .icon-locked   { display: block; }
 
 /* ═══════════════════════════════════════════════════════════════
    ABOUT PAGE — about.html

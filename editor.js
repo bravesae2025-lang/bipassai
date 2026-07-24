@@ -669,9 +669,6 @@ async function regenerateMatchedText(input, level, flow, token) {
   const annotated = await callEditorJson('/api/adjust-level', {
     text: matchInput,
     level,
-    lockSentenceStructure: flow === 'both'
-      ? true
-      : localStorage.getItem('bipass_lock_structure') === 'true',
     mistakes: level === 'customize' ? storedMatchSettings() : undefined,
   }, token);
   return cleanAnnotatedResult(annotated);

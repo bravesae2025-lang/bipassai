@@ -184,15 +184,15 @@ test('custom matching adds no mechanical errors for a clean profile', () => {
     punct: 0,
     caps: 0,
     spelling: 0,
-  }, false, 180);
+  }, 180);
   assert.match(prompt, /no recurring grammar, tense, punctuation, capitalization, or spelling mistakes/);
   assert.doesNotMatch(prompt, /make approximately/);
   assert.doesNotMatch(prompt, /change at least/);
 });
 
 test('custom matching keeps subtle punctuation restrained on short text', () => {
-  const subtle = buildCustomizePrompt({ wordLevel: 5, punct: 2 }, false, 90);
-  const heavy = buildCustomizePrompt({ wordLevel: 5, punct: 9 }, false, 90);
+  const subtle = buildCustomizePrompt({ wordLevel: 5, punct: 2 }, 90);
+  const heavy = buildCustomizePrompt({ wordLevel: 5, punct: 9 }, 90);
   assert.match(subtle, /approximately 1 minor punctuation slip/);
   assert.match(heavy, /approximately 4 minor punctuation slips/);
   assert.doesNotMatch(subtle, /35%/);
@@ -207,7 +207,7 @@ test('custom matching spreads a consistently weak profile across every observed 
     punct: 8,
     caps: 8,
     spelling: 8,
-  }, false, 180);
+  }, 180);
   assert.match(prompt, /approximately 8 natural grammar slips/);
   assert.match(prompt, /approximately 6 natural tense slips/);
   assert.match(prompt, /approximately 6 minor punctuation slips/);
@@ -217,8 +217,8 @@ test('custom matching spreads a consistently weak profile across every observed 
 });
 
 test('custom matching changes vocabulary to the selected level without a forced swap quota', () => {
-  const elementary = buildCustomizePrompt({ wordLevel: 1 }, false, 120);
-  const academic = buildCustomizePrompt({ wordLevel: 8 }, false, 120);
+  const elementary = buildCustomizePrompt({ wordLevel: 1 }, 120);
+  const academic = buildCustomizePrompt({ wordLevel: 8 }, 120);
   assert.match(elementary, /Any word a 10-year-old would not use.*must be replaced/);
   assert.match(academic, /Preserve accurate advanced vocabulary/);
   assert.match(elementary, /Do not force extra synonym swaps after the text matches the target/);
@@ -252,9 +252,9 @@ test('custom level settings are preserved and safely clamped for regeneration', 
 });
 
 test('preset prompts scale mistakes down from Beginner to Academic', () => {
-  const beginner = buildCustomizePrompt(resolveLevelMatchProfile('easy'), false, 180);
-  const student = buildCustomizePrompt(resolveLevelMatchProfile('medium'), false, 180);
-  const academic = buildCustomizePrompt(resolveLevelMatchProfile('hard'), false, 180);
+  const beginner = buildCustomizePrompt(resolveLevelMatchProfile('easy'), 180);
+  const student = buildCustomizePrompt(resolveLevelMatchProfile('medium'), 180);
+  const academic = buildCustomizePrompt(resolveLevelMatchProfile('hard'), 180);
 
   assert.match(beginner, /WORD LEVEL — ELEMENTARY/);
   assert.match(student, /WORD LEVEL — STUDENT/);
@@ -262,4 +262,10 @@ test('preset prompts scale mistakes down from Beginner to Academic', () => {
   assert.match(beginner, /approximately 6 minor punctuation slips/);
   assert.match(student, /approximately 2 minor punctuation slips/);
   assert.match(academic, /approximately 1 minor punctuation slip/);
+});
+
+test('level matching always locks sentence structure', () => {
+  const prompt = buildCustomizePrompt(resolveLevelMatchProfile('medium'), 120);
+  assert.match(prompt, /STRUCTURE LOCK: every sentence must stay one sentence/);
+  assert.match(prompt, /word count per sentence must be identical or differ by at most one word/);
 });

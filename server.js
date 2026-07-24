@@ -46,6 +46,87 @@ async function callClaude(prompt, stream = false) {
 // RewriteAI — purpose-built humanizer used by the Humanize / Humanize+Level modes.
 const REWRITEAI_ENDPOINT = 'https://rewriteai.com/api/v1/humanize';
 
+// RewriteAI rejects over-long input with a 400. We split anything bigger than
+// this into chunks, humanize each, and stitch the results back together so the
+// user can paste an essay of any length. Conservative (~450–500 words) to stay
+// safely under RewriteAI's per-request cap; tune if their limit is known.
+const REWRITEAI_MAX_CHARS = 3000;
+
+// Split text into humanizer-sized chunks without breaking words. Packs whole
+// paragraphs greedily up to `max`; a paragraph over `max` is split on sentence
+// boundaries, and a lone over-long sentence is hard-split on whitespace.
+function splitForHumanize(text, max = REWRITEAI_MAX_CHARS) {
+  if (text.length <= max) return [text];
+
+  const packBySeparator = (str, separator) => {
+    const parts = str.split(separator).filter((p) => p.length);
+    const out = [];
+    let current = '';
+    for (const part of parts) {
+      const candidate = current ? current + separator + part : part;
+      if (candidate.length <= max) {
+        current = candidate;
+      } else {
+        if (current) out.push(current);
+        current = part;
+      }
+    }
+    if (current) out.push(current);
+    return out;
+  };
+
+  const hardSplit = (str) => {
+    const out = [];
+    const words = str.split(/(\s+)/); // keep whitespace tokens
+    let current = '';
+    for (const w of words) {
+      if ((current + w).length <= max) {
+        current += w;
+      } else {
+        if (current) out.push(current);
+        // A single word longer than max: slice it outright.
+        if (w.length > max) {
+          for (let i = 0; i < w.length; i += max) out.push(w.slice(i, i + max));
+          current = '';
+        } else {
+          current = w;
+        }
+      }
+    }
+    if (current) out.push(current);
+    return out;
+  };
+
+  const chunks = [];
+  for (const para of packBySeparator(text, '\n\n')) {
+    if (para.length <= max) { chunks.push(para); continue; }
+    // Paragraph too big → split on sentences, then hard-split anything still over.
+    for (const sentGroup of packBySeparatorSentences(para, max)) {
+      if (sentGroup.length <= max) chunks.push(sentGroup);
+      else chunks.push(...hardSplit(sentGroup));
+    }
+  }
+  return chunks;
+}
+
+// Pack sentences (split on end punctuation + space) up to `max`.
+function packBySeparatorSentences(str, max) {
+  const sentences = str.split(/(?<=[.!?])\s+/).filter((s) => s.length);
+  const out = [];
+  let current = '';
+  for (const s of sentences) {
+    const candidate = current ? current + ' ' + s : s;
+    if (candidate.length <= max) {
+      current = candidate;
+    } else {
+      if (current) out.push(current);
+      current = s;
+    }
+  }
+  if (current) out.push(current);
+  return out;
+}
+
 async function callRewriteAI(text) {
   return fetch(REWRITEAI_ENDPOINT, {
     method:  'POST',
@@ -310,6 +391,13 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 }));
 
 // ─── Middleware ────────────────────────────────────────────────
+
+// Keep every public URL on the canonical apex domain. Railway must also have
+// www.bipassai.com attached to this service for the request to reach Express.
+app.use((req, res, next) => {
+  if (req.hostname.toLowerCase() !== 'www.bipassai.com') return next();
+  return res.redirect(308, `https://bipassai.com${req.originalUrl}`);
+});
 
 app.use(express.json());
 
@@ -1097,7 +1185,7 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
 
 // ─── POST /api/rw-humanize ─────────────────────────────────────
 // RewriteAI humanizer. Used by the "Humanize" mode, and as the 2nd step of
-// "Humanize + Level Adjust" (the client sends the already-level-adjusted text).
+// "Humanize + Level Matching" (the client sends the already-level-matched text).
 app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
   const { text } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
@@ -1141,21 +1229,32 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
   req.on('close', () => { cancelled = true; });
 
   try {
-    const rwRes = await callRewriteAI(text);
+    // Long text exceeds RewriteAI's per-request cap, so humanize it in chunks
+    // and stitch the results. Short text yields a single chunk (unchanged path).
+    const chunks = splitForHumanize(text);
+    const humanizedParts = [];
 
-    if (!rwRes.ok) {
-      const err = await rwRes.json().catch(() => ({}));
-      const msg = err?.error || err?.message;
-      // Map RewriteAI's codes to something the UI can show cleanly.
-      if (rwRes.status === 401) { console.error('[rw-humanize] bad RewriteAI key'); return res.status(500).json({ error: 'Humanizer not configured' }); }
-      if (rwRes.status === 402) return res.status(503).json({ error: 'The humanizer is temporarily out of capacity. Please try again later.' });
-      if (rwRes.status === 400) return res.status(400).json({ error: msg || 'Text too long or invalid.' });
-      return res.status(502).json({ error: msg || 'Humanizer error' });
+    for (const chunk of chunks) {
+      if (cancelled) return;
+      const rwRes = await callRewriteAI(chunk);
+
+      if (!rwRes.ok) {
+        const err = await rwRes.json().catch(() => ({}));
+        const msg = err?.error || err?.message;
+        // Map RewriteAI's codes to something the UI can show cleanly.
+        if (rwRes.status === 401) { console.error('[rw-humanize] bad RewriteAI key'); return res.status(500).json({ error: 'Humanizer not configured' }); }
+        if (rwRes.status === 402) return res.status(503).json({ error: 'The humanizer is temporarily out of capacity. Please try again later.' });
+        if (rwRes.status === 400) return res.status(400).json({ error: msg || 'Text too long or invalid.' });
+        return res.status(502).json({ error: msg || 'Humanizer error' });
+      }
+
+      const data = await rwRes.json();
+      const part = data?.results?.[0]?.text?.trim();
+      if (!part) return res.status(502).json({ error: 'No output from humanizer' });
+      humanizedParts.push(part);
     }
 
-    const data   = await rwRes.json();
-    const result = data?.results?.[0]?.text?.trim();
-    if (!result) return res.status(502).json({ error: 'No output from humanizer' });
+    const result = humanizedParts.join('\n\n');
 
     // ── Deduct credits: 1 per INPUT character (same model as adjust-level) ──
     if (cancelled) return;

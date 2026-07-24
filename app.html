@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=54">
+  <link rel="stylesheet" href="style.css?v=55">
 </head>
 <body>
 
@@ -188,7 +188,7 @@
         <div id="humanize-section">
           <div class="mode-tabs-head">
             <div class="mode-dropdown" id="mode-dd">
-              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-describedby="mode-recommendation-text">
+              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
                 <span class="mode-dd-current" id="mode-dd-current">Level Matching</span>
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
@@ -216,11 +216,6 @@
             </div>
             <span class="box-wc" id="humanize-wc">0 words</span>
             <span class="box-cost hidden" id="est-cost" title="Estimated cost — 1 credit per input character; combined mode runs two passes"></span>
-          </div>
-
-          <div class="mode-recommendation" id="mode-recommendation">
-            <span class="mode-recommendation-label" aria-hidden="true">Best for</span>
-            <span class="mode-recommendation-text" id="mode-recommendation-text"></span>
           </div>
 
           <div class="file-upload-row mode-block" data-mode="level humanize both">
@@ -734,37 +729,7 @@
     const trigger  = document.getElementById('mode-dd-trigger');
     const menu     = document.getElementById('mode-dd-menu');
     const current  = document.getElementById('mode-dd-current');
-    const recommendation = document.getElementById('mode-recommendation-text');
     const options  = menu ? Array.from(menu.querySelectorAll('.mode-dd-option')) : [];
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let typeTimer = 0;
-
-    function updateRecommendation(mode, animate) {
-      if (!recommendation) return;
-      const option = options.find(o => o.dataset.mode === mode);
-      const message = option?.querySelector('.mode-dd-option-desc')?.textContent.trim() || '';
-      window.clearTimeout(typeTimer);
-      recommendation.classList.remove('is-typing');
-
-      if (!animate || reducedMotion) {
-        recommendation.textContent = message;
-        return;
-      }
-
-      recommendation.textContent = '';
-      recommendation.classList.add('is-typing');
-      let index = 0;
-      function typeNext() {
-        index += 1;
-        recommendation.textContent = message.slice(0, index);
-        if (index < message.length) {
-          typeTimer = window.setTimeout(typeNext, 15);
-        } else {
-          recommendation.classList.remove('is-typing');
-        }
-      }
-      typeTimer = window.setTimeout(typeNext, 100);
-    }
 
     function setMode(mode) {
       blocks.forEach(b => {
@@ -786,10 +751,8 @@
       document.body.dataset.appMode = mode;
       // Let app.js refresh the cost estimate (it changes with mode, not just text).
       document.dispatchEvent(new CustomEvent('bipass-mode-change'));
-      updateRecommendation(mode, true);
     }
     document.body.dataset.appMode = 'level';
-    updateRecommendation('level', true);
 
     function closeMenu() {
       dd?.classList.remove('open');

@@ -3919,11 +3919,14 @@ body.editor-page { background: var(--bg); }
   line-height: 1.6;
 }
 
+/* Three plans, equal-height columns. `stretch` (not `start`) is what lets the
+   flex:1 on .pricing-features absorb the uneven feature counts, so every card
+   ends at the same baseline and the buttons line up across the row. */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .pricing-card {

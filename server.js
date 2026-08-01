@@ -462,7 +462,12 @@ app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
 app.get('/app',      (_req, res) => res.redirect(301, '/home'));
 app.get('/app.html', (_req, res) => res.redirect(301, '/home'));
 
-app.use(express.static(__dirname));
+// dotfiles: 'deny' is load-bearing, not tidiness. The project root is the web
+// root, and express.static's default only hides dot-named *files* — anything
+// inside a dot-directory is served, so /.git/config, /.git/HEAD and /.git/index
+// were all publicly fetchable, which is enough for git-dumper to reconstruct the
+// whole repository and its history.
+app.use(express.static(__dirname, { dotfiles: 'deny' }));
 
 // ─── GET /config ───────────────────────────────────────────────
 

@@ -163,7 +163,7 @@ async function activatePlan(plan) {
     const { url } = await res.json();
     window.location.href = url;
   } catch {
-    const labels = { day: 'Get Day Pass', weekly: 'Get Weekly', monthly: 'Get Monthly', annual: 'Get Annual' };
+    const labels = { day: 'Get Day Pass', monthly: 'Get Monthly', annual: 'Get Annual' };
     if (btn) { btn.disabled = false; btn.textContent = labels[plan] || 'Get Plan'; }
     showToast('Something went wrong. Try again.');
   }

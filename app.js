@@ -1044,9 +1044,6 @@ async function adjustLevel() {
   if (!requireLevel()) return;
   if (!(await preflightGate())) return;
 
-  // The user actually ran the tool → retire the first-visit coach-mark tour.
-  try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
-
   const getMistakes = () => ({
     grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
     tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
@@ -1209,6 +1206,9 @@ async function runHumanize() {
         text: humanized,
         level: selectedLevel,
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+        // Receipt from step 1 — this essay is already paid for, so the
+        // level-matching pass runs without charging a second time.
+        continuation: hData.continuation,
       }),
     });
     if (alRes.status === 402) {
@@ -2251,14 +2251,14 @@ async function preflightGate() {
   return true;
 }
 
-// Estimated cost in credits. Billing is 1 credit per INPUT character:
-// Level Matching and Humanize each bill the input once; "Humanize + Level
-// Matching" runs two passes (humanize → level-matching) so it's ~2x. Mirrors
-// /api/adjust-level and /api/rw-humanize in server.js.
+// Estimated cost in credits. Billing is 1 credit per INPUT character, charged
+// once per run in every mode: "Humanize + Level Matching" makes two requests,
+// but the second presents a continuation receipt and isn't billed again.
+// Mirrors /api/adjust-level and /api/rw-humanize in server.js.
 function estimateCost() {
   const len = inputText.value.length;
   if (!len) return null;
-  return document.body.dataset.appMode === 'both' ? len * 2 : len;
+  return len;
 }
 
 function updateStats() {
@@ -2441,9 +2441,6 @@ async function generateNew() {
 async function humanize() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
-
-  // The user actually ran the tool → retire the first-visit coach-mark tour.
-  try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
 
   updateCostPreview('humanize-cost', null);
   saveState('humanize');
@@ -2931,6 +2928,11 @@ const TOUR_STEPS = [
 
 function startTour() {
   if (document.getElementById('tour-catch')) return;         // already running
+  // Showing the tour once is enough. Persist this immediately so it does not
+  // reappear on the next visit when the user closes, skips, or leaves without
+  // running the tool.
+  try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
+
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let i = 0;
   let rafId = 0;
@@ -3035,9 +3037,6 @@ function startTour() {
     window.removeEventListener('scroll', place, true);
     window.removeEventListener('resize', place);
     catcher.remove(); spot.remove(); pop.remove();
-    // NOTE: we intentionally do NOT mark the tour "seen" here. Dismissing/skipping
-    // shouldn't retire it — it keeps showing until the user actually runs the tool
-    // (bipass_tour_seen is set in adjustLevel()/humanize()).
   }
 
   window.addEventListener('scroll', place, true);

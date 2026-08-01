@@ -238,6 +238,48 @@ function verifyRewardToken(token) {
   return days;
 }
 
+// ─── Humanize → Level Matching continuation receipt ───────────
+// "Humanize + Level Matching" runs as two requests so the UI can show real
+// progress between passes, but the user should only pay for the essay once.
+// /api/rw-humanize bills the input and hands back a signed receipt; the
+// follow-up /api/adjust-level presents it and skips its own deduction.
+//
+// The receipt is bound to the user and to a character ceiling (the humanized
+// text the server just produced, plus a small allowance because the client
+// re-matches paragraph spacing before sending it back). That stops the obvious
+// abuse: paying to humanize one sentence, then level-matching an entire book
+// for free. It expires quickly and can't be forged without the secret.
+const CONTINUATION_TTL = 600_000; // 10 min — generous for a slow level-match pass
+
+function continuationSig(userId, maxChars, issued) {
+  return crypto.createHmac('sha256', REWARD_SECRET)
+    .update(`cont.${userId}.${maxChars}.${issued}`)
+    .digest('hex');
+}
+
+function signContinuation(userId, producedChars) {
+  const maxChars = Math.ceil(producedChars * 1.05) + 50;  // whitespace re-matching wiggle room
+  const issued   = Date.now();
+  return `${maxChars}.${issued}.${continuationSig(userId, maxChars, issued)}`;
+}
+
+// True only for an authentic, unexpired receipt that covers this much text.
+function verifyContinuation(token, userId, textLength) {
+  if (typeof token !== 'string') return false;
+  const [maxStr, issuedStr, sig] = token.split('.');
+  if (!maxStr || !issuedStr || !sig) return false;
+
+  const maxChars = Number(maxStr);
+  const issued   = Number(issuedStr);
+  if (!Number.isFinite(maxChars) || !Number.isFinite(issued)) return false;
+  if (Date.now() - issued > CONTINUATION_TTL) return false;
+  if (textLength > maxChars) return false;
+
+  const a = Buffer.from(sig);
+  const b = Buffer.from(continuationSig(userId, maxChars, issued));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 // Keep non-payment routes available in local/dev environments where Stripe is
 // intentionally not configured. Payment endpoints return a clear 503 instead
 // of crashing the entire server at startup.
@@ -246,10 +288,9 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 const STRIPE_PRICES = {
-  day:     'price_1TeiVy0rExXCXCyXY6r0dH7a',
-  weekly:  'price_1TeiWs0rExXCXCyXa6IDQycH',
-  monthly: 'price_1TeiXE0rExXCXCyXI5c3l9Hk',
-  annual:  'price_1TeiXo0rExXCXCyXVTDAL1cD',
+  day:     'price_1TzOdB0rExXCXCyXpJSLFuKQ',
+  monthly: 'price_1TzObS0rExXCXCyXaH5ixBDT',
+  annual:  'price_1TzOaN0rExXCXCyXxsXupUvZ',
 };
 
 function getBillingMeta(user) {
@@ -549,11 +590,14 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
   return res.json({ ok: true, credits: amount });
 }));
 
+// Token grants are sized off the real cost of a run: one 1,000-word essay is
+// ~5,500 characters, and a full Humanize + Level Match pass on it costs ~$1.16.
+// So ~5,500 tokens ≈ one essay, and each plan's grant is set to keep a margin
+// on that even if every token goes through the expensive humanize path.
 const PLAN_CONFIG = {
-  day:     { ms: 86_400_000,             credits: 3_000   },
-  weekly:  { ms: 7  * 86_400_000,        credits: 10_000  },
-  monthly: { ms: 30 * 86_400_000,        credits: 30_000  },
-  annual:  { ms: 365 * 86_400_000,       credits: 100_000 },
+  day:     { ms: 86_400_000,             credits: 11_000  },  // $5.99  — ~2 essays
+  monthly: { ms: 30 * 86_400_000,        credits: 33_000  },  // $9.99  — ~6 essays
+  annual:  { ms: 365 * 86_400_000,       credits: 480_000 },  // $129   — ~87 essays
 };
 
 export const PURCHASE_TERMS_VERSION = '2026-07-22';
@@ -1092,13 +1136,17 @@ function resolveLevelMatchProfile(level, mistakes) {
 }
 
 app.post('/api/adjust-level', asyncHandler(async (req, res) => {
-  const { text, level, mistakes } = req.body || {};
+  const { text, level, mistakes, continuation } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  // Second pass of "Humanize + Level Matching": /api/rw-humanize already billed
+  // this essay, so run free rather than charging the user twice.
+  const prepaid = verifyContinuation(continuation, user.id, text.length);
 
   // ── Credit check (mirror /api/humanize) ───────────────────────
   // Plan expiry — blocks regardless of tier to prevent slip-through after demotion
@@ -1121,11 +1169,14 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
     await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
+  // A prepaid pass skips the balance gate: the essay is already paid for, and
+  // spending down to near-zero on the humanize step must not strand the user
+  // halfway through a combined run they've been charged for.
   const credits = billing.credits ?? INITIAL_CREDITS;
-  if (credits <= 0) {
+  if (!prepaid && credits <= 0) {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
   }
-  if (credits < text.length) {
+  if (!prepaid && credits < text.length) {
     return res.status(402).json({
       error: `This text needs ${text.length.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
       creditsRemaining: credits,
@@ -1180,11 +1231,12 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
       .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
 
     // ── Deduct credits: 1 per INPUT character (preview quotes input length;
-    //    the result carries [[…]] annotation markup, so don't bill on output). ──
+    //    the result carries [[…]] annotation markup, so don't bill on output).
+    //    A prepaid continuation was already billed by /api/rw-humanize. ──
     if (cancelled) return;
-    const creditsUsed = (text || '').length;
+    const creditsUsed = prepaid ? 0 : (text || '').length;
     const newCredits  = Math.max(0, credits - creditsUsed);
-    await updateUserCredits(user.id, newCredits);
+    if (creditsUsed) await updateUserCredits(user.id, newCredits);
 
     return res.json({ result: finalResult, creditsUsed, creditsRemaining: newCredits });
   } catch (err) {
@@ -1273,7 +1325,15 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
     const newCredits  = Math.max(0, credits - creditsUsed);
     await updateUserCredits(user.id, newCredits);
 
-    return res.json({ result, creditsUsed, creditsRemaining: newCredits });
+    // Receipt for the "Humanize + Level Matching" second pass, so that combined
+    // run bills the essay once rather than twice. Harmless for humanize-only —
+    // the client simply never presents it.
+    return res.json({
+      result,
+      creditsUsed,
+      creditsRemaining: newCredits,
+      continuation: signContinuation(user.id, result.length),
+    });
   } catch (err) {
     console.error('/api/rw-humanize error:', err);
     return res.status(500).json({ error: 'Server error' });

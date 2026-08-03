@@ -1756,6 +1756,7 @@ function selectLevel(level) {
     if (levelGlider) levelGlider.style.opacity = '0';
     if (levelDesc) levelDesc.textContent = 'Choose a level to get started';
     if (optionsPanel) optionsPanel.style.display = 'none';
+    document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level: null } }));
     return;
   }
 
@@ -1767,6 +1768,7 @@ function selectLevel(level) {
   optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
   // A valid pick clears the "pick a level" error state.
   document.querySelector('.col-customize')?.classList.remove('needs-level');
+  document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level } }));
 }
 
 // ─── My Style ─────────────────────────────────────────────────
@@ -3175,6 +3177,7 @@ function startTour() {
   // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
   let collapsed = localStorage.getItem('rec-flow-collapsed') === '1';
+  let autoCollapsedForCustom = false;
   function applyCollapsed() {
     box.classList.toggle('is-collapsed', collapsed);
     if (toggle) {
@@ -3186,11 +3189,37 @@ function startTour() {
   }
   if (toggle) {
     toggle.addEventListener('click', () => {
+      // A direct click is the user's preference and takes ownership away from
+      // the temporary Custom-level collapse.
+      autoCollapsedForCustom = false;
       collapsed = !collapsed;
       localStorage.setItem('rec-flow-collapsed', collapsed ? '1' : '0');
       applyCollapsed();
     });
   }
+
+  document.addEventListener('bipass-level-change', (event) => {
+    const customSelected = event.detail?.level === 'customize';
+
+    if (customSelected) {
+      // Make room for the taller Custom controls without overwriting the
+      // user's persisted minimize/expand preference.
+      if (!collapsed) {
+        collapsed = true;
+        autoCollapsedForCustom = true;
+        applyCollapsed();
+      }
+      return;
+    }
+
+    // Reopen only when Custom caused the collapse. A manual click on the minus
+    // button clears this flag, so the user's own collapsed choice is preserved.
+    if (autoCollapsedForCustom) {
+      collapsed = false;
+      autoCollapsedForCustom = false;
+      applyCollapsed();
+    }
+  });
 
   go(0);
   applyCollapsed();

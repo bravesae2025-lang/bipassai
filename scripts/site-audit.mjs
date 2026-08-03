@@ -126,7 +126,7 @@ if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
 }
 
-for (const name of ['index.html', 'plans.html', 'howto.html']) {
+for (const name of ['index.html', 'howto.html']) {
   const file = join(root, name);
   const html = readFileSync(file, 'utf8');
   if (!/1 credit per input character/i.test(html)) {

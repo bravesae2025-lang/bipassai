@@ -5909,52 +5909,6 @@ body.drawer-lock { overflow: hidden; }
 }
 .plans-trust-item svg { color: #16a34a; flex-shrink: 0; }
 .plans-trust-sep { color: var(--g200); font-size: 14px; line-height: 1; }
-.plans-billing-note {
-  max-width: 760px;
-  margin: -18px auto 24px;
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  line-height: 1.6;
-  text-align: center;
-  color: var(--g500);
-}
-.purchase-terms {
-  display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 0 10px;
-  max-width: 760px;
-  margin: 0 auto 24px;
-  padding: 14px 16px;
-  border: 1px solid var(--g150);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.88);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.purchase-terms input {
-  width: 16px;
-  height: 16px;
-  margin: 2px 0 0;
-  accent-color: var(--black);
-}
-.purchase-terms label {
-  font-family: var(--ff-ui);
-  font-size: 11px;
-  line-height: 1.55;
-  color: var(--g500);
-}
-.purchase-terms a { color: var(--black); font-weight: 700; }
-.purchase-terms-error {
-  grid-column: 2;
-  margin: 5px 0 0;
-  font-family: var(--ff-ui);
-  font-size: 11px;
-  font-weight: 600;
-  color: #b91c1c;
-}
-.purchase-terms-invalid {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
-}
 .plans-current-plan {
   margin-top: 20px;
 }
@@ -6036,8 +5990,6 @@ body.drawer-lock { overflow: hidden; }
 }
 
 .credits-head { text-align: center; }
-
-.credits-section .purchase-terms { margin-bottom: 0; }
 
 .credits-title {
   font-family: var(--ff-display);

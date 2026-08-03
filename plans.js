@@ -1,5 +1,4 @@
 let _toastTimer;
-const TERMS_VERSION = '2026-07-22';
 
 function showToast(msg) {
   const toast = document.getElementById('toast');
@@ -12,31 +11,6 @@ function showToast(msg) {
     toast.classList.remove('show');
     setTimeout(() => toast.classList.add('hidden'), 200);
   }, 2200);
-}
-
-function hasPurchaseConsent(kind) {
-  const checkbox = document.getElementById(`${kind}-terms-accepted`);
-  const wrapper = document.getElementById(`${kind}-purchase-terms`);
-  const error = document.getElementById(`${kind}-terms-error`);
-  const accepted = checkbox?.checked === true;
-
-  wrapper?.classList.toggle('purchase-terms-invalid', !accepted);
-  if (error) error.hidden = accepted;
-  if (!accepted) {
-    wrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    checkbox?.focus({ preventScroll: true });
-    showToast('Please agree to the Terms & Refund Policy first.');
-  }
-  return accepted;
-}
-
-for (const kind of ['plan', 'credit']) {
-  document.getElementById(`${kind}-terms-accepted`)?.addEventListener('change', () => {
-    const wrapper = document.getElementById(`${kind}-purchase-terms`);
-    const error = document.getElementById(`${kind}-terms-error`);
-    wrapper?.classList.remove('purchase-terms-invalid');
-    if (error) error.hidden = true;
-  });
 }
 
 async function setupNavUser() {
@@ -123,7 +97,6 @@ function setupDrawer(session) {
 
 
 async function buyCredits(pkg) {
-  if (!hasPurchaseConsent('credit')) return;
   const token = await window.bipassAuth.getToken();
   if (!token) return;
 
@@ -134,7 +107,7 @@ async function buyCredits(pkg) {
     const res = await fetch('/api/create-credit-checkout', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pkg, termsAccepted: true, termsVersion: TERMS_VERSION }),
+      body: JSON.stringify({ pkg }),
     });
     if (!res.ok) throw new Error('Failed');
     const { url } = await res.json();
@@ -146,7 +119,6 @@ async function buyCredits(pkg) {
 }
 
 async function activatePlan(plan) {
-  if (!hasPurchaseConsent('plan')) return;
   const token = await window.bipassAuth.getToken();
   if (!token) return;
 
@@ -157,7 +129,7 @@ async function activatePlan(plan) {
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan, termsAccepted: true, termsVersion: TERMS_VERSION }),
+      body: JSON.stringify({ plan }),
     });
     if (!res.ok) throw new Error('Failed');
     const { url } = await res.json();

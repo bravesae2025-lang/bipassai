@@ -6,7 +6,6 @@ import {
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
   getBillingMeta,
-  hasAcceptedPurchaseTerms,
   hasActivePass,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
@@ -19,13 +18,6 @@ import {
 } from '../server.js';
 
 const { MAX_SAVED_STYLES, canCreateStyle, fromAnalysisPayload, sliderValuesFromStyle } = globalThis.BipassStyleProfile;
-
-test('purchase checkout requires explicit acceptance of the current terms', () => {
-  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: true, termsVersion: '2026-07-22' }), true);
-  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: false, termsVersion: '2026-07-22' }), false);
-  assert.equal(hasAcceptedPurchaseTerms({ termsAccepted: true, termsVersion: 'old-version' }), false);
-  assert.equal(hasAcceptedPurchaseTerms({}), false);
-});
 
 test('sanitizeNextPath keeps safe same-site paths', () => {
   assert.equal(sanitizeNextPath('/home'), '/home');

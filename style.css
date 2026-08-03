@@ -2851,69 +2851,211 @@ body.editor-page { background: var(--bg); }
   border-color: var(--black);
 }
 
-/* AI prompt box */
-.ai-prompt-box {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--black);
-  border: 1px solid var(--g800);
-  border-radius: 12px;
-  padding: 14px;
+/* Focused revision request opened by the Regenerate button */
+.revision-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 8, 8, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: revision-fade-in 0.18s ease both;
 }
 
-.ai-prompt-label {
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+.revision-modal {
+  position: relative;
+  width: min(620px, 100%);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 28px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255,255,255,0.1), transparent 35%),
+    #111;
+  box-shadow: 0 28px 90px rgba(0,0,0,0.48);
+  animation: revision-rise-in 0.24s var(--ease-out) both;
 }
 
-.ai-prompt-input {
-  width: 100%;
-  background: var(--g900);
-  border: 1.5px solid var(--g700);
+.revision-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,0.62);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 9px;
-  padding: 10px 14px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, transform 0.15s;
+}
+.revision-modal-close:hover { color: #fff; background: rgba(255,255,255,0.12); transform: rotate(3deg); }
+
+.revision-eyebrow {
+  margin-bottom: 8px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.48);
+}
+
+.revision-title {
+  margin: 0;
+  max-width: calc(100% - 42px);
+  font-family: var(--ff-ui);
+  font-size: clamp(23px, 4vw, 30px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.revision-intro {
+  max-width: 530px;
+  margin: 10px 0 22px;
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.58);
+}
+
+.revision-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
+}
+
+.revision-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 126px;
+  padding: 14px 16px;
+  resize: vertical;
+  outline: none;
+  color: #fff;
+  caret-color: #fff;
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 12px;
   font-family: var(--ff-mono);
   font-size: 13px;
-  color: #fff;
-  resize: none;
-  outline: none;
-  line-height: 1.5;
-  transition: border-color 0.15s;
+  line-height: 1.6;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
+.revision-input:focus {
+  background: rgba(255,255,255,0.075);
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.07);
+}
+.revision-input::placeholder { color: rgba(255,255,255,0.28); }
 
-.ai-prompt-input:focus { border-color: #fff; background: var(--g900); }
-.ai-prompt-input::placeholder { color: var(--g600); }
-
-.ai-prompt-actions {
+.revision-quick-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.revision-quick-actions button {
+  padding: 7px 10px;
+  color: rgba(255,255,255,0.68);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  font-family: var(--ff-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.revision-quick-actions button:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.32);
 }
 
-.ai-prompt-apply {
+.revision-routing-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  color: rgba(255,255,255,0.56);
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  font-family: var(--ff-mono);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+.revision-routing-note svg { flex: 0 0 auto; margin-top: 1px; color: rgba(255,255,255,0.82); }
+
+.revision-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 20px;
+}
+.revision-shortcut {
+  margin-right: auto;
+  color: rgba(255,255,255,0.3);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+}
+.revision-cancel,
+.revision-apply {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 9px;
   font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
+  cursor: pointer;
+}
+.revision-cancel {
+  color: rgba(255,255,255,0.56);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.revision-cancel:hover { color: #fff; border-color: rgba(255,255,255,0.28); }
+.revision-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--black);
   background: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 18px;
-  cursor: pointer;
-  transition: opacity 0.15s;
+  border: 1px solid #fff;
+  box-shadow: 0 7px 24px rgba(255,255,255,0.1);
+  transition: transform 0.15s, opacity 0.15s;
 }
+.revision-apply:hover { transform: translateY(-1px); }
+.revision-apply:disabled,
+.revision-cancel:disabled,
+.revision-input:disabled { opacity: 0.5; cursor: wait; }
 
-.ai-prompt-apply:hover { opacity: 0.8; }
+@keyframes revision-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes revision-rise-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 600px) {
+  .revision-modal-overlay { padding: 12px; align-items: end; }
+  .revision-modal { padding: 24px 18px 18px; border-radius: 17px; }
+  .revision-intro { margin-bottom: 18px; }
+  .revision-shortcut { display: none; }
+  .revision-actions { display: grid; grid-template-columns: 0.8fr 1.2fr; }
+  .revision-cancel, .revision-apply { justify-content: center; padding-inline: 10px; }
+}
 
 .editor-actions {
   display: flex;
@@ -9074,90 +9216,43 @@ mark.word-changed.change-reverted { display: none; }
   flex-direction: column;
   gap: 20px;
 }
+/* Plain single-line toggle, same shape and type as .editor-btn so it reads as a
+   sibling of Copy/Regenerate rather than a promo card. Active = filled black,
+   which is the site's on-state language and needs no explanatory subtitle. */
 .humanize-changes-toggle {
-  position: relative;
   width: 100%;
-  min-height: 62px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 12px;
-  overflow: hidden;
-  border: 1px solid var(--black);
-  border-radius: 12px;
-  background: var(--black);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.16);
-  cursor: pointer;
-  text-align: left;
-  transition: transform 0.18s var(--ease-out), box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-}
-.humanize-changes-toggle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,0.09) 48%, transparent 75%);
-  transform: translateX(-110%);
-  transition: transform 0.55s var(--ease-out);
-  pointer-events: none;
-}
-.humanize-changes-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-}
-.humanize-changes-toggle:hover::before { transform: translateX(110%); }
-.humanize-changes-toggle.hidden { display: none; }
-.humanize-toggle-icon {
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.humanize-toggle-copy {
-  min-width: 0;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 3px;
-}
-.humanize-toggle-copy strong {
+  gap: 8px;
   font-family: var(--ff-ui);
-  font-size: 10.5px;
-  line-height: 1.2;
-  font-weight: 800;
-  letter-spacing: 0.045em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--g400);
+  background: #fff;
+  border: 1px solid var(--g150);
+  border-radius: 8px;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
-.humanize-toggle-copy small {
-  font-family: var(--ff-mono);
-  font-size: 8.5px;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.55);
+.humanize-changes-toggle:hover {
+  color: var(--black);
+  border-color: var(--black);
 }
-.humanize-toggle-arrow {
+.humanize-changes-toggle.hidden { display: none; }
+.humanize-toggle-icon {
   flex: 0 0 auto;
-  opacity: 0.62;
-  transition: transform 0.2s var(--ease-out);
+  opacity: 0.75;
 }
-.humanize-changes-toggle:hover .humanize-toggle-arrow { transform: translateX(2px); }
 .humanize-changes-toggle.active {
-  background: #f0fdf4;
-  color: #14532d;
-  border-color: #86efac;
-  box-shadow: 0 8px 22px rgba(22,163,74,0.12);
+  background: var(--black);
+  color: #fff;
+  border-color: var(--black);
 }
-.humanize-changes-toggle.active .humanize-toggle-icon {
-  color: #15803d;
-  background: #dcfce7;
-  border-color: #bbf7d0;
-}
-.humanize-changes-toggle.active .humanize-toggle-copy small { color: #4d7c5c; }
-.humanize-changes-toggle.active .humanize-toggle-arrow { transform: rotate(180deg); }
+.humanize-changes-toggle.active .humanize-toggle-icon { opacity: 1; }
 .changes-filter {
   box-sizing: border-box;
   border: 1px solid var(--g150);

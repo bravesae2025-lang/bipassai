@@ -23,6 +23,7 @@ const loadingText     = document.getElementById('loading-text');
 const toast           = document.getElementById('toast');
 const aiPromptInput   = document.getElementById('ai-prompt-input');
 const aiPromptApply   = document.getElementById('ai-prompt-apply');
+const revisionPanel   = document.getElementById('ai-prompt-box');
 
 // ─── Drawer ───────────────────────────────────────────────────
 
@@ -122,6 +123,7 @@ async function init() {
     mode === 'generate'   ? 'Generated' :
     flow === 'humanize'   ? 'Humanized' :
     flow === 'both'       ? 'Humanized + Level Matched' :
+    flow === 'edit'       ? 'Revised' :
     'Level Matched';
 
   const changeCount = parseInt(sessionStorage.getItem('bipass_change_count') || '0');
@@ -134,7 +136,7 @@ async function init() {
   const levelMap = { easy: 'Beginner', medium: 'Student', hard: 'Academic', customize: 'Custom' };
   const levelKey = sessionStorage.getItem('bipass_level');
   const levelEl  = document.getElementById('editor-level');
-  if (levelEl && levelKey && levelMap[levelKey]) {
+  if (levelEl && levelKey && levelMap[levelKey] && flow !== 'humanize' && flow !== 'edit') {
     levelEl.textContent = levelMap[levelKey];
     levelEl.classList.remove('hidden');
   }
@@ -156,18 +158,32 @@ async function init() {
 
   editorTextarea.addEventListener('input', updateWc);
   copyBtn.addEventListener('click', copyText);
-  aiPromptApply.addEventListener('click', editWithAI);
-  aiPromptInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editWithAI(); }
+  aiPromptApply?.addEventListener('click', applyRevision);
+  aiPromptInput?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); applyRevision(); }
+  });
+  document.getElementById('revision-close')?.addEventListener('click', closeRevisionPanel);
+  document.getElementById('revision-cancel')?.addEventListener('click', closeRevisionPanel);
+  document.querySelectorAll('[data-revision-comment]').forEach(button => {
+    button.addEventListener('click', () => {
+      aiPromptInput.value = button.dataset.revisionComment || '';
+      aiPromptInput.focus();
+    });
+  });
+  revisionPanel?.addEventListener('click', e => {
+    if (e.target === revisionPanel) closeRevisionPanel();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !revisionPanel?.classList.contains('hidden')) closeRevisionPanel();
   });
 
   setupSpeedButtons();
   setupViewToggle(result, mode);
-  document.getElementById('regen-btn')?.addEventListener('click', regenerate);
+  document.getElementById('regen-btn')?.addEventListener('click', openRevisionPanel);
   saveResult(result, mode, session);
 }
 
-// Fall back to the plain editable text (e.g. after Regenerate, which has no diff)
+// Fall back to the plain editable text when no change markup is available.
 function showPlainResult(text) {
   const layout = document.getElementById('changes-layout');
   if (layout) layout.classList.add('hidden');
@@ -175,8 +191,6 @@ function showPlainResult(text) {
   editorTextarea.classList.remove('hidden');
   editorTextarea.value = text;
   editorTextarea.readOnly = false;
-  const aiBox = document.getElementById('ai-prompt-box');
-  if (aiBox) aiBox.style.display = '';
   updateWc();
 }
 
@@ -186,7 +200,6 @@ function setupViewToggle(result, mode) {
   const hzPanel       = document.getElementById('hz-panel');
   const compareToggle = document.getElementById('humanize-changes-toggle');
   const layout        = document.getElementById('changes-layout');
-  const aiBox         = document.getElementById('ai-prompt-box');
   const flow          = sessionStorage.getItem('bipass_flow') || '';
   const resultHtml    = sessionStorage.getItem('bipass_result_html') || '';
   const humanizedHtml = sessionStorage.getItem('bipass_humanized_html') || '';
@@ -354,7 +367,6 @@ function setupViewToggle(result, mode) {
   // Show the Changes view only
   mountActionsSide();
   editorTextarea.classList.add('hidden');
-  if (aiBox) aiBox.style.display = 'none';
   if (layout) layout.classList.remove('hidden');
   changesView.contentEditable = 'true';
   changesView.spellcheck = true;
@@ -369,8 +381,7 @@ function setupViewToggle(result, mode) {
     let active = 'final';
     loadView(slots.final, 'cats');
     if (compareToggle) {
-      const title = compareToggle.querySelector('strong');
-      const detail = compareToggle.querySelector('small');
+      const label = compareToggle.querySelector('.humanize-toggle-label');
 
       compareToggle.classList.remove('hidden');
       compareToggle.addEventListener('click', () => {
@@ -380,10 +391,7 @@ function setupViewToggle(result, mode) {
 
         compareToggle.classList.toggle('active', showingHumanized);
         compareToggle.setAttribute('aria-pressed', String(showingHumanized));
-        if (title) title.textContent = showingHumanized ? 'Back to Final Result' : 'Show Humanize Changes';
-        if (detail) detail.textContent = showingHumanized
-          ? 'Return to the level-matched version'
-          : 'View the draft before level matching';
+        if (label) label.textContent = showingHumanized ? 'Final result' : 'Humanize changes';
 
         loadView(slots[active], showingHumanized ? 'hz' : 'cats');
       });

@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=59">
+  <link rel="stylesheet" href="style.css?v=61">
 </head>
 <body class="editor-page">
 
@@ -92,17 +92,11 @@
         <div class="changes-view" id="changes-view"></div>
         <div class="changes-side" id="changes-side">
           <button class="humanize-changes-toggle hidden" id="humanize-changes-toggle" type="button" aria-pressed="false">
-            <span class="humanize-toggle-icon" aria-hidden="true">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7z"/>
-                <circle cx="12" cy="12" r="2.5"/>
-              </svg>
-            </span>
-            <span class="humanize-toggle-copy">
-              <strong>Show Humanize Changes</strong>
-              <small>View the draft before level matching</small>
-            </span>
-            <svg class="humanize-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="humanize-toggle-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7z"/>
+              <circle cx="12" cy="12" r="2.5"/>
+            </svg>
+            <span class="humanize-toggle-label">Humanize changes</span>
           </button>
 
           <aside class="changes-filter" id="changes-filter">
@@ -156,26 +150,49 @@
 
       <div id="actions-bottom-mount"></div>
 
-      <!-- AI edit prompt box -->
-      <div class="ai-prompt-box" id="ai-prompt-box">
-        <div class="ai-prompt-label">Edit with AI</div>
-        <textarea
-          class="ai-prompt-input"
-          id="ai-prompt-input"
-          placeholder="Tell the AI what to change… e.g. 'make it sound more casual' or 'shorten it by half'"
-          spellcheck="false"
-          rows="2"
-        ></textarea>
-        <div class="ai-prompt-actions">
-          <button class="ai-prompt-apply" id="ai-prompt-apply">
-            Apply
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </button>
-        </div>
-      </div>
-
     </div>
   </main>
+
+  <!-- Regenerate now opens a focused revision request instead of rerunning blindly. -->
+  <div class="revision-modal-overlay hidden" id="ai-prompt-box" aria-hidden="true">
+    <section class="revision-modal" role="dialog" aria-modal="true" aria-labelledby="revision-title">
+      <button class="revision-modal-close" id="revision-close" type="button" aria-label="Close revision request">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="revision-eyebrow">Regenerate with feedback</div>
+      <h2 class="revision-title" id="revision-title">What should we change?</h2>
+      <p class="revision-intro">Leave a comment about the result. We’ll automatically use Humanize, Level Matching, both tools, or the editor depending on what you ask for.</p>
+
+      <label class="revision-label" for="ai-prompt-input">Your comment</label>
+      <textarea
+        class="revision-input"
+        id="ai-prompt-input"
+        placeholder="For example: Fix the wording in paragraph two, rehumanize this, or match it to Student level again…"
+        spellcheck="true"
+        rows="5"
+      ></textarea>
+
+      <div class="revision-quick-actions" aria-label="Quick revision requests">
+        <button type="button" data-revision-comment="Rehumanize this result">Rehumanize</button>
+        <button type="button" data-revision-comment="Run level matching again">Level match again</button>
+        <button type="button" data-revision-comment="Rehumanize this result, then run level matching again">Run both again</button>
+      </div>
+
+      <div class="revision-routing-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>Tool requests go through the real Humanize and Level Matching engines. Text edits only change what your comment asks for.</span>
+      </div>
+
+      <div class="revision-actions">
+        <span class="revision-shortcut">⌘ Enter to apply</span>
+        <button class="revision-cancel" id="revision-cancel" type="button">Cancel</button>
+        <button class="revision-apply" id="ai-prompt-apply" type="button">
+          Apply revision
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+  </div>
 
   <!-- Leave confirmation modal -->
   <div class="settings-modal-overlay hidden" id="leave-confirm" role="dialog" aria-modal="true">
@@ -198,7 +215,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="editor.js?v=16"></script>
+  <script src="revision-intent.js?v=1"></script>
+  <script src="editor.js?v=18"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

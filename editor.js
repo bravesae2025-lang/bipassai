@@ -184,7 +184,7 @@ function setupViewToggle(result, mode) {
   const changesView   = document.getElementById('changes-view');
   const filter        = document.getElementById('changes-filter');
   const hzPanel       = document.getElementById('hz-panel');
-  const viewPill      = document.getElementById('editor-view-toggle');
+  const compareToggle = document.getElementById('humanize-changes-toggle');
   const layout        = document.getElementById('changes-layout');
   const aiBox         = document.getElementById('ai-prompt-box');
   const flow          = sessionStorage.getItem('bipass_flow') || '';
@@ -368,17 +368,24 @@ function setupViewToggle(result, mode) {
     const slots = { final: resultHtml, humanized: humanizedHtml };
     let active = 'final';
     loadView(slots.final, 'cats');
-    if (viewPill) {
-      viewPill.classList.remove('hidden');
-      viewPill.querySelectorAll('.view-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const v = btn.dataset.view;
-          if (v === active) return;
-          slots[active] = changesView.innerHTML;   // keep in-view edits
-          active = v;
-          viewPill.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
-          loadView(slots[v], v === 'final' ? 'cats' : 'hz');
-        });
+    if (compareToggle) {
+      const title = compareToggle.querySelector('strong');
+      const detail = compareToggle.querySelector('small');
+
+      compareToggle.classList.remove('hidden');
+      compareToggle.addEventListener('click', () => {
+        slots[active] = changesView.innerHTML;   // keep in-view edits
+        active = active === 'final' ? 'humanized' : 'final';
+        const showingHumanized = active === 'humanized';
+
+        compareToggle.classList.toggle('active', showingHumanized);
+        compareToggle.setAttribute('aria-pressed', String(showingHumanized));
+        if (title) title.textContent = showingHumanized ? 'Back to Final Result' : 'Show Humanize Changes';
+        if (detail) detail.textContent = showingHumanized
+          ? 'Return to the level-matched version'
+          : 'View the draft before level matching';
+
+        loadView(slots[active], showingHumanized ? 'hz' : 'cats');
       });
     }
   } else {

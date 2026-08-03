@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=58">
+  <link rel="stylesheet" href="style.css?v=59">
 </head>
 <body class="editor-page">
 
@@ -79,10 +79,6 @@
           <span class="editor-change-count hidden" id="editor-change-count"></span>
           <span class="editor-level hidden" id="editor-level"></span>
         </div>
-        <div class="editor-view-toggle hidden" id="editor-view-toggle">
-          <button class="view-toggle-btn" data-view="humanized" type="button">Humanized</button>
-          <button class="view-toggle-btn active" data-view="final" type="button">Final</button>
-        </div>
         <button class="editor-copy-btn" id="copy-btn">Copy</button>
       </div>
 
@@ -95,6 +91,20 @@
       <div class="changes-layout hidden" id="changes-layout">
         <div class="changes-view" id="changes-view"></div>
         <div class="changes-side" id="changes-side">
+          <button class="humanize-changes-toggle hidden" id="humanize-changes-toggle" type="button" aria-pressed="false">
+            <span class="humanize-toggle-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7z"/>
+                <circle cx="12" cy="12" r="2.5"/>
+              </svg>
+            </span>
+            <span class="humanize-toggle-copy">
+              <strong>Show Humanize Changes</strong>
+              <small>View the draft before level matching</small>
+            </span>
+            <svg class="humanize-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
           <aside class="changes-filter" id="changes-filter">
             <div class="cf-head">Filter changes</div>
             <div class="cf-rows">
@@ -188,7 +198,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
-  <script src="editor.js?v=15"></script>
+  <script src="editor.js?v=16"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

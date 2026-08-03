@@ -5,10 +5,12 @@ import {
   analyzeWritingSamples,
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
+  checkoutLineItemForPlan,
   getBillingMeta,
   hasActivePass,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
+  PLAN_CONFIG,
   resolveLevelMatchProfile,
   sanitizeNextPath,
   styleAnalysisTraits,
@@ -18,6 +20,15 @@ import {
 } from '../server.js';
 
 const { MAX_SAVED_STYLES, canCreateStyle, fromAnalysisPayload, sliderValuesFromStyle } = globalThis.BipassStyleProfile;
+
+test('annual checkout price and included credits match the advertised offer', () => {
+  const annualLineItem = checkoutLineItemForPlan('annual');
+  assert.equal(annualLineItem.price_data.currency, 'usd');
+  assert.equal(annualLineItem.price_data.unit_amount, 1499);
+  assert.equal(PLAN_CONFIG.annual.credits, PLAN_CONFIG.monthly.credits);
+  assert.equal(PLAN_CONFIG.annual.credits, 33_000);
+  assert.equal(checkoutLineItemForPlan('invalid'), null);
+});
 
 test('sanitizeNextPath keeps safe same-site paths', () => {
   assert.equal(sanitizeNextPath('/home'), '/home');

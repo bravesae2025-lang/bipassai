@@ -290,8 +290,25 @@ const stripe = process.env.STRIPE_SECRET_KEY
 const STRIPE_PRICES = {
   day:     'price_1TzOdB0rExXCXCyXpJSLFuKQ',
   monthly: 'price_1TzObS0rExXCXCyXaH5ixBDT',
-  annual:  'price_1TzOaN0rExXCXCyXxsXupUvZ',
 };
+
+const ANNUAL_PRICE_CENTS = 1499;
+
+export function checkoutLineItemForPlan(plan) {
+  if (plan === 'annual') {
+    return {
+      price_data: {
+        currency: 'usd',
+        product_data: { name: 'Bipass AI Annual Pass' },
+        unit_amount: ANNUAL_PRICE_CENTS,
+      },
+      quantity: 1,
+    };
+  }
+
+  const price = STRIPE_PRICES[plan];
+  return price ? { price, quantity: 1 } : null;
+}
 
 function getBillingMeta(user) {
   return user?.app_metadata || {};
@@ -599,10 +616,10 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
 // ~5,500 characters, and a full Humanize + Level Match pass on it costs ~$1.16.
 // So ~5,500 tokens ≈ one essay, and each plan's grant is set to keep a margin
 // on that even if every token goes through the expensive humanize path.
-const PLAN_CONFIG = {
+export const PLAN_CONFIG = {
   day:     { ms: 86_400_000,             credits: 11_000  },  // $5.99  — ~2 essays
   monthly: { ms: 30 * 86_400_000,        credits: 33_000  },  // $9.99  — ~6 essays
-  annual:  { ms: 365 * 86_400_000,       credits: 480_000 },  // $129   — ~87 essays
+  annual:  { ms: 365 * 86_400_000,       credits: 33_000  },  // $14.99 — ~6 essays
 };
 
 // ─── POST /api/create-checkout ───────────────────────────────
@@ -615,14 +632,15 @@ app.post('/api/create-checkout', asyncHandler(async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
   const plan = req.body?.plan;
-  if (!STRIPE_PRICES[plan]) return res.status(400).json({ error: 'Invalid plan' });
+  const lineItem = checkoutLineItemForPlan(plan);
+  if (!lineItem) return res.status(400).json({ error: 'Invalid plan' });
 
   const cancelUrl = 'https://bipassai.com/plans.html';
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
+      line_items: [lineItem],
       success_url: 'https://bipassai.com/plans.html?activated=1',
       cancel_url:  cancelUrl,
       metadata: {

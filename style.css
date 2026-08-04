@@ -9229,43 +9229,84 @@ mark.word-changed.change-reverted { display: none; }
   flex-direction: column;
   gap: 20px;
 }
-/* Plain single-line toggle, same shape and type as .editor-btn so it reads as a
-   sibling of Copy/Regenerate rather than a promo card. Active = filled black,
-   which is the site's on-state language and needs no explanatory subtitle. */
+/* Master view switch, sitting directly above the Filter Changes panel. It
+   borrows .changes-filter's card and .cf-row's dot / label / pill geometry so
+   it reads as the parent of the category rows rather than a separate control.
+   Slate is not decorative: --cc is the same #64748b the humanize marks use
+   (see [data-cat="rephrase"]), so the switch turns the colour of the changes
+   it is about to reveal, and matches the Rephrased swatch in the panel below.
+   The label never changes — the pill carries the state, which is what a switch
+   is for. */
 .humanize-changes-toggle {
+  --cc: #64748b;
+  box-sizing: border-box;
   width: 100%;
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 11px 1fr 32px;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--g400);
-  background: #fff;
+  gap: 9px;
+  padding: 12px 13px;
   border: 1px solid var(--g150);
-  border-radius: 8px;
-  padding: 11px 16px;
+  border-radius: var(--r, 8px);
+  background: var(--bg, #fff);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.humanize-changes-toggle:hover {
-  color: var(--black);
-  border-color: var(--black);
+  text-align: left;
+  user-select: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
 }
 .humanize-changes-toggle.hidden { display: none; }
-.humanize-toggle-icon {
-  flex: 0 0 auto;
-  opacity: 0.75;
+.humanize-changes-toggle:hover { border-color: var(--g300); }
+.humanize-changes-toggle:focus-visible {
+  outline: 2px solid var(--cc);
+  outline-offset: 2px;
 }
+
+.humanize-toggle-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--g200);
+  transition: background 0.18s ease;
+}
+.humanize-toggle-label {
+  font-family: var(--ff-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--black);
+  white-space: nowrap;      /* one line in the 264px rail — never stack */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.humanize-toggle-switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border-radius: 10px;
+  background: var(--g200);
+  transition: background 0.18s ease;
+}
+.humanize-toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-14px);          /* off: knob parked left */
+  transition: transform 0.18s var(--ease-out);
+}
+
+/* On: showing the humanize draft */
 .humanize-changes-toggle.active {
-  background: var(--black);
-  color: #fff;
-  border-color: var(--black);
+  background: color-mix(in srgb, var(--cc) 7%, #fff);
+  border-color: color-mix(in srgb, var(--cc) 40%, transparent);
 }
-.humanize-changes-toggle.active .humanize-toggle-icon { opacity: 1; }
+.humanize-changes-toggle.active .humanize-toggle-dot   { background: var(--cc); }
+.humanize-changes-toggle.active .humanize-toggle-switch { background: var(--cc); }
+.humanize-changes-toggle.active .humanize-toggle-switch::after { transform: translateX(0); }
 .changes-filter {
   box-sizing: border-box;
   border: 1px solid var(--g150);

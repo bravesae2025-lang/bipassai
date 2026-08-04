@@ -381,17 +381,15 @@ function setupViewToggle(result, mode) {
     let active = 'final';
     loadView(slots.final, 'cats');
     if (compareToggle) {
-      const label = compareToggle.querySelector('.humanize-toggle-label');
-
       compareToggle.classList.remove('hidden');
       compareToggle.addEventListener('click', () => {
         slots[active] = changesView.innerHTML;   // keep in-view edits
         active = active === 'final' ? 'humanized' : 'final';
         const showingHumanized = active === 'humanized';
 
+        // The label is fixed ("See Humanize Only"); the pill shows the state.
         compareToggle.classList.toggle('active', showingHumanized);
-        compareToggle.setAttribute('aria-pressed', String(showingHumanized));
-        if (label) label.textContent = showingHumanized ? 'Final result' : 'Humanize changes';
+        compareToggle.setAttribute('aria-checked', String(showingHumanized));
 
         loadView(slots[active], showingHumanized ? 'hz' : 'cats');
       });

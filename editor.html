@@ -91,12 +91,10 @@
       <div class="changes-layout hidden" id="changes-layout">
         <div class="changes-view" id="changes-view"></div>
         <div class="changes-side" id="changes-side">
-          <button class="humanize-changes-toggle hidden" id="humanize-changes-toggle" type="button" aria-pressed="false">
-            <svg class="humanize-toggle-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7z"/>
-              <circle cx="12" cy="12" r="2.5"/>
-            </svg>
-            <span class="humanize-toggle-label">Humanize changes</span>
+          <button class="humanize-changes-toggle hidden" id="humanize-changes-toggle" type="button" role="switch" aria-checked="false">
+            <span class="humanize-toggle-dot" aria-hidden="true"></span>
+            <span class="humanize-toggle-label">See Humanize Only</span>
+            <span class="humanize-toggle-switch" aria-hidden="true"></span>
           </button>
 
           <aside class="changes-filter" id="changes-filter">

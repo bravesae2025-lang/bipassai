@@ -198,12 +198,15 @@ function setupViewToggle(result, mode) {
   const changesView   = document.getElementById('changes-view');
   const filter        = document.getElementById('changes-filter');
   const hzPanel       = document.getElementById('hz-panel');
+  const finder        = document.getElementById('change-finder');
   const compareToggle = document.getElementById('humanize-changes-toggle');
   const layout        = document.getElementById('changes-layout');
   const flow          = sessionStorage.getItem('bipass_flow') || '';
   const resultHtml    = sessionStorage.getItem('bipass_result_html') || '';
   const humanizedHtml = sessionStorage.getItem('bipass_humanized_html') || '';
   const hasHtml       = !!resultHtml.trim();
+  const slots         = { final: resultHtml, humanized: humanizedHtml };
+  let active          = 'final';
 
   // Only the Changes view remains. Without diff HTML (e.g. generate mode),
   // leave the plain textarea showing as-is and drop the buttons to the bottom.
@@ -219,10 +222,15 @@ function setupViewToggle(result, mode) {
     ? el.dataset.cats.split(/\s+/).filter(Boolean)
     : (el.dataset.cat ? [el.dataset.cat] : []);
 
+  const changeEls = () => Array.from(
+    changesView.querySelectorAll('.word-change-pair, mark.word-changed')
+  ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
+  const acceptedChangeEls = () => changeEls().filter(el => !el.classList.contains('change-dismissed'));
+
   function refreshCounts() {
     if (!filter || !changesView) return;
     ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'].forEach(cat => {
-      const n = changesView.querySelectorAll(`[data-cat="${cat}"], [data-cats~="${cat}"]`).length;
+      const n = acceptedChangeEls().filter(el => catsOf(el).includes(cat)).length;
       const cEl = filter.querySelector(`[data-count="${cat}"]`);
       if (cEl) cEl.textContent = n;
       const row = filter.querySelector(`.cf-row[data-cat="${cat}"]`);
@@ -250,6 +258,7 @@ function setupViewToggle(result, mode) {
     changesView.querySelectorAll('.word-change-pair, mark.word-changed').forEach(el => {
       // skip the inner <mark> of a pair (handled via its parent)
       if (el.tagName === 'MARK' && el.closest('.word-change-pair')) return;
+      if (el.classList.contains('change-dismissed')) return;
       const cats = catsOf(el);
       if (!cats.length) return;
       const on = cats.filter(c => enabled.has(c));
@@ -263,6 +272,7 @@ function setupViewToggle(result, mode) {
         }
       }
     });
+    refreshFinder();
   }
 
   // Wire category filter toggles
@@ -273,93 +283,303 @@ function setupViewToggle(result, mode) {
     });
   });
 
-  // ── Humanize panel: single green "Rephrased" toggle + list of changes ──
-  const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const changeEls = () => Array.from(
-    changesView.querySelectorAll('.word-change-pair, mark.word-changed')
-  ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
+  // ── Compact change finder (shared by Humanize and Level Matching) ──
+  const finderToggle = document.getElementById('change-finder-toggle');
+  const finderBody = document.getElementById('change-finder-body');
+  const finderCount = document.getElementById('change-finder-count');
+  const searchInput = document.getElementById('change-search-input');
+  const searchClear = document.getElementById('change-search-clear');
+  const searchStatus = document.getElementById('change-search-status');
+  const searchPrev = document.getElementById('change-search-prev');
+  const searchNext = document.getElementById('change-search-next');
+  let finderMatches = [];
+  let finderIndex = -1;
+  let finderTimer = null;
 
-  const HZ_PAGE_SIZE = 6;
-  let hzPage = 0;
-  let hzItems = [];
-
-  function renderHzPage() {
-    const list = document.getElementById('hz-list');
-    const status = document.getElementById('hz-page-status');
-    const nav = document.getElementById('hz-list-nav');
-    const prev = document.getElementById('hz-page-prev');
-    const next = document.getElementById('hz-page-next');
-    if (!list) return;
-
-    const totalPages = Math.max(1, Math.ceil(hzItems.length / HZ_PAGE_SIZE));
-    hzPage = Math.max(0, Math.min(hzPage, totalPages - 1));
-    const start = hzPage * HZ_PAGE_SIZE;
-    const end = Math.min(start + HZ_PAGE_SIZE, hzItems.length);
-    list.innerHTML = '';
-
-    hzItems.slice(start, end).forEach(el => {
-      const mark = el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed');
-      const orig = el.querySelector ? (el.querySelector('.word-original')?.textContent || '') : '';
-      const now  = (mark || el).textContent;
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = `hz-item${orig ? '' : ' hz-item-insert'}`;
-      item.innerHTML = orig
-        ? `<s>${escHtml(orig)}</s><span class="hz-arrow" aria-hidden="true">&rarr;</span><b>${escHtml(now)}</b>`
-        : `<span class="hz-arrow" aria-hidden="true">+</span><b>${escHtml(now)}</b>`;
-      item.addEventListener('click', () => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.remove('hz-flash');
-        void el.offsetWidth;
-        el.classList.add('hz-flash');
-      });
-      list.appendChild(item);
-    });
-
-    if (status) status.textContent = hzItems.length ? `${start + 1}–${end} of ${hzItems.length}` : 'No changes';
-    if (nav) nav.classList.toggle('hidden', hzItems.length <= HZ_PAGE_SIZE);
-    if (prev) prev.disabled = hzPage === 0;
-    if (next) next.disabled = hzPage >= totalPages - 1;
+  function clearFinderHighlights() {
+    changeEls().forEach(el => el.classList.remove('change-search-match', 'change-search-current'));
   }
 
-  const hzPrev = document.getElementById('hz-page-prev');
-  const hzNext = document.getElementById('hz-page-next');
-  hzPrev?.addEventListener('click', () => { hzPage -= 1; renderHzPage(); });
-  hzNext?.addEventListener('click', () => { hzPage += 1; renderHzPage(); });
+  function searchableText(el) {
+    const original = el.querySelector?.('.word-original')?.textContent || '';
+    const changed = (el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed'))?.textContent || '';
+    return `${original} ${changed}`.toLocaleLowerCase();
+  }
 
+  function selectFinderMatch(index, scroll = true) {
+    finderMatches.forEach(el => el.classList.remove('change-search-current'));
+    if (!finderMatches.length) {
+      finderIndex = -1;
+      return;
+    }
+    finderIndex = (index + finderMatches.length) % finderMatches.length;
+    const target = finderMatches[finderIndex];
+    target.classList.add('change-search-current');
+    if (searchStatus) searchStatus.textContent = `${finderIndex + 1} of ${finderMatches.length} matches`;
+    if (scroll) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.classList.remove('hz-flash');
+      void target.offsetWidth;
+      target.classList.add('hz-flash');
+    }
+  }
+
+  function runFinderSearch(selectFirst = false) {
+    clearFinderHighlights();
+    finderIndex = -1;
+    const query = (searchInput?.value || '').trim().toLocaleLowerCase();
+    searchClear?.classList.toggle('hidden', !query);
+    const available = acceptedChangeEls().filter(el => !el.classList.contains('change-reverted'));
+
+    if (!query) {
+      finderMatches = [];
+      if (searchStatus) searchStatus.textContent = available.length
+        ? `${available.length} changes available`
+        : 'No visible changes';
+    } else {
+      finderMatches = available.filter(el => searchableText(el).includes(query));
+      finderMatches.forEach(el => el.classList.add('change-search-match'));
+      if (searchStatus) searchStatus.textContent = finderMatches.length
+        ? `${finderMatches.length} match${finderMatches.length === 1 ? '' : 'es'}`
+        : 'No matching changes';
+      if (selectFirst && finderMatches.length) selectFinderMatch(0);
+    }
+
+    const disabled = finderMatches.length === 0;
+    if (searchPrev) searchPrev.disabled = disabled;
+    if (searchNext) searchNext.disabled = disabled;
+  }
+
+  function refreshFinder() {
+    if (finderCount) finderCount.textContent = acceptedChangeEls().length;
+    if (finderBody?.classList.contains('hidden')) {
+      clearFinderHighlights();
+      return;
+    }
+    runFinderSearch(false);
+  }
+
+  finderToggle?.addEventListener('click', () => {
+    const opening = finderBody?.classList.contains('hidden');
+    finderBody?.classList.toggle('hidden', !opening);
+    finderToggle.classList.toggle('active', opening);
+    finderToggle.setAttribute('aria-expanded', String(opening));
+    if (opening) {
+      runFinderSearch(false);
+      requestAnimationFrame(() => searchInput?.focus());
+    } else {
+      clearTimeout(finderTimer);
+      clearFinderHighlights();
+    }
+  });
+
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(finderTimer);
+    runFinderSearch(false);
+    if (searchInput.value.trim()) {
+      finderTimer = setTimeout(() => runFinderSearch(true), 220);
+    }
+  });
+  searchInput?.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      selectFinderMatch(finderIndex < 0 ? 0 : finderIndex + (event.shiftKey ? -1 : 1));
+    }
+    if (event.key === 'Escape') {
+      searchInput.value = '';
+      runFinderSearch(false);
+    }
+  });
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    runFinderSearch(false);
+    searchInput?.focus();
+  });
+  searchPrev?.addEventListener('click', () => selectFinderMatch(finderIndex < 0 ? finderMatches.length - 1 : finderIndex - 1));
+  searchNext?.addEventListener('click', () => selectFinderMatch(finderIndex < 0 ? 0 : finderIndex + 1));
+
+  // ── Per-highlight reject button: floats above the mark without reflowing text ──
+  const rejectButton = document.createElement('button');
+  rejectButton.type = 'button';
+  rejectButton.className = 'change-reject-button hidden';
+  rejectButton.textContent = '×';
+  rejectButton.setAttribute('aria-label', 'Remove this change');
+  rejectButton.setAttribute('contenteditable', 'false');
+  document.body.appendChild(rejectButton);
+  let rejectTarget = null;
+  let rejectHideTimer = null;
+  let rejectUndoTimer = null;
+
+  function topLevelChange(node) {
+    if (!(node instanceof Element)) return null;
+    const pair = node.closest('.word-change-pair');
+    if (pair && changesView.contains(pair)) return pair;
+    const mark = node.closest('mark.word-changed');
+    return mark && changesView.contains(mark) ? mark : null;
+  }
+
+  function serializableViewHtml() {
+    const clone = changesView.cloneNode(true);
+    clone.querySelectorAll('.change-search-match, .change-search-current, .hz-flash').forEach(el => {
+      el.classList.remove('change-search-match', 'change-search-current', 'hz-flash');
+    });
+    return clone.innerHTML;
+  }
+
+  function dismissedResultText() {
+    const clone = changesView.cloneNode(true);
+    clone.querySelectorAll('.word-change-pair').forEach(pair => {
+      const original = pair.querySelector('.word-original');
+      const changed = pair.querySelector('mark.word-changed');
+      const word = pair.classList.contains('change-dismissed')
+        ? (original?.textContent || '')
+        : (changed?.textContent || '');
+      pair.replaceWith(document.createTextNode(word));
+    });
+    clone.querySelectorAll('mark.word-changed.change-dismissed').forEach(mark => mark.remove());
+    clone.querySelectorAll('.word-original').forEach(original => original.remove());
+    return clone.innerText.trim();
+  }
+
+  function persistAcceptedChanges() {
+    const html = serializableViewHtml();
+    slots[active] = html;
+    if (flow === 'both' && active === 'humanized') {
+      sessionStorage.setItem('bipass_humanized_html', html);
+      sessionStorage.setItem('bipass_humanized', dismissedResultText());
+    } else {
+      sessionStorage.setItem('bipass_result_html', html);
+      sessionStorage.setItem('bipass_result', dismissedResultText());
+      sessionStorage.setItem('bipass_change_count', String(acceptedChangeEls().length));
+      const changeCount = document.getElementById('editor-change-count');
+      if (changeCount) {
+        const remaining = acceptedChangeEls().length;
+        changeCount.textContent = `${remaining} word${remaining === 1 ? '' : 's'} changed`;
+        changeCount.classList.toggle('hidden', remaining === 0);
+      }
+    }
+  }
+
+  function positionRejectButton(target) {
+    const mark = target.tagName === 'MARK' ? target : target.querySelector('mark.word-changed');
+    if (!mark) return;
+    const rect = mark.getBoundingClientRect();
+    const left = Math.max(17, Math.min(window.innerWidth - 17, rect.right + 2));
+    const top = Math.max(17, rect.top - 5);
+    rejectButton.style.left = `${left}px`;
+    rejectButton.style.top = `${top}px`;
+  }
+
+  function hideRejectButton(force = false) {
+    clearTimeout(rejectHideTimer);
+    if (!force && rejectButton.classList.contains('undo')) return;
+    rejectButton.classList.add('hidden');
+    rejectButton.classList.remove('undo');
+    rejectButton.textContent = '×';
+    rejectButton.setAttribute('aria-label', 'Remove this change');
+    rejectTarget = null;
+  }
+
+  function showRejectButton(target) {
+    if (!target || target.classList.contains('change-dismissed') || target.classList.contains('change-reverted')) return;
+    clearTimeout(rejectHideTimer);
+    clearTimeout(rejectUndoTimer);
+    rejectTarget = target;
+    rejectButton.classList.remove('hidden', 'undo');
+    rejectButton.textContent = '×';
+    rejectButton.setAttribute('aria-label', 'Remove this change');
+    positionRejectButton(target);
+  }
+
+  function dismissChange(target) {
+    target.classList.add('change-dismissed');
+    target.classList.remove('change-search-match', 'change-search-current', 'hz-flash');
+    persistAcceptedChanges();
+    refreshCounts();
+    refreshFinder();
+    rejectButton.classList.add('undo');
+    rejectButton.textContent = 'Undo';
+    rejectButton.setAttribute('aria-label', 'Undo removing this change');
+    clearTimeout(rejectUndoTimer);
+    rejectUndoTimer = setTimeout(() => hideRejectButton(true), 3200);
+  }
+
+  function restoreChange(target) {
+    target.classList.remove('change-dismissed');
+    if (filter && !filter.classList.contains('hidden')) {
+      applyFilters();
+    } else {
+      const humanizeEnabled = document.getElementById('hz-toggle')?.checked !== false;
+      target.classList.toggle('change-reverted', !humanizeEnabled);
+    }
+    persistAcceptedChanges();
+    refreshCounts();
+    refreshFinder();
+    hideRejectButton(true);
+    showToast('Change restored');
+  }
+
+  changesView.addEventListener('pointerover', event => showRejectButton(topLevelChange(event.target)));
+  changesView.addEventListener('pointerout', event => {
+    const target = topLevelChange(event.target);
+    if (!target || target !== rejectTarget || rejectButton.classList.contains('undo')) return;
+    if (topLevelChange(event.relatedTarget) === target) return;
+    if (event.relatedTarget === rejectButton) return;
+    rejectHideTimer = setTimeout(() => hideRejectButton(), 120);
+  });
+  changesView.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'mouse') showRejectButton(topLevelChange(event.target));
+  });
+  rejectButton.addEventListener('pointerenter', () => clearTimeout(rejectHideTimer));
+  rejectButton.addEventListener('pointerleave', () => {
+    if (!rejectButton.classList.contains('undo')) rejectHideTimer = setTimeout(() => hideRejectButton(), 120);
+  });
+  rejectButton.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!rejectTarget) return;
+    if (rejectButton.classList.contains('undo')) restoreChange(rejectTarget);
+    else dismissChange(rejectTarget);
+  });
+  window.addEventListener('scroll', () => hideRejectButton(true), { passive: true });
+  window.addEventListener('resize', () => hideRejectButton(true));
+
+  // ── Humanize panel: one master "Rephrased" switch ──
   function loadHzPanel() {
     if (!hzPanel || !changesView) return;
-    const els = changeEls();
+    const els = acceptedChangeEls();
     const countEl = document.getElementById('hz-count');
     if (countEl) countEl.textContent = els.length;
-    hzItems = els;
-    hzPage = 0;
-    renderHzPage();
     // Master toggle: show the rephrased text vs revert everything to the original
     const box = document.getElementById('hz-toggle');
     if (box) {
       box.checked = true;
       box.closest('.cf-row').classList.remove('cf-off');
       hzPanel.classList.remove('hz-off');
+      els.forEach(el => el.classList.remove('change-reverted'));
       if (!box.dataset.wired) {
         box.dataset.wired = '1';
         box.addEventListener('change', () => {
           box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
           hzPanel.classList.toggle('hz-off', !box.checked);
-          changeEls().forEach(el => el.classList.toggle('change-reverted', !box.checked));
+          acceptedChangeEls().forEach(el => el.classList.toggle('change-reverted', !box.checked));
+          refreshFinder();
         });
       }
     }
+    refreshFinder();
   }
 
-  // Swap the diff html + matching side panel ('cats' = 6-category filter, 'hz' = green list)
+  // Swap the diff HTML + matching side controls.
   function loadView(html, panel) {
+    hideRejectButton(true);
     changesView.innerHTML = html;
     changesView.querySelectorAll('.word-original').forEach(el => {
       el.contentEditable = 'false';
     });
     if (filter)  filter.classList.toggle('hidden', panel !== 'cats');
     if (hzPanel) hzPanel.classList.toggle('hidden', panel !== 'hz');
+    finder?.classList.remove('hidden');
     if (panel === 'cats') { refreshCounts(); applyFilters(); }
     else loadHzPanel();
   }
@@ -377,13 +597,11 @@ function setupViewToggle(result, mode) {
   } else if (flow === 'both' && humanizedHtml.trim()) {
     // Humanize + Level Matching: switch between the humanized draft (green vs
     // original) and the final (level-matching edits vs the draft, colored).
-    const slots = { final: resultHtml, humanized: humanizedHtml };
-    let active = 'final';
     loadView(slots.final, 'cats');
     if (compareToggle) {
       compareToggle.classList.remove('hidden');
       compareToggle.addEventListener('click', () => {
-        slots[active] = changesView.innerHTML;   // keep in-view edits
+        slots[active] = serializableViewHtml();   // keep in-view edits
         active = active === 'final' ? 'humanized' : 'final';
         const showingHumanized = active === 'humanized';
 
@@ -482,13 +700,13 @@ function updateWc() {
 function extractResultText(el) {
   const clone = el.cloneNode(true);
   clone.querySelectorAll('.word-change-pair').forEach(pair => {
-    const isReverted = pair.classList.contains('change-reverted');
+    const isReverted = pair.classList.contains('change-reverted') || pair.classList.contains('change-dismissed');
     const original = pair.querySelector('.word-original');
     const changed  = pair.querySelector('mark.word-changed');
     const word = isReverted ? (original?.textContent ?? '') : (changed?.textContent ?? '');
     pair.replaceWith(document.createTextNode(word));
   });
-  clone.querySelectorAll('mark.word-changed.change-reverted').forEach(mark => mark.remove());
+  clone.querySelectorAll('mark.word-changed.change-reverted, mark.word-changed.change-dismissed').forEach(mark => mark.remove());
   clone.querySelectorAll('.word-original').forEach(el => el.remove());
   return clone.innerText.trim();
 }

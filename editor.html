@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=65">
+  <link rel="stylesheet" href="style.css?v=66">
 </head>
 <body class="editor-page">
 
@@ -121,21 +121,17 @@
             <button class="change-finder-toggle" id="change-finder-toggle" type="button" aria-expanded="false" aria-controls="change-finder-body">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
               <span>Find a change</span>
-              <span class="change-finder-count" id="change-finder-count">0</span>
               <svg class="change-finder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             <div class="change-finder-body hidden" id="change-finder-body">
               <div class="change-search-wrap">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                <input class="change-search-input" id="change-search-input" type="search" placeholder="Search original or new word" autocomplete="off" spellcheck="false">
+                <input class="change-search-input" id="change-search-input" type="search" placeholder="Search exact changed words" autocomplete="off" spellcheck="false">
                 <button class="change-search-clear hidden" id="change-search-clear" type="button" aria-label="Clear change search">&times;</button>
               </div>
-              <div class="change-search-footer">
-                <span id="change-search-status" aria-live="polite">Type a word to find it</span>
-                <div class="change-search-nav">
-                  <button id="change-search-prev" type="button" aria-label="Previous matching change" disabled>&larr;</button>
-                  <button id="change-search-next" type="button" aria-label="Next matching change" disabled>&rarr;</button>
-                </div>
+              <div class="change-search-result" aria-live="polite">
+                <strong id="change-search-term">Exact words only</strong>
+                <span id="change-search-occurrences">Search the current text</span>
               </div>
             </div>
           </aside>
@@ -228,7 +224,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js"></script>
   <script src="revision-intent.js?v=1"></script>
-  <script src="editor.js?v=22"></script>
+  <script src="change-search.js?v=1"></script>
+  <script src="editor.js?v=23"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

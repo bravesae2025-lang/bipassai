@@ -286,72 +286,55 @@ function setupViewToggle(result, mode) {
   // ── Compact change finder (shared by Humanize and Level Matching) ──
   const finderToggle = document.getElementById('change-finder-toggle');
   const finderBody = document.getElementById('change-finder-body');
-  const finderCount = document.getElementById('change-finder-count');
   const searchInput = document.getElementById('change-search-input');
   const searchClear = document.getElementById('change-search-clear');
-  const searchStatus = document.getElementById('change-search-status');
-  const searchPrev = document.getElementById('change-search-prev');
-  const searchNext = document.getElementById('change-search-next');
+  const searchTerm = document.getElementById('change-search-term');
+  const searchOccurrences = document.getElementById('change-search-occurrences');
+  const searchTools = window.BipassChangeSearch;
   let finderMatches = [];
-  let finderIndex = -1;
   let finderTimer = null;
 
   function clearFinderHighlights() {
-    changeEls().forEach(el => el.classList.remove('change-search-match', 'change-search-current'));
+    changeEls().forEach(el => el.classList.remove('change-search-match'));
   }
 
-  function searchableText(el) {
-    const original = el.querySelector?.('.word-original')?.textContent || '';
-    const changed = (el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed'))?.textContent || '';
-    return `${original} ${changed}`.toLocaleLowerCase();
+  function changedText(el) {
+    return (el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed'))?.textContent || '';
   }
 
-  function selectFinderMatch(index, scroll = true) {
-    finderMatches.forEach(el => el.classList.remove('change-search-current'));
-    if (!finderMatches.length) {
-      finderIndex = -1;
-      return;
-    }
-    finderIndex = (index + finderMatches.length) % finderMatches.length;
-    const target = finderMatches[finderIndex];
-    target.classList.add('change-search-current');
-    if (searchStatus) searchStatus.textContent = `${finderIndex + 1} of ${finderMatches.length} matches`;
-    if (scroll) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      target.classList.remove('hz-flash');
-      void target.offsetWidth;
-      target.classList.add('hz-flash');
-    }
-  }
-
-  function runFinderSearch(selectFirst = false) {
+  function runFinderSearch(revealFirst = false) {
     clearFinderHighlights();
-    finderIndex = -1;
-    const query = (searchInput?.value || '').trim().toLocaleLowerCase();
-    searchClear?.classList.toggle('hidden', !query);
+    const rawQuery = (searchInput?.value || '').trim();
+    const query = searchTools?.displayQuery(rawQuery) || rawQuery.toLowerCase();
+    searchClear?.classList.toggle('hidden', !rawQuery);
     const available = acceptedChangeEls().filter(el => !el.classList.contains('change-reverted'));
 
     if (!query) {
       finderMatches = [];
-      if (searchStatus) searchStatus.textContent = available.length
-        ? `${available.length} changes available`
-        : 'No visible changes';
+      if (searchTerm) searchTerm.textContent = 'Exact words only';
+      if (searchOccurrences) searchOccurrences.textContent = 'Search the current text';
     } else {
-      finderMatches = available.filter(el => searchableText(el).includes(query));
+      finderMatches = available.filter(el => searchTools?.containsWords(changedText(el), query));
       finderMatches.forEach(el => el.classList.add('change-search-match'));
-      if (searchStatus) searchStatus.textContent = finderMatches.length
-        ? `${finderMatches.length} match${finderMatches.length === 1 ? '' : 'es'}`
-        : 'No matching changes';
-      if (selectFirst && finderMatches.length) selectFinderMatch(0);
+      const occurrences = searchTools?.countOccurrences(extractResultText(changesView), query) || 0;
+      if (searchTerm) {
+        searchTerm.textContent = `“${query}”`;
+        searchTerm.title = query;
+      }
+      if (searchOccurrences) searchOccurrences.textContent = occurrences
+        ? `${occurrences} in text`
+        : 'Not found in text';
+      if (revealFirst && finderMatches.length) {
+        const first = finderMatches[0];
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        first.classList.remove('hz-flash');
+        void first.offsetWidth;
+        first.classList.add('hz-flash');
+      }
     }
-
-    const disabled = finderMatches.length === 0;
-    if (searchPrev) searchPrev.disabled = disabled;
-    if (searchNext) searchNext.disabled = disabled;
   }
 
   function refreshFinder() {
-    if (finderCount) finderCount.textContent = acceptedChangeEls().length;
     if (finderBody?.classList.contains('hidden')) {
       clearFinderHighlights();
       return;
@@ -383,7 +366,8 @@ function setupViewToggle(result, mode) {
   searchInput?.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      selectFinderMatch(finderIndex < 0 ? 0 : finderIndex + (event.shiftKey ? -1 : 1));
+      clearTimeout(finderTimer);
+      runFinderSearch(true);
     }
     if (event.key === 'Escape') {
       searchInput.value = '';
@@ -395,8 +379,6 @@ function setupViewToggle(result, mode) {
     runFinderSearch(false);
     searchInput?.focus();
   });
-  searchPrev?.addEventListener('click', () => selectFinderMatch(finderIndex < 0 ? finderMatches.length - 1 : finderIndex - 1));
-  searchNext?.addEventListener('click', () => selectFinderMatch(finderIndex < 0 ? 0 : finderIndex + 1));
 
   // ── Per-highlight reject button: floats above the mark without reflowing text ──
   const rejectButton = document.createElement('button');
@@ -420,8 +402,8 @@ function setupViewToggle(result, mode) {
 
   function serializableViewHtml() {
     const clone = changesView.cloneNode(true);
-    clone.querySelectorAll('.change-search-match, .change-search-current, .hz-flash').forEach(el => {
-      el.classList.remove('change-search-match', 'change-search-current', 'hz-flash');
+    clone.querySelectorAll('.change-search-match, .hz-flash').forEach(el => {
+      el.classList.remove('change-search-match', 'hz-flash');
     });
     return clone.innerHTML;
   }
@@ -493,7 +475,7 @@ function setupViewToggle(result, mode) {
 
   function dismissChange(target) {
     target.classList.add('change-dismissed');
-    target.classList.remove('change-search-match', 'change-search-current', 'hz-flash');
+    target.classList.remove('change-search-match', 'hz-flash');
     persistAcceptedChanges();
     refreshCounts();
     refreshFinder();

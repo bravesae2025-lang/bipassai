@@ -9232,13 +9232,11 @@ mark.word-changed.change-reverted { display: none; }
 /* Master view switch, sitting directly above the Filter Changes panel. It
    borrows .changes-filter's card and .cf-row's dot / label / pill geometry so
    it reads as the parent of the category rows rather than a separate control.
-   Slate is not decorative: --cc is the same #64748b the humanize marks use
-   (see [data-cat="rephrase"]), so the switch turns the colour of the changes
-   it is about to reveal, and matches the Rephrased swatch in the panel below.
-   The label never changes — the pill carries the state, which is what a switch
-   is for. */
+   Neutral grey on purpose: the six filter rows below each own a hue, so a
+   seventh colour here would read as another category instead of the master
+   control over them. The label is fixed — the pill carries the state. */
 .humanize-changes-toggle {
-  --cc: #64748b;
+  --cc: var(--g400);
   box-sizing: border-box;
   width: 100%;
   display: grid;

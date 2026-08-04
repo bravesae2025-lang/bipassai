@@ -2864,10 +2864,15 @@ body.editor-page { background: var(--bg); }
   -webkit-backdrop-filter: blur(8px);
   animation: revision-fade-in 0.18s ease both;
 }
+body.revision-open { overflow: hidden; }
+.editor-page .loading-overlay { z-index: 1600; }
+.editor-page .toast { z-index: 1700; }
 
 .revision-modal {
   position: relative;
   width: min(620px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
   padding: 28px;
@@ -3044,6 +3049,14 @@ body.editor-page { background: var(--bg); }
 .revision-apply:disabled,
 .revision-cancel:disabled,
 .revision-input:disabled { opacity: 0.5; cursor: wait; }
+.revision-button-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(0,0,0,0.18);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
 
 @keyframes revision-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes revision-rise-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }

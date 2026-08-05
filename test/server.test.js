@@ -2,12 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import '../style-profile.js';
 import {
+  CREDIT_PACKAGES,
   CREDIT_RATES,
   analyzeWritingSamples,
   annualCreditRefreshFields,
   billableWordCount,
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
+  checkoutLineItemForCreditPackage,
   checkoutLineItemForPlan,
   creditsForText,
   getBillingMeta,
@@ -39,6 +41,25 @@ test('annual checkout price and included credits match the advertised offer', ()
     500_000,
   );
   assert.equal(checkoutLineItemForPlan('invalid'), null);
+});
+
+test('credit add-on checkout prices match the credits fulfilled by each package', () => {
+  const expected = {
+    c10000: { credits: 10_000, priceCents: 299 },
+    c30000: { credits: 30_000, priceCents: 699 },
+    c50000: { credits: 50_000, priceCents: 999 },
+  };
+
+  for (const [pkg, values] of Object.entries(expected)) {
+    assert.equal(CREDIT_PACKAGES[pkg].credits, values.credits);
+    assert.equal(CREDIT_PACKAGES[pkg].priceCents, values.priceCents);
+    const lineItem = checkoutLineItemForCreditPackage(pkg);
+    assert.equal(lineItem.price_data.currency, 'usd');
+    assert.equal(lineItem.price_data.unit_amount, values.priceCents);
+    assert.match(lineItem.price_data.product_data.name, new RegExp(CREDIT_PACKAGES[pkg].label));
+  }
+
+  assert.equal(checkoutLineItemForCreditPackage('invalid'), null);
 });
 
 test('word-based billing rates match the public Level, Humanize and Both prices', () => {

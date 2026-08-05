@@ -392,19 +392,31 @@ async function getUserById(userId) {
   return getAdminUserRaw(userId);
 }
 
-const CREDIT_PACKAGES = {
-  c5000:   5_000,
-  c20000:  20_000,
-  c50000:  50_000,
-  c100000: 100_000,
+export const CREDIT_PACKAGES = {
+  c10000: { credits: 10_000, priceCents: 299, label: '10,000' },
+  c30000: { credits: 30_000, priceCents: 699, label: '30,000' },
+  c50000: { credits: 50_000, priceCents: 999, label: '50,000' },
 };
 
-const STRIPE_CREDIT_PRICES = {
-  c5000:   'price_1Te9500rExXCXCyX8wkXy18D',
-  c20000:  'price_1Te95k0rExXCXCyX0KzAO1Im',
-  c50000:  'price_1Te96Q0rExXCXCyXvG8Y1Mjq',
-  c100000: 'price_1Te96o0rExXCXCyXzMfjMkvG',
-};
+// Keep the amount shown by Stripe Checkout in the same source of truth as the
+// credits fulfilled by the webhook. This avoids stale dashboard Price IDs
+// charging for one package while the site advertises another.
+export function checkoutLineItemForCreditPackage(pkg) {
+  const config = CREDIT_PACKAGES[pkg];
+  if (!config) return null;
+
+  return {
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: `Bipass AI ${config.label}-Credit Add-on`,
+        description: `${config.label} top-up credits. An active Bipass AI pass is required to use them.`,
+      },
+      unit_amount: config.priceCents,
+    },
+    quantity: 1,
+  };
+}
 
 // In-memory state store for CSRF protection (single instance — fine for Railway hobby)
 const oauthStates = new Map();
@@ -446,9 +458,9 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
           };
 
           if (type === 'credits') {
-            const amount = CREDIT_PACKAGES[session.metadata?.pkg];
-            if (!amount) throw new Error(`Unknown credit package: ${session.metadata?.pkg}`);
-            fields.credits = (meta.credits ?? 0) + amount;
+            const creditPackage = CREDIT_PACKAGES[session.metadata?.pkg];
+            if (!creditPackage) throw new Error(`Unknown credit package: ${session.metadata?.pkg}`);
+            fields.credits = (meta.credits ?? 0) + creditPackage.credits;
           } else {
             const plan   = session.metadata?.plan;
             const config = PLAN_CONFIG[plan];
@@ -773,13 +785,13 @@ app.post('/api/create-credit-checkout', asyncHandler(async (req, res) => {
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
   const pkg = req.body?.pkg;
-  if (!STRIPE_CREDIT_PRICES[pkg] || STRIPE_CREDIT_PRICES[pkg] === 'price_PLACEHOLDER')
-    return res.status(400).json({ error: 'Invalid package' });
+  const lineItem = checkoutLineItemForCreditPackage(pkg);
+  if (!lineItem) return res.status(400).json({ error: 'Invalid package' });
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: STRIPE_CREDIT_PRICES[pkg], quantity: 1 }],
+      line_items: [lineItem],
       success_url: 'https://bipassai.com/plans.html?credits_added=1',
       cancel_url:  'https://bipassai.com/plans.html',
       metadata: {

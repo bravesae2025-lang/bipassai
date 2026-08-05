@@ -6161,8 +6161,11 @@ body.drawer-lock { overflow: hidden; }
 
 .credits-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
 }
 
 .credit-card {
@@ -6447,7 +6450,7 @@ body.drawer-lock { overflow: hidden; }
 @media (max-width: 600px) {
   .plans-grid { grid-template-columns: 1fr; }
   .plans-main { padding: 40px 16px 48px; }
-  .credits-grid { grid-template-columns: repeat(2, 1fr); }
+  .credits-grid { grid-template-columns: 1fr; }
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -101,7 +101,7 @@ async function buyCredits(pkg) {
   if (!token) return;
 
   const btn = document.querySelector(`[data-credits="${pkg}"]`);
-  if (btn) { btn.disabled = true; btn.textContent = 'Opening checkout…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
   try {
     const res = await fetch('/api/create-credit-checkout', {
@@ -113,13 +113,7 @@ async function buyCredits(pkg) {
     const { url } = await res.json();
     window.location.href = url;
   } catch {
-    const labels = {
-      c5000: 'Add 5,000',
-      c20000: 'Add 20,000',
-      c50000: 'Add 50,000',
-      c100000: 'Add 100,000',
-    };
-    if (btn) { btn.disabled = false; btn.textContent = labels[pkg] || 'Add credits'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
     showToast('Something went wrong. Try again.');
   }
 }
@@ -129,7 +123,7 @@ async function activatePlan(plan) {
   if (!token) return;
 
   const btn = document.querySelector(`[data-plan="${plan}"]`);
-  if (btn) { btn.disabled = true; btn.textContent = 'Opening checkout…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
   try {
     const res = await fetch('/api/create-checkout', {
@@ -141,8 +135,8 @@ async function activatePlan(plan) {
     const { url } = await res.json();
     window.location.href = url;
   } catch {
-    const labels = { day: 'Choose 24 hours', monthly: 'Choose 30 days', annual: 'Choose 1 year' };
-    if (btn) { btn.disabled = false; btn.textContent = labels[plan] || 'Choose pass'; }
+    const labels = { day: 'Get Day Pass', monthly: 'Get Monthly', annual: 'Get Annual' };
+    if (btn) { btn.disabled = false; btn.textContent = labels[plan] || 'Get Plan'; }
     showToast('Something went wrong. Try again.');
   }
 }

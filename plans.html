@@ -38,6 +38,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="style.css?v=67">
+  <link rel="stylesheet" href="plans.css?v=1">
 </head>
 <body class="editor-page">
 
@@ -86,171 +87,175 @@
   <main class="plans-main">
     <div class="plans-wrap">
 
-      <header class="plans-head">
-        <div class="plans-heading-copy">
-          <div class="plans-kicker">
-            <span>Access passes</span>
-            <span>Prices in USD</span>
-          </div>
-          <h1 class="plans-title">Pay for the time you need.</h1>
-          <p class="plans-lede">Every pass unlocks the same writing tools. Choose by access time and included credits—nothing renews automatically.</p>
+      <div class="plans-head">
+        <h1 class="plans-title">Choose Your Plan</h1>
+        <div class="plans-discount-banner" data-anim="slide-up">
+          <span class="plans-discount-flame" aria-hidden="true">★</span>
+          Flexible one-time passes — no recurring subscription
         </div>
-
-        <div class="plans-horizon" aria-label="Access choices: 24 hours, 30 days, or 365 days">
-          <div class="plans-horizon-label">Access window</div>
-          <div class="plans-horizon-track" aria-hidden="true">
-            <span></span><i></i><span></span><i></i><span class="is-year"></span>
-          </div>
-          <div class="plans-horizon-values">
-            <span>24 hours</span>
-            <span>30 days</span>
-            <span>365 days</span>
-          </div>
-        </div>
-
         <div class="plans-current-plan" id="plans-current-plan"></div>
-      </header>
-
-      <div class="plans-trust" aria-label="Payment details">
-        <span class="plans-trust-item"><span aria-hidden="true">✓</span> Pay once</span>
-        <span class="plans-trust-item"><span aria-hidden="true">✓</span> No auto-renewal</span>
-        <span class="plans-trust-item"><span aria-hidden="true">✓</span> Credits stay on your account</span>
       </div>
 
-      <section class="pass-section" aria-labelledby="pass-section-title">
-        <div class="pass-section-head">
-          <div>
-            <p class="pass-section-kicker">Compare access</p>
-            <h2 id="pass-section-title">Choose your pass</h2>
+      <div class="plans-trust">
+        <span class="plans-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          No subscription required
+        </span>
+        <span class="plans-trust-sep">·</span>
+        <span class="plans-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          One-time payment
+        </span>
+        <span class="plans-trust-sep">·</span>
+        <span class="plans-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Credits never expire
+        </span>
+      </div>
+
+      <div class="pricing-grid">
+
+        <article class="pricing-card pricing-card-day" data-anim="scale-up">
+          <div class="pricing-card-heading">
+            <div>
+              <div class="pricing-plan">Day Pass</div>
+              <p class="pricing-fit">For one deadline</p>
+            </div>
+            <div class="pricing-badge-off">Starter</div>
           </div>
-          <p>Access starts as soon as checkout is complete.</p>
-        </div>
 
-        <div class="pass-ledger">
-          <article class="pass-card" data-anim="slide-up">
-            <header class="pass-card-head">
-              <div>
-                <p class="pass-for">For one deadline</p>
-                <h3>Day pass</h3>
-              </div>
-              <span class="pass-duration">24H</span>
-            </header>
+          <div class="pricing-card-top">
+            <div class="pricing-price"><span class="pricing-currency">$</span>5<span class="pricing-cents">.99</span></div>
+            <div class="pricing-period">one-time payment</div>
+          </div>
 
-            <div class="pass-price-row">
-              <div class="pass-price"><span>$</span><strong>5.99</strong></div>
-              <p>paid once</p>
+          <div class="pricing-usage-panel">
+            <div class="pricing-usage-main">
+              <span class="pricing-access-mark">24H</span>
+              <div><strong>11,000 credits</strong><span>included with this pass</span></div>
             </div>
+            <div class="pricing-usage-row"><span>Access window</span><strong>24 hours</strong></div>
+            <div class="pricing-usage-row"><span>Typical use</span><strong>About 2 long essays</strong></div>
+          </div>
 
-            <dl class="pass-facts">
-              <div><dt>Access</dt><dd>24 hours</dd></div>
-              <div><dt>Credits</dt><dd>11,000 total</dd></div>
-              <div><dt>Typical use</dt><dd>About 2 long essays</dd></div>
-            </dl>
+          <ul class="pricing-features">
+            <li>All writing levels</li>
+            <li>Grammar &amp; punctuation options</li>
+            <li>Cloud storage for texts</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-featured" data-plan="day" onclick="activatePlan('day')">Get Day Pass</button>
+        </article>
 
-            <p class="pass-value-note">A focused pass for work due now.</p>
-            <button class="pass-btn" data-plan="day" onclick="activatePlan('day')">Choose 24 hours</button>
-          </article>
-
-          <article class="pass-card" data-anim="slide-up" data-anim-delay="1">
-            <header class="pass-card-head">
-              <div>
-                <p class="pass-for">For several assignments</p>
-                <h3>Monthly pass</h3>
-              </div>
-              <span class="pass-duration">30D</span>
-            </header>
-
-            <div class="pass-price-row">
-              <div class="pass-price"><span>$</span><strong>9.99</strong></div>
-              <p>paid once</p>
+        <article class="pricing-card pricing-card-monthly" data-anim="scale-up" data-anim-delay="1">
+          <div class="pricing-card-heading">
+            <div>
+              <div class="pricing-plan">Monthly Pass</div>
+              <p class="pricing-fit">For several assignments</p>
             </div>
+            <div class="pricing-badge-off pricing-badge-off-hot">Most Popular</div>
+          </div>
 
-            <dl class="pass-facts">
-              <div><dt>Access</dt><dd>30 days</dd></div>
-              <div><dt>Credits</dt><dd>33,000 total</dd></div>
-              <div><dt>Typical use</dt><dd>About 6 long essays</dd></div>
-            </dl>
+          <div class="pricing-card-top">
+            <div class="pricing-price"><span class="pricing-currency">$</span>9<span class="pricing-cents">.99</span></div>
+            <div class="pricing-period">one-time payment</div>
+          </div>
 
-            <p class="pass-value-note">Three times the credits of Day.</p>
-            <button class="pass-btn" data-plan="monthly" onclick="activatePlan('monthly')">Choose 30 days</button>
-          </article>
-
-          <article class="pass-card pass-card-featured" data-anim="slide-up" data-anim-delay="2">
-            <div class="pass-best-label">Best value</div>
-            <header class="pass-card-head">
-              <div>
-                <p class="pass-for">For work across the year</p>
-                <h3>Annual pass</h3>
-              </div>
-              <span class="pass-duration">1Y</span>
-            </header>
-
-            <div class="pass-price-row pass-price-row-annual">
-              <div class="pass-price"><span>$</span><strong>1.25</strong><em>/mo</em></div>
-              <p>$14.99 paid once</p>
+          <div class="pricing-usage-panel">
+            <div class="pricing-usage-main">
+              <span class="pricing-access-mark">30D</span>
+              <div><strong>33,000 credits</strong><span>included with this pass</span></div>
             </div>
+            <div class="pricing-usage-row"><span>Access window</span><strong>30 days</strong></div>
+            <div class="pricing-usage-row"><span>Typical use</span><strong>About 6 long essays</strong></div>
+          </div>
 
-            <dl class="pass-facts">
-              <div><dt>Access</dt><dd>365 days</dd></div>
-              <div><dt>Credits</dt><dd>33,000 total</dd></div>
-              <div><dt>Typical use</dt><dd>About 6 long essays</dd></div>
-            </dl>
+          <ul class="pricing-features">
+            <li>All writing levels</li>
+            <li>Grammar &amp; punctuation options</li>
+            <li>Cloud storage for texts</li>
+            <li>44% cheaper per credit than Day</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-featured" data-plan="monthly" onclick="activatePlan('monthly')">Get Monthly</button>
+        </article>
 
-            <p class="pass-value-note">A full year for $5 more than Monthly.</p>
-            <button class="pass-btn pass-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Choose 1 year</button>
-          </article>
-        </div>
-      </section>
+        <article class="pricing-card pricing-card-featured" data-anim="scale-up" data-anim-delay="2">
+          <div class="pricing-card-heading">
+            <div>
+              <div class="pricing-plan">Annual Pass</div>
+              <p class="pricing-fit">For work across the year</p>
+            </div>
+            <div class="pricing-badge-top">Best Value</div>
+          </div>
 
-      <section class="pass-includes" aria-labelledby="pass-includes-title" data-anim="slide-up">
-        <div class="pass-includes-head">
-          <p>Included with every pass</p>
-          <h2 id="pass-includes-title">Same tools. Any access window.</h2>
-        </div>
-        <div class="pass-includes-grid">
-          <div class="pass-include-item"><span aria-hidden="true">✓</span><div><strong>Humanize</strong><p>Natural rewrites with visible changes.</p></div></div>
-          <div class="pass-include-item"><span aria-hidden="true">✓</span><div><strong>Level matching</strong><p>Beginner through Academic levels.</p></div></div>
-          <div class="pass-include-item"><span aria-hidden="true">✓</span><div><strong>Writing controls</strong><p>Grammar, punctuation, and custom style.</p></div></div>
-          <div class="pass-include-item"><span aria-hidden="true">✓</span><div><strong>Saved texts</strong><p>Keep results available in your account.</p></div></div>
-        </div>
-      </section>
+          <div class="pricing-card-top">
+            <div class="pricing-price"><span class="pricing-currency">$</span>1<span class="pricing-cents">.25</span><span class="pricing-per-month">/mo</span></div>
+            <div class="pricing-period">$14.99 paid once · not a subscription</div>
+          </div>
 
-      <section class="credits-section" aria-labelledby="credits-title">
+          <div class="pricing-usage-panel">
+            <div class="pricing-usage-main">
+              <span class="pricing-access-mark">1Y</span>
+              <div><strong>33,000 credits</strong><span>total with this pass</span></div>
+            </div>
+            <div class="pricing-usage-row"><span>Access window</span><strong>365 days</strong></div>
+            <div class="pricing-usage-row"><span>Typical use</span><strong>About 6 long essays</strong></div>
+          </div>
+
+          <ul class="pricing-features">
+            <li>All writing levels</li>
+            <li>Grammar &amp; punctuation options</li>
+            <li>Cloud storage for texts</li>
+            <li>Priority access to new features</li>
+            <li>A full year for $5 more than Monthly</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-featured" data-plan="annual" onclick="activatePlan('annual')">Get Annual</button>
+        </article>
+
+      </div>
+
+      <!-- ── BUY CREDITS ──────────────────────────────────────────── -->
+      <div class="credits-section">
         <div class="credits-head">
-          <div>
-            <p class="credits-kicker">Already have a pass?</p>
-            <h2 class="credits-title" id="credits-title">Top up your credits.</h2>
-          </div>
-          <p class="credits-sub">Add only what you need. Top-ups wait safely in your account if your access pass ends.</p>
+          <h2 class="credits-title">Buy Credits</h2>
+          <p class="credits-sub">Need a quick top-up? Add credits to your account instantly.</p>
         </div>
 
         <div class="credits-grid">
-          <article class="credit-card">
-            <div class="credit-card-top"><span>5K</span><strong>5,000 credits</strong></div>
-            <div class="credit-card-price"><strong>$1.99</strong><span>$0.40 / 1K</span></div>
-            <button class="credit-btn" data-credits="c5000" onclick="buyCredits('c5000')">Add 5,000</button>
-          </article>
-          <article class="credit-card">
-            <div class="credit-card-top"><span>20K</span><strong>20,000 credits</strong></div>
-            <div class="credit-card-price"><strong>$4.99</strong><span>$0.25 / 1K</span></div>
-            <button class="credit-btn" data-credits="c20000" onclick="buyCredits('c20000')">Add 20,000</button>
-          </article>
-          <article class="credit-card">
-            <div class="credit-card-top"><span>50K</span><strong>50,000 credits</strong></div>
-            <div class="credit-card-price"><strong>$9.99</strong><span>$0.20 / 1K</span></div>
-            <button class="credit-btn" data-credits="c50000" onclick="buyCredits('c50000')">Add 50,000</button>
-          </article>
-          <article class="credit-card credit-card-best">
-            <div class="credit-card-top"><span>100K</span><strong>100,000 credits</strong></div>
-            <div class="credit-card-price"><strong>$14.99</strong><span>$0.15 / 1K</span></div>
-            <button class="credit-btn credit-btn-best" data-credits="c100000" onclick="buyCredits('c100000')">Add 100,000</button>
-          </article>
+          <div class="credit-card">
+            <div class="credit-amount">5,000</div>
+            <div class="credit-unit">credits</div>
+            <div class="credit-price">$1.99</div>
+            <div class="credit-value-line">$0.40 per 1,000</div>
+            <button class="credit-btn" data-credits="c5000" onclick="buyCredits('c5000')">Buy</button>
+          </div>
+          <div class="credit-card">
+            <div class="credit-amount">20,000</div>
+            <div class="credit-unit">credits</div>
+            <div class="credit-price">$4.99</div>
+            <div class="credit-value-line">$0.25 per 1,000</div>
+            <button class="credit-btn" data-credits="c20000" onclick="buyCredits('c20000')">Buy</button>
+          </div>
+          <div class="credit-card">
+            <div class="credit-amount">50,000</div>
+            <div class="credit-unit">credits</div>
+            <div class="credit-price">$9.99</div>
+            <div class="credit-value-line">$0.20 per 1,000</div>
+            <button class="credit-btn" data-credits="c50000" onclick="buyCredits('c50000')">Buy</button>
+          </div>
+          <div class="credit-card credit-card-best">
+            <div class="credit-badge-best">Best Value</div>
+            <div class="credit-amount">100,000</div>
+            <div class="credit-unit">credits</div>
+            <div class="credit-price">$14.99</div>
+            <div class="credit-value-line">$0.15 per 1,000</div>
+            <button class="credit-btn credit-btn-best" data-credits="c100000" onclick="buyCredits('c100000')">Buy</button>
+          </div>
         </div>
 
         <p class="credits-note">
-          <span aria-hidden="true">↳</span> You need an active pass to use top-up credits. If access ends, unused credits remain on your account for your next pass.
+          ◎ Top-up credits are locked to your active pass. If your pass expires, your credits are safe — they'll be waiting when you get a new pass.
         </p>
-      </section>
+      </div>
 
     </div>
   </main>
@@ -259,7 +264,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="plans.js?v=5"></script>
+  <script src="plans.js?v=6"></script>
   <script src="cursor.js?v=2"></script>
 
   <footer class="site-footer">

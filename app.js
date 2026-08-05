@@ -1169,7 +1169,7 @@ async function runHumanize() {
     const hRes = await fetch('/api/rw-humanize', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ text }),
+      body:    JSON.stringify({ text, combined: mode === 'both' }),
     });
     if (hRes.status === 402) {
       const d = await hRes.json().catch(() => ({}));
@@ -1206,8 +1206,8 @@ async function runHumanize() {
         text: humanized,
         level: selectedLevel,
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
-        // Receipt from step 1 — this essay is already paid for, so the
-        // level-matching pass runs without charging a second time.
+        // Receipt from step 1 — the discounted combined rate is already paid,
+        // so the level-matching pass runs without charging a second time.
         continuation: hData.continuation,
       }),
     });
@@ -2253,14 +2253,18 @@ async function preflightGate() {
   return true;
 }
 
-// Estimated cost in credits. Billing is 1 credit per INPUT character, charged
-// once per run in every mode: "Humanize + Level Matching" makes two requests,
-// but the second presents a continuation receipt and isn't billed again.
+// Estimated word-based cost. Both mode pays (4 + 15) less a 20% bundle
+// discount up front; its second request presents a continuation receipt.
 // Mirrors /api/adjust-level and /api/rw-humanize in server.js.
 function estimateCost() {
-  const len = inputText.value.length;
-  if (!len) return null;
-  return len;
+  if (!inputText.value.trim()) return null;
+  const appMode = document.body.dataset.appMode;
+  const billingMode = appMode === 'both'
+    ? 'both'
+    : appMode === 'humanize'
+      ? 'humanize'
+      : 'level';
+  return window.BipassBilling.creditsForText(inputText.value, billingMode);
 }
 
 function updateStats() {

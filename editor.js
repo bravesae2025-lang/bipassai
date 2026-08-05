@@ -1197,7 +1197,10 @@ async function applyRevision() {
           level: intent.level,
         };
       } else {
-        const humanizeData = await callEditorJson('/api/rw-humanize', { text: source }, token);
+        const humanizeData = await callEditorJson('/api/rw-humanize', {
+          text: source,
+          combined: true,
+        }, token);
         const humanized = matchParagraphSpacing(humanizeData.result, source);
         const levelData = await callEditorJson('/api/adjust-level', {
           text: humanized,

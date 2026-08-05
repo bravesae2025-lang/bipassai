@@ -306,7 +306,7 @@
       </span>
       <span class="ld-feature">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a3 3 0 0 0-5 2.8 3 3 0 0 0 5 2.8"/></svg>
-        Level Matching: 1 credit per input character
+        Level Matching: 4 credits per word
       </span>
     </div>
 
@@ -524,11 +524,12 @@
             <span class="pricing-currency">$</span>5<span class="pricing-cents">.99</span>
           </div>
           <div class="pricing-period">one time</div>
-          <div class="pricing-credits-bonus">◎ 11,000 credits included</div>
+          <div class="pricing-credits-bonus">◎ 20,000 credits included</div>
         </div>
         <ul class="pricing-features">
           <li>24-hour app access</li>
-          <li>About 2 essays (1,000 words each)</li>
+          <li>Up to 5,000 Level Match words</li>
+          <li>About 1,300 Humanize words</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -543,11 +544,12 @@
             <span class="pricing-currency">$</span>9<span class="pricing-cents">.99</span>
           </div>
           <div class="pricing-period">one-time payment</div>
-          <div class="pricing-credits-bonus">◎ 33,000 credits included</div>
+          <div class="pricing-credits-bonus">◎ 40,000 credits included</div>
         </div>
         <ul class="pricing-features">
           <li>30-day app access</li>
-          <li>About 6 essays (1,000 words each)</li>
+          <li>Up to 10,000 Level Match words</li>
+          <li>About 2,600 Humanize words</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -561,16 +563,16 @@
         <div class="pricing-card-top">
           <div class="pricing-plan">Annual Pass</div>
           <div class="pricing-price">
-            <span class="pricing-currency">$</span>99<span class="pricing-per-month">/yr</span>
+            <span class="pricing-currency">$</span>8<span class="pricing-cents">.25</span><span class="pricing-per-month">/mo</span>
           </div>
-          <div class="pricing-period">≈ $8.25/month · billed once</div>
-          <div class="pricing-credits-bonus pricing-credits-bonus-featured">◎ 400,000 credits across the year</div>
+          <div class="pricing-period">$99 billed once per year</div>
+          <div class="pricing-credits-bonus pricing-credits-bonus-featured">◎ 500,000 credits across the year</div>
         </div>
         <ul class="pricing-features">
           <li>365-day app access</li>
-          <li>33,000 credits added every month</li>
-          <li>4,000-credit annual bonus included</li>
-          <li>About 6 essays every month</li>
+          <li>40,000 credits added every month</li>
+          <li>20,000-credit annual bonus included</li>
+          <li>About 33,000 Humanize words/year</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -638,7 +640,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. The Annual Pass adds 33,000 credits every month plus a 4,000-credit annual bonus, for 400,000 credits across the year. Level Matching and Humanize use one credit per input character. Combined mode runs both passes and usually costs about twice the input length. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
+          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. Level Matching uses 4 credits per word and Humanize uses 15. Both mode combines those rates and applies a 20% discount, costing 15.2 credits per word rounded up per run. The Annual Pass adds 40,000 credits every month plus a 20,000-credit annual bonus, for 500,000 across the year. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
         </div>
       </div>
 
@@ -843,7 +845,7 @@
       const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const rnd = n => Math.floor(Math.random() * n);
 
-      // Plain paragraph + live word/credit counts (1 credit ≈ 1 character)
+      // Plain paragraph + live Level Matching estimate (4 credits per word)
       const PLAIN = BASE.map((tok, i) => (i > 0 && !tok.glue ? ' ' : '') + tok.w).join('');
       const WORDS = PLAIN.trim().split(/\s+/).length;
       const editedPlain = S => BASE.map((tok, i) => {
@@ -851,7 +853,7 @@
         return (i > 0 && !tok.glue ? ' ' : '') + w;
       }).join('');
       if ($('ld-wc'))  $('ld-wc').textContent  = WORDS + ' words';
-      if ($('ld-est')) $('ld-est').textContent = '≈ ' + PLAIN.length + ' credits';
+      if ($('ld-est')) $('ld-est').textContent = '≈ ' + (WORDS * 4).toLocaleString() + ' credits';
 
       function buildPlain() {
         bodyEl.innerHTML = '';

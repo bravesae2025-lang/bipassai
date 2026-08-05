@@ -129,8 +129,9 @@ if (!/not affiliated with BypassAI/i.test(indexHtml)) {
 for (const name of ['index.html', 'howto.html']) {
   const file = join(root, name);
   const html = readFileSync(file, 'utf8');
-  if (!/1 credit per input character/i.test(html)) {
-    add(file, 'must explain input-character billing for Level Matching');
+  if (!/Level Matching uses? 4 credits per word/i.test(html)
+      && !/Level Matching: 4 credits per word/i.test(html)) {
+    add(file, 'must explain word-based billing for Level Matching');
   }
   if (/1 credit\s*=\s*1 character in the output/i.test(html)) {
     add(file, 'contains obsolete output-character billing claim for Level Matching');

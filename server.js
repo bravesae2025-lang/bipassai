@@ -3,6 +3,13 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import crypto from 'crypto';
 import Stripe from 'stripe';
+import './billing-rates.js';
+
+const {
+  CREDIT_RATES,
+  billableWordCount,
+  creditsForText,
+} = globalThis.BipassBilling;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -240,9 +247,9 @@ function verifyRewardToken(token) {
 
 // ─── Humanize → Level Matching continuation receipt ───────────
 // "Humanize + Level Matching" runs as two requests so the UI can show real
-// progress between passes, but the user should only pay for the essay once.
-// /api/rw-humanize bills the input and hands back a signed receipt; the
-// follow-up /api/adjust-level presents it and skips its own deduction.
+// progress between passes. /api/rw-humanize bills the discounted combined rate
+// up front and hands back a signed receipt; the follow-up /api/adjust-level
+// presents it and skips its own deduction.
 //
 // The receipt is bound to the user and to a character ceiling (the humanized
 // text the server just produced, plus a small allowance because the client
@@ -293,9 +300,9 @@ const STRIPE_PRICES = {
 };
 
 // About 17% below twelve $9.99 monthly passes ($119.88), billed once. At the
-// documented worst-case processing cost (~$1.16 per 5,500 credits), the 400k
-// allowance costs about $84.36 and leaves a $14.64 buffer before payment and
-// platform expenses.
+// documented combined processing cost (~$1.17 per 1,000 words), 500k credits
+// fund about 32.9k combined-mode words and leave roughly $60 before payment
+// and platform expenses.
 const ANNUAL_PRICE_CENTS = 9900;
 
 export function checkoutLineItemForPlan(plan) {
@@ -305,7 +312,7 @@ export function checkoutLineItemForPlan(plan) {
         currency: 'usd',
         product_data: {
           name: 'Bipass AI Annual Pass',
-          description: '33,000 credits monthly plus a 4,000-credit annual bonus (400,000 total)',
+          description: '40,000 credits monthly plus a 20,000-credit annual bonus (500,000 total)',
         },
         unit_amount: ANNUAL_PRICE_CENTS,
       },
@@ -454,7 +461,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
             fields.credits_expire_at = null;
 
             if (plan === 'annual') {
-              // The first 33k and the 4k annual bonus arrive immediately. The
+              // The first 40k and the 20k annual bonus arrive immediately. The
               // remaining eleven monthly grants are added lazily on each
               // anniversary, so no always-on worker is required for Railway.
               fields.annual_credits_started_at = activatedAt;
@@ -634,14 +641,13 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
   return res.json({ ok: true, credits: amount });
 }));
 
-// Token grants are sized off the real cost of a run: one 1,000-word essay is
-// ~5,500 characters, and a full Humanize + Level Match pass on it costs ~$1.16.
-// So ~5,500 tokens ≈ one essay, and each plan's grant is set to keep a margin
-// on that even if every token goes through the expensive humanize path.
+// Word-based rates keep cheap Gemini-only Level Matching distinct from the
+// paid RewriteAI path. Both mode receives a 20% bundle discount while still
+// covering its combined provider cost.
 export const PLAN_CONFIG = {
-  day:     { ms: 86_400_000,             credits: 11_000, creditGrants: 1  }, // $5.99  — ~2 essays
-  monthly: { ms: 30 * 86_400_000,        credits: 33_000, creditGrants: 1  }, // $9.99  — ~6 essays
-  annual:  { ms: 365 * 86_400_000,       credits: 33_000, creditGrants: 12, annualBonus: 4_000 }, // $99 — 400k total
+  day:     { ms: 86_400_000,             credits: 20_000, creditGrants: 1  },
+  monthly: { ms: 30 * 86_400_000,        credits: 40_000, creditGrants: 1  },
+  annual:  { ms: 365 * 86_400_000,       credits: 40_000, creditGrants: 12, annualBonus: 20_000 }, // $99 — 500k total
 };
 
 // Add calendar months without letting dates such as January 31 overflow into
@@ -1260,8 +1266,10 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid token' });
 
   // Second pass of "Humanize + Level Matching": /api/rw-humanize already billed
-  // this essay, so run free rather than charging the user twice.
+  // the 20%-discounted combined rate, so this pass does not charge again.
   const prepaid = verifyContinuation(continuation, user.id, text.length);
+  const wordCount = billableWordCount(text);
+  const creditsNeeded = prepaid ? 0 : creditsForText(text, 'level');
 
   // ── Credit check (mirror /api/humanize) ───────────────────────
   // Plan expiry — blocks regardless of tier to prevent slip-through after demotion
@@ -1291,9 +1299,9 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   if (!prepaid && credits <= 0) {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
   }
-  if (!prepaid && credits < text.length) {
+  if (!prepaid && credits < creditsNeeded) {
     return res.status(402).json({
-      error: `This text needs ${text.length.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
+      error: `This text needs ${creditsNeeded.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
       creditsRemaining: credits,
     });
   }
@@ -1304,7 +1312,6 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   let cancelled = false;
   req.on('close', () => { cancelled = true; });
 
-  const wordCount = (text.trim().match(/\S+/g) || []).length;
   const presetCfg = resolveLevelMatchProfile(level, mistakes);
   const systemPrompt = buildCustomizePrompt(presetCfg, wordCount);
 
@@ -1345,11 +1352,10 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
       .replace(/\s*–\s*/g, ', ')                  // en dash → comma
       .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
 
-    // ── Deduct credits: 1 per INPUT character (preview quotes input length;
-    //    the result carries [[…]] annotation markup, so don't bill on output).
-    //    A prepaid continuation was already billed by /api/rw-humanize. ──
+    // ── Deduct word-based credits. A combined-mode continuation was already
+    //    billed at the discounted rate by /api/rw-humanize. ────────────────
     if (cancelled) return;
-    const creditsUsed = prepaid ? 0 : (text || '').length;
+    const creditsUsed = creditsNeeded;
     const newCredits  = Math.max(0, credits - creditsUsed);
     if (creditsUsed) await updateUserCredits(user.id, newCredits);
 
@@ -1361,16 +1367,18 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
 }));
 
 // ─── POST /api/rw-humanize ─────────────────────────────────────
-// RewriteAI humanizer. Used by the "Humanize" mode, and as the 2nd step of
-// "Humanize + Level Matching" (the client sends the already-level-matched text).
+// RewriteAI humanizer. Used by the "Humanize" mode and as the first step of
+// "Humanize + Level Matching" before the result is level-matched.
 app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
-  const { text } = req.body || {};
+  const { text, combined } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  const billingMode = combined === true ? 'both' : 'humanize';
+  const creditsNeeded = creditsForText(text, billingMode);
 
   // ── Credit check (mirror /api/adjust-level) ───────────────────
   const billing = getBillingMeta(user);
@@ -1393,9 +1401,9 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
   }
   const credits = billing.credits ?? INITIAL_CREDITS;
   if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
-  if (credits < text.length) {
+  if (credits < creditsNeeded) {
     return res.status(402).json({
-      error: `This text needs ${text.length.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
+      error: `This text needs ${creditsNeeded.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
       creditsRemaining: credits,
     });
   }
@@ -1434,20 +1442,21 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
 
     result = result.trim();
 
-    // ── Deduct credits: 1 per INPUT character (same model as adjust-level) ──
+    // Humanize is 15 credits/word. Combined mode prepays the discounted
+    // (Humanize + Level Matching) rate of 15.2 credits/word.
     if (cancelled) return;
-    const creditsUsed = (text || '').length;
+    const creditsUsed = creditsNeeded;
     const newCredits  = Math.max(0, credits - creditsUsed);
     await updateUserCredits(user.id, newCredits);
 
-    // Receipt for the "Humanize + Level Matching" second pass, so that combined
-    // run bills the essay once rather than twice. Harmless for humanize-only —
-    // the client simply never presents it.
+    // Only a request that paid the combined rate receives a continuation.
+    // Humanize-only calls cannot turn their cheaper receipt into a free Level
+    // Matching request.
     return res.json({
       result,
       creditsUsed,
       creditsRemaining: newCredits,
-      continuation: signContinuation(user.id, result.length),
+      continuation: combined === true ? signContinuation(user.id, result.length) : undefined,
     });
   } catch (err) {
     console.error('/api/rw-humanize error:', err);
@@ -1919,10 +1928,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 }
 
 export {
+  CREDIT_RATES,
   analyzeWritingSamples,
   app,
+  billableWordCount,
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
+  creditsForText,
   getBillingMeta,
   hasActivePass,
   isValidExtensionRedirect,

@@ -2,11 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import '../style-profile.js';
 import {
+  CREDIT_RATES,
   analyzeWritingSamples,
   annualCreditRefreshFields,
+  billableWordCount,
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
   checkoutLineItemForPlan,
+  creditsForText,
   getBillingMeta,
   hasActivePass,
   isValidExtensionRedirect,
@@ -27,14 +30,26 @@ test('annual checkout price and included credits match the advertised offer', ()
   assert.equal(annualLineItem.price_data.currency, 'usd');
   assert.equal(annualLineItem.price_data.unit_amount, 9900);
   assert.equal(PLAN_CONFIG.annual.credits, PLAN_CONFIG.monthly.credits);
-  assert.equal(PLAN_CONFIG.annual.credits, 33_000);
+  assert.equal(PLAN_CONFIG.day.credits, 20_000);
+  assert.equal(PLAN_CONFIG.monthly.credits, 40_000);
+  assert.equal(PLAN_CONFIG.annual.credits, 40_000);
   assert.equal(PLAN_CONFIG.annual.creditGrants, 12);
-  assert.equal(PLAN_CONFIG.annual.annualBonus, 4_000);
+  assert.equal(PLAN_CONFIG.annual.annualBonus, 20_000);
   assert.equal(
     PLAN_CONFIG.annual.credits * PLAN_CONFIG.annual.creditGrants + PLAN_CONFIG.annual.annualBonus,
-    400_000,
+    500_000,
   );
   assert.equal(checkoutLineItemForPlan('invalid'), null);
+});
+
+test('word-based billing rates match the public Level, Humanize and Both prices', () => {
+  const essay = Array.from({ length: 1_000 }, (_, i) => `word${i}`).join(' ');
+  assert.equal(billableWordCount(essay), 1_000);
+  assert.deepEqual(CREDIT_RATES, { level: 4, humanize: 15, both: 15.2 });
+  assert.equal(creditsForText(essay, 'level'), 4_000);
+  assert.equal(creditsForText(essay, 'humanize'), 15_000);
+  assert.equal(creditsForText(essay, 'both'), 15_200);
+  assert.equal(creditsForText('one two', 'both'), 31);
 });
 
 test('annual credits are added on monthly anniversaries without erasing the balance', () => {
@@ -51,12 +66,12 @@ test('annual credits are added on monthly anniversaries without erasing the bala
   assert.equal(annualCreditRefreshFields(meta, Date.UTC(2026, 1, 27, 10, 30)), null);
 
   const februaryGrant = annualCreditRefreshFields(meta, Date.UTC(2026, 1, 28, 10, 30));
-  assert.equal(februaryGrant.credits, 40_500);
+  assert.equal(februaryGrant.credits, 47_500);
   assert.equal(februaryGrant.annual_credits_granted, 2);
   assert.equal(februaryGrant.annual_credits_next_grant_at, Date.UTC(2026, 2, 31, 10, 30));
 
   const catchUp = annualCreditRefreshFields(meta, Date.UTC(2026, 4, 31, 10, 30));
-  assert.equal(catchUp.credits, 7_500 + 4 * 33_000);
+  assert.equal(catchUp.credits, 7_500 + 4 * 40_000);
   assert.equal(catchUp.annual_credits_granted, 5);
 });
 
@@ -71,7 +86,7 @@ test('annual credit grants stop after twelve allocations and catch up after plan
     annual_credits_granted: 11,
   }, Date.UTC(2026, 11, 5));
 
-  assert.equal(finalGrant.credits, 33_000);
+  assert.equal(finalGrant.credits, 40_000);
   assert.equal(finalGrant.annual_credits_granted, 12);
   assert.equal(finalGrant.annual_credits_next_grant_at, null);
   assert.equal(annualCreditRefreshFields({
@@ -88,7 +103,7 @@ test('annual credit grants stop after twelve allocations and catch up after plan
     annual_credits_started_at: startedAt,
     annual_credits_granted: 1,
   }, planExpiresAt);
-  assert.equal(expiredCatchUp.credits, 11 * 33_000);
+  assert.equal(expiredCatchUp.credits, 11 * 40_000);
   assert.equal(expiredCatchUp.annual_credits_granted, 12);
   assert.equal(expiredCatchUp.annual_credits_next_grant_at, null);
 });

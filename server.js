@@ -292,14 +292,21 @@ const STRIPE_PRICES = {
   monthly: 'price_1TzObS0rExXCXCyXaH5ixBDT',
 };
 
-const ANNUAL_PRICE_CENTS = 1499;
+// About 17% below twelve $9.99 monthly passes ($119.88), billed once. At the
+// documented worst-case processing cost (~$1.16 per 5,500 credits), the 400k
+// allowance costs about $84.36 and leaves a $14.64 buffer before payment and
+// platform expenses.
+const ANNUAL_PRICE_CENTS = 9900;
 
 export function checkoutLineItemForPlan(plan) {
   if (plan === 'annual') {
     return {
       price_data: {
         currency: 'usd',
-        product_data: { name: 'Bipass AI Annual Pass' },
+        product_data: {
+          name: 'Bipass AI Annual Pass',
+          description: '33,000 credits monthly plus a 4,000-credit annual bonus (400,000 total)',
+        },
         unit_amount: ANNUAL_PRICE_CENTS,
       },
       quantity: 1,
@@ -366,7 +373,8 @@ async function getUserFromToken(token) {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY },
   });
   if (!res.ok) return null;
-  return res.json();
+  const user = await res.json();
+  return refreshAnnualCreditsIfDue(user);
 }
 
 async function updateUserCredits(userId, credits) {
@@ -438,11 +446,25 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
             const plan   = session.metadata?.plan;
             const config = PLAN_CONFIG[plan];
             if (!config) throw new Error(`Unknown plan: ${plan}`);
+            const activatedAt = Date.now();
             fields.tier = plan;
-            fields.plan_expires_at = Date.now() + config.ms;
+            fields.plan_expires_at = activatedAt + config.ms;
             // Buying a pass must not erase credits the customer already owns.
-            fields.credits = (meta.credits ?? 0) + config.credits;
+            fields.credits = (meta.credits ?? 0) + config.credits + (config.annualBonus ?? 0);
             fields.credits_expire_at = null;
+
+            if (plan === 'annual') {
+              // The first 33k and the 4k annual bonus arrive immediately. The
+              // remaining eleven monthly grants are added lazily on each
+              // anniversary, so no always-on worker is required for Railway.
+              fields.annual_credits_started_at = activatedAt;
+              fields.annual_credits_granted = 1;
+              fields.annual_credits_next_grant_at = addUtcMonthsClamped(activatedAt, 1);
+            } else {
+              fields.annual_credits_started_at = null;
+              fields.annual_credits_granted = null;
+              fields.annual_credits_next_grant_at = null;
+            }
           }
 
           await updateUserAppMeta(userId, fields);
@@ -617,10 +639,87 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
 // So ~5,500 tokens ≈ one essay, and each plan's grant is set to keep a margin
 // on that even if every token goes through the expensive humanize path.
 export const PLAN_CONFIG = {
-  day:     { ms: 86_400_000,             credits: 11_000  },  // $5.99  — ~2 essays
-  monthly: { ms: 30 * 86_400_000,        credits: 33_000  },  // $9.99  — ~6 essays
-  annual:  { ms: 365 * 86_400_000,       credits: 33_000  },  // $14.99 — ~6 essays
+  day:     { ms: 86_400_000,             credits: 11_000, creditGrants: 1  }, // $5.99  — ~2 essays
+  monthly: { ms: 30 * 86_400_000,        credits: 33_000, creditGrants: 1  }, // $9.99  — ~6 essays
+  annual:  { ms: 365 * 86_400_000,       credits: 33_000, creditGrants: 12, annualBonus: 4_000 }, // $99 — 400k total
 };
+
+// Add calendar months without letting dates such as January 31 overflow into
+// March. Every grant is calculated from the original purchase timestamp, so a
+// short February never permanently shifts later anniversaries.
+function addUtcMonthsClamped(timestamp, months) {
+  const source = new Date(timestamp);
+  const firstOfTarget = new Date(Date.UTC(
+    source.getUTCFullYear(),
+    source.getUTCMonth() + months,
+    1,
+    source.getUTCHours(),
+    source.getUTCMinutes(),
+    source.getUTCSeconds(),
+    source.getUTCMilliseconds(),
+  ));
+  const lastDay = new Date(Date.UTC(
+    firstOfTarget.getUTCFullYear(),
+    firstOfTarget.getUTCMonth() + 1,
+    0,
+  )).getUTCDate();
+  firstOfTarget.setUTCDate(Math.min(source.getUTCDate(), lastDay));
+  return firstOfTarget.getTime();
+}
+
+// Pure calculation kept separate from persistence so the monthly allowance is
+// easy to test. Grants are additive: unused plan credits and paid top-ups roll
+// forward instead of being erased on the monthly anniversary.
+export function annualCreditRefreshFields(meta, now = Date.now()) {
+  if (meta?.tier !== 'annual') return null;
+
+  const startedAt = Number(meta.annual_credits_started_at);
+  const planExpiresAt = Number(meta.plan_expires_at);
+  let granted = Number(meta.annual_credits_granted);
+  if (!Number.isFinite(startedAt) || !Number.isFinite(planExpiresAt)) return null;
+  if (!Number.isInteger(granted) || granted < 1 || granted >= PLAN_CONFIG.annual.creditGrants) return null;
+
+  const previousGranted = granted;
+  while (
+    granted < PLAN_CONFIG.annual.creditGrants
+    && addUtcMonthsClamped(startedAt, granted) <= now
+    && addUtcMonthsClamped(startedAt, granted) < planExpiresAt
+  ) {
+    granted += 1;
+  }
+  if (granted === previousGranted) return null;
+
+  const grantsAdded = granted - previousGranted;
+  return {
+    credits: (meta.credits ?? 0) + grantsAdded * PLAN_CONFIG.annual.credits,
+    annual_credits_granted: granted,
+    annual_credits_next_grant_at: granted < PLAN_CONFIG.annual.creditGrants
+      ? addUtcMonthsClamped(startedAt, granted)
+      : null,
+  };
+}
+
+async function refreshAnnualCreditsIfDue(user) {
+  const initialFields = annualCreditRefreshFields(getBillingMeta(user));
+  if (!initialFields) return user;
+
+  // Re-read immediately before writing so Stripe fulfillment or a preceding
+  // request cannot make this calculation from stale JWT metadata.
+  const current = await getAdminUserRaw(user.id);
+  if (!current) return user;
+  const fields = annualCreditRefreshFields(getBillingMeta(current));
+  if (!fields) return current;
+
+  await updateUserAppMeta(user.id, fields);
+  return {
+    ...current,
+    app_metadata: {
+      ...(current.app_metadata || {}),
+      ...fields,
+      bipass_billing_migrated: true,
+    },
+  };
+}
 
 // ─── POST /api/create-checkout ───────────────────────────────
 
@@ -689,6 +788,17 @@ app.post('/api/create-credit-checkout', asyncHandler(async (req, res) => {
     console.error('Stripe credit checkout error:', err.message);
     return res.status(500).json({ error: 'Payment setup failed. Please try again.' });
   }
+}));
+
+// Lets signed-in clients trigger a due annual grant before refreshing their
+// Supabase session, so the balance shown in the UI is current on page load.
+app.post('/api/refresh-credits', asyncHandler(async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+  return res.json({ credits: getBillingMeta(user).credits ?? INITIAL_CREDITS });
 }));
 
 // ─── POST /api/roll-reward ────────────────────────────────────

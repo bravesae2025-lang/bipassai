@@ -66,6 +66,13 @@ window.bipassAuth = {
 
   // Force-refresh the Supabase session and return fresh credit balance
   async refreshCredits() {
+    const token = await this.getToken();
+    if (token) {
+      await fetch('/api/refresh-credits', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      }).catch(() => null);
+    }
     const { data: { session } } = await _sb.auth.refreshSession();
     if (!session) return null;
     return bipassAccountMeta(session).credits ?? 2000;

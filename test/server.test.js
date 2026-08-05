@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import '../style-profile.js';
 import {
   analyzeWritingSamples,
+  annualCreditRefreshFields,
   buildCustomizePrompt,
   buildStyleAnalysisPrompt,
   checkoutLineItemForPlan,
@@ -24,10 +25,72 @@ const { MAX_SAVED_STYLES, canCreateStyle, fromAnalysisPayload, sliderValuesFromS
 test('annual checkout price and included credits match the advertised offer', () => {
   const annualLineItem = checkoutLineItemForPlan('annual');
   assert.equal(annualLineItem.price_data.currency, 'usd');
-  assert.equal(annualLineItem.price_data.unit_amount, 1499);
+  assert.equal(annualLineItem.price_data.unit_amount, 9900);
   assert.equal(PLAN_CONFIG.annual.credits, PLAN_CONFIG.monthly.credits);
   assert.equal(PLAN_CONFIG.annual.credits, 33_000);
+  assert.equal(PLAN_CONFIG.annual.creditGrants, 12);
+  assert.equal(PLAN_CONFIG.annual.annualBonus, 4_000);
+  assert.equal(
+    PLAN_CONFIG.annual.credits * PLAN_CONFIG.annual.creditGrants + PLAN_CONFIG.annual.annualBonus,
+    400_000,
+  );
   assert.equal(checkoutLineItemForPlan('invalid'), null);
+});
+
+test('annual credits are added on monthly anniversaries without erasing the balance', () => {
+  const startedAt = Date.UTC(2026, 0, 31, 10, 30);
+  const planExpiresAt = startedAt + PLAN_CONFIG.annual.ms;
+  const meta = {
+    tier: 'annual',
+    credits: 7_500,
+    plan_expires_at: planExpiresAt,
+    annual_credits_started_at: startedAt,
+    annual_credits_granted: 1,
+  };
+
+  assert.equal(annualCreditRefreshFields(meta, Date.UTC(2026, 1, 27, 10, 30)), null);
+
+  const februaryGrant = annualCreditRefreshFields(meta, Date.UTC(2026, 1, 28, 10, 30));
+  assert.equal(februaryGrant.credits, 40_500);
+  assert.equal(februaryGrant.annual_credits_granted, 2);
+  assert.equal(februaryGrant.annual_credits_next_grant_at, Date.UTC(2026, 2, 31, 10, 30));
+
+  const catchUp = annualCreditRefreshFields(meta, Date.UTC(2026, 4, 31, 10, 30));
+  assert.equal(catchUp.credits, 7_500 + 4 * 33_000);
+  assert.equal(catchUp.annual_credits_granted, 5);
+});
+
+test('annual credit grants stop after twelve allocations and catch up after plan expiry', () => {
+  const startedAt = Date.UTC(2026, 0, 5);
+  const planExpiresAt = startedAt + PLAN_CONFIG.annual.ms;
+  const finalGrant = annualCreditRefreshFields({
+    tier: 'annual',
+    credits: 0,
+    plan_expires_at: planExpiresAt,
+    annual_credits_started_at: startedAt,
+    annual_credits_granted: 11,
+  }, Date.UTC(2026, 11, 5));
+
+  assert.equal(finalGrant.credits, 33_000);
+  assert.equal(finalGrant.annual_credits_granted, 12);
+  assert.equal(finalGrant.annual_credits_next_grant_at, null);
+  assert.equal(annualCreditRefreshFields({
+    tier: 'annual',
+    credits: 0,
+    plan_expires_at: planExpiresAt,
+    annual_credits_started_at: startedAt,
+    annual_credits_granted: 12,
+  }, Date.UTC(2026, 11, 6)), null);
+  const expiredCatchUp = annualCreditRefreshFields({
+    tier: 'annual',
+    credits: 0,
+    plan_expires_at: planExpiresAt,
+    annual_credits_started_at: startedAt,
+    annual_credits_granted: 1,
+  }, planExpiresAt);
+  assert.equal(expiredCatchUp.credits, 11 * 33_000);
+  assert.equal(expiredCatchUp.annual_credits_granted, 12);
+  assert.equal(expiredCatchUp.annual_credits_next_grant_at, null);
 });
 
 test('sanitizeNextPath keeps safe same-site paths', () => {

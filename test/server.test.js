@@ -29,9 +29,8 @@ test('annual checkout price and included credits match the advertised offer', ()
   const annualLineItem = checkoutLineItemForPlan('annual');
   assert.equal(annualLineItem.price_data.currency, 'usd');
   assert.equal(annualLineItem.price_data.unit_amount, 9900);
-  assert.equal(PLAN_CONFIG.annual.credits, PLAN_CONFIG.monthly.credits);
   assert.equal(PLAN_CONFIG.day.credits, 20_000);
-  assert.equal(PLAN_CONFIG.monthly.credits, 40_000);
+  assert.equal(PLAN_CONFIG.monthly.credits, 50_000);
   assert.equal(PLAN_CONFIG.annual.credits, 40_000);
   assert.equal(PLAN_CONFIG.annual.creditGrants, 12);
   assert.equal(PLAN_CONFIG.annual.annualBonus, 20_000);

@@ -646,7 +646,7 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
 // covering its combined provider cost.
 export const PLAN_CONFIG = {
   day:     { ms: 86_400_000,             credits: 20_000, creditGrants: 1  },
-  monthly: { ms: 30 * 86_400_000,        credits: 40_000, creditGrants: 1  },
+  monthly: { ms: 30 * 86_400_000,        credits: 50_000, creditGrants: 1  },
   annual:  { ms: 365 * 86_400_000,       credits: 40_000, creditGrants: 12, annualBonus: 20_000 }, // $99 — 500k total
 };
 

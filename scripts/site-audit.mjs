@@ -92,6 +92,8 @@ const extensionManifest = JSON.parse(readFileSync(extensionManifestFile, 'utf8')
 const privacyHtml = readFileSync(privacyFile, 'utf8');
 const indexFile = join(root, 'index.html');
 const indexHtml = readFileSync(indexFile, 'utf8');
+const appFile = join(root, 'app.html');
+const appHtml = readFileSync(appFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -124,6 +126,16 @@ if (!organization
 }
 if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
+}
+
+if (!appHtml.includes('id="mode-dd-current">Humanize + Level Matching</span>')
+    || !/<li class="mode-dd-option is-selected"[^>]*aria-selected="true"[^>]*data-mode="both">/.test(appHtml)
+    || !/setMode\(['"]both['"]\);/.test(appHtml)) {
+  add(appFile, 'Humanize + Level Matching must be the synchronized default mode');
+}
+if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
+    || !appHtml.includes('mode-dd-option-title">Humanize Only</span>')) {
+  add(appFile, 'single-tool mode labels must clearly say Only');
 }
 
 for (const name of ['index.html', 'howto.html']) {

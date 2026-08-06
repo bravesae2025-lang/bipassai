@@ -2926,9 +2926,9 @@ const TOUR_STEPS = [
     body: 'Beginner, Student, Academic — or Custom to fine-tune. This sets how your text gets rewritten.',
   },
   {
-    els: ['humanize-btn'],
+    els: ['humanizer-btn'],
     title: 'Then run it',
-    body: 'Paste your text and hit this — your result opens in the editor, ready to copy.',
+    body: 'Paste your text and run both tools — your result opens in the editor, ready to review.',
   },
 ];
 

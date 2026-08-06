@@ -180,7 +180,7 @@
     <div class="appbg" id="appbg" aria-hidden="true">
       <canvas class="appbg-canvas" id="appbg-canvas"></canvas>
     </div>
-    <div class="workspace" id="workspace">
+    <div class="workspace mode-humanize mode-both" id="workspace">
 
       <!-- ── LEFT COLUMN: Humanize / Level Matching (tabbed) ─────── -->
       <section class="col col-main" data-reveal>
@@ -189,19 +189,19 @@
           <div class="mode-tabs-head">
             <div class="mode-dropdown" id="mode-dd">
               <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="mode-dd-current" id="mode-dd-current">Level Matching</span>
+                <span class="mode-dd-current" id="mode-dd-current">Humanize + Level Matching</span>
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="level">
-                  <span class="mode-dd-option-title">Level Matching</span>
+                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="level">
+                  <span class="mode-dd-option-title">Level Matching Only</span>
                   <span class="mode-dd-option-desc">Best when your teacher focuses on writing level rather than AI-detector scores.</span>
                 </li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">
-                  <span class="mode-dd-option-title">Humanize</span>
+                  <span class="mode-dd-option-title">Humanize Only</span>
                   <span class="mode-dd-option-desc">Makes wording and rhythm feel more natural. AI-detector results can vary.</span>
                 </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="both">
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="both">
                   <span class="mode-dd-option-title-row">
                     <span class="mode-dd-option-title">Humanize + Level Matching</span>
                     <span class="mode-dd-recommended">Recommended</span>
@@ -241,7 +241,7 @@
           </div>
 
           <!-- Level Matching hints -->
-          <div class="humanize-hints mode-block" data-mode="level">
+          <div class="humanize-hints mode-block mode-hidden" data-mode="level">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
               <span class="h-hint-title">Word Swap</span>
@@ -260,7 +260,7 @@
           </div>
 
           <!-- Humanize hints -->
-          <div class="humanize-hints mode-block mode-hidden" data-mode="humanize both">
+          <div class="humanize-hints mode-block" data-mode="humanize both">
             <div class="h-hint">
               <span class="h-hint-icon">~</span>
               <span class="h-hint-title">Natural Flow</span>
@@ -279,7 +279,7 @@
           </div>
 
           <!-- Level Matching action -->
-          <div class="mode-block" data-mode="level">
+          <div class="mode-block mode-hidden" data-mode="level">
             <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Match my level">
               <span class="btn-content">
                 <span id="humanize-label">Match My Level</span>
@@ -295,10 +295,10 @@
           </div>
 
           <!-- Humanize action (UI base — wiring comes later) -->
-          <div class="mode-block mode-hidden" data-mode="humanize both">
-            <button id="humanizer-btn" class="btn-generate btn-humanize" aria-label="Humanize">
+          <div class="mode-block" data-mode="humanize both">
+            <button id="humanizer-btn" class="btn-generate btn-humanize" aria-label="Humanize and level match">
               <span class="btn-content">
-                <span id="humanizer-label">Humanize</span>
+                <span id="humanizer-label">Humanize + Level Match</span>
                 <span id="humanizer-loader" class="spinner hidden"></span>
               </span>
               <span class="btn-arrow" aria-hidden="true">
@@ -716,7 +716,7 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=2"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
   <script src="cursor.js?v=2"></script>
 
   <script>
@@ -731,6 +731,8 @@
     const menu     = document.getElementById('mode-dd-menu');
     const current  = document.getElementById('mode-dd-current');
     const options  = menu ? Array.from(menu.querySelectorAll('.mode-dd-option')) : [];
+    const humanizerBtn = document.getElementById('humanizer-btn');
+    const humanizerLabel = document.getElementById('humanizer-label');
 
     function setMode(mode) {
       blocks.forEach(b => {
@@ -748,12 +750,14 @@
         ws.classList.toggle('mode-both', mode === 'both');       // keeps the level box usable in both
         ws.classList.toggle('mode-own', mode === 'own');
       }
+      if (humanizerLabel) humanizerLabel.textContent = mode === 'both' ? 'Humanize + Level Match' : 'Humanize';
+      if (humanizerBtn) humanizerBtn.setAttribute('aria-label', mode === 'both' ? 'Humanize and level match' : 'Humanize');
       // Expose the current mode so app.js knows which action to run.
       document.body.dataset.appMode = mode;
       // Let app.js refresh the cost estimate (it changes with mode, not just text).
       document.dispatchEvent(new CustomEvent('bipass-mode-change'));
     }
-    document.body.dataset.appMode = 'level';
+    setMode('both');
 
     function closeMenu() {
       dd?.classList.remove('open');
@@ -787,7 +791,9 @@
     const MR  = 150, MR2 = MR * MR;     // cursor radius (screen space)
     const TAU = 6.2831853;
 
-    let mode = 'level';       // current render mode
+    let mode = ws?.classList.contains('mode-both')
+      ? 'both'
+      : ws?.classList.contains('mode-humanize') ? 'humanize' : 'level';
     let pts = [], hpts = [], hstars = [];
     let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
     let R = 0, F = 0, D3D = 0, D2 = 0;

@@ -690,6 +690,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .mode-dd-option-title { line-height: 1.35; }
@@ -703,6 +704,13 @@ main {
   color: var(--g400);
 }
 .mode-dd-option.is-selected .mode-dd-option-desc { color: rgba(255,255,255,0.72); }
+.mode-dd-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.mode-dd-default,
 .mode-dd-recommended {
   flex-shrink: 0;
   padding: 2px 6px;
@@ -715,8 +723,15 @@ main {
   letter-spacing: 0.04em;
   color: var(--g400);
 }
+.mode-dd-default {
+  color: var(--black);
+  background: var(--g100);
+  border-color: var(--g300);
+}
+.mode-dd-option.is-selected .mode-dd-default,
 .mode-dd-option.is-selected .mode-dd-recommended {
   color: rgba(255,255,255,0.82);
+  background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.3);
 }
 .mode-dd-option.is-selected .soon-badge {

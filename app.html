@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=64">
+  <link rel="stylesheet" href="style.css?v=65">
 </head>
 <body>
 
@@ -193,6 +193,16 @@
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="both">
+                  <span class="mode-dd-option-title-row">
+                    <span class="mode-dd-option-title">Humanize + Level Matching</span>
+                    <span class="mode-dd-badges">
+                      <span class="mode-dd-default">Default</span>
+                      <span class="mode-dd-recommended">Recommended</span>
+                    </span>
+                  </span>
+                  <span class="mode-dd-option-desc">Best overall balance when both your teacher and AI-detection software may review the text.</span>
+                </li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="level">
                   <span class="mode-dd-option-title">Level Matching Only</span>
                   <span class="mode-dd-option-desc">Best when your teacher focuses on writing level rather than AI-detector scores.</span>
@@ -200,13 +210,6 @@
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">
                   <span class="mode-dd-option-title">Humanize Only</span>
                   <span class="mode-dd-option-desc">Makes wording and rhythm feel more natural. AI-detector results can vary.</span>
-                </li>
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="both">
-                  <span class="mode-dd-option-title-row">
-                    <span class="mode-dd-option-title">Humanize + Level Matching</span>
-                    <span class="mode-dd-recommended">Recommended</span>
-                  </span>
-                  <span class="mode-dd-option-desc">Best overall balance when both your teacher and AI-detection software may review the text.</span>
                 </li>
                 <li class="mode-dd-option" role="option" aria-selected="false" data-mode="own">
                   <span class="mode-dd-option-title">Push My Own Text</span>

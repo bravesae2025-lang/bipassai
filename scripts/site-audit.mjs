@@ -133,6 +133,11 @@ if (!appHtml.includes('id="mode-dd-current">Humanize + Level Matching</span>')
     || !/setMode\(['"]both['"]\);/.test(appHtml)) {
   add(appFile, 'Humanize + Level Matching must be the synchronized default mode');
 }
+if (!/<ul class="mode-dd-menu"[^>]*>\s*<li class="mode-dd-option is-selected"[^>]*data-mode="both">/.test(appHtml)
+    || !appHtml.includes('class="mode-dd-default">Default</span>')
+    || !appHtml.includes('class="mode-dd-recommended">Recommended</span>')) {
+  add(appFile, 'the combined default mode must be first and show Default and Recommended badges');
+}
 if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
     || !appHtml.includes('mode-dd-option-title">Humanize Only</span>')) {
   add(appFile, 'single-tool mode labels must clearly say Only');

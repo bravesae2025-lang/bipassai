@@ -83,7 +83,7 @@
           <div class="settings-profile-info">
             <div class="settings-username-row">
               <span class="settings-username" id="settings-username">Loading…</span>
-              <button class="settings-edit-btn" id="settings-username-edit-btn">Edit</button>
+              <button class="settings-edit-btn" id="settings-username-edit-btn" type="button">Edit</button>
             </div>
             <span class="settings-email" id="settings-email">…</span>
             <a class="drawer-tier-badge drawer-tier-free" id="settings-tier" href="plans.html">Free</a>
@@ -102,7 +102,7 @@
           </div>
           <div class="settings-credits-display">
             <span class="settings-credits-num" id="settings-credits">—</span>
-            <button class="settings-refresh-btn" id="settings-refresh-btn" title="Refresh">↻</button>
+            <button class="settings-refresh-btn" id="settings-refresh-btn" type="button" aria-label="Refresh credit balance" title="Refresh credit balance">↻</button>
           </div>
         </div>
 
@@ -125,10 +125,10 @@
             <div class="settings-row-title">Default Level</div>
             <div class="settings-row-sub">Which writing level opens by default</div>
           </div>
-          <div class="settings-level-picker" id="settings-level-picker">
-            <button class="settings-level-opt" data-level="easy">Easy</button>
-            <button class="settings-level-opt" data-level="medium">Medium</button>
-            <button class="settings-level-opt" data-level="hard">Hard</button>
+          <div class="settings-level-picker" id="settings-level-picker" role="group" aria-label="Default writing level">
+            <button class="settings-level-opt" type="button" data-level="easy">Beginner</button>
+            <button class="settings-level-opt" type="button" data-level="medium">Student</button>
+            <button class="settings-level-opt" type="button" data-level="hard">Academic</button>
           </div>
         </div>
 
@@ -138,7 +138,7 @@
             <div class="settings-row-sub">Automatically apply your saved style profile on load</div>
           </div>
           <label class="settings-toggle">
-            <input type="checkbox" id="pref-mystyle">
+            <input type="checkbox" id="pref-mystyle" aria-label="Use My Style by default">
             <span class="settings-toggle-track"></span>
           </label>
         </div>
@@ -189,10 +189,10 @@
   </main>
 
   <!-- Delete confirmation modal -->
-  <div class="settings-modal-overlay hidden" id="delete-modal">
+  <div class="settings-modal-overlay hidden" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" aria-describedby="delete-modal-body" aria-hidden="true">
     <div class="settings-modal">
-      <div class="settings-modal-title">Delete Account?</div>
-      <div class="settings-modal-body">
+      <div class="settings-modal-title" id="delete-modal-title">Delete Account?</div>
+      <div class="settings-modal-body" id="delete-modal-body">
         This will permanently delete your account, all credits, and your style profile.
         This cannot be undone.
       </div>

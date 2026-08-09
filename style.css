@@ -61,6 +61,11 @@ body {
 
 ::selection { background: var(--black); color: var(--bg); }
 
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 /* ─────────────────────────────────────────────────────────────
    Page-load animations — header
 ───────────────────────────────────────────────────────────── */
@@ -3517,7 +3522,7 @@ body.revision-open { overflow: hidden; }
   border: 1.5px solid var(--g150);
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.12s;
+  transition: background-color 0.12s, border-color 0.12s, color 0.12s;
   white-space: nowrap;
 }
 .mint-btn:hover { border-color: var(--black); color: var(--black); }
@@ -7308,7 +7313,7 @@ body.drawer-lock { overflow: hidden; }
   border-radius: 4px;
   padding: 2px 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s, color 0.15s;
   line-height: 1.6;
 }
 
@@ -7379,7 +7384,7 @@ body.drawer-lock { overflow: hidden; }
   cursor: pointer;
   font-size: 15px;
   color: var(--g400);
-  transition: all 0.15s;
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
   flex-shrink: 0;
 }
 
@@ -7399,7 +7404,7 @@ body.drawer-lock { overflow: hidden; }
   color: var(--black);
   text-decoration: none;
   display: inline-block;
-  transition: all 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -7428,7 +7433,7 @@ body.drawer-lock { overflow: hidden; }
   padding: 5px 13px;
   cursor: pointer;
   color: var(--g400);
-  transition: all 0.15s;
+  transition: background-color 0.15s, color 0.15s;
   white-space: nowrap;
 }
 
@@ -7520,7 +7525,7 @@ body.drawer-lock { overflow: hidden; }
   padding: 8px 16px;
   cursor: pointer;
   color: #b83030;
-  transition: all 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -7584,7 +7589,7 @@ body.drawer-lock { overflow: hidden; }
   padding: 8px 16px;
   cursor: pointer;
   color: var(--g400);
-  transition: all 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .settings-modal-cancel:hover {
@@ -9158,6 +9163,29 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .history-mode-btn + .history-mode-btn { border-left: 1px solid var(--g150); }
 .history-mode-btn.active { background: var(--black); color: #fff; }
 .history-mode-btn:not(.active):hover { color: var(--black); background: var(--g050); }
+.history-clear-all {
+  flex-shrink: 0;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 9px 14px;
+  background: #fff;
+  color: #c93636;
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.history-clear-all:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b42323;
+}
+.history-clear-all:focus-visible { outline: 2px solid #c93636; outline-offset: 2px; }
+.history-clear-all:disabled { cursor: wait; opacity: 0.55; }
 .history-empty-search {
   font-family: var(--ff-mono);
   font-size: 12px;

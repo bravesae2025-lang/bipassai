@@ -1105,6 +1105,7 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
+    sessionStorage.removeItem('bipass_result_id');
     window.location.href = 'editor.html';
   } catch (err) {
     showToast(err.message || 'Level matching failed. Please try again.');
@@ -1129,6 +1130,7 @@ function _goEditor(input, result, html, changed, flow) {
   sessionStorage.setItem('bipass_change_count', String(changed));
   sessionStorage.setItem('bipass_wc',           String(countWords(input)));
   sessionStorage.setItem('bipass_level',        selectedLevel || '');
+  sessionStorage.removeItem('bipass_result_id');
   window.location.href = 'editor.html';
 }
 
@@ -1437,7 +1439,7 @@ async function setupNavUser() {
   if (!navUser) return;
   const session = await window.bipassAuth.getSession();
   if (session) {
-    navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+    navUser.innerHTML = `<span class="nav-user-email">${escapeHtml(session.user.email)}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
     document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
   } else {
     navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
@@ -1462,15 +1464,15 @@ function setupDrawer(session) {
   function renderProfile() {
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
-        <div class="drawer-avatar" id="drawer-avatar">${initials()}</div>
+        <div class="drawer-avatar" id="drawer-avatar">${escapeHtml(initials())}</div>
         <div class="drawer-profile">
           <div class="drawer-username-row">
-            <span class="drawer-username" id="drawer-username">${displayName || 'Set a username'}</span>
+            <span class="drawer-username" id="drawer-username">${escapeHtml(displayName || 'Set a username')}</span>
             <button class="drawer-username-edit-btn" id="drawer-username-edit-btn" aria-label="Edit username">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
           </div>
-          <span class="drawer-user-email">${email}</span>
+          <span class="drawer-user-email">${escapeHtml(email)}</span>
         </div>
       </div>
     `;
@@ -1480,7 +1482,7 @@ function setupDrawer(session) {
   function startEdit() {
     const current = displayName;
     document.getElementById('drawer-username-edit-btn').style.display = 'none';
-    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${current}" placeholder="Enter username" maxlength="30" />`;
+    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${escapeHtml(current)}" placeholder="Enter username" maxlength="30" aria-label="Username" />`;
     const input = document.getElementById('drawer-username-input');
     input.focus();
     input.select();
@@ -1585,8 +1587,16 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
-  // No default selection — only restore a level when returning from a regenerate.
-  selectLevel(sessionStorage.getItem('bipass_level') || null);
+  const validLevels = ['easy', 'medium', 'hard', 'customize'];
+  const savedLevel = sessionStorage.getItem('bipass_level');
+  const preferredLevel = localStorage.getItem('bipass_pref_level');
+  // Capture this before selectLevel(): selecting a level intentionally turns
+  // My Style off for manual changes, but it must not overwrite the saved
+  // startup preference while state is still being restored.
+  const savedMyStyle = sessionStorage.getItem('bipass_my_style');
+  selectLevel(validLevels.includes(savedLevel)
+    ? savedLevel
+    : (validLevels.includes(preferredLevel) ? preferredLevel : null));
 
   // Restore active tab
   const savedMode = sessionStorage.getItem('bipass_mode');
@@ -1617,12 +1627,12 @@ function restoreState() {
     const wlVal = optionsPanel?.querySelector('.mistake-slider-val[data-mistake="wordlevel"]');
     if (wlVal) wlVal.textContent = wordLevelLabel(savedWL);
   }
-  const savedMyStyle = sessionStorage.getItem('bipass_my_style');
   if (savedMyStyle !== null) {
     myStyleActive = savedMyStyle === 'true';
   } else {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
+  sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
   colCustomize?.classList.add('col-active');
 }
 
@@ -1711,6 +1721,7 @@ function bindEvents() {
     const ta = document.createElement('textarea');
     ta.className = 'style-sample-textarea';
     ta.id = `style-sample-${sampleCount}`;
+    ta.setAttribute('aria-label', `Writing sample ${sampleCount}`);
     ta.placeholder = `Paste sample ${sampleCount}…`;
     ta.rows = 4;
     row.appendChild(ta);
@@ -1845,7 +1856,9 @@ function traitIntensityLabel(val) {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
 }
 
 function renderTraitSliders(container, style) {
@@ -1862,7 +1875,8 @@ function renderTraitSliders(container, style) {
           <span class="trait-slider-val">${traitIntensityLabel(t.intensity)}</span>
         </div>
         <input class="trait-slider" type="range" min="0" max="10" step="1"
-               value="${t.intensity}" data-trait-idx="${i}" data-sid="${escapeHtml(style.id)}">
+               value="${t.intensity}" data-trait-idx="${i}" data-sid="${escapeHtml(style.id)}"
+               aria-label="${escapeHtml(t.name)} intensity">
       </div>`).join('')
   }</div>`;
 
@@ -1896,38 +1910,52 @@ function showStyleDeleteModal(styleName, onConfirm) {
   modal.id = 'style-delete-modal';
   modal.className = 'style-delete-modal-overlay';
   modal.innerHTML = `
-    <div class="style-delete-modal-card">
+    <div class="style-delete-modal-card" role="dialog" aria-modal="true" aria-labelledby="style-delete-modal-title" aria-describedby="style-delete-modal-description">
       <div class="style-delete-modal-icon">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
           <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </div>
-      <div class="style-delete-modal-title">Delete style?</div>
-      <div class="style-delete-modal-sub">
+      <div class="style-delete-modal-title" id="style-delete-modal-title">Delete style?</div>
+      <div class="style-delete-modal-sub" id="style-delete-modal-description">
         "${escapeHtml(styleName)}" will be permanently removed.
       </div>
       <div class="style-delete-modal-actions">
-        <button class="style-delete-modal-cancel">Cancel</button>
-        <button class="style-delete-modal-confirm">Delete</button>
+        <button class="style-delete-modal-cancel" type="button">Cancel</button>
+        <button class="style-delete-modal-confirm" type="button">Delete</button>
       </div>
     </div>
   `;
 
   document.body.appendChild(modal);
   requestAnimationFrame(() => modal.classList.add('open'));
+  const previousFocus = document.activeElement;
+  const cancelButton = modal.querySelector('.style-delete-modal-cancel');
 
   const close = () => {
     modal.classList.remove('open');
-    setTimeout(() => modal.remove(), 200);
+    document.removeEventListener('keydown', handleKeydown);
+    setTimeout(() => {
+      modal.remove();
+      previousFocus?.focus?.();
+    }, 200);
   };
+
+  function handleKeydown(e) {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    close();
+  }
 
   modal.querySelector('.style-delete-modal-confirm').addEventListener('click', () => {
     close();
     onConfirm();
   });
-  modal.querySelector('.style-delete-modal-cancel').addEventListener('click', close);
+  cancelButton.addEventListener('click', close);
   modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', handleKeydown);
+  requestAnimationFrame(() => cancelButton.focus());
 }
 
 function renderStyleList() {
@@ -1945,12 +1973,12 @@ function renderStyleList() {
         <div class="style-card-header">
           <input class="style-card-name" type="text"
                  value="${escapeHtml(style.name || '')}"
-                 placeholder="Name this style…" maxlength="30" />
+                 placeholder="Name this style…" maxlength="30" aria-label="Writing style name" />
           <div class="style-card-btns">
-            <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}">
+            <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button">
               ${isActive ? 'Using' : 'Use'}
             </button>
-            <button class="style-delete-btn" data-id="${escapeHtml(style.id)}">✕</button>
+            <button class="style-delete-btn" data-id="${escapeHtml(style.id)}" type="button" aria-label="Delete ${escapeHtml(style.name || 'writing style')}">✕</button>
           </div>
         </div>
       </div>`;
@@ -2469,6 +2497,7 @@ async function humanize() {
 // ─── Save state for regenerate ────────────────────────────────
 
 function saveState(mode) {
+  sessionStorage.removeItem('bipass_result_id');
   sessionStorage.setItem('bipass_level',    selectedLevel);
   sessionStorage.setItem('bipass_mode',     mode);
   sessionStorage.setItem('bipass_prompt',   promptText.value);
@@ -3091,7 +3120,10 @@ function startTour() {
         btn.onclick = () => { window.location.href = 'plans.html'; };
         return;
       }
-      if (!res.ok) throw new Error('Push failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Push failed');
+      }
 
       label.textContent = '✓ Pushed to Extension';
       btn.classList.add('pushed');
@@ -3100,9 +3132,10 @@ function startTour() {
         btn.classList.remove('pushed');
         label.textContent = 'Push to Extension';
       }, 3000);
-    } catch {
+    } catch (err) {
       btn.disabled = false;
       label.textContent = '↻ Try Again';
+      showToast(err.message || 'Push failed');
       setTimeout(() => { label.textContent = 'Push to Extension'; }, 2500);
     }
   });

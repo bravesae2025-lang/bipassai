@@ -20,7 +20,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=64">
+  <link rel="stylesheet" href="style.css?v=67">
 </head>
 <body class="editor-page">
 
@@ -74,10 +74,10 @@
       </div>
       <div class="history-controls" id="history-controls" style="display:none">
         <div class="history-search-wrap">
-          <svg class="history-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input class="history-search-input" id="history-search" type="text" placeholder="Search your history…" autocomplete="off" spellcheck="false">
-          <button class="history-search-clear hidden" id="history-search-clear" aria-label="Clear search">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <svg class="history-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="history-search-input" id="history-search" type="text" aria-label="Search history" placeholder="Search your history…" autocomplete="off" spellcheck="false">
+          <button class="history-search-clear hidden" id="history-search-clear" type="button" aria-label="Clear search">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="history-mode-pills">
@@ -85,6 +85,7 @@
           <button class="history-mode-btn" data-mode="generate">Generated</button>
           <button class="history-mode-btn" data-mode="humanize">Level Matched</button>
         </div>
+        <button class="history-clear-all" id="history-clear-all" type="button">Clear history</button>
       </div>
 
       <div class="history-list" id="history-list"></div>
@@ -96,7 +97,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="history.js?v=2"></script>
+  <script src="history.js?v=4"></script>
   <script src="cursor.js?v=2"></script>
 
   <footer class="site-footer">

@@ -714,8 +714,16 @@
       if (!navUser) return;
       const session = await window.bipassAuth.getSession();
       if (session) {
-        navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
-        document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
+        const email = document.createElement('span');
+        email.className = 'nav-user-email';
+        email.textContent = session.user.email || '';
+        const signout = document.createElement('button');
+        signout.className = 'nav-signout';
+        signout.id = 'nav-signout-btn';
+        signout.type = 'button';
+        signout.textContent = 'Sign out';
+        signout.addEventListener('click', () => window.bipassAuth.signOut());
+        navUser.replaceChildren(email, signout);
       } else {
         navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
       }

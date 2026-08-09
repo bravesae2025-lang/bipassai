@@ -249,7 +249,18 @@ for (const viewport of viewports) {
 }
 
 const apiChecks = [
-  { name: 'config', path: '/config', options: {}, status: 200 },
+  {
+    name: 'config', path: '/config', options: {}, status: 200,
+    headers: {
+      'x-content-type-options': 'nosniff',
+      'referrer-policy': 'strict-origin-when-cross-origin',
+      'x-frame-options': 'DENY',
+    },
+  },
+  { name: 'public browser asset', path: '/app.js', options: {}, status: 200 },
+  { name: 'private server source', path: '/server.js', options: {}, status: 404 },
+  { name: 'encoded private server source', path: '/%73erver.js', options: {}, status: 404 },
+  { name: 'private dependency source', path: '/node_modules/express/index.js', options: {}, status: 404 },
   { name: 'invalid signup', path: '/auth/signup', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }, status: 400 },
   {
     name: 'protected analyze',
@@ -268,6 +279,12 @@ for (const check of apiChecks) {
   const response = await fetch(`${baseUrl}${check.path}`, check.options);
   if (response.status !== check.status) {
     issues.push(`API ${check.name}: expected ${check.status}, received ${response.status}`);
+  }
+  for (const [name, expected] of Object.entries(check.headers || {})) {
+    const received = response.headers.get(name);
+    if (received !== expected) {
+      issues.push(`API ${check.name}: expected ${name}=${expected}, received ${received || 'none'}`);
+    }
   }
 }
 

@@ -94,6 +94,16 @@ const indexFile = join(root, 'index.html');
 const indexHtml = readFileSync(indexFile, 'utf8');
 const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
+const appJsFile = join(root, 'app.js');
+const appJs = readFileSync(appJsFile, 'utf8');
+const editorJsFile = join(root, 'editor.js');
+const editorJs = readFileSync(editorJsFile, 'utf8');
+const serverFile = join(root, 'server.js');
+const serverJs = readFileSync(serverFile, 'utf8');
+const authFile = join(root, 'auth.js');
+const authJs = readFileSync(authFile, 'utf8');
+const historyFile = join(root, 'history.js');
+const historyJs = readFileSync(historyFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -141,6 +151,39 @@ if (!/<ul class="mode-dd-menu"[^>]*>\s*<li class="mode-dd-option is-selected"[^>
 if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
     || !appHtml.includes('mode-dd-option-title">Humanize Only</span>')) {
   add(appFile, 'single-tool mode labels must clearly say Only');
+}
+if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
+  add(appJsFile, 'must apply the default writing level saved in Settings');
+}
+const restoreStart = appJs.indexOf('function restoreState()');
+const restoreEnd = appJs.indexOf('// ─── Events', restoreStart);
+const restoreBlock = appJs.slice(restoreStart, restoreEnd);
+if (restoreBlock.indexOf("const savedMyStyle = sessionStorage.getItem('bipass_my_style')") === -1
+    || restoreBlock.indexOf("const savedMyStyle = sessionStorage.getItem('bipass_my_style')") > restoreBlock.indexOf('selectLevel(validLevels')
+    || !restoreBlock.includes("sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false')")) {
+  add(appJsFile, 'must preserve the My Style preference while restoring the default level');
+}
+if (!historyJs.includes("container.dataset.actionsBound === 'true'")) {
+  add(historyFile, 'history card actions must only bind once');
+}
+if (!historyJs.includes('const HISTORY_LIMIT = 20')
+    || !historyJs.includes("sessionStorage.setItem('bipass_result_id', loadBtn.dataset.id)")) {
+  add(historyFile, 'History must show its 20-result cap and preserve opened result IDs');
+}
+if (!historyJs.includes("document.getElementById('history-clear-all')")
+    || !historyJs.includes(".eq('user_id', session.user.id)")) {
+  add(historyFile, 'Clear history must delete only the signed-in user’s results');
+}
+if (!editorJs.includes("fetch('/api/results'")
+    || !editorJs.includes("sessionStorage.getItem('bipass_result_id')")) {
+  add(editorJsFile, 'editor results must save through the capped API without refresh duplicates');
+}
+if (!serverJs.includes('export const HISTORY_RESULT_LIMIT = 20')
+    || !serverJs.includes("code: 'HISTORY_FULL'")) {
+  add(serverFile, 'server must enforce the 20-result History cap');
+}
+if (!/return\s*\{\s*\.\.\.\(user\.app_metadata\s*\|\|\s*\{\}\)\s*\}/.test(authJs)) {
+  add(authFile, 'billing UI must trust server-controlled app_metadata only');
 }
 
 for (const name of ['index.html', 'howto.html']) {

@@ -85,6 +85,7 @@
       <textarea
         class="editor-textarea"
         id="editor-textarea"
+        aria-label="Generated result"
         spellcheck="false"
         placeholder="Your result will appear here…"
       ></textarea>
@@ -203,7 +204,7 @@
   </div>
 
   <!-- Leave confirmation modal -->
-  <div class="settings-modal-overlay hidden" id="leave-confirm" role="dialog" aria-modal="true">
+  <div class="settings-modal-overlay hidden" id="leave-confirm" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="settings-modal leave-modal">
       <button class="leave-modal-x" id="leave-x" aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -225,7 +226,7 @@
   <script src="auth.js"></script>
   <script src="revision-intent.js?v=1"></script>
   <script src="change-search.js?v=1"></script>
-  <script src="editor.js?v=26"></script>
+  <script src="editor.js?v=27"></script>
   <script src="cursor.js"></script>
 </body>
 </html>

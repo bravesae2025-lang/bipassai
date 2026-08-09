@@ -14,12 +14,11 @@ function usernameToEmail(username) {
   return `${String(username).trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
 }
 
-// Profile fields remain in user_metadata, while credits and pass status live
-// in server-controlled app_metadata. App values win during the legacy
-// migration window.
+// Credits and pass status live only in server-controlled app_metadata. Never
+// fall back to user_metadata here: signed-in users can edit that object.
 function bipassAccountMeta(subject) {
   const user = subject?.user || subject || {};
-  return { ...(user.user_metadata || {}), ...(user.app_metadata || {}) };
+  return { ...(user.app_metadata || {}) };
 }
 
 function bipassSafeNext(value) {

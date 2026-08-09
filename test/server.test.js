@@ -13,7 +13,11 @@ import {
   checkoutLineItemForPlan,
   creditsForText,
   getBillingMeta,
+  getSavedResultCount,
   hasActivePass,
+  HISTORY_RESULT_LIMIT,
+  historyLimitPayload,
+  isPrivateStaticPath,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
   PLAN_CONFIG,
@@ -70,6 +74,50 @@ test('word-based billing rates match the public Level, Humanize and Both prices'
   assert.equal(creditsForText(essay, 'humanize'), 15_000);
   assert.equal(creditsForText(essay, 'both'), 15_200);
   assert.equal(creditsForText('one two', 'both'), 31);
+});
+
+test('History capacity blocks the twenty-first saved result', () => {
+  assert.equal(HISTORY_RESULT_LIMIT, 20);
+  assert.equal(historyLimitPayload(19), null);
+
+  const full = historyLimitPayload(20);
+  assert.equal(full.code, 'HISTORY_FULL');
+  assert.equal(full.historyCount, 20);
+  assert.equal(full.historyLimit, 20);
+  assert.match(full.error, /Delete at least one saved result/i);
+
+  assert.equal(historyLimitPayload(21).code, 'HISTORY_FULL');
+});
+
+test('saved-result count uses an exact, user-scoped Supabase HEAD request', async () => {
+  let request;
+  const fakeFetch = async (url, options) => {
+    request = { url, options };
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: (name) => name.toLowerCase() === 'content-range' ? '0-0/17' : null },
+    };
+  };
+
+  assert.equal(await getSavedResultCount('user/one', fakeFetch, 'service-test-key'), 17);
+  assert.match(request.url, /user_id=eq\.user%2Fone$/);
+  assert.equal(request.options.method, 'HEAD');
+  assert.equal(request.options.headers.Prefer, 'count=exact');
+  assert.equal(request.options.headers.Range, '0-0');
+  assert.equal(request.options.headers.apikey, 'service-test-key');
+});
+
+test('saved-result count fails closed when Supabase omits the exact total', async () => {
+  const fakeFetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: () => null },
+  });
+  await assert.rejects(
+    getSavedResultCount('user-one', fakeFetch, 'service-test-key'),
+    /did not include a total/,
+  );
 });
 
 test('annual credits are added on monthly anniversaries without erasing the balance', () => {
@@ -144,6 +192,19 @@ test('extension OAuth only accepts Chrome identity redirect origins', () => {
   assert.equal(isValidExtensionRedirect('https://evil.example/.chromiumapp.org/'), false);
   assert.equal(isValidExtensionRedirect('https://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org/callback'), false);
   assert.equal(isValidExtensionRedirect('http://abcdefghijklmnopabcdefghijklmnop.chromiumapp.org/'), false);
+});
+
+test('development and server files are not exposed by the frontend static server', () => {
+  for (const path of [
+    '/server.js', '/%73erver.js', '/package.json', '/node_modules/express/index.js',
+    '/test/server.test.js', '/scripts/site-audit.mjs', '/extension/manifest.json',
+    '/bipass-extension.zip',
+  ]) {
+    assert.equal(isPrivateStaticPath(path), true, path);
+  }
+  for (const path of ['/app.js', '/style.css', '/extension-version.json', '/site.webmanifest']) {
+    assert.equal(isPrivateStaticPath(path), false, path);
+  }
 });
 
 test('usernameToEmail normalizes usernames consistently', () => {

@@ -1,5 +1,11 @@
 let _toastTimer;
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   if (!toast) return;
@@ -18,7 +24,7 @@ async function setupNavUser() {
   if (!navUser) return;
   const session = await window.bipassAuth.getSession();
   if (session) {
-    navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+    navUser.innerHTML = `<span class="nav-user-email">${escapeHtml(session.user.email)}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
     document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
   } else {
     navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
@@ -41,15 +47,15 @@ function setupDrawer(session) {
   function renderProfile() {
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
-        <div class="drawer-avatar" id="drawer-avatar">${initials()}</div>
+        <div class="drawer-avatar" id="drawer-avatar">${escapeHtml(initials())}</div>
         <div class="drawer-profile">
           <div class="drawer-username-row">
-            <span class="drawer-username" id="drawer-username">${displayName || 'Set a username'}</span>
+            <span class="drawer-username" id="drawer-username">${escapeHtml(displayName || 'Set a username')}</span>
             <button class="drawer-username-edit-btn" id="drawer-username-edit-btn" aria-label="Edit username">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
           </div>
-          <span class="drawer-user-email">${email}</span>
+          <span class="drawer-user-email">${escapeHtml(email)}</span>
         </div>
       </div>
     `;
@@ -59,7 +65,7 @@ function setupDrawer(session) {
   function startEdit() {
     const current = displayName;
     document.getElementById('drawer-username-edit-btn').style.display = 'none';
-    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${current}" placeholder="Enter username" maxlength="30" />`;
+    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${escapeHtml(current)}" placeholder="Enter username" maxlength="30" aria-label="Username" />`;
     const input = document.getElementById('drawer-username-input');
     input.focus();
     input.select();

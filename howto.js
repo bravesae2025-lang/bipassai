@@ -1,5 +1,11 @@
 // ─── How to Use page ──────────────────────────────────────────
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}
+
 async function init() {
   const session = await window.bipassAuth.getSession();
 
@@ -7,7 +13,7 @@ async function init() {
   const navUser = document.getElementById('nav-user');
   if (navUser) {
     if (session) {
-      navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+      navUser.innerHTML = `<span class="nav-user-email">${escapeHtml(session.user.email)}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
       document.getElementById('nav-signout-btn')?.addEventListener('click', () => window.bipassAuth.signOut());
     } else {
       navUser.innerHTML = `<a class="nav-link" href="/login.html">Sign in</a>`;
@@ -29,10 +35,10 @@ async function init() {
     const initial = (displayName || email || '?')[0].toUpperCase();
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
-        <div class="drawer-avatar">${initial}</div>
+        <div class="drawer-avatar">${escapeHtml(initial)}</div>
         <div class="drawer-profile">
-          <span class="drawer-username">${displayName || email}</span>
-          <span class="drawer-user-email">${email}</span>
+          <span class="drawer-username">${escapeHtml(displayName || email)}</span>
+          <span class="drawer-user-email">${escapeHtml(email)}</span>
         </div>
       </div>`;
   }

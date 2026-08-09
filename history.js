@@ -1,6 +1,12 @@
 const toast = document.getElementById('toast');
 let toastTimer;
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}
+
 function setupDrawer(session) {
   const hamburger  = document.getElementById('nav-hamburger');
   const overlay    = document.getElementById('drawer-overlay');
@@ -17,15 +23,15 @@ function setupDrawer(session) {
   function renderProfile() {
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
-        <div class="drawer-avatar" id="drawer-avatar">${initials()}</div>
+        <div class="drawer-avatar" id="drawer-avatar">${escapeHtml(initials())}</div>
         <div class="drawer-profile">
           <div class="drawer-username-row">
-            <span class="drawer-username" id="drawer-username">${displayName || 'Set a username'}</span>
+            <span class="drawer-username" id="drawer-username">${escapeHtml(displayName || 'Set a username')}</span>
             <button class="drawer-username-edit-btn" id="drawer-username-edit-btn" aria-label="Edit username">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
           </div>
-          <span class="drawer-user-email">${email}</span>
+          <span class="drawer-user-email">${escapeHtml(email)}</span>
         </div>
       </div>
     `;
@@ -35,7 +41,7 @@ function setupDrawer(session) {
   function startEdit() {
     const current = displayName;
     document.getElementById('drawer-username-edit-btn').style.display = 'none';
-    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${current}" placeholder="Enter username" maxlength="30" />`;
+    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${escapeHtml(current)}" placeholder="Enter username" maxlength="30" aria-label="Username" />`;
     const input = document.getElementById('drawer-username-input');
     input.focus();
     input.select();
@@ -84,7 +90,7 @@ async function init() {
 async function setupNavUser(session) {
   const navUser = document.getElementById('nav-user');
   if (!navUser) return;
-  navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+  navUser.innerHTML = `<span class="nav-user-email">${escapeHtml(session.user.email)}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
   document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
 }
 
@@ -94,29 +100,36 @@ let allResults  = [];
 let filterMode  = '';
 let filterQuery = '';
 let searchTimer = null;
+const HISTORY_LIMIT = 20;
 
 // ─── Card builder ─────────────────────────────────────────────
 
 function buildCard(item) {
+  const text = String(item.text ?? '');
+  const mode = String(item.mode ?? '');
+  const level = String(item.level ?? '');
+  const id = String(item.id ?? '');
   const div = document.createElement('div');
   div.className = 'history-item';
-  div.dataset.id = item.id;
+  div.dataset.id = id;
   div.innerHTML = `
     <div class="history-item-meta">
-      <span class="history-badge">${item.mode === 'generate' ? 'Generated' : 'Humanized'} · ${item.level}</span>
+      <span class="history-badge">${mode === 'generate' ? 'Generated' : 'Humanized'} · ${escapeHtml(level)}</span>
       <span class="history-date">${formatDate(item.created_at)}</span>
     </div>
-    <p class="history-preview">${escapeHtml(item.text.slice(0, 200))}${item.text.length > 200 ? '…' : ''}</p>
+    <p class="history-preview">${escapeHtml(text.slice(0, 200))}${text.length > 200 ? '…' : ''}</p>
     <div class="history-actions">
-      <button class="history-btn history-btn-copy" data-text="${escapeAttr(item.text)}">Copy</button>
-      <button class="history-btn history-btn-load" data-text="${escapeAttr(item.text)}" data-mode="${item.mode}">Open in editor</button>
-      <button class="history-btn history-btn-delete" data-id="${item.id}">Delete</button>
+      <button class="history-btn history-btn-copy" data-text="${escapeHtml(text)}">Copy</button>
+      <button class="history-btn history-btn-load" data-id="${escapeHtml(id)}" data-text="${escapeHtml(text)}" data-mode="${escapeHtml(mode)}">Open in editor</button>
+      <button class="history-btn history-btn-delete" data-id="${escapeHtml(id)}">Delete</button>
     </div>
   `;
   return div;
 }
 
 function bindCardActions(container) {
+  if (container.dataset.actionsBound === 'true') return;
+  container.dataset.actionsBound = 'true';
   container.addEventListener('click', async e => {
     const copyBtn   = e.target.closest('.history-btn-copy');
     const loadBtn   = e.target.closest('.history-btn-load');
@@ -130,13 +143,18 @@ function bindCardActions(container) {
     if (loadBtn) {
       sessionStorage.setItem('bipass_result', loadBtn.dataset.text);
       sessionStorage.setItem('bipass_mode', loadBtn.dataset.mode);
+      sessionStorage.setItem('bipass_result_id', loadBtn.dataset.id);
       window.location.href = 'editor.html';
     }
 
     if (deleteBtn) {
+      if (!window.confirm('Delete this saved result?')) return;
       const id = deleteBtn.dataset.id;
       const { error } = await window.bipassAuth.client.from('results').delete().eq('id', id);
       if (!error) {
+        if (sessionStorage.getItem('bipass_result_id') === id) {
+          sessionStorage.removeItem('bipass_result_id');
+        }
         allResults = allResults.filter(r => String(r.id) !== String(id));
         renderFiltered();
       }
@@ -150,7 +168,7 @@ function renderFiltered() {
   const q = filterQuery.toLowerCase();
   const filtered = allResults.filter(item => {
     const modeMatch  = !filterMode || item.mode === filterMode;
-    const queryMatch = !q || item.text.toLowerCase().includes(q);
+    const queryMatch = !q || String(item.text ?? '').toLowerCase().includes(q);
     return modeMatch && queryMatch;
   });
 
@@ -165,11 +183,13 @@ function renderFiltered() {
   emptyEl.classList.toggle('hidden', filtered.length > 0 || allResults.length === 0);
 
   if (allResults.length === 0) {
-    subEl.textContent = 'No saved results yet — humanize some text first.';
+    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — humanize some text first.`;
+  } else if (allResults.length >= HISTORY_LIMIT) {
+    subEl.textContent = `${HISTORY_LIMIT} / ${HISTORY_LIMIT} saved results — History full. Delete one to create another.`;
   } else if (filtered.length === allResults.length) {
-    subEl.textContent = `${allResults.length} saved result${allResults.length !== 1 ? 's' : ''}`;
+    subEl.textContent = `${allResults.length} / ${HISTORY_LIMIT} saved results`;
   } else {
-    subEl.textContent = `Showing ${filtered.length} of ${allResults.length} results`;
+    subEl.textContent = `Showing ${filtered.length} of ${allResults.length} · ${allResults.length} / ${HISTORY_LIMIT} saved`;
   }
 }
 
@@ -186,7 +206,7 @@ async function loadHistory(session) {
 
   if (error) { subEl.textContent = 'Failed to load history.'; return; }
   if (!data || data.length === 0) {
-    subEl.textContent = 'No saved results yet — humanize some text first.';
+    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — humanize some text first.`;
     return;
   }
 
@@ -199,6 +219,7 @@ async function loadHistory(session) {
   // Search input
   const searchInput = document.getElementById('history-search');
   const clearBtn    = document.getElementById('history-search-clear');
+  const clearAllBtn = document.getElementById('history-clear-all');
 
   searchInput.addEventListener('input', () => {
     filterQuery = searchInput.value;
@@ -213,6 +234,32 @@ async function loadHistory(session) {
     clearBtn.classList.add('hidden');
     renderFiltered();
     searchInput.focus();
+  });
+
+  clearAllBtn.addEventListener('click', async () => {
+    if (!window.confirm(`Clear all ${allResults.length} saved results? This cannot be undone.`)) return;
+
+    clearAllBtn.disabled = true;
+    clearAllBtn.textContent = 'Clearing…';
+    const { error } = await window.bipassAuth.client
+      .from('results')
+      .delete()
+      .eq('user_id', session.user.id);
+
+    if (error) {
+      clearAllBtn.disabled = false;
+      clearAllBtn.textContent = 'Clear history';
+      showToast('History could not be cleared');
+      return;
+    }
+
+    allResults = [];
+    filterMode = '';
+    filterQuery = '';
+    sessionStorage.removeItem('bipass_result_id');
+    document.getElementById('history-controls').style.display = 'none';
+    renderFiltered();
+    showToast('History cleared');
   });
 
   // Mode pills
@@ -230,14 +277,6 @@ async function loadHistory(session) {
 
 function formatDate(str) {
   return new Date(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function escapeAttr(str) {
-  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function showToast(msg) {

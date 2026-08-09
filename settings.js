@@ -3,6 +3,12 @@
 const toast = document.getElementById('toast');
 let toastTimer;
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}
+
 function showToast(msg, duration = 2500) {
   clearTimeout(toastTimer);
   toast.textContent = msg;
@@ -31,10 +37,10 @@ function setupDrawer(session) {
 
   drawerUser.innerHTML = `
     <div class="drawer-profile-row">
-      <div class="drawer-avatar">${initial}</div>
+      <div class="drawer-avatar">${escapeHtml(initial)}</div>
       <div class="drawer-profile">
-        <span class="drawer-username">${displayName || email || 'User'}</span>
-        <span class="drawer-user-email">${email}</span>
+        <span class="drawer-username">${escapeHtml(displayName || email || 'User')}</span>
+        <span class="drawer-user-email">${escapeHtml(email)}</span>
       </div>
     </div>
   `;
@@ -54,7 +60,7 @@ async function setupNavUser(session) {
   const navUser = document.getElementById('nav-user');
   if (!navUser) return;
   navUser.innerHTML = `
-    <span class="nav-user-email">${session.user.email}</span>
+    <span class="nav-user-email">${escapeHtml(session.user.email)}</span>
     <button class="nav-signout" id="nav-signout-btn">Sign out</button>
   `;
   document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
@@ -88,7 +94,7 @@ function setupProfile(session) {
     const current = displayName;
     this.style.display = 'none';
     const span = document.getElementById('settings-username');
-    span.outerHTML = `<input class="settings-username-input" id="settings-username-input" type="text" value="${current}" placeholder="Enter username" maxlength="30" />`;
+    span.outerHTML = `<input class="settings-username-input" id="settings-username-input" type="text" value="${escapeHtml(current)}" placeholder="Enter username" maxlength="30" aria-label="Username" />`;
     const input = document.getElementById('settings-username-input');
     input.focus();
     input.select();
@@ -105,7 +111,7 @@ function setupProfile(session) {
           showToast('Name saved');
         } catch { showToast('Could not save name'); }
       }
-      input.outerHTML = `<span class="settings-username" id="settings-username">${displayName || 'Set a username'}</span>`;
+      input.outerHTML = `<span class="settings-username" id="settings-username">${escapeHtml(displayName || 'Set a username')}</span>`;
       const editBtn = document.getElementById('settings-username-edit-btn');
       if (editBtn) editBtn.style.display = '';
       avatarEl.textContent = initial();
@@ -115,7 +121,7 @@ function setupProfile(session) {
       if (e.key === 'Enter') { e.preventDefault(); save(); }
       if (e.key === 'Escape') {
         done = true;
-        input.outerHTML = `<span class="settings-username" id="settings-username">${current || 'Set a username'}</span>`;
+        input.outerHTML = `<span class="settings-username" id="settings-username">${escapeHtml(current || 'Set a username')}</span>`;
         const editBtn = document.getElementById('settings-username-edit-btn');
         if (editBtn) editBtn.style.display = '';
       }
@@ -205,7 +211,7 @@ async function setupMyStyle(session) {
 
     let traits = [];
     try { traits = JSON.parse(data.style_summary); } catch { traits = [data.style_summary]; }
-    traitsEl.innerHTML = traits.map(t => `<span class="settings-trait-chip">${typeof t === 'string' ? t : t.name}</span>`).join('');
+    traitsEl.innerHTML = traits.map(t => `<span class="settings-trait-chip">${escapeHtml(typeof t === 'string' ? t : t?.name)}</span>`).join('');
     promptEl.textContent = data.style_prompt;
 
     clearBtn.addEventListener('click', async () => {
@@ -234,10 +240,40 @@ function setupDangerZone() {
   const modal      = document.getElementById('delete-modal');
   const cancelBtn  = document.getElementById('delete-modal-cancel');
   const confirmBtn = document.getElementById('delete-modal-confirm');
+  const deleteBtn  = document.getElementById('delete-account-btn');
+  let lastFocused = null;
 
-  document.getElementById('delete-account-btn').addEventListener('click', () => modal.classList.remove('hidden'));
-  cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+  function openModal() {
+    lastFocused = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => cancelBtn.focus());
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    lastFocused?.focus?.();
+  }
+
+  deleteBtn.addEventListener('click', openModal);
+  cancelBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  modal.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeModal();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const controls = [cancelBtn, confirmBtn].filter(btn => !btn.disabled);
+    const nextIndex = e.shiftKey ? controls.length - 1 : 0;
+    if ((e.shiftKey && document.activeElement === controls[0])
+        || (!e.shiftKey && document.activeElement === controls[controls.length - 1])) {
+      e.preventDefault();
+      controls[nextIndex]?.focus();
+    }
+  });
 
   confirmBtn.addEventListener('click', async () => {
     confirmBtn.disabled = true;
@@ -255,7 +291,7 @@ function setupDangerZone() {
       showToast('Could not delete account — try again');
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Yes, Delete';
-      modal.classList.add('hidden');
+      closeModal();
     }
   });
 }

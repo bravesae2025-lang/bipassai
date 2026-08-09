@@ -16,6 +16,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // Express 4 does not automatically forward rejected async route promises.
 // Wrap every async handler so transient provider/database failures become a
 // controlled 500 response instead of an unhandled rejection.
@@ -384,6 +393,82 @@ async function getUserFromToken(token) {
   return refreshAnnualCreditsIfDue(user);
 }
 
+export const HISTORY_RESULT_LIMIT = 20;
+
+export function historyLimitPayload(count) {
+  if (count < HISTORY_RESULT_LIMIT) return null;
+  return {
+    error: `Your History is full (${HISTORY_RESULT_LIMIT}/${HISTORY_RESULT_LIMIT}). Delete at least one saved result before creating another.`,
+    code: 'HISTORY_FULL',
+    historyCount: count,
+    historyLimit: HISTORY_RESULT_LIMIT,
+  };
+}
+
+export async function getSavedResultCount(
+  userId,
+  fetchImpl = fetch,
+  serviceKey = SUPABASE_SERVICE_KEY,
+) {
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured');
+
+  const response = await fetchImpl(
+    `${SUPABASE_URL}/rest/v1/results?select=id&user_id=eq.${encodeURIComponent(userId)}`,
+    {
+      method: 'HEAD',
+      headers: {
+        'Authorization': `Bearer ${serviceKey}`,
+        'apikey': serviceKey,
+        'Prefer': 'count=exact',
+        'Range': '0-0',
+      },
+    },
+  );
+  if (!response.ok) throw new Error(`History count failed with status ${response.status}`);
+
+  const contentRange = response.headers.get('content-range') || '';
+  const match = contentRange.match(/\/(\d+)$/);
+  if (!match) throw new Error('History count response did not include a total');
+  return Number(match[1]);
+}
+
+async function requireHistorySpace(userId, res) {
+  try {
+    const count = await getSavedResultCount(userId);
+    const full = historyLimitPayload(count);
+    if (full) {
+      res.status(409).json(full);
+      return null;
+    }
+    return count;
+  } catch (err) {
+    console.error('[history-limit] could not check capacity:', err.message);
+    res.status(503).json({
+      error: 'History is temporarily unavailable. Please try again.',
+      code: 'HISTORY_CHECK_FAILED',
+      historyLimit: HISTORY_RESULT_LIMIT,
+    });
+    return null;
+  }
+}
+
+// Count + insert must stay together when two tabs finish at nearly the same
+// time. This lock is per account, so unrelated users never wait on each other.
+const historySaveLocks = new Map();
+async function withHistorySaveLock(userId, task) {
+  const previous = historySaveLocks.get(userId) || Promise.resolve();
+  let release;
+  const current = new Promise((resolve) => { release = resolve; });
+  historySaveLocks.set(userId, current);
+  await previous.catch(() => {});
+  try {
+    return await task();
+  } finally {
+    release();
+    if (historySaveLocks.get(userId) === current) historySaveLocks.delete(userId);
+  }
+}
+
 async function updateUserCredits(userId, credits) {
   await updateUserAppMeta(userId, { credits });
 }
@@ -519,6 +604,35 @@ app.get('/favicon.ico', (_req, res) => res.sendFile(`${__dirname}/favicon.png`))
 app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
 app.get('/app',      (_req, res) => res.redirect(301, '/home'));
 app.get('/app.html', (_req, res) => res.redirect(301, '/home'));
+
+const PRIVATE_STATIC_DIRECTORIES = new Set([
+  'node_modules', 'test', 'scripts', 'screenshots',
+  'extension', 'bipass-extension', 'bipass-extension 2',
+]);
+const PRIVATE_STATIC_FILES = new Set([
+  'server.js', 'package.json', 'package-lock.json', 'procfile', 'railway.json',
+  'blog_bot.md', 'topics.txt', 'add-article.js', 'add-article.cjs',
+  'generate-article.js', 'ping-indexnow.js',
+]);
+
+function isPrivateStaticPath(pathname) {
+  let decoded;
+  try {
+    decoded = decodeURIComponent(String(pathname || ''));
+  } catch {
+    return true;
+  }
+  const relativePath = decoded.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
+  const firstSegment = relativePath.split('/')[0];
+  return PRIVATE_STATIC_DIRECTORIES.has(firstSegment)
+    || PRIVATE_STATIC_FILES.has(relativePath)
+    || /\.(?:zip|sh|plist|mjs|cjs|log)$/i.test(relativePath);
+}
+
+app.use((req, res, next) => {
+  if (isPrivateStaticPath(req.path)) return res.status(404).end();
+  return next();
+});
 
 // dotfiles: 'deny' is load-bearing, not tidiness. The project root is the web
 // root, and express.static's default only hides dot-named *files* — anything
@@ -882,6 +996,58 @@ function hasActivePass(user) {
   return !!(paidActive || freeTrial);
 }
 
+// ─── POST /api/results (save an editor result) ────────────────
+// Saving through the server keeps the 20-item History cap authoritative and
+// prevents a refreshed editor tab from bypassing the generation preflight.
+app.post('/api/results', asyncHandler(async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const { text, mode, level } = req.body || {};
+  if (typeof text !== 'string' || !text.trim()) {
+    return res.status(400).json({ error: 'No result provided' });
+  }
+  if (text.length > 1_000_000) {
+    return res.status(413).json({ error: 'Result is too large to save' });
+  }
+
+  return withHistorySaveLock(user.id, async () => {
+    const historyCount = await requireHistorySpace(user.id, res);
+    if (historyCount === null) return;
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        text,
+        mode: mode === 'generate' ? 'generate' : 'humanize',
+        level: typeof level === 'string' && level.trim() ? level.trim().slice(0, 40) : 'easy',
+      }),
+    });
+
+    const rows = await response.json().catch(() => []);
+    if (!response.ok || !Array.isArray(rows) || !rows[0]?.id) {
+      console.error('[save-result] Supabase insert failed:', response.status);
+      return res.status(502).json({ error: 'Result could not be saved to History' });
+    }
+
+    return res.status(201).json({
+      id: rows[0].id,
+      historyCount: historyCount + 1,
+      historyLimit: HISTORY_RESULT_LIMIT,
+    });
+  });
+}));
+
 // ─── POST /api/push-to-extension (auth + active pass required) ─
 app.post('/api/push-to-extension', asyncHandler(async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -915,22 +1081,27 @@ app.post('/api/push-to-extension', asyncHandler(async (req, res) => {
 
     // Otherwise insert a fresh pushed row.
     if (text && text.trim()) {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          user_id: user.id,
-          text,
-          mode:  mode  || 'humanize',
-          level: level || 'easy',
-          ext_push: true,
-        }),
+      return withHistorySaveLock(user.id, async () => {
+        const historyCount = await requireHistorySpace(user.id, res);
+        if (historyCount === null) return;
+
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            user_id: user.id,
+            text,
+            mode:  mode  || 'humanize',
+            level: level || 'easy',
+            ext_push: true,
+          }),
+        });
+        if (!r.ok) {
+          const err = await r.text().catch(() => '');
+          return res.status(502).json({ error: 'Failed to push', detail: err });
+        }
+        return res.json({ ok: true });
       });
-      if (!r.ok) {
-        const err = await r.text().catch(() => '');
-        return res.status(502).json({ error: 'Failed to push', detail: err });
-      }
-      return res.json({ ok: true });
     }
 
     return res.status(400).json({ error: 'Nothing to push' });
@@ -1280,6 +1451,12 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   // Second pass of "Humanize + Level Matching": /api/rw-humanize already billed
   // the 20%-discounted combined rate, so this pass does not charge again.
   const prepaid = verifyContinuation(continuation, user.id, text.length);
+  // The first half of a combined run already passed this gate. Do not strand a
+  // paid continuation if another tab fills the last slot between its two steps.
+  if (!prepaid) {
+    const historyCount = await requireHistorySpace(user.id, res);
+    if (historyCount === null) return;
+  }
   const wordCount = billableWordCount(text);
   const creditsNeeded = prepaid ? 0 : creditsForText(text, 'level');
 
@@ -1389,6 +1566,8 @@ app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  const historyCount = await requireHistorySpace(user.id, res);
+  if (historyCount === null) return;
   const billingMode = combined === true ? 'both' : 'humanize';
   const creditsNeeded = creditsForText(text, billingMode);
 
@@ -1491,6 +1670,8 @@ app.post('/api/humanize', asyncHandler(async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  const historyCount = await requireHistorySpace(user.id, res);
+  if (historyCount === null) return;
 
   // Plan expiry check — blocks regardless of current tier to prevent slip-through after demotion
   const billing = getBillingMeta(user);
@@ -1609,6 +1790,8 @@ app.post('/api/stream', asyncHandler(async (req, res) => {
 
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+  const historyCount = await requireHistorySpace(user.id, res);
+  if (historyCount === null) return;
 
   // Plan expiry check — blocks regardless of current tier to prevent slip-through after demotion
   const billing = getBillingMeta(user);
@@ -1949,6 +2132,7 @@ export {
   creditsForText,
   getBillingMeta,
   hasActivePass,
+  isPrivateStaticPath,
   isValidExtensionRedirect,
   normalizeStyleAnalysis,
   resolveLevelMatchProfile,

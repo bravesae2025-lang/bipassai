@@ -188,12 +188,12 @@
         <div id="humanize-section">
           <div class="mode-tabs-head">
             <div class="mode-dropdown" id="mode-dd">
-              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="mode-dd-menu">
                 <span class="mode-dd-current" id="mode-dd-current">Humanize + Level Matching</span>
                 <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" data-mode="both">
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" tabindex="0" data-mode="both">
                   <span class="mode-dd-option-title-row">
                     <span class="mode-dd-option-title">Humanize + Level Matching</span>
                     <span class="mode-dd-badges">
@@ -203,15 +203,15 @@
                   </span>
                   <span class="mode-dd-option-desc">Best overall balance when both your teacher and AI-detection software may review the text.</span>
                 </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="level">
+                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="level">
                   <span class="mode-dd-option-title">Level Matching Only</span>
                   <span class="mode-dd-option-desc">Best when your teacher focuses on writing level rather than AI-detector scores.</span>
                 </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="humanize">
+                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="humanize">
                   <span class="mode-dd-option-title">Humanize Only</span>
                   <span class="mode-dd-option-desc">Makes wording and rhythm feel more natural. AI-detector results can vary.</span>
                 </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" data-mode="own">
+                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="own">
                   <span class="mode-dd-option-title">Push My Own Text</span>
                   <span class="mode-dd-option-desc">Send your finished text to Auto Typer without rewriting it.</span>
                 </li>
@@ -234,6 +234,7 @@
           <div class="textarea-wrap mode-block" data-mode="level humanize both">
             <textarea
               id="input-text"
+              aria-label="Text to process"
               placeholder="Paste your text here — AI-generated or your own…"
               spellcheck="false"
             ></textarea>
@@ -319,6 +320,7 @@
             <textarea
               class="own-text-textarea"
               id="own-text-textarea"
+              aria-label="Text to push to the Auto Typer extension"
               placeholder="Paste your text here…"
               spellcheck="false"
             ></textarea>
@@ -360,7 +362,7 @@
             <div class="mistake-row">
               <span class="mistake-label">Vocabulary</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="5" step="1" data-mistake="wordlevel">
+                <input class="mistake-slider" type="range" min="0" max="10" value="5" step="1" data-mistake="wordlevel" aria-label="Vocabulary level">
                 <div class="mistake-range-hints">
                   <span class="mistake-range-hint">Simple</span>
                   <span class="mistake-range-hint">Hard</span>
@@ -374,35 +376,35 @@
             <div class="mistake-row">
               <span class="mistake-label">Grammar</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="grammar">              </div>
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="grammar" aria-label="Grammar mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="grammar">None</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Tense</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="tense">              </div>
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="tense" aria-label="Tense mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="tense">None</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Punctuation</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="punct">              </div>
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="punct" aria-label="Punctuation mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="punct">None</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Capitals</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="caps">              </div>
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="caps" aria-label="Capitalization mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="caps">None</span>
             </div>
 
             <div class="mistake-row">
               <span class="mistake-label">Spelling</span>
               <div class="mistake-slider-track">
-                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="spelling">              </div>
+                <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="spelling" aria-label="Spelling mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="spelling">None</span>
             </div>
 
@@ -410,11 +412,11 @@
 
             <div id="my-style-inputs">
               <div class="style-name-field">
-                <input class="style-name-input" id="style-name-input" type="text" placeholder="Name" maxlength="30">
+                <input class="style-name-input" id="style-name-input" type="text" placeholder="Name" maxlength="30" aria-label="Writing style name">
               </div>
               <div id="sample-container">
                 <div class="sample-row">
-                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4"></textarea>
+                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4" aria-label="Writing sample 1"></textarea>
                   <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
                   <span class="sample-wc">0 / 50 words min</span>
                 </div>
@@ -719,7 +721,7 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=2"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=28"></script>
   <script src="cursor.js?v=2"></script>
 
   <script>
@@ -746,6 +748,7 @@
         const on = o.dataset.mode === mode;
         o.classList.toggle('is-selected', on);
         o.setAttribute('aria-selected', on ? 'true' : 'false');
+        o.tabIndex = on ? 0 : -1;
         if (on && current) current.textContent = o.querySelector('.mode-dd-option-title')?.textContent.trim() || '';
       });
       if (ws) {
@@ -762,19 +765,42 @@
     }
     setMode('both');
 
-    function closeMenu() {
+    function closeMenu(returnFocus = false) {
       dd?.classList.remove('open');
       trigger?.setAttribute('aria-expanded', 'false');
+      if (returnFocus) trigger?.focus();
     }
     function toggleMenu() {
       const open = dd?.classList.toggle('open');
       trigger?.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) requestAnimationFrame(() => options.find(o => o.classList.contains('is-selected'))?.focus());
     }
 
     trigger?.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-    options.forEach(o => o.addEventListener('click', () => { setMode(o.dataset.mode); closeMenu(); }));
+    options.forEach((o, index) => {
+      o.addEventListener('click', () => { setMode(o.dataset.mode); closeMenu(true); });
+      o.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const direction = e.key === 'ArrowDown' ? 1 : -1;
+          options[(index + direction + options.length) % options.length]?.focus();
+        } else if (e.key === 'Home' || e.key === 'End') {
+          e.preventDefault();
+          options[e.key === 'Home' ? 0 : options.length - 1]?.focus();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setMode(o.dataset.mode);
+          closeMenu(true);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeMenu(true);
+        }
+      });
+    });
     document.addEventListener('click', (e) => { if (dd && !dd.contains(e.target)) closeMenu(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dd?.classList.contains('open')) closeMenu(true);
+    });
 
     // Humanize button is wired in app.js (runHumanize) — it reads
     // document.body.dataset.appMode to pick humanize vs. humanize+level.

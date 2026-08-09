@@ -1,11 +1,17 @@
 // ─── Nav user ─────────────────────────────────────────────────
 
+function escapeUserHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}
+
 async function setupNavUser() {
   const navUser = document.getElementById('nav-user');
   if (!navUser) return;
   const session = await window.bipassAuth.getSession();
   if (session) {
-    navUser.innerHTML = `<span class="nav-user-email">${session.user.email}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
+    navUser.innerHTML = `<span class="nav-user-email">${escapeUserHtml(session.user.email)}</span><button class="nav-signout" id="nav-signout-btn">Sign out</button>`;
     document.getElementById('nav-signout-btn').addEventListener('click', () => window.bipassAuth.signOut());
   } else {
     navUser.innerHTML = `<a class="nav-link" href="login.html">Sign in</a>`;
@@ -42,15 +48,15 @@ function setupDrawer(session) {
   function renderProfile() {
     drawerUser.innerHTML = `
       <div class="drawer-profile-row">
-        <div class="drawer-avatar" id="drawer-avatar">${initials()}</div>
+        <div class="drawer-avatar" id="drawer-avatar">${escapeUserHtml(initials())}</div>
         <div class="drawer-profile">
           <div class="drawer-username-row">
-            <span class="drawer-username" id="drawer-username">${displayName || 'Set a username'}</span>
+            <span class="drawer-username" id="drawer-username">${escapeUserHtml(displayName || 'Set a username')}</span>
             <button class="drawer-username-edit-btn" id="drawer-username-edit-btn" aria-label="Edit username">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
           </div>
-          <span class="drawer-user-email">${email}</span>
+          <span class="drawer-user-email">${escapeUserHtml(email)}</span>
         </div>
       </div>
     `;
@@ -60,7 +66,7 @@ function setupDrawer(session) {
   function startEdit() {
     const current = displayName;
     document.getElementById('drawer-username-edit-btn').style.display = 'none';
-    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${current}" placeholder="Enter username" maxlength="30" />`;
+    document.getElementById('drawer-username').outerHTML = `<input class="drawer-username-input" id="drawer-username-input" type="text" value="${escapeUserHtml(current)}" placeholder="Enter username" maxlength="30" aria-label="Username" />`;
     const input = document.getElementById('drawer-username-input');
     input.focus();
     input.select();
@@ -601,13 +607,24 @@ function setupViewToggle(result, mode) {
 }
 
 async function saveResult(text, mode, session) {
+  // A refresh or a result opened from History already has an ID. Reusing it
+  // avoids silently filling History with duplicate copies of the same text.
+  if (sessionStorage.getItem('bipass_result_id')) return;
+
   const level = sessionStorage.getItem('bipass_level') || 'easy';
-  const { data } = await window.bipassAuth.client
-    .from('results')
-    .insert({ user_id: session.user.id, text, mode: mode || 'humanize', level })
-    .select('id')
-    .single();
-  if (data?.id) sessionStorage.setItem('bipass_result_id', data.id);
+  try {
+    const token = session?.access_token || await window.bipassAuth.getToken();
+    const response = await fetch('/api/results', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, mode: mode || 'humanize', level }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Result could not be saved to History');
+    if (data.id) sessionStorage.setItem('bipass_result_id', data.id);
+  } catch (err) {
+    showToast(err.message || 'Result could not be saved to History');
+  }
 }
 
 // ─── Typewriter ───────────────────────────────────────────────
@@ -1311,7 +1328,10 @@ async function pushToExtension() {
       btn.onclick = () => { window.location.href = 'plans.html'; };
       return false;
     }
-    if (!res.ok) throw new Error('Push failed');
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Push failed');
+    }
 
     btn.textContent = '✓ Uploaded';
     btn.classList.add('editor-btn-pushed');
@@ -1319,6 +1339,7 @@ async function pushToExtension() {
   } catch (err) {
     btn.disabled = false;
     btn.textContent = '↻ Retry Upload';
+    showToast(err.message || 'Upload failed');
     return false;
   }
 }
@@ -1346,13 +1367,43 @@ function setupLeaveConfirm() {
   const xBtn      = document.getElementById('leave-x');
   if (!modal || !backBtn) return;
 
-  const open  = () => modal.classList.remove('hidden');
-  const close = () => modal.classList.add('hidden');
+  let pendingDestination = '/home';
 
-  backBtn.addEventListener('click', e => { e.preventDefault(); open(); });
-  const homeLink = document.querySelector('#drawer .drawer-item[href="/home"]');
-  homeLink?.addEventListener('click', e => { e.preventDefault(); open(); });
-  anywayBtn?.addEventListener('click', () => { window.location.href = '/home'; });
+  const open = destination => {
+    pendingDestination = destination || '/home';
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => uploadBtn?.focus());
+  };
+  const close = () => {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  };
+  const goToPendingDestination = () => {
+    window.location.href = pendingDestination;
+  };
+
+  function internalDestination(link) {
+    if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return '';
+    try {
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin) return '';
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return '';
+    }
+  }
+
+  backBtn.addEventListener('click', e => { e.preventDefault(); open('/home'); });
+  document.addEventListener('click', e => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const link = e.target.closest?.('a[href]');
+    const destination = internalDestination(link);
+    if (!destination) return;
+    e.preventDefault();
+    open(destination);
+  });
+  anywayBtn?.addEventListener('click', goToPendingDestination);
   xBtn?.addEventListener('click', close);
   modal.addEventListener('click', e => { if (e.target === modal) close(); });
   document.addEventListener('keydown', e => {
@@ -1363,7 +1414,7 @@ function setupLeaveConfirm() {
     uploadBtn.disabled = true;
     const ok = await pushToExtension();
     if (ok) {
-      window.location.href = '/home';
+      goToPendingDestination();
     } else {
       uploadBtn.disabled = false;
       showToast('Upload failed — try again or leave anyway');

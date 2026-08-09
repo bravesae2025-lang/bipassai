@@ -6634,27 +6634,38 @@ body.drawer-lock { overflow: hidden; }
 
 .sample-row {
   position: relative;
-  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
-.sample-row .style-sample-textarea {
-  margin-bottom: 0;
-  padding-bottom: 22px;
-}
+.sample-row .style-sample-textarea { margin-bottom: 0; }
+/* The counter used to sit absolutely on top of the textarea. That textarea is
+   only ~3 lines tall but holds a 50-word minimum, so it is always scrolled —
+   sample text ran underneath the count and neither was readable. It now sits
+   below the field in normal flow, where nothing can overlap it, with a capsule
+   so it still reads as a status chip rather than loose text. */
 .sample-wc {
-  position: absolute;
-  bottom: 6px;
-  right: 34px;
+  align-self: flex-end;
+  margin-top: 5px;
   white-space: nowrap;
   font-family: var(--ff-ui);
   font-size: 9.5px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--g300);
-  pointer-events: none;
-  transition: color 0.2s;
   line-height: 1;
+  padding: 4px 8px;
+  border-radius: 99px;
+  color: var(--g400);
+  background: var(--g100);
+  border: 1px solid var(--g150);
+  pointer-events: none;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
 }
-.sample-wc.wc-ok { color: #16a34a; }
+.sample-wc.wc-ok {
+  color: #16a34a;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
 .sample-delete-btn {
   position: absolute;
   top: 7px;
@@ -8474,8 +8485,18 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.3);
 }
-.col-customize .sample-wc { color: rgba(255,255,255,0.3); }
-.col-customize .sample-wc.wc-ok { color: #4ade80; }
+/* Dark panel: the capsule needs its own opaque fill, not a translucent one, or
+   the text underneath still bleeds through it. */
+.col-customize .sample-wc {
+  color: rgba(255,255,255,0.5);
+  background: #2f2f2f;
+  border-color: rgba(255,255,255,0.14);
+}
+.col-customize .sample-wc.wc-ok {
+  color: #4ade80;
+  background: #17301f;
+  border-color: rgba(74,222,128,0.32);
+}
 .col-customize .sample-delete-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
 .col-customize .sample-delete-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
 .col-customize .add-sample-btn { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }

@@ -24,9 +24,9 @@
       --green:  #22c55e;
       --danger: #dc2626;
 
-      --r-sm: 7px;
-      --r:    9px;
-      --r-lg: 12px;
+      --r-sm: 9px;
+      --r:    11px;
+      --r-lg: 14px;
       --r-pill: 50px;
 
       --shadow-sm: 0 1px 2px rgba(10,10,10,0.05);
@@ -42,12 +42,34 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { background: var(--paper); }
+
     body {
-      width: 340px;
+      width: 360px;
+      max-height: 600px;
+      padding: 0;
       font-family: var(--ff-ui);
       background: var(--paper);
       color: var(--ink);
       -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    button, input { font: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .popup-shell {
+      width: 100%;
+      max-height: 600px;
+      display: flex;
+      flex-direction: column;
+      background: var(--paper);
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
       overflow: hidden;
     }
 
@@ -59,11 +81,12 @@
     .header {
       position: relative;
       background: var(--ink);
-      padding: 15px 17px;
+      padding: 15px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       overflow: hidden;
+      flex: 0 0 auto;
     }
     /* animated top sheen line */
     .header::before {
@@ -99,7 +122,19 @@
       border: 1px solid rgba(255,255,255,0.08);
     }
 
-    .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 550px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .body::-webkit-scrollbar { width: 5px; }
+    .body::-webkit-scrollbar-track { background: transparent; }
+    .body::-webkit-scrollbar-thumb { background: var(--g-200); border-radius: var(--r-pill); }
 
     /* ─────────────────────────────────────────────
        State machine + enter animation
@@ -135,16 +170,19 @@
     /* ─────────────────────────────────────────────
        Auth (login)
     ───────────────────────────────────────────── */
-    .auth-title { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; text-align: center; padding-top: 4px; }
+    #state-login { padding: 2px 1px 1px; }
+    .auth-heading { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .auth-title { font-size: 17px; font-weight: 800; letter-spacing: -0.025em; text-align: center; }
+    .auth-sub { max-width: 265px; font-size: 11px; line-height: 1.5; color: var(--g-500); text-align: center; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
     .form-label {
       font-family: var(--ff-mono);
       font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g-500);
     }
     .form-input {
-      padding: 10px 12px;
+      min-height: 42px; padding: 10px 12px;
       border: 1.5px solid var(--g-200); border-radius: var(--r-sm);
-      font-size: 12px; color: var(--ink); outline: none;
+      font-size: 13px; color: var(--ink); outline: none;
       transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
       width: 100%; background: var(--paper);
     }
@@ -163,7 +201,7 @@
 
     .auth-btn {
       position: relative; overflow: hidden;
-      width: 100%; padding: 12px;
+      width: 100%; min-height: 43px; padding: 11px 12px;
       background: var(--ink); color: #fff; border: none; border-radius: var(--r);
       font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
       cursor: pointer; transition: transform 0.12s var(--ease-snappy), box-shadow var(--dur) var(--ease-out);
@@ -187,7 +225,7 @@
 
     .google-btn {
       position: relative; overflow: hidden;
-      width: 100%; padding: 11px;
+      width: 100%; min-height: 43px; padding: 10px 12px;
       background: var(--paper); color: var(--ink);
       border: 1.5px solid var(--g-200); border-radius: var(--r);
       font-size: 12px; font-weight: 600;
@@ -197,6 +235,19 @@
     .google-btn:hover { border-color: var(--ink); box-shadow: var(--shadow-sm); }
     .google-btn:active { transform: scale(0.98); }
     .google-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-link {
+      align-self: center;
+      border: 0;
+      background: transparent;
+      color: var(--g-600);
+      font-size: 11px;
+      font-weight: 650;
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .auth-link:hover { color: var(--ink); background: var(--g-100); }
 
     /* ─────────────────────────────────────────────
        Empty / gate states
@@ -212,7 +263,7 @@
     .empty-link {
       font-size: 11px; font-weight: 700; color: var(--ink); cursor: pointer;
       display: inline-flex; align-items: center; gap: 3px;
-      border-bottom: 1.5px solid var(--ink); padding-bottom: 1px;
+      background: none; border: 0; border-bottom: 1.5px solid var(--ink); padding: 2px 0 1px;
       transition: gap 0.2s var(--ease-out), opacity 0.15s;
     }
     .empty-link:hover { gap: 7px; opacity: 0.75; }
@@ -229,20 +280,21 @@
     /* ─────────────────────────────────────────────
        Result list
     ───────────────────────────────────────────── */
-    .list-header { display: flex; align-items: center; justify-content: space-between; }
+    .list-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
     .list-title {
       font-family: var(--ff-mono);
       font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g-500);
     }
-    .signout-btn { font-size: 10px; color: var(--g-400); background: none; border: none; cursor: pointer; transition: color 0.15s; }
-    .signout-btn:hover { color: var(--ink); }
-    .result-list { display: flex; flex-direction: column; gap: 7px; max-height: 250px; overflow-y: auto; padding: 1px; }
+    .list-hint { font-size: 10px; color: #777777; white-space: nowrap; }
+    .result-list { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; padding: 1px 3px 1px 1px; }
     .result-list::-webkit-scrollbar { width: 4px; }
     .result-list::-webkit-scrollbar-thumb { background: var(--g-200); border-radius: 2px; }
 
     .result-item {
       position: relative; overflow: hidden;
-      padding: 11px 13px; border: 1.5px solid var(--g-200); border-radius: var(--r);
+      flex: 0 0 auto;
+      min-height: 78px;
+      padding: 12px 13px; border: 1.5px solid var(--g-200); border-radius: var(--r);
       cursor: pointer; background: var(--paper);
       transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform 0.18s var(--ease-out);
       display: flex; flex-direction: column; gap: 6px;
@@ -257,23 +309,37 @@
     .result-item:nth-child(n+6) { animation-delay: 0.27s; }
     /* accent rail revealed on hover */
     .result-item::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-      background: var(--accent); transform: scaleY(0); transform-origin: top;
-      transition: transform 0.25s var(--ease-out);
+      content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px;
+      border-radius: var(--r-pill); background: var(--ink); opacity: 0;
+      transition: opacity 0.2s var(--ease-out);
     }
     .result-item:hover {
-      border-color: var(--ink); box-shadow: var(--shadow); transform: translateY(-1px);
+      border-color: var(--g-300); box-shadow: var(--shadow-sm); transform: translateY(-1px);
     }
-    .result-item:hover::before { transform: scaleY(1); }
+    .result-item:hover::before { opacity: 1; }
     .result-item:active { transform: translateY(0) scale(0.995); }
-    .result-meta { display: flex; align-items: center; justify-content: space-between; }
+    .result-item:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-color: var(--ink);
+    }
+    .result-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .result-badge {
       font-family: var(--ff-mono);
       font-size: 9px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
       background: var(--ink); color: #fff; padding: 3px 8px; border-radius: var(--r-pill);
     }
-    .result-date { font-family: var(--ff-mono); font-size: 10px; color: var(--g-400); }
-    .result-preview { font-size: 11px; color: var(--g-600); line-height: 1.5; }
+    .result-date { font-family: var(--ff-mono); font-size: 10px; color: #777777; white-space: nowrap; }
+    .result-preview {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      font-size: 12px;
+      color: #3f3f3f;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
 
     /* ─────────────────────────────────────────────
        Text preview (ready)
@@ -443,17 +509,30 @@
     .account-footer {
       display: flex; align-items: center; justify-content: space-between;
       padding: 9px 0 2px; border-top: 1px solid var(--g-100); margin-top: 4px;
+      gap: 10px;
+    }
+    .account-user {
+      display: flex; align-items: center; gap: 7px;
+      min-width: 0;
+    }
+    .account-avatar {
+      width: 22px; height: 22px; flex: 0 0 auto;
+      display: grid; place-items: center;
+      border-radius: 7px;
+      background: var(--ink); color: var(--paper);
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
     }
     #account-email-global {
-      font-family: var(--ff-mono);
-      font-size: 9px; color: var(--g-400);
-      max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 10px; font-weight: 650; color: var(--g-500);
+      max-width: 205px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .signout-global-btn {
-      font-size: 10px; color: var(--g-400); background: none; border: none;
-      cursor: pointer; transition: color 0.15s; padding: 0; flex-shrink: 0;
+      font-size: 10px; font-weight: 650; color: var(--g-500); background: var(--g-100);
+      border: 1px solid var(--g-200); border-radius: var(--r-pill);
+      cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s;
+      padding: 5px 9px; flex-shrink: 0;
     }
-    .signout-global-btn:hover { color: var(--ink); }
+    .signout-global-btn:hover { color: var(--ink); border-color: var(--g-300); background: var(--paper); }
 
     /* ─────────────────────────────────────────────
        Text card (ready screen)
@@ -532,6 +611,8 @@
 </head>
 <body>
 
+<main class="popup-shell">
+
   <div class="header">
     <span class="header-logo"><span class="mark"></span>Bipass AI</span>
     <span class="header-tag">Auto Typer</span>
@@ -549,7 +630,10 @@
 
     <!-- Login -->
     <div class="state" id="state-login">
-      <div class="auth-title">Sign in to Bipass AI</div>
+      <div class="auth-heading">
+        <div class="auth-title">Sign in to Bipass AI</div>
+        <p class="auth-sub">Use the same username and password as bipassai.com.</p>
+      </div>
 
       <button class="google-btn" id="google-btn" type="button">
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -575,9 +659,7 @@
         <p class="auth-error" id="login-error"></p>
         <button class="auth-btn" type="submit" id="login-btn">Sign In</button>
       </form>
-      <p style="text-align:center;margin-top:2px">
-        <span class="empty-link" id="signup-link">Don't have an account? Sign up →</span>
-      </p>
+      <button class="auth-link" id="signup-link" type="button">Don't have an account? Sign up →</button>
     </div>
 
     <!-- Free tier — upgrade needed -->
@@ -596,7 +678,7 @@
         <div class="empty-icon">✦</div>
         <div class="empty-title">No text uploaded yet</div>
         <div class="empty-sub">Head to bipassai.com, match your text to your level, upload it to the extension, then come back — it'll be waiting here ready to type.</div>
-        <span class="empty-link" id="open-bipass">Go to Bipass AI →</span>
+        <button class="empty-link" id="open-bipass" type="button">Go to Bipass AI →</button>
       </div>
     </div>
 
@@ -604,7 +686,7 @@
     <div class="state" id="state-list">
       <div class="list-header">
         <span class="list-title">Your texts</span>
-        <button class="signout-btn" id="signout-btn">Sign out</button>
+        <span class="list-hint">Choose one to type</span>
       </div>
       <div class="result-list" id="result-list"></div>
     </div>
@@ -635,9 +717,9 @@
         <div>
           <span class="ctrl-label">Typing Speed</span>
           <div class="dur-track">
-            <button class="spd-btn" data-spd="150">Slow</button>
-            <button class="spd-btn active" data-spd="90">Normal</button>
-            <button class="spd-btn" data-spd="55">Fast</button>
+            <button class="spd-btn" type="button" data-spd="150">Slow</button>
+            <button class="spd-btn active" type="button" data-spd="90">Normal</button>
+            <button class="spd-btn" type="button" data-spd="55">Fast</button>
           </div>
         </div>
         <div class="ctrl-sep"></div>
@@ -663,11 +745,11 @@
         <div>
           <span class="ctrl-label">Target Time</span>
           <div class="dur-track">
-            <button class="dur-btn active" data-dur="0">Off</button>
-            <button class="dur-btn" data-dur="5">5m</button>
-            <button class="dur-btn" data-dur="10">10m</button>
-            <button class="dur-btn" data-dur="20">20m</button>
-            <button class="dur-btn" data-dur="custom" title="Custom time" aria-label="Custom duration">
+            <button class="dur-btn active" type="button" data-dur="0">Off</button>
+            <button class="dur-btn" type="button" data-dur="5">5m</button>
+            <button class="dur-btn" type="button" data-dur="10">10m</button>
+            <button class="dur-btn" type="button" data-dur="20">20m</button>
+            <button class="dur-btn" type="button" data-dur="custom" title="Custom time" aria-label="Custom duration">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
                 <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
@@ -707,11 +789,16 @@
 
     <!-- Persistent account footer — shown in all authenticated states -->
     <div class="account-footer" id="account-footer" style="display:none">
-      <span id="account-email-global"></span>
+      <div class="account-user">
+        <span class="account-avatar" id="account-avatar" aria-hidden="true">B</span>
+        <span id="account-email-global"></span>
+      </div>
       <button class="signout-global-btn" id="signout-global" type="button">Sign out</button>
     </div>
 
   </div>
+
+</main>
 
   <script src="popup.js"></script>
 </body>

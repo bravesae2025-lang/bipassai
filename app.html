@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=66">
+  <link rel="stylesheet" href="style.css?v=69">
 </head>
 <body>
 
@@ -414,11 +414,13 @@
               <div class="style-name-field">
                 <input class="style-name-input" id="style-name-input" type="text" placeholder="Name" maxlength="30" aria-label="Writing style name">
               </div>
-              <div id="sample-container">
-                <div class="sample-row">
-                  <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4" aria-label="Writing sample 1"></textarea>
-                  <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
-                  <span class="sample-wc">0 / 50 words min</span>
+              <div class="sample-scroll-shell" id="sample-scroll-shell">
+                <div id="sample-container" tabindex="0" aria-label="Writing samples">
+                  <div class="sample-row">
+                    <textarea class="style-sample-textarea" id="style-sample-1" placeholder="Paste a sample of your writing here…" rows="4" aria-label="Writing sample 1"></textarea>
+                    <button class="sample-delete-btn" type="button" aria-label="Remove sample">×</button>
+                    <span class="sample-wc">50 Words min</span>
+                  </div>
                 </div>
               </div>
               <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
@@ -721,7 +723,7 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=2"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=30"></script>
   <script src="cursor.js?v=2"></script>
 
   <script>

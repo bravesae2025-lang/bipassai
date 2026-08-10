@@ -6623,14 +6623,54 @@ body.drawer-lock { overflow: hidden; }
   background: rgba(224,55,55,0.06) !important;
 }
 
+.sample-scroll-shell {
+  position: relative;
+  margin-bottom: 2px;
+}
+.sample-scroll-shell::before,
+.sample-scroll-shell::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 8px;
+  height: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+.sample-scroll-shell::before {
+  top: 0;
+  background: linear-gradient(to bottom, #1c1d24 12%, rgba(28,29,36,0));
+}
+.sample-scroll-shell::after {
+  bottom: 0;
+  background: linear-gradient(to top, #17171c 12%, rgba(23,23,28,0));
+}
+.sample-scroll-shell.has-overflow.is-scrolled::before { opacity: 1; }
+.sample-scroll-shell.has-overflow:not(.at-bottom)::after { opacity: 1; }
+
 #sample-container {
-  max-height: 220px;
+  max-height: clamp(132px, 18vh, 150px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 2px;
+  padding-right: 7px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+  outline: none;
 }
-#sample-container::-webkit-scrollbar { width: 3px; }
-#sample-container::-webkit-scrollbar-thumb { background: var(--g150); border-radius: 2px; }
+#sample-container:focus-visible { outline: 1px solid rgba(255,255,255,0.34); outline-offset: 3px; border-radius: 8px; }
+#sample-container::-webkit-scrollbar { width: 5px; }
+#sample-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 99px; }
+#sample-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.28); border-radius: 99px; }
+#sample-container::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.44); }
+
+@media (prefers-reduced-motion: reduce) {
+  #sample-container { scroll-behavior: auto; }
+  .sample-scroll-shell::before,
+  .sample-scroll-shell::after { transition: none; }
+}
 
 .sample-row {
   position: relative;
@@ -6638,22 +6678,25 @@ body.drawer-lock { overflow: hidden; }
   flex-direction: column;
   margin-bottom: 10px;
 }
-.sample-row .style-sample-textarea { margin-bottom: 0; }
-/* The counter used to sit absolutely on top of the textarea. That textarea is
-   only ~3 lines tall but holds a 50-word minimum, so it is always scrolled —
-   sample text ran underneath the count and neither was readable. It now sits
-   below the field in normal flow, where nothing can overlap it, with a capsule
-   so it still reads as a status chip rather than loose text. */
+.sample-row .style-sample-textarea {
+  height: clamp(64px, 8vh, 72px);
+  margin-bottom: 0;
+  padding-bottom: 27px;
+}
+/* Keep the requirement inside the field without covering the editable line.
+   Its opaque capsule remains readable while the textarea itself scrolls. */
 .sample-wc {
-  align-self: flex-end;
-  margin-top: 5px;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
   white-space: nowrap;
   font-family: var(--ff-ui);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 99px;
   color: var(--g400);
   background: var(--g100);

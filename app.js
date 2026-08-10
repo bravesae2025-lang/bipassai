@@ -1291,6 +1291,7 @@ const levelTrack     = document.querySelector('.level-track');
 const colCustomize   = document.querySelector('.col-customize');
 const myStyleBox     = document.getElementById('my-style-block');
 const sampleContainer  = document.getElementById('sample-container');
+const sampleScrollShell = document.getElementById('sample-scroll-shell');
 const addSampleBtn     = document.getElementById('add-sample-btn');
 const analyzeStyleBtn  = document.getElementById('analyze-style-btn');
 const analyzeLabel     = document.getElementById('analyze-label');
@@ -1678,6 +1679,25 @@ function bindEvents() {
   // My Style events
   let sampleCount = 1;
 
+  function updateSampleScrollState() {
+    if (!sampleContainer || !sampleScrollShell) return;
+    const overflowing = sampleContainer.scrollHeight > sampleContainer.clientHeight + 1;
+    const atBottom = sampleContainer.scrollTop + sampleContainer.clientHeight >= sampleContainer.scrollHeight - 2;
+    sampleScrollShell.classList.toggle('has-overflow', overflowing);
+    sampleScrollShell.classList.toggle('is-scrolled', overflowing && sampleContainer.scrollTop > 2);
+    sampleScrollShell.classList.toggle('at-bottom', !overflowing || atBottom);
+  }
+
+  function revealNewestSample() {
+    requestAnimationFrame(() => {
+      updateSampleScrollState();
+      sampleContainer.scrollTo({
+        top: sampleContainer.scrollHeight,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      });
+    });
+  }
+
   function updateDeleteVisibility() {
     const btns = sampleContainer.querySelectorAll('.sample-delete-btn');
     btns.forEach(b => { b.style.visibility = sampleCount <= 1 ? 'hidden' : ''; });
@@ -1695,6 +1715,7 @@ function bindEvents() {
       sampleCount--;
       addSampleBtn.style.display = '';
       updateDeleteVisibility();
+      requestAnimationFrame(updateSampleScrollState);
     });
     return del;
   }
@@ -1707,11 +1728,15 @@ function bindEvents() {
       sampleCount--;
       addSampleBtn.style.display = '';
       updateDeleteVisibility();
+      requestAnimationFrame(updateSampleScrollState);
     });
   });
 
   // Hide the single initial delete button on load
   updateDeleteVisibility();
+  updateSampleScrollState();
+  sampleContainer.addEventListener('scroll', updateSampleScrollState, { passive: true });
+  window.addEventListener('resize', updateSampleScrollState);
 
   addSampleBtn.addEventListener('click', () => {
     if (sampleCount >= 5) return;
@@ -1728,11 +1753,12 @@ function bindEvents() {
     row.appendChild(makeSampleDeleteBtn(row));
     const wc = document.createElement('span');
     wc.className = 'sample-wc';
-    wc.textContent = '0 / 50 words min';
+    wc.textContent = '50 Words min';
     row.appendChild(wc);
     sampleContainer.appendChild(row);
     if (sampleCount >= 5) addSampleBtn.style.display = 'none';
     updateDeleteVisibility();
+    revealNewestSample();
   });
 
   analyzeStyleBtn.addEventListener('click', analyzeStyle);
@@ -1748,7 +1774,7 @@ function bindEvents() {
     const words = ta.value.trim() === '' ? 0 : ta.value.trim().split(/\s+/).length;
     const wc = ta.closest('.sample-row')?.querySelector('.sample-wc');
     if (wc) {
-      wc.textContent = words >= 50 ? `${words} words ✓` : `${words} / 50 words min`;
+      wc.textContent = words >= 50 ? `${words} Words ✓` : '50 Words min';
       wc.classList.toggle('wc-ok', words >= 50);
     }
   });

@@ -155,6 +155,12 @@ if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');
 }
+if (!appHtml.includes('id="sample-scroll-shell"')
+    || !appJs.includes('updateSampleScrollState()')
+    || !appJs.includes('sampleContainer.scrollTo({')
+    || !appHtml.includes('<span class="sample-wc">50 Words min</span>')) {
+  add(appFile, 'writing samples must stay inside a capped, internally scrolling region');
+}
 const restoreStart = appJs.indexOf('function restoreState()');
 const restoreEnd = appJs.indexOf('// ─── Events', restoreStart);
 const restoreBlock = appJs.slice(restoreStart, restoreEnd);

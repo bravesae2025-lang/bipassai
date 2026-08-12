@@ -1,6 +1,6 @@
 :root {
-  color-scheme: light;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -10,7 +10,7 @@
 html,
 body {
   margin: 0;
-  background: #f5f5f7;
+  background: #080808;
 }
 
 button {
@@ -18,100 +18,194 @@ button {
 }
 
 .film {
-  --ink: #0a0a0a;
-  --muted: #6e6e73;
-  --line: #e5e5e7;
-  --soft: #f7f7f8;
-  --blue: #0a63d8;
+  --ink: #f7f7f5;
+  --muted: rgba(255, 255, 255, 0.54);
+  --line: rgba(255, 255, 255, 0.12);
+  --green: #35c86f;
   background:
-    radial-gradient(circle at 78% 18%, rgba(111, 145, 255, 0.16), transparent 34%),
-    radial-gradient(circle at 18% 85%, rgba(196, 187, 255, 0.2), transparent 34%),
-    linear-gradient(145deg, #fbfbfd 0%, #f2f2f5 100%);
+    radial-gradient(circle at 79% 28%, rgba(52, 200, 111, 0.1), transparent 28%),
+    radial-gradient(circle at 17% 82%, rgba(255, 255, 255, 0.05), transparent 31%),
+    linear-gradient(145deg, #111 0%, #080808 66%, #0c0c0c 100%);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: hidden;
 }
 
-.film::after {
+.film::before {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  z-index: 1;
+  background: linear-gradient(110deg, rgba(255,255,255,0.035), transparent 20%, transparent 80%, rgba(255,255,255,0.025));
   content: "";
   pointer-events: none;
+}
+
+.film-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.3;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.75), transparent 88%);
+}
+
+.film-beam {
+  position: absolute;
+  z-index: 0;
+  left: -180px;
+  bottom: -250px;
+  width: 1050px;
+  height: 640px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.055);
+  filter: blur(90px);
+  rotate: -14deg;
+}
+
+.film-beam-right {
+  right: -260px;
+  left: auto;
+  background: rgba(53,200,111,0.09);
 }
 
 .film-caption {
   position: absolute;
   z-index: 20;
-  top: 78px;
-  left: 86px;
-  width: 490px;
+  top: 92px;
+  left: 92px;
+  width: 650px;
 }
 
 .film-caption-kicker {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-  color: rgba(10, 10, 10, 0.52);
-  font-size: 18px;
-  font-weight: 650;
-  letter-spacing: 0.11em;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: rgba(255,255,255,0.5);
+  font-family: "SF Mono", ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.film-caption-kicker::before {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #2f7ef7;
-  box-shadow: 0 0 0 6px rgba(47, 126, 247, 0.1);
-  content: "";
+.film-caption-kicker span {
+  display: inline-grid;
+  width: 31px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  color: rgba(255,255,255,0.8);
+  font-size: 11px;
 }
 
 .film-caption-title {
   margin: 0;
-  font-size: 62px;
-  font-weight: 670;
-  letter-spacing: -0.052em;
-  line-height: 0.98;
+  color: #fff;
+  font-family: Impact, "Arial Narrow", sans-serif;
+  font-size: 76px;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.94;
+  text-transform: uppercase;
 }
 
 .film-caption-copy {
-  width: 410px;
-  margin: 20px 0 0;
+  width: 480px;
+  margin: 18px 0 0;
   color: var(--muted);
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 450;
-  letter-spacing: -0.025em;
-  line-height: 1.25;
+  letter-spacing: -0.015em;
+  line-height: 1.42;
+}
+
+.film-caption-compact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 24px;
+  align-items: center;
+}
+
+.film-caption-compact .film-caption-kicker {
+  grid-column: 1 / -1;
+  margin-bottom: 8px;
+}
+
+.film-caption-compact .film-caption-title {
+  font-size: 48px;
+  white-space: nowrap;
+}
+
+.film-caption-compact .film-caption-copy {
+  width: 350px;
+  margin: 0;
+  font-size: 17px;
 }
 
 .film-demo-pill {
   position: absolute;
   z-index: 25;
-  right: 72px;
-  bottom: 48px;
+  right: 52px;
+  bottom: 34px;
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 10px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.68);
-  box-shadow: 0 10px 26px rgba(25, 25, 28, 0.08);
-  color: rgba(10, 10, 10, 0.55);
-  font-size: 16px;
+  background: rgba(8, 8, 8, 0.82);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.24);
+  color: rgba(255,255,255,0.55);
+  font-family: "SF Mono", ui-monospace, monospace;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: -0.012em;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
-.film-demo-pill::before {
+.film-demo-pill i {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #34c759;
-  content: "";
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(53,200,111,0.12);
+}
+
+.film-done {
+  position: absolute;
+  z-index: 30;
+  right: 112px;
+  top: 94px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 17px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  background: rgba(8,8,8,0.86);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+  color: #fff;
+  font-family: "SF Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.film-done span {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: #07140b;
+  font-weight: 900;
 }
 
 .browser {

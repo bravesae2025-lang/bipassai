@@ -7,49 +7,54 @@ import {eased} from "../lib/motion";
 
 export const SelectTextScene = () => {
   const frame = useCurrentFrame();
-  const popupOpacity = eased(frame, [0, 15], [0, 1]);
-  const popupX = eased(frame, [0, 24], [56, 0]);
-  const popupScale = eased(frame, [0, 24], [0.965, 1]);
-  const browserScale = eased(frame, [0, 90], [0.68, 0.71]);
+  const popupOpacity = eased(frame, [0, 22], [0, 1]);
+  const popupX = eased(frame, [0, 40, 149], [100, 0, -16]);
+  const popupScale = eased(frame, [0, 42, 149], [1.16, 1.25, 1.27]);
+  const browserScale = eased(frame, [0, 149], [0.69, 0.72]);
+  const selectedIndex = frame >= 108 ? 0 : null;
 
   return (
     <AbsoluteFill className="film">
+      <div className="film-grid" />
+      <div className="film-beam" />
       <FilmCaption
-        kicker="Auto Typer"
-        title="Choose your reviewed text."
-        copy="The same drafts you send from Bipass AI are ready inside the extension."
+        step="01"
+        kicker="Choose a draft"
+        title="Your reviewed text is ready."
+        copy="Open the extension and pick the draft you want to type."
       />
       <GoogleDocs
         style={{
-          left: 74,
-          top: 334,
-          opacity: 0.72,
-          rotate: "-1.6deg",
+          left: 86,
+          top: 370,
+          opacity: 0.52,
+          rotate: "-1.7deg",
           scale: browserScale,
           transformOrigin: "top left",
         }}
       />
       <AutoTyperPopup
-        selectedIndex={frame >= 74 ? 0 : null}
+        selectedIndex={selectedIndex}
         state="list"
         style={{
-          left: 1072,
-          top: 112,
+          left: 1284,
+          top: 116,
           opacity: popupOpacity,
           scale: popupScale,
           translate: `${popupX}px 0`,
+          transformOrigin: "top left",
         }}
       />
       <Pointer
-        clickFrames={[74]}
+        clickFrames={[108]}
         points={[
-          {frame: 12, x: 1490, y: 250},
-          {frame: 57, x: 1255, y: 245},
-          {frame: 74, x: 1255, y: 245},
-          {frame: 96, x: 1255, y: 245},
+          {frame: 22, x: 1770, y: 160},
+          {frame: 78, x: 1528, y: 295},
+          {frame: 108, x: 1528, y: 295},
+          {frame: 140, x: 1528, y: 295},
         ]}
-        visibleFrom={10}
-        visibleUntil={102}
+        visibleFrom={18}
+        visibleUntil={146}
       />
       <DemoPill />
     </AbsoluteFill>

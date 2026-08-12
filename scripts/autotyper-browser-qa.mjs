@@ -127,14 +127,27 @@ const failures = [];
 {
   const {client, target} = await openPage({width: 1440, height: 900, deviceScaleFactor: 1, mobile: false});
   await navigate(client, `${baseUrl}/`);
+  await evaluate(client, 'document.fonts.ready.then(() => true)');
+  await wait(300);
   await evaluate(client, `(() => {
     window.__autotyperQaShift = 0;
+    window.__autotyperQaShiftSources = [];
     window.__autotyperQaObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) window.__autotyperQaShift += entry.value;
+        if (!entry.hadRecentInput) {
+          window.__autotyperQaShift += entry.value;
+          window.__autotyperQaShiftSources.push({
+            value: entry.value,
+            sources: (entry.sources || []).map((source) => ({
+              node: source.node?.id || source.node?.className || source.node?.tagName || 'unknown',
+              previous: source.previousRect,
+              current: source.currentRect,
+            })),
+          });
+        }
       }
     });
-    window.__autotyperQaObserver.observe({type: 'layout-shift', buffered: true});
+    window.__autotyperQaObserver.observe({type: 'layout-shift', buffered: false});
   })()`);
   await click(client, 'a.nav-link[href="#auto-typer"]');
   await wait(1400);
@@ -176,6 +189,23 @@ const failures = [];
   const afterScroll = await evaluate(client, `({paused: document.getElementById('autotyper-film').paused, shift: window.__autotyperQaShift || 0})`);
   check(afterScroll.paused, 'desktop film kept playing while offscreen', failures);
   check(afterScroll.shift < 0.05, `desktop cumulative layout shift was ${afterScroll.shift}`, failures);
+
+  // Repeatedly traverse the page to catch fixed-layer repaint or geometry bugs.
+  for (let index = 0; index < 12; index += 1) {
+    await wheel(client, index % 2 === 0 ? 680 : -680);
+    await wait(55);
+  }
+  const stressed = await evaluate(client, `(() => ({
+    overflow: document.documentElement.scrollWidth - innerWidth,
+    shift: window.__autotyperQaShift || 0,
+    shiftSources: window.__autotyperQaShiftSources || [],
+    canvasCount: document.querySelectorAll('body > canvas').length,
+    filmWidth: document.querySelector('.autotyper-film-card').getBoundingClientRect().width,
+  }))()`);
+  check(stressed.overflow <= 1, `desktop overflow changed after scroll stress (${stressed.overflow}px)`, failures);
+  check(stressed.shift < 0.05, `desktop layout shifted during scroll stress (${stressed.shift}): ${JSON.stringify(stressed.shiftSources)}`, failures);
+  check(stressed.canvasCount === 0, `desktop still has ${stressed.canvasCount} viewport cursor canvas`, failures);
+  check(Math.abs(stressed.filmWidth - initial.cardWidth) < 1, 'desktop film width changed during scroll stress', failures);
   await closePage(target, client);
 }
 

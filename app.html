@@ -37,9 +37,9 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=70">
+  <link rel="stylesheet" href="style.css?v=72">
 </head>
-<body class="app-page">
+<body>
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -722,7 +722,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=2"></script>
-  <script src="billing-rates.js?v=2"></script>
+  <script src="billing-rates.js?v=1"></script>
   <script src="app.js?v=30"></script>
 
   <script>
@@ -815,11 +815,6 @@
     const canvas = document.getElementById('appbg-canvas');
     const ws     = document.getElementById('workspace');
     if (!bg || !canvas) return;
-    if (document.body.classList.contains('app-page')) {
-      canvas.hidden = true;
-      bg.classList.add('appbg-static');
-      return;
-    }
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

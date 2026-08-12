@@ -7,26 +7,35 @@ const finalText = "Clear writing makes complex ideas easier to understand. Techn
 
 export const CompleteScene = () => {
   const frame = useCurrentFrame();
-  const browserScale = eased(frame, [0, 74], [1.01, 0.93]);
-  const browserX = eased(frame, [0, 74], [-18, 350]);
+  const browserScale = eased(frame, [0, 109], [0.98, 0.92]);
+  const browserX = eased(frame, [0, 109], [598, 650]);
+  const doneOpacity = eased(frame, [18, 38], [0, 1]);
+  const doneY = eased(frame, [18, 46], [18, 0]);
 
   return (
     <AbsoluteFill className="film">
+      <div className="film-grid" />
+      <div className="film-beam" />
       <FilmCaption
-        kicker="Always yours"
-        title="You stay in control."
-        copy="Your text, your pace, and a final result you can stop and review whenever you want."
-        style={{top: 210, width: 430}}
+        step="04"
+        kicker="Done"
+        title="A complete, editable draft."
+        copy="Review it in the document and keep working like normal."
+        style={{top: 258, width: 440}}
       />
       <GoogleDocs
+        floatState="paused"
         text={finalText}
         style={{
           left: browserX,
-          top: 103,
+          top: 148,
           scale: browserScale,
           transformOrigin: "top left",
         }}
       />
+      <div className="film-done" style={{opacity: doneOpacity, translate: `0 ${doneY}px`}}>
+        <span>✓</span> Draft complete
+      </div>
       <DemoPill />
     </AbsoluteFill>
   );

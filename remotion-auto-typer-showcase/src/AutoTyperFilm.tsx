@@ -5,23 +5,23 @@ import {ConfigureScene} from "./scenes/ConfigureScene";
 import {SelectTextScene} from "./scenes/SelectTextScene";
 import {TypingScene} from "./scenes/TypingScene";
 
-const transitionTiming = linearTiming({durationInFrames: 15});
+const transitionTiming = linearTiming({durationInFrames: 18});
 
 export const AutoTyperFilm = () => (
   <TransitionSeries>
-    <TransitionSeries.Sequence durationInFrames={105} name="Choose text" premountFor={30}>
+    <TransitionSeries.Sequence durationInFrames={150} name="Choose text" premountFor={60}>
       <SelectTextScene />
     </TransitionSeries.Sequence>
     <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={120} name="Configure" premountFor={30}>
+    <TransitionSeries.Sequence durationInFrames={200} name="Configure" premountFor={60}>
       <ConfigureScene />
     </TransitionSeries.Sequence>
     <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={180} name="Type in Docs" premountFor={30}>
+    <TransitionSeries.Sequence durationInFrames={300} name="Type in Docs" premountFor={60}>
       <TypingScene />
     </TransitionSeries.Sequence>
     <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={75} name="Complete" premountFor={30}>
+    <TransitionSeries.Sequence durationInFrames={110} name="Complete" premountFor={60}>
       <CompleteScene />
     </TransitionSeries.Sequence>
   </TransitionSeries>

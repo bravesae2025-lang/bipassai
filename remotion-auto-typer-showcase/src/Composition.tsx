@@ -10,44 +10,44 @@ export const MyComposition = () => {
     <>
       <Composition
         component={AutoTyperFilm}
-        durationInFrames={435}
-        fps={30}
-        height={900}
+        durationInFrames={706}
+        fps={60}
+        height={1080}
         id="AutoTyperShowcase"
-        width={1600}
+        width={1920}
       />
       <Folder name="AutoTyperScenes">
         <Composition
           component={SelectTextScene}
-          durationInFrames={105}
-          fps={30}
-          height={900}
+          durationInFrames={150}
+          fps={60}
+          height={1080}
           id="ChooseText"
-          width={1600}
+          width={1920}
         />
         <Composition
           component={ConfigureScene}
-          durationInFrames={120}
-          fps={30}
-          height={900}
+          durationInFrames={200}
+          fps={60}
+          height={1080}
           id="Configure"
-          width={1600}
+          width={1920}
         />
         <Composition
           component={TypingScene}
-          durationInFrames={180}
-          fps={30}
-          height={900}
+          durationInFrames={300}
+          fps={60}
+          height={1080}
           id="TypeInDocs"
-          width={1600}
+          width={1920}
         />
         <Composition
           component={CompleteScene}
-          durationInFrames={75}
-          fps={30}
-          height={900}
+          durationInFrames={110}
+          fps={60}
+          height={1080}
           id="Complete"
-          width={1600}
+          width={1920}
         />
       </Folder>
     </>

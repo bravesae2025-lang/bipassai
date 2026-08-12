@@ -7,26 +7,30 @@ import {eased} from "../lib/motion";
 
 export const ConfigureScene = () => {
   const frame = useCurrentFrame();
-  const popupScale = eased(frame, [0, 110], [0.985, 1.02]);
-  const popupX = eased(frame, [0, 110], [18, -12]);
-  const mistype = frame >= 56 ? 2 : 0;
-  const speed = frame >= 27 ? "fast" : "normal";
-  const target = frame >= 79 ? "5m" : "Off";
+  const popupScale = eased(frame, [0, 199], [1.23, 1.3]);
+  const popupX = eased(frame, [0, 199], [22, -10]);
+  const mistype = frame >= 92 ? 2 : 0;
+  const speed = frame >= 50 ? "fast" : "normal";
+  const target = frame >= 132 ? "5m" : "Off";
 
   return (
     <AbsoluteFill className="film">
+      <div className="film-grid" />
+      <div className="film-beam film-beam-right" />
       <FilmCaption
-        kicker="Your pace"
-        title="Set it once. Stay in control."
-        copy="Pick a speed, optional typo corrections, and a target time before anything starts."
+        step="02"
+        kicker="Set your controls"
+        title="Choose the pace before it starts."
+        copy="Speed, optional corrections, and a target time stay in your control."
+        style={{top: 120}}
       />
       <GoogleDocs
         style={{
-          left: 38,
-          top: 332,
-          opacity: 0.58,
-          rotate: "-2.2deg",
-          scale: 0.7,
+          left: 62,
+          top: 450,
+          opacity: 0.46,
+          rotate: "-2deg",
+          scale: 0.69,
           transformOrigin: "top left",
         }}
       />
@@ -36,28 +40,29 @@ export const ConfigureScene = () => {
         state="ready"
         target={target}
         style={{
-          left: 1052,
-          top: 96,
+          left: 1230,
+          top: 76,
           scale: popupScale,
           translate: `${popupX}px 0`,
+          transformOrigin: "top left",
         }}
       />
       <Pointer
-        clickFrames={[27, 56, 79, 108]}
+        clickFrames={[50, 92, 132, 177]}
         points={[
-          {frame: 4, x: 1500, y: 310},
-          {frame: 22, x: 1363, y: 361},
-          {frame: 27, x: 1363, y: 361},
-          {frame: 46, x: 1128, y: 444},
-          {frame: 56, x: 1246, y: 444},
-          {frame: 72, x: 1194, y: 547},
-          {frame: 79, x: 1194, y: 547},
-          {frame: 99, x: 1260, y: 627},
-          {frame: 108, x: 1260, y: 627},
-          {frame: 118, x: 1260, y: 627},
+          {frame: 8, x: 1770, y: 310},
+          {frame: 42, x: 1680, y: 399},
+          {frame: 50, x: 1680, y: 399},
+          {frame: 77, x: 1410, y: 552},
+          {frame: 92, x: 1532, y: 552},
+          {frame: 118, x: 1405, y: 689},
+          {frame: 132, x: 1405, y: 689},
+          {frame: 162, x: 1500, y: 829},
+          {frame: 177, x: 1500, y: 829},
+          {frame: 195, x: 1500, y: 829},
         ]}
-        visibleFrom={2}
-        visibleUntil={119}
+        visibleFrom={6}
+        visibleUntil={198}
       />
       <DemoPill />
     </AbsoluteFill>

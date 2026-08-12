@@ -10957,6 +10957,12 @@ body.creation-page {
   padding-top: 78px;
 }
 
+/* Keep the floating navigation on a clean surface; the editor canvas below
+   supplies the creation page's visual texture. */
+.creation-page > .bg-dots {
+  display: none;
+}
+
 .creation-page .navbar {
   top: 10px;
   left: 50%;

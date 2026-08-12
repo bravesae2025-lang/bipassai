@@ -502,3 +502,165 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   .cinema-zoom .gacha-reel-wrap,
   .cinema-out  .gacha-reel-wrap { transform: none; transition: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Apple-inspired polish — calm onboarding materials
+   Primary, chip and reward buttons intentionally keep their design.
+───────────────────────────────────────────────────────────── */
+
+body.onb {
+  --onb-bg: #f5f5f7;
+  --onb-soft: rgba(255, 255, 255, 0.74);
+  --onb-card: rgba(255, 255, 255, 0.72);
+  --onb-ink: #1d1d1f;
+  --onb-mute: #6e6e73;
+  --onb-faint: #86868b;
+  --onb-line: rgba(29, 29, 31, 0.1);
+  --onb-line2: rgba(29, 29, 31, 0.18);
+  background:
+    radial-gradient(circle at 82% -10%, rgba(153, 143, 255, 0.2), transparent 29rem),
+    radial-gradient(circle at -12% 30%, rgba(100, 193, 255, 0.15), transparent 27rem),
+    var(--onb-bg);
+  isolation: isolate;
+}
+
+.onb-spotlight {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(920px, 100vh);
+  background: radial-gradient(70% 58% at 50% 0%, rgba(255, 255, 255, 0.86), transparent 72%);
+  animation: none;
+}
+
+.onb-dots {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(920px, 100vh);
+  opacity: 0.26;
+  background-size: 32px 32px;
+  animation: none;
+}
+
+.onb-grain { display: none; }
+
+.onb-progress {
+  top: 18px;
+  gap: 9px;
+  padding: 10px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 12px 34px rgba(41, 53, 80, 0.1);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.onb-stage { padding-top: 96px; }
+
+.onb-step {
+  max-width: 760px;
+  padding: clamp(22px, 4vw, 38px);
+}
+
+.onb-title {
+  color: var(--onb-ink);
+  font-weight: 760;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  text-transform: none;
+  text-wrap: balance;
+}
+
+.onb-sub {
+  max-width: 46ch;
+  color: var(--onb-mute);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.onb-eyebrow {
+  color: var(--onb-mute);
+  letter-spacing: 0.14em;
+}
+
+.onb-name-input {
+  border-bottom-color: rgba(29, 29, 31, 0.18);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.onb-name-input:focus {
+  border-color: #0066cc;
+}
+
+.onb-reward-card,
+.gacha-info-card {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 30px 90px rgba(41, 53, 80, 0.13);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+
+.onb-reward-card { border-radius: 28px; }
+.gacha-info-card { border-radius: 22px; }
+
+.gacha-card {
+  border-color: rgba(255, 255, 255, 0.74);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 18px 48px rgba(41, 53, 80, 0.12);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.gacha-won-card {
+  border-color: rgba(255, 255, 255, 0.74);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 28px 76px rgba(41, 53, 80, 0.14);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.gacha-mask-l { background: linear-gradient(90deg, #f5f5f7, transparent); }
+.gacha-mask-r { background: linear-gradient(270deg, #f5f5f7, transparent); }
+
+@media (pointer: fine) {
+  body.onb,
+  body.onb * { cursor: auto !important; }
+
+  body.onb :is(a, button, [role="button"]) { cursor: pointer !important; }
+  body.onb input { cursor: text !important; }
+  body.onb button:disabled { cursor: not-allowed !important; }
+}
+
+@media (max-width: 720px) {
+  .onb-progress { top: 12px; }
+  .onb-stage { padding: 78px 12px 44px; }
+  .onb-step { padding: 20px 8px; }
+  .onb-title { font-size: clamp(38px, 12vw, 66px); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .onb-progress,
+  .onb-reward-card,
+  .gacha-info-card,
+  .gacha-card,
+  .gacha-won-card {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .onb-progress,
+  .onb-reward-card,
+  .gacha-info-card,
+  .gacha-card,
+  .gacha-won-card {
+    border: 2px solid var(--onb-ink);
+    background: #fff;
+  }
+}

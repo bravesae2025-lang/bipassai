@@ -89,21 +89,23 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=66">
+  <link rel="stylesheet" href="style.css?v=71">
 </head>
-<body>
+<body class="landing-page">
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
 
   <nav class="navbar">
     <div class="nav-inner">
-      <a class="nav-logo" href="#">BIPASS AI</a>
+      <a class="nav-logo" href="#" aria-label="Bipass AI home">
+        <span class="nav-logo-mark" aria-hidden="true">B</span>
+        <span>BiPass</span>
+      </a>
       <div class="nav-links">
-        <a class="nav-link" href="#">Home</a>
-        <a class="nav-link" href="about.html">About</a>
-        <a class="nav-link" href="#how-it-works">How It Works</a>
-        <a class="nav-link" href="#how-it-works">Auto Typer</a>
+        <a class="nav-link" href="#how-it-works">How it works</a>
+        <a class="nav-link" href="#auto-typer">Auto Typer</a>
+        <a class="nav-link" href="#reviews">Stories</a>
         <a class="nav-link" href="#pricing">Pricing</a>
         <a class="nav-link" href="#faq">FAQ</a>
       </div>
@@ -138,13 +140,18 @@
 
     <!-- Headline + sub -->
     <div class="hero-head">
-      <h2 class="hero-title">Your AI text,<br>at the right level.</h2>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+        Writing that sounds like you
+      </div>
+      <h1 class="hero-title" data-static-title="true">AI helped.<br><span>It should still</span><br>sound like you.</h1>
+      <p class="hero-desc">Turn an AI-assisted draft into writing that fits your level and voice. Review every change, keep what works, and make the final draft yours.</p>
     </div>
 
     <!-- Level-matching showcase: watch the app get used, start to finish -->
     <div class="typeshow leveldemo" id="leveldemo" data-anim="slide-up">
       <div class="typeshow-header">
-        <span class="typeshow-badge" id="ld-badge">STEP 1 · SET UP</span>
+        <span class="typeshow-badge" id="ld-badge">LIVE PREVIEW · SET UP</span>
         <span class="ld-count" id="ld-count">0 words</span>
       </div>
 
@@ -298,7 +305,7 @@
       </span>
       <span class="ld-feature">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>
-        Edit with AI
+        Review every edit
       </span>
       <span class="ld-feature">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
@@ -306,7 +313,7 @@
       </span>
       <span class="ld-feature">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a3 3 0 0 0-5 2.8 3 3 0 0 0 5 2.8"/></svg>
-        Level Matching: 4 credits per word
+        Four writing levels
       </span>
     </div>
 
@@ -314,12 +321,12 @@
     <div class="hero-stats" data-anim="slide-up" data-anim-delay="2">
       <div class="hero-stat">
         <span class="hero-stat-val">3</span>
-        <span class="hero-stat-lbl">rewrite modes</span>
+        <span class="hero-stat-lbl">ways to rewrite</span>
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
         <span class="hero-stat-val">LIVE</span>
-        <span class="hero-stat-lbl">progress updates</span>
+        <span class="hero-stat-lbl">edit preview</span>
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
@@ -328,21 +335,22 @@
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
-        <span class="hero-stat-val hero-stat-val-ai">VARIES</span>
-        <span class="hero-stat-lbl">detector scores</span>
+        <span class="hero-stat-val hero-stat-val-ai">YOU</span>
+        <span class="hero-stat-lbl">have the final say</span>
       </div>
     </div>
 
     <!-- Action -->
     <div class="hero-cta" data-anim="slide-up" data-anim-delay="3">
       <button id="hero-humanize-btn" class="hero-cta-btn">
-        <span class="hero-cta-label">Try Bipass AI Now</span>
+        <span class="hero-cta-label">Try your first draft</span>
         <span class="hero-cta-arrow" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </span>
         <span class="hero-cta-sweep" aria-hidden="true"></span>
       </button>
-      <p class="hero-cta-sub">Paste your text in the app &mdash; processing time varies with length</p>
+      <a class="hero-cta-secondary" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
+      <p class="hero-cta-sub"><span aria-hidden="true">✓</span> No API key &nbsp;·&nbsp; You approve the final text</p>
     </div>
 
   </section>
@@ -350,9 +358,9 @@
   <!-- ── REVIEWS ─────────────────────────────────────────────── -->
   <section id="reviews" class="reviews-section">
     <div class="reviews-header">
-      <div class="reviews-label" data-anim="slide-up">REVIEWS</div>
-      <h2 class="reviews-title" data-anim="slide-up" data-anim-delay="1">What users say</h2>
-      <p class="reviews-sub" data-anim="slide-up" data-anim-delay="2">Feedback from students using Bipass AI in their writing workflow.</p>
+      <div class="reviews-label" data-anim="slide-up">Student stories</div>
+      <h2 class="reviews-title" data-anim="slide-up" data-anim-delay="1">Made for the way students actually write.</h2>
+      <p class="reviews-sub" data-anim="slide-up" data-anim-delay="2">Real feedback from people finding their voice in an AI-assisted draft.</p>
       <div class="reviews-trust" data-anim="slide-up" data-anim-delay="3">
         <span class="reviews-trust-stars">★★★★★</span>
         <span class="reviews-trust-text">Selected user feedback</span>
@@ -442,9 +450,9 @@
   <!-- ── HOW IT WORKS ──────────────────────────────────────── -->
   <section id="how-it-works" class="hiw-section">
     <div class="hiw-header">
-      <div class="hiw-label" data-anim="slide-up">HOW IT WORKS</div>
-      <h2 class="hiw-title" data-anim="slide-up" data-anim-delay="1">Three steps to human-sounding text</h2>
-      <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">From AI-generated to reading like you wrote it — in under a minute.</p>
+      <div class="hiw-label" data-anim="slide-up">A simple workflow</div>
+      <h2 class="hiw-title" data-anim="slide-up" data-anim-delay="1">From AI draft to your draft.</h2>
+      <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">Choose the voice, see the changes, then decide what stays.</p>
     </div>
 
     <div class="hiw-steps">
@@ -507,12 +515,63 @@
     </div>
   </section>
 
+  <!-- ── AUTO TYPER SHOWCASE ────────────────────────────────── -->
+  <section id="auto-typer" class="autotyper-section" aria-labelledby="autotyper-title">
+    <header class="autotyper-header">
+      <div class="autotyper-label" data-anim="slide-up">Auto Typer</div>
+      <div class="autotyper-heading-grid">
+        <h2 id="autotyper-title" class="autotyper-title" data-anim="slide-up" data-anim-delay="1">Your final text, typed where you work.</h2>
+        <div class="autotyper-intro" data-anim="slide-up" data-anim-delay="2">
+          <p class="autotyper-sub">Send a reviewed draft to the Chrome extension, set the pace, then type it into Google Docs one character at a time. Start, pause, or continue whenever you want.</p>
+          <a class="autotyper-store-link" href="https://chromewebstore.google.com/detail/bipass-ai-%E2%80%94-auto-typer/ncaogcdecfhjepnpmlmalibeloipbjkm" target="_blank" rel="noopener noreferrer">
+            Get the Chrome extension
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="autotyper-film-card" data-anim="slide-up" data-anim-delay="2">
+      <div class="autotyper-film-bar">
+        <span class="autotyper-film-meta"><i aria-hidden="true"></i> Real product flow <span>· 14 sec</span></span>
+        <button class="autotyper-film-toggle" id="autotyper-film-toggle" type="button" aria-label="Pause Auto Typer demo">
+          <span class="autotyper-film-toggle-symbol" aria-hidden="true">Ⅱ</span>
+        </button>
+      </div>
+      <div class="autotyper-film-stage">
+        <img class="autotyper-film-poster" src="assets/auto-typer-showcase-poster.png" width="1600" height="900" alt="Auto Typer controls beside a Google Docs document">
+        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/auto-typer-showcase-poster.png" aria-label="Animated demonstration of selecting a draft, setting Auto Typer controls, and typing into Google Docs">
+          <source src="assets/auto-typer-showcase.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="autotyper-film-note">Demo sped up for clarity. The real Auto Typer follows the speed and target time you choose.</p>
+
+    <div class="autotyper-features" aria-label="Auto Typer controls">
+      <article class="autotyper-feature" data-anim="slide-up">
+        <span class="autotyper-feature-num" aria-hidden="true">01</span>
+        <h3>Set the pace</h3>
+        <p>Choose Slow, Normal, or Fast, with an optional target time.</p>
+      </article>
+      <article class="autotyper-feature" data-anim="slide-up" data-anim-delay="1">
+        <span class="autotyper-feature-num" aria-hidden="true">02</span>
+        <h3>Optional corrections</h3>
+        <p>Add occasional typo-and-backspace corrections, or leave them off.</p>
+      </article>
+      <article class="autotyper-feature" data-anim="slide-up" data-anim-delay="2">
+        <span class="autotyper-feature-num" aria-hidden="true">03</span>
+        <h3>Stay in control</h3>
+        <p>Start, stop, and continue from the floating control in your document.</p>
+      </article>
+    </div>
+  </section>
+
   <!-- ── PRICING ─────────────────────────────────────────────── -->
   <section id="pricing" class="pricing-section">
     <div class="pricing-header">
       <div class="pricing-label" data-anim="slide-up">PRICING</div>
-      <h2 class="pricing-title" data-anim="slide-up" data-anim-delay="1">Pick your pass</h2>
-      <p class="pricing-sub" data-anim="slide-up" data-anim-delay="2">No subscription traps. Pay for what you need, when you need it.</p>
+      <h2 class="pricing-title" data-anim="slide-up" data-anim-delay="1">Use it when you need it.</h2>
+      <p class="pricing-sub" data-anim="slide-up" data-anim-delay="2">One-time passes with clear limits. No subscription trap.</p>
     </div>
 
     <div class="pricing-grid">
@@ -588,8 +647,8 @@
   <!-- ── ABOUT US ─────────────────────────────────────────────── -->
   <section id="about" class="about-section">
     <div class="about-inner">
-      <div class="about-label" data-anim="slide-up">ABOUT US</div>
-      <h2 class="about-title" data-anim="slide-up" data-anim-delay="1">Built by students, for students</h2>
+      <div class="about-label" data-anim="slide-up">Why BiPass</div>
+      <h2 class="about-title" data-anim="slide-up" data-anim-delay="1">Built close to the problem.</h2>
       <p class="about-body" data-anim="slide-up" data-anim-delay="2">
         Bipass AI was created because AI writing reads too polished — clearly above the level a real student writes at, and easy to clock as AI. We built a tool that rewrites it to sound human: simpler words, natural sentence variation, the small imperfections real people make. Pick a level — beginner, student or academic — and it reads like you actually wrote it.
       </p>
@@ -602,8 +661,8 @@
   <!-- ── FAQ ──────────────────────────────────────────────────── -->
   <section id="faq" class="faq-section">
     <div class="faq-header">
-      <div class="faq-label" data-anim="slide-up">FAQ</div>
-      <h2 class="faq-title" data-anim="slide-up" data-anim-delay="1">Common questions</h2>
+      <div class="faq-label" data-anim="slide-up">Need to know</div>
+      <h2 class="faq-title" data-anim="slide-up" data-anim-delay="1">Good questions.</h2>
     </div>
 
     <div class="faq-list" data-anim="slide-up" data-anim-delay="2">
@@ -640,7 +699,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. Level Matching uses 4 credits per word and Humanize uses 15. Both mode combines those rates and applies a 20% discount, costing 15.2 credits per word rounded up per run. The Annual Pass adds 40,000 credits every month plus a 20,000-credit annual bonus, for 500,000 across the year. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
+          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. Level Matching uses 4 credits per word and Humanize uses 15. Both mode costs 18 credits per word, saving 1 credit per word compared with running both separately. The Annual Pass adds 40,000 credits every month plus a 20,000-credit annual bonus, for 500,000 across the year. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
         </div>
       </div>
 
@@ -910,8 +969,11 @@
       }
 
       let timers = [];
+      let demoActive = false;
       const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
-      const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+      const at = (ms, fn) => timers.push(setTimeout(() => {
+        if (demoActive) fn();
+      }, ms));
 
       // ── Fake cursor ──────────────────────────────────────────
       function cursorShow(x, y) {
@@ -955,6 +1017,7 @@
       // ── Scenario engine: paste → pick → run → result ─────────
       let si = 0;
       function runScenario() {
+        if (!demoActive) return;
         clearAll();
         const S = SCENARIOS[si];
 
@@ -968,7 +1031,7 @@
         if (stageScan) { stageScan.hidden = true; stageScan.classList.remove('done'); }
         if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
-        badgeEl.textContent = 'STEP 1 · SET UP';
+        badgeEl.textContent = 'LIVE PREVIEW · SET UP';
         modeLabel.textContent = 'Level Matching';
         modeMenu.classList.remove('open');
         optHuman.classList.remove('sel');
@@ -1057,7 +1120,7 @@
       }
 
       function resultPhase(S) {
-        badgeEl.textContent = 'STEP 2 · RESULT';
+        badgeEl.textContent = 'LIVE PREVIEW · RESULT';
         headEl.textContent = S.panelHead;
         buildPlain();
         const counts = buildRows(S.edits);
@@ -1098,7 +1161,7 @@
 
       // ── Stage 3: Auto Typer → set the speed in the extension, then type ─
       function autoTyperPhase(S) {
-        badgeEl.textContent = 'STEP 3 · AUTO TYPER';
+        badgeEl.textContent = 'LIVE PREVIEW · AUTO TYPER';
         stageType.classList.remove('done');
         if (extEl) extEl.classList.remove('armed', 'done');
         // Reset the extension controls to their defaults
@@ -1142,56 +1205,36 @@
         });
         at(3450, () => { extStart.classList.remove('pressed'); cursorHide(); });
 
-        // ── Type the result into the doc, char by char ──
+        // ── Type the result into the doc in small frame-friendly batches ──
         const full = editedPlain(S);
-        let shown = '';
-        const render = () => { if (docText) docText.innerHTML = esc(shown) + '<span class="ld-caret"></span>'; };
+        let typed = 0;
 
-        // Fast speed types quicker (matches the button the cursor picked)
-        const base = () => fast ? 7 + rnd(9) : 12 + rnd(15);
-
-        // two spots where the typist fumbles — types a wrong burst, notices,
-        // backspaces it, and retypes correctly (like a real person)
-        const KEYS = 'etaoinshrdlucmfwypgb';
-        const fumbles = {};
-        fumbles[Math.floor(full.length * 0.28)] = 3;
-        fumbles[Math.floor(full.length * 0.63)] = 4;
-
-        let t = 3550;
-        for (let i = 0; i < full.length; i++) {
-          const ch = full[i];
-          if (fumbles[i] && /[a-z]/i.test(ch)) {
-            const n = fumbles[i];
-            for (let w = 0; w < n; w++) {                 // type the wrong letters
-              at(t, () => { shown += KEYS[rnd(KEYS.length)]; render(); });
-              t += 50 + rnd(40);
-            }
-            t += 260;                                     // pause — notice the mistake
-            for (let w = 0; w < n; w++) {                 // backspace them one by one
-              at(t, () => { shown = shown.slice(0, -1); render(); });
-              t += 55 + rnd(30);
-            }
-            t += 130;                                     // beat before retyping
-          }
-          at(t, () => { shown += ch; render(); });
-          let step = base();
-          if (ch === ' ') step += 8;
-          if (ch === '.' || ch === ',') step = 130 + rnd(90);
-          t += step;
-        }
-        const done = t + 250;
-        at(done, () => {
+        function finishTyping() {
           stageType.classList.add('done');
           if (extEl) extEl.classList.add('done');
-          if (docText) docText.innerHTML = esc(full);
+          if (docText) docText.textContent = full;
           if (extStatus) extStatus.textContent = 'Done — typed into Docs';
-        });
-        at(done + 1500, () => fadeTo(stageScan, () => scanPhase(S)));
+          at(1500, () => fadeTo(stageScan, () => scanPhase(S)));
+        }
+
+        function typeBatch() {
+          if (!demoActive) return;
+          typed = Math.min(full.length, typed + (fast ? 3 : 2));
+          if (docText) docText.innerHTML = esc(full.slice(0, typed)) + '<span class="ld-caret"></span>';
+          if (typed < full.length) {
+            const last = full[typed - 1];
+            at(last === '.' || last === ',' ? 150 : 42 + rnd(24), typeBatch);
+          } else {
+            at(220, finishTyping);
+          }
+        }
+
+        at(3550, typeBatch);
       }
 
       // ── Stage 4: final-review reminder ───────────────────────
       function scanPhase(S) {
-        badgeEl.textContent = 'STEP 4 · FINAL REVIEW';
+        badgeEl.textContent = 'LIVE PREVIEW · FINAL REVIEW';
         stageScan.classList.remove('done');
         if (scanText) scanText.textContent = editedPlain(S);
         if (gaugeVal) gaugeVal.textContent = 'VARIES';
@@ -1210,7 +1253,7 @@
         const S = SCENARIOS[0];
         stageIn.hidden = true;
         stageOut.hidden = false;
-        badgeEl.textContent = 'STEP 2 · RESULT';
+        badgeEl.textContent = 'LIVE PREVIEW · RESULT';
         headEl.textContent = S.panelHead;
         buildPlain();
         buildRows(S.edits);
@@ -1220,13 +1263,39 @@
         return;
       }
 
+      function startDemo() {
+        if (demoActive || document.hidden) return;
+        demoActive = true;
+        cardEl.classList.add('demo-running');
+        cardEl.dataset.demoState = 'running';
+        at(180, runScenario);
+      }
+
+      function pauseDemo() {
+        if (!demoActive) return;
+        demoActive = false;
+        cardEl.classList.remove('demo-running');
+        cardEl.dataset.demoState = 'paused';
+        clearAll();
+        cursorHide();
+        mainEl.classList.remove('ld-fade');
+      }
+
       if ('IntersectionObserver' in window && cardEl) {
         const io = new IntersectionObserver((entries) => {
-          if (entries.some(e => e.isIntersecting)) { io.disconnect(); at(250, runScenario); }
-        }, { threshold: 0.35 });
+          if (entries.some(e => e.isIntersecting)) startDemo();
+          else pauseDemo();
+        }, { threshold: 0.01, rootMargin: '120px 0px' });
         io.observe(cardEl);
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) pauseDemo();
+          else {
+            const r = cardEl.getBoundingClientRect();
+            if (r.bottom > -120 && r.top < window.innerHeight + 120) startDemo();
+          }
+        });
       } else {
-        at(900, runScenario);
+        startDemo();
       }
     })();
 
@@ -1234,6 +1303,7 @@
     (function () {
       const bg = document.getElementById('hero-bg');
       if (!bg) return;
+      if (document.body.classList.contains('landing-page')) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const spot = document.getElementById('hero-spotlight');
       const card = document.getElementById('leveldemo');
@@ -1282,22 +1352,11 @@
       }, { passive: true });
     })();
 
-    // ── Navbar hide on scroll ──────────────────────────────────
-    (function () {
-      const navbar = document.querySelector('.navbar');
-      let lastY = window.scrollY;
-      window.addEventListener('scroll', () => {
-        const y = window.scrollY, diff = y - lastY;
-        if (diff > 6 && y > 80) navbar.classList.add('hidden');
-        else if (diff < -6) navbar.classList.remove('hidden');
-        lastY = y;
-      }, { passive: true });
-    })();
-
     // ── Hero title — word stagger reveal ──────────────────────
     (function () {
       const title = document.querySelector('.hero-title');
       if (!title) return;
+      if (title.dataset.staticTitle === 'true') return;
       const html = title.innerHTML;
       const parts = html.split(/(<br\s*\/?>)/gi);
       let wordIdx = 0;
@@ -1315,6 +1374,7 @@
     (function () {
       const title = document.querySelector('.hero-title');
       if (!title) return;
+      if (title.dataset.staticTitle === 'true') return;
 
       const PHRASES = [
         { lines: ['Your AI text,', 'at the right level.'], green: [] },
@@ -1400,6 +1460,10 @@
 
     // ── Scroll reveal — Intersection Observer ─────────────────
     (function () {
+      if (document.body.classList.contains('landing-page')) {
+        document.querySelectorAll('[data-anim]').forEach(el => el.classList.add('revealed'));
+        return;
+      }
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => {
           if (e.isIntersecting) {
@@ -1416,6 +1480,7 @@
     // The CSS animates each row by -50%, so the content must be the
     // full set repeated exactly twice. Clone the originals once.
     (function () {
+      if (document.body.classList.contains('landing-page')) return;
       document.querySelectorAll('[data-rev-row]').forEach(row => {
         const originals = Array.from(row.children);
         originals.forEach(card => {
@@ -1471,6 +1536,50 @@
       window.location.href = session ? '/home' : 'welcome.html';
     });
 
+    // ── Auto Typer product film ───────────────────────────────
+    (() => {
+      const video = document.getElementById('autotyper-film');
+      const toggle = document.getElementById('autotyper-film-toggle');
+      if (!video || !toggle) return;
+
+      const symbol = toggle.querySelector('.autotyper-film-toggle-symbol');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let userPaused = false;
+      let inView = false;
+
+      const updateToggle = (playing) => {
+        if (symbol) symbol.textContent = playing ? 'Ⅱ' : '▶';
+        toggle.setAttribute('aria-label', playing ? 'Pause Auto Typer demo' : 'Play Auto Typer demo');
+      };
+
+      const syncPlayback = () => {
+        if (reducedMotion.matches || userPaused || !inView) {
+          video.pause();
+          updateToggle(false);
+          return;
+        }
+        video.play().then(() => updateToggle(true)).catch(() => updateToggle(false));
+      };
+
+      video.defaultMuted = true;
+      const markReady = () => video.setAttribute('data-ready', 'true');
+      if (video.readyState >= 2) markReady();
+      else video.addEventListener('loadeddata', markReady, { once: true });
+      toggle.addEventListener('click', () => {
+        userPaused = !video.paused;
+        syncPlayback();
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        inView = entries[0].isIntersecting;
+        syncPlayback();
+      }, { threshold: 0.18 });
+      observer.observe(video);
+
+      reducedMotion.addEventListener?.('change', syncPlayback);
+      window.addEventListener('pagehide', () => video.pause(), { once: true });
+    })();
+
     // ── FAQ accordion ─────────────────────────────────────────
     document.querySelectorAll('.faq-q').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1484,8 +1593,6 @@
       });
     });
   </script>
-  <script src="cursor.js?v=2"></script>
-
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>
     <span class="site-footer-sep">·</span>

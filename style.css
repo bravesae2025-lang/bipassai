@@ -10919,8 +10919,11 @@ mark.word-changed.hz-flash {
    Creation page — floating Apple-style navigation
 ───────────────────────────────────────────────────────── */
 
+/* padding-top is navbar top (18) + nav height (58) + the breathing gap below it
+   (10). It has to move in step with .creation-page .navbar's `top`, or content
+   slides under the floating bar. */
 body.creation-page {
-  padding-top: 78px;
+  padding-top: 86px;
   background: #f2f0ec;
 }
 
@@ -10944,7 +10947,7 @@ body.creation-page {
 }
 
 .creation-page .navbar {
-  top: 10px;
+  top: 18px;
   left: 50%;
   right: auto;
   width: min(calc(100% - 32px), 1360px);
@@ -11138,11 +11141,11 @@ body.creation-page {
 
 @media (max-width: 740px) {
   body.creation-page {
-    padding-top: 68px;
+    padding-top: 74px;   /* 14 top + 52 nav + 8 gap */
   }
 
   .creation-page .navbar {
-    top: 8px;
+    top: 14px;
     width: calc(100% - 16px);
     border-radius: 14px;
   }

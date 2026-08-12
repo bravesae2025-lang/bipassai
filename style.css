@@ -10948,3 +10948,293 @@ mark.word-changed.hz-flash {
   .autotyper-film-toggle { display: none; }
   .autotyper-store-link { transition: none; }
 }
+
+/* ─────────────────────────────────────────────────────────
+   Creation page — floating Apple-style navigation
+───────────────────────────────────────────────────────── */
+
+body.creation-page {
+  padding-top: 116px;
+}
+
+body.creation-page::before {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: 184px;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 130% at 86% 0%, rgba(139, 132, 255, 0.17), transparent 72%),
+    radial-gradient(42% 120% at 9% 0%, rgba(169, 218, 255, 0.18), transparent 74%),
+    linear-gradient(180deg, #f4f6fa 0%, rgba(247, 248, 251, 0.72) 76%, transparent 100%);
+}
+
+.creation-page > .bg-dots {
+  display: none;
+}
+
+.creation-page .app-main {
+  background: linear-gradient(180deg, #f5f7fb 0, #f2f0ec 132px);
+}
+
+.creation-page .navbar {
+  top: 18px;
+  left: 50%;
+  right: auto;
+  width: min(calc(100% - 32px), 1740px);
+  overflow: visible;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.92) inset,
+    0 12px 40px rgba(38, 43, 63, 0.08),
+    0 2px 8px rgba(38, 43, 63, 0.04);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  backdrop-filter: blur(28px) saturate(165%);
+  transform: translateX(-50%);
+  transition:
+    transform 0.4s var(--ease-out),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: creation-nav-arrive 0.52s var(--ease-out) both;
+}
+
+.creation-page .navbar.hidden {
+  transform: translateX(-50%) translateY(-145%);
+}
+
+@keyframes creation-nav-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+.creation-page .nav-inner {
+  width: 100%;
+  max-width: none;
+  height: 76px;
+  padding: 0 32px;
+  gap: clamp(12px, 1.4vw, 28px);
+}
+
+.creation-page .nav-logo {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+
+.creation-page .nav-hamburger {
+  width: 38px;
+  height: 38px;
+  gap: 6px;
+  border-radius: 11px;
+  transition: background-color 0.16s ease, transform 0.12s ease;
+}
+
+.creation-page .nav-hamburger span {
+  height: 2px;
+}
+
+.creation-page .nav-hamburger:hover {
+  background: rgba(0, 0, 0, 0.055);
+}
+
+.creation-page .nav-hamburger:active,
+.creation-page .nav-ext-btn:active,
+.creation-page .nav-signout:active {
+  transform: scale(0.95);
+}
+
+.creation-page .nav-links {
+  gap: clamp(2px, 0.5vw, 10px);
+}
+
+.creation-page .nav-link {
+  padding: 9px 13px;
+  border-radius: 10px;
+  color: rgba(20, 20, 24, 0.68);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  font-weight: 560;
+  letter-spacing: -0.012em;
+  transition: color 0.16s ease, background-color 0.16s ease, transform 0.12s ease;
+}
+
+.creation-page .nav-link:hover {
+  color: #101014;
+  background: rgba(0, 0, 0, 0.045);
+}
+
+.creation-page .nav-link:active {
+  transform: scale(0.97);
+}
+
+.creation-page .nav-right-group {
+  gap: 10px;
+  margin-right: clamp(0px, 0.5vw, 10px);
+}
+
+.creation-page .credit-indicator {
+  min-height: 36px;
+  gap: 5px;
+  padding: 6px 13px 6px 10px;
+  border-color: rgba(0, 0, 0, 0.09);
+  background: rgba(31, 31, 35, 0.055);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.025) inset;
+}
+
+.creation-page .credit-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.creation-page .credit-val {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.015em;
+}
+
+.creation-page .credit-label {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  color: rgba(20, 20, 24, 0.55);
+}
+
+.creation-page .nav-ext-btn {
+  width: 38px;
+  height: 38px;
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.46);
+  transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
+}
+
+.creation-page .nav-ext-btn:hover {
+  border-color: rgba(0, 0, 0, 0.16);
+  background: rgba(0, 0, 0, 0.055);
+}
+
+.creation-page .nav-user {
+  gap: 12px;
+}
+
+.creation-page .nav-user-email {
+  max-width: clamp(112px, 13vw, 210px);
+  color: rgba(20, 20, 24, 0.6);
+  font-size: 12px;
+}
+
+.creation-page .nav-signout {
+  min-height: 36px;
+  padding: 7px 17px;
+  border-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+  color: rgba(20, 20, 24, 0.65);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.025);
+  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
+}
+
+.creation-page .nav-signout:hover {
+  color: #101014;
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* The floating header replaces the noisy promo strip on this focused tool page. */
+.creation-page .app-ticker-bar {
+  display: none;
+}
+
+@media (max-width: 1120px) and (min-width: 741px) {
+  .creation-page .nav-inner {
+    padding: 0 22px;
+    gap: 10px;
+  }
+
+  .creation-page .nav-logo { font-size: 18px; }
+  .creation-page .nav-links { gap: 0; }
+  .creation-page .nav-link { padding-inline: 9px; font-size: 13px; }
+  .creation-page .nav-user-email { display: none; }
+  .creation-page .nav-right-group { margin-right: 0; }
+}
+
+@media (max-width: 740px) {
+  body.creation-page {
+    padding-top: 84px;
+  }
+
+  body.creation-page::before {
+    height: 126px;
+  }
+
+  .creation-page .navbar {
+    top: 12px;
+    width: calc(100% - 24px);
+    border-radius: 18px;
+  }
+
+  .creation-page .nav-inner {
+    height: 60px;
+    padding: 0 14px;
+    gap: 0;
+  }
+
+  .creation-page .nav-hamburger {
+    width: 36px;
+    height: 36px;
+  }
+
+  .creation-page .nav-logo {
+    margin: 0 auto;
+    font-size: 18px;
+  }
+
+  .creation-page .nav-links,
+  .creation-page .nav-right-group,
+  .creation-page .nav-user {
+    display: none;
+  }
+
+  .creation-page .nav-inner::after {
+    content: '';
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .creation-page .navbar {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .creation-page .navbar {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .creation-page .navbar {
+    border-color: #4a4a4f;
+    background: rgba(255, 255, 255, 0.96);
+  }
+}

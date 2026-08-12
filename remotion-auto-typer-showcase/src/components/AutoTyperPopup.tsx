@@ -5,6 +5,8 @@ type AutoTyperPopupProps = {
   readonly state: PopupState;
   readonly speed?: TypingSpeed;
   readonly selected?: boolean;
+  readonly contentMix?: number;
+  readonly startPressed?: boolean;
   readonly style?: React.CSSProperties;
 };
 
@@ -30,16 +32,23 @@ export const AutoTyperPopup = ({
   state,
   speed = "normal",
   selected = false,
+  contentMix,
+  startPressed = false,
   style,
-}: AutoTyperPopupProps) => (
-  <div className="at-popup" style={style}>
-    <div className="at-header">
-      <span className="at-header-logo"><i className="at-mark" /> Bipass AI</span>
-      <span className="at-tag">Auto Typer</span>
-    </div>
+}: AutoTyperPopupProps) => {
+  const mix = contentMix ?? (state === "ready" ? 1 : 0);
 
-    {state === "list" ? (
-      <div className="at-body">
+  return (
+    <div className="at-popup" style={style}>
+      <div className="at-header">
+        <span className="at-header-logo"><i className="at-mark" /> Bipass AI</span>
+        <span className="at-tag">Auto Typer</span>
+      </div>
+
+      <div
+        className="at-body at-body-layer"
+        style={{opacity: 1 - mix, translate: `${mix * -34}px 0`}}
+      >
         <span className="at-eyebrow">Reviewed text</span>
         <h3 className="at-heading">Choose what to type</h3>
         <div className="at-list">
@@ -56,10 +65,11 @@ export const AutoTyperPopup = ({
         </div>
         <div className="at-account">SIGNED IN AS BRAVESAENG</div>
       </div>
-    ) : null}
 
-    {state === "ready" ? (
-      <div className="at-body">
+      <div
+        className="at-body at-body-layer"
+        style={{opacity: mix, translate: `${(1 - mix) * 34}px 0`}}
+      >
         <span className="at-eyebrow">Selected draft</span>
         <h3 className="at-heading">Ready when you are</h3>
         <div className="at-preview">{savedTexts[0].copy}</div>
@@ -80,8 +90,10 @@ export const AutoTyperPopup = ({
           <span className="at-option-value">LIGHT</span>
         </div>
 
-        <div className="at-start">Start Typing <span aria-hidden="true">→</span></div>
+        <div className={`at-start${startPressed ? " pressed" : ""}`}>
+          Start Typing <span aria-hidden="true">→</span>
+        </div>
       </div>
-    ) : null}
-  </div>
-);
+    </div>
+  );
+};

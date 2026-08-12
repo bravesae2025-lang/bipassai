@@ -1,12 +1,11 @@
 # Bipass AI Auto Typer product film
 
-A 30-second silent homepage showcase built around a slower, continuous Chrome-extension flow:
+A 21-second silent homepage showcase built as one continuous Chrome-extension flow:
 
-1. Introduce Auto Typer with a quiet product overview.
-2. Choose a reviewed text.
-3. Set a natural typing speed.
-4. Focus the document and start from the floating control.
-5. Finish with an editable draft and restrained end card.
+1. Choose a reviewed text.
+2. Set a natural typing speed.
+3. Focus the document and start from the floating control.
+4. Finish with an editable draft and restrained end card.
 
 The composition is `AutoTyperShowcase` at 1920×1080, 60fps. Each scene is also
 registered separately in Remotion Studio for easy timing and visual review.

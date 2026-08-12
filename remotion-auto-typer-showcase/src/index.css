@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -10,43 +10,32 @@
 html,
 body {
   margin: 0;
-  background: #f7f7f4;
+  background: #fff;
 }
 
 .film {
-  --paper: #f7f7f4;
-  --surface: #ffffff;
-  --ink: #101010;
-  --muted: #70706b;
-  --soft: #a3a39d;
-  --line: #deded8;
-  --wash: #efefea;
+  --paper: #fff;
+  --surface: #fff;
+  --ink: #0d0d0d;
+  --g700: #3d3d3d;
+  --g400: #5a5a5a;
+  --g300: #7a7a7a;
+  --g200: #d4d4d4;
+  --g150: #e2e2e2;
+  --g050: #f7f7f5;
   overflow: hidden;
   background: var(--paper);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
 .film-backdrop {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  background: var(--paper);
-}
-
-.film-backdrop::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.36), transparent 35%, rgba(255,255,255,0.18));
-  content: "";
-}
-
-.film-lines {
-  position: absolute;
-  inset: -100px -120px;
-  width: calc(100% + 240px);
-  height: calc(100% + 200px);
-  opacity: 0.76;
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, rgba(13, 13, 13, 0.07) 1.25px, transparent 1.35px);
+  background-position: 0 0;
+  background-size: 30px 30px;
 }
 
 .scene {
@@ -54,99 +43,44 @@ body {
   inset: 0;
 }
 
-.film-wordmark {
+.product-flow {
+  overflow: hidden;
+}
+
+.flow-caption {
   position: absolute;
-  top: 76px;
-  left: 94px;
-  display: inline-flex;
-  align-items: center;
-  gap: 11px;
-  color: #5f5f5a;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
-  font-size: 14px;
+  top: 82px;
+  left: 82px;
+  z-index: 20;
+  width: 820px;
+}
+
+.flow-caption span,
+.flow-brand {
+  color: var(--g400);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.15em;
 }
 
-.film-wordmark i {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--ink);
-}
-
-.opening-copy {
-  position: absolute;
-  z-index: 4;
-  top: 182px;
-  left: 94px;
-  width: 980px;
-}
-
-.opening-copy h1,
-.closing-copy h1 {
-  margin: 0;
+.flow-caption h2 {
+  margin: 17px 0 0;
   color: var(--ink);
-  font-size: 94px;
-  font-weight: 650;
-  letter-spacing: -0.062em;
+  font-size: 78px;
+  font-weight: 690;
+  letter-spacing: -0.055em;
   line-height: 0.98;
 }
 
-.opening-copy p,
-.closing-copy p {
-  width: 610px;
-  margin: 28px 0 0;
-  color: var(--muted);
-  font-size: 25px;
-  letter-spacing: -0.026em;
-  line-height: 1.45;
-}
-
-.opening-plane {
+.flow-brand {
   position: absolute;
-  z-index: 2;
-  left: 760px;
-  top: 320px;
-  width: 1130px;
-  height: 700px;
-}
-
-.scene-caption {
-  position: absolute;
-  z-index: 20;
-  top: 88px;
-  left: 94px;
-  width: 770px;
-}
-
-.scene-caption-kicker {
-  margin-bottom: 17px;
-  color: #777771;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
-  font-size: 13px;
-  font-weight: 600;
+  bottom: 42px;
+  left: 62px;
+  z-index: 18;
+  color: var(--g300);
+  font-size: 10px;
   letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.scene-caption h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: 72px;
-  font-weight: 650;
-  letter-spacing: -0.058em;
-  line-height: 1;
-}
-
-.scene-caption p {
-  width: 600px;
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 21px;
-  letter-spacing: -0.022em;
-  line-height: 1.48;
 }
 
 .doc-surface {
@@ -155,10 +89,10 @@ body {
   width: 1240px;
   height: 780px;
   overflow: hidden;
-  border: 1px solid rgba(16,16,16,0.1);
-  border-radius: 6px;
+  border: 1px solid rgba(13, 13, 13, 0.12);
+  border-radius: 9px;
   background: var(--surface);
-  box-shadow: 0 32px 90px rgba(25,25,20,0.09), 0 3px 12px rgba(25,25,20,0.055);
+  box-shadow: 0 28px 76px rgba(13, 13, 13, 0.1), 0 3px 10px rgba(13, 13, 13, 0.045);
 }
 
 .doc-bar {
@@ -167,7 +101,8 @@ body {
   align-items: center;
   gap: 14px;
   padding: 0 28px;
-  border-bottom: 1px solid #ecece7;
+  border-bottom: 1px solid var(--g150);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .doc-mark {
@@ -180,16 +115,16 @@ body {
 .doc-name {
   color: var(--ink);
   font-size: 16px;
-  font-weight: 620;
+  font-weight: 650;
   letter-spacing: -0.018em;
 }
 
 .doc-saved {
   margin-left: auto;
-  color: #92928c;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -201,10 +136,10 @@ body {
 
 .doc-kicker {
   margin-bottom: 24px;
-  color: #92928c;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -212,14 +147,14 @@ body {
   margin: 0 0 34px;
   color: var(--ink);
   font-size: 37px;
-  font-weight: 650;
-  letter-spacing: -0.038em;
+  font-weight: 680;
+  letter-spacing: -0.04em;
 }
 
 .doc-text {
   width: 850px;
   margin: 0;
-  color: #2e2e2b;
+  color: #2a2a2a;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 28px;
   line-height: 1.65;
@@ -227,7 +162,7 @@ body {
 }
 
 .doc-placeholder {
-  color: #b1b1ab;
+  color: #aaa;
 }
 
 .doc-caret {
@@ -245,9 +180,9 @@ body {
   left: 107px;
   width: 890px;
   height: 116px;
-  border: 1.5px solid rgba(16,16,16,0.22);
-  border-radius: 5px;
-  box-shadow: 0 0 0 5px rgba(16,16,16,0.035);
+  border: 1.5px solid rgba(13, 13, 13, 0.24);
+  border-radius: 7px;
+  box-shadow: 0 0 0 5px rgba(13, 13, 13, 0.035);
 }
 
 .float-control {
@@ -261,9 +196,10 @@ body {
   align-items: center;
   gap: 11px;
   padding: 0 17px;
+  border: 1px solid var(--ink);
   border-radius: 999px;
   background: var(--ink);
-  box-shadow: 0 9px 28px rgba(0,0,0,0.2);
+  box-shadow: 0 9px 24px rgba(0, 0, 0, 0.17);
   color: #fff;
   font-size: 14px;
   font-weight: 650;
@@ -291,8 +227,8 @@ body {
 .float-close {
   margin-left: auto;
   padding-left: 11px;
-  border-left: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.48);
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.52);
   font-size: 11px;
 }
 
@@ -302,19 +238,22 @@ body {
   width: 520px;
   height: 720px;
   overflow: hidden;
-  border: 1px solid rgba(16,16,16,0.11);
-  border-radius: 14px;
-  background: rgba(255,255,255,0.96);
-  box-shadow: 0 32px 90px rgba(25,25,20,0.1), 0 4px 14px rgba(25,25,20,0.055);
+  border: 1px solid rgba(13, 13, 13, 0.13);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 28px 76px rgba(13, 13, 13, 0.11), 0 3px 10px rgba(13, 13, 13, 0.045);
   color: var(--ink);
 }
 
 .at-header {
+  position: relative;
+  z-index: 3;
   height: 68px;
   display: flex;
   align-items: center;
   padding: 0 28px;
-  border-bottom: 1px solid #e9e9e4;
+  border-bottom: 1px solid var(--g150);
+  background: var(--surface);
 }
 
 .at-header-logo {
@@ -331,14 +270,13 @@ body {
 .at-mark {
   width: 8px;
   height: 8px;
-  border-radius: 2px;
   background: var(--ink);
 }
 
 .at-tag {
   margin-left: auto;
-  color: #888882;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -349,12 +287,20 @@ body {
   display: flex;
   flex-direction: column;
   padding: 30px;
+  background: var(--surface);
+}
+
+.at-body-layer {
+  position: absolute;
+  top: 68px;
+  right: 0;
+  left: 0;
 }
 
 .at-eyebrow,
 .at-label {
-  color: #898983;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -365,12 +311,12 @@ body {
   margin: 9px 0 25px;
   color: var(--ink);
   font-size: 25px;
-  font-weight: 650;
+  font-weight: 680;
   letter-spacing: -0.035em;
 }
 
 .at-list {
-  border-top: 1px solid #e5e5df;
+  border-top: 1px solid var(--g150);
 }
 
 .at-result {
@@ -381,12 +327,13 @@ body {
   justify-content: center;
   gap: 11px;
   padding: 18px 42px 18px 14px;
-  border-bottom: 1px solid #e5e5df;
+  border-bottom: 1px solid var(--g150);
   background: transparent;
 }
 
 .at-result.selected {
-  background: #f0f0eb;
+  background: var(--g050);
+  box-shadow: 3px 0 0 var(--ink) inset;
 }
 
 .at-result-meta {
@@ -402,14 +349,14 @@ body {
 }
 
 .at-result-date {
-  color: #9a9a94;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
   font-size: 10px;
 }
 
 .at-result-copy {
   overflow: hidden;
-  color: #5e5e59;
+  color: var(--g400);
   display: -webkit-box;
   font-size: 14px;
   letter-spacing: -0.014em;
@@ -422,14 +369,13 @@ body {
   position: absolute;
   top: 50%;
   right: 15px;
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  border: 1px solid #cfcfc9;
   border-radius: 50%;
-  background: #fff;
-  color: var(--ink);
+  background: var(--ink);
+  color: #fff;
   font-size: 11px;
   translate: 0 -50%;
 }
@@ -437,9 +383,9 @@ body {
 .at-preview {
   min-height: 136px;
   padding: 18px 0 22px;
-  border-top: 1px solid #e5e5df;
-  border-bottom: 1px solid #e5e5df;
-  color: #4e4e49;
+  border-top: 1px solid var(--g150);
+  border-bottom: 1px solid var(--g150);
+  color: var(--g700);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   line-height: 1.55;
@@ -464,10 +410,10 @@ body {
   height: 46px;
   display: grid;
   place-items: center;
-  border: 1px solid #dcdcd6;
-  border-radius: 8px;
-  background: #fff;
-  color: #666661;
+  border: 1px solid var(--g200);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--g400);
   font-size: 12px;
   font-weight: 620;
 }
@@ -483,19 +429,19 @@ body {
   display: flex;
   align-items: center;
   margin-top: 16px;
-  border-top: 1px solid #ecece7;
-  border-bottom: 1px solid #ecece7;
+  border-top: 1px solid var(--g150);
+  border-bottom: 1px solid var(--g150);
 }
 
 .at-option-row span:first-child {
-  color: #666661;
+  color: var(--g400);
   font-size: 13px;
 }
 
 .at-option-value {
   margin-left: auto;
   color: var(--ink);
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
   font-size: 11px;
 }
 
@@ -506,11 +452,15 @@ body {
   justify-content: center;
   gap: 12px;
   margin-top: auto;
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--ink);
   color: #fff;
   font-size: 14px;
   font-weight: 650;
+}
+
+.at-start.pressed {
+  scale: 0.975;
 }
 
 .at-account {
@@ -518,8 +468,8 @@ body {
   display: flex;
   align-items: flex-end;
   margin-top: auto;
-  color: #969690;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  color: var(--g300);
+  font-family: "SF Mono", SFMono-Regular, Menlo, monospace;
   font-size: 10px;
 }
 
@@ -528,7 +478,7 @@ body {
   z-index: 50;
   width: 34px;
   height: 34px;
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.16));
 }
 
 .pointer-click {
@@ -536,42 +486,31 @@ body {
   z-index: 49;
   width: 44px;
   height: 44px;
-  border: 1.5px solid rgba(16,16,16,0.32);
+  border: 1.5px solid rgba(13, 13, 13, 0.35);
   border-radius: 50%;
 }
 
-.closing-copy {
+.flow-outro {
   position: absolute;
+  top: 344px;
+  left: 1060px;
   z-index: 18;
-  top: 326px;
-  left: 1030px;
   width: 760px;
 }
 
-.closing-copy h1 {
-  font-size: 82px;
-}
-
-.closing-copy p {
-  width: 520px;
-  font-size: 21px;
-}
-
-.closing-rule {
-  width: 74px;
+.flow-outro > span {
+  display: block;
+  width: 66px;
   height: 2px;
-  margin-bottom: 26px;
+  margin-bottom: 28px;
   background: var(--ink);
 }
 
-.film-corner-note {
-  position: absolute;
-  right: 70px;
-  bottom: 48px;
-  z-index: 30;
-  color: #8f8f89;
-  font-family: "SF Mono", ui-monospace, Menlo, monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.flow-outro h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 80px;
+  font-weight: 690;
+  letter-spacing: -0.06em;
+  line-height: 0.96;
 }

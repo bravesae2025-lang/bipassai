@@ -1,27 +1,51 @@
-import {useCurrentFrame} from "remotion";
-import {eased} from "../lib/motion";
+import {Easing, interpolate, useCurrentFrame} from "remotion";
 
 type FilmCaptionProps = {
-  readonly compact?: boolean;
-  readonly step?: string;
   readonly kicker: string;
   readonly title: string;
   readonly copy: string;
+  readonly fadeOutFrom?: number;
   readonly style?: React.CSSProperties;
 };
 
-export const FilmCaption = ({compact = false, step = "01", kicker, title, copy, style}: FilmCaptionProps) => {
+export const FilmCaption = ({
+  kicker,
+  title,
+  copy,
+  fadeOutFrom,
+  style,
+}: FilmCaptionProps) => {
   const frame = useCurrentFrame();
-  const opacity = eased(frame, [0, 20], [0, 1]);
-  const y = eased(frame, [0, 28], [28, 0]);
+  const enterOpacity = interpolate(frame, [0, 28], [0, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const exitOpacity =
+    fadeOutFrom === undefined
+      ? 1
+      : interpolate(frame, [fadeOutFrom, fadeOutFrom + 38], [1, 0], {
+          easing: Easing.bezier(0.4, 0, 1, 1),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
 
   return (
-    <div className={`film-caption${compact ? " film-caption-compact" : ""}`} style={{...style, opacity, translate: `0 ${y}px`}}>
-      <div className="film-caption-kicker"><span>{step}</span>{kicker}</div>
-      <h1 className="film-caption-title">{title}</h1>
-      <p className="film-caption-copy">{copy}</p>
+    <div
+      className="scene-caption"
+      style={{
+        ...style,
+        opacity: enterOpacity * exitOpacity,
+        translate: interpolate(frame, [0, 36], ["0px 18px", "0px 0px"], {
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+      }}
+    >
+      <div className="scene-caption-kicker">{kicker}</div>
+      <h2>{title}</h2>
+      <p>{copy}</p>
     </div>
   );
 };
-
-export const DemoPill = () => <span className="film-demo-pill"><i /> Demo sped up</span>;

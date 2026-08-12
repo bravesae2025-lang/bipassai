@@ -10763,54 +10763,24 @@ mark.word-changed.hz-flash {
 .autotyper-store-link:active { transform: translateY(0); }
 
 .autotyper-film-card {
-  overflow: hidden;
-  border: 1px solid var(--black);
-  border-radius: 16px;
-  background: var(--black);
-  box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+  background: transparent;
 }
-
-.autotyper-film-bar {
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px 0 22px;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  background: var(--black);
-}
-
-.autotyper-film-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: rgba(255,255,255,0.88);
-  font-family: var(--ff-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.12em;
-}
-
-.autotyper-film-meta i {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #35c86f;
-  box-shadow: 0 0 0 4px rgba(53,200,111,0.14);
-}
-
-.autotyper-film-meta span { color: rgba(255,255,255,0.42); }
 
 .autotyper-film-toggle {
-  width: 34px;
-  height: 34px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(0,0,0,0.11);
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
+  background: rgba(255,255,255,0.82);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+  color: var(--black);
   cursor: pointer;
   font-family: var(--ff-mono);
   font-size: 11px;
@@ -10818,14 +10788,14 @@ mark.word-changed.hz-flash {
   transition: background 0.16s ease, transform 0.16s ease;
 }
 
-.autotyper-film-toggle:hover { background: rgba(255,255,255,0.16); }
+.autotyper-film-toggle:hover { background: #fff; }
 .autotyper-film-toggle:active { transform: scale(0.92); }
 
 .autotyper-film-stage {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #090909;
+  background: #f7f7f4;
 }
 
 .autotyper-film-poster,
@@ -10847,7 +10817,7 @@ mark.word-changed.hz-flash {
 .autotyper-film-video.is-ready { opacity: 1; }
 
 .autotyper-film-note {
-  margin: 13px 2px 0;
+  margin: 12px 0 0;
   color: var(--g300);
   font-family: var(--ff-mono);
   font-size: 9.5px;
@@ -10934,11 +10904,7 @@ mark.word-changed.hz-flash {
   .autotyper-section { padding: 56px 20px 66px; }
   .autotyper-header { padding-top: 22px; }
   .autotyper-title { font-size: clamp(64px, 23vw, 94px); }
-  .autotyper-film-card { border-radius: 11px; }
-  .autotyper-film-bar { height: 48px; padding: 0 10px 0 13px; }
-  .autotyper-film-meta { font-size: 8.5px; letter-spacing: 0.08em; }
-  .autotyper-film-meta span { display: none; }
-  .autotyper-film-toggle { width: 30px; height: 30px; }
+  .autotyper-film-toggle { top: 9px; right: 9px; width: 30px; height: 30px; }
   .autotyper-film-note { font-size: 8px; }
   .autotyper-features { margin-top: 30px; }
 }

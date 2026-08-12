@@ -1,42 +1,59 @@
-import {AbsoluteFill, useCurrentFrame} from "remotion";
-import {DemoPill, FilmCaption} from "../components/FilmCaption";
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from "remotion";
 import {GoogleDocs} from "../components/GoogleDocs";
-import {eased} from "../lib/motion";
 
-const finalText = "Clear writing makes complex ideas easier to understand. Technology can support the work, while your judgment shapes the final draft.";
+const finalText = "Clear writing makes ideas easier to follow. Your judgment shapes the final draft.";
 
 export const CompleteScene = () => {
   const frame = useCurrentFrame();
-  const browserScale = eased(frame, [0, 109], [0.98, 0.92]);
-  const browserX = eased(frame, [0, 109], [598, 650]);
-  const doneOpacity = eased(frame, [18, 38], [0, 1]);
-  const doneY = eased(frame, [18, 46], [18, 0]);
+  const copyOpacity = interpolate(frame, [24, 58], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const copyX = interpolate(frame, [24, 70], [30, 0], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const docLeft = interpolate(frame, [0, 66], [320, 90], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const docTop = interpolate(frame, [0, 66], [230, 170], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const docScale = interpolate(frame, [0, 66], [1, 0.7], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const controlOpacity = interpolate(frame, [0, 34], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
-    <AbsoluteFill className="film">
-      <div className="film-grid" />
-      <div className="film-beam" />
-      <FilmCaption
-        step="04"
-        kicker="Done"
-        title="A complete, editable draft."
-        copy="Review it in the document and keep working like normal."
-        style={{top: 258, width: 440}}
-      />
+    <AbsoluteFill className="scene">
       <GoogleDocs
-        floatState="paused"
+        floatOpacity={controlOpacity}
+        floatState={frame < 35 ? "typing" : "hidden"}
+        showCaret
         text={finalText}
         style={{
-          left: browserX,
-          top: 148,
-          scale: browserScale,
+          left: docLeft,
+          top: docTop,
+          scale: docScale,
           transformOrigin: "top left",
         }}
       />
-      <div className="film-done" style={{opacity: doneOpacity, translate: `0 ${doneY}px`}}>
-        <span>✓</span> Draft complete
+      <div className="closing-copy" style={{opacity: copyOpacity, translate: `${copyX}px 0`}}>
+        <div className="closing-rule" />
+        <h1>Start. Pause.<br />Continue.</h1>
+        <p>Auto Typer stays in your control from the first character to the last.</p>
       </div>
-      <DemoPill />
+      <div className="film-corner-note" style={{opacity: copyOpacity}}>Bipass AI · Auto Typer</div>
     </AbsoluteFill>
   );
 };

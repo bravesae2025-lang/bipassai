@@ -67,8 +67,8 @@ export const Pointer = ({
         style={{left: x, top: y, opacity, scale: pointerScale}}
       >
         <path
-          d="M5.5 3.2l13.2 7.6-6.2 1.5-2.4 5.9z"
-          fill="#0d0d0d"
+          d="M4.4 2.8l14.5 8.3-6.6 1.5-2.6 6.4z"
+          fill="#111111"
           stroke="#fff"
           strokeLinejoin="round"
           strokeWidth="1.6"

@@ -1,70 +1,59 @@
-import {AbsoluteFill, useCurrentFrame} from "remotion";
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from "remotion";
 import {AutoTyperPopup} from "../components/AutoTyperPopup";
-import {DemoPill, FilmCaption} from "../components/FilmCaption";
+import {FilmCaption} from "../components/FilmCaption";
 import {GoogleDocs} from "../components/GoogleDocs";
 import {Pointer} from "../components/Pointer";
-import {eased} from "../lib/motion";
 
 export const ConfigureScene = () => {
   const frame = useCurrentFrame();
-  const popupScale = eased(frame, [0, 199], [1.23, 1.3]);
-  const popupX = eased(frame, [0, 199], [22, -10]);
-  const mistype = frame >= 92 ? 2 : 0;
-  const speed = frame >= 50 ? "fast" : "normal";
-  const target = frame >= 132 ? "5m" : "Off";
+  const popupY = interpolate(frame, [0, 289], [18, 0], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
-    <AbsoluteFill className="film">
-      <div className="film-grid" />
-      <div className="film-beam film-beam-right" />
+    <AbsoluteFill className="scene">
       <FilmCaption
-        step="02"
-        kicker="Set your controls"
-        title="Choose the pace before it starts."
-        copy="Speed, optional corrections, and a target time stay in your control."
-        style={{top: 120}}
+        kicker="02 · Set the pace"
+        title="You control the rhythm."
+        copy="Choose a natural speed and keep optional corrections as light as you want."
+        style={{top: 118}}
       />
       <GoogleDocs
         style={{
-          left: 62,
-          top: 450,
-          opacity: 0.46,
-          rotate: "-2deg",
-          scale: 0.69,
+          left: 70,
+          top: 422,
+          opacity: 0.38,
+          scale: 0.68,
           transformOrigin: "top left",
         }}
       />
       <AutoTyperPopup
-        mistype={mistype}
-        speed={speed}
+        speed={frame >= 100 ? "normal" : "slow"}
         state="ready"
-        target={target}
         style={{
-          left: 1230,
-          top: 76,
-          scale: popupScale,
-          translate: `${popupX}px 0`,
+          left: 1260,
+          top: 100,
+          scale: 1.08,
+          translate: `0 ${popupY}px`,
           transformOrigin: "top left",
         }}
       />
       <Pointer
-        clickFrames={[50, 92, 132, 177]}
+        clickFrames={[100, 220]}
         points={[
-          {frame: 8, x: 1770, y: 310},
-          {frame: 42, x: 1680, y: 399},
-          {frame: 50, x: 1680, y: 399},
-          {frame: 77, x: 1410, y: 552},
-          {frame: 92, x: 1532, y: 552},
-          {frame: 118, x: 1405, y: 689},
-          {frame: 132, x: 1405, y: 689},
-          {frame: 162, x: 1500, y: 829},
-          {frame: 177, x: 1500, y: 829},
-          {frame: 195, x: 1500, y: 829},
+          {frame: 34, x: 1740, y: 390},
+          {frame: 76, x: 1541, y: 509},
+          {frame: 100, x: 1541, y: 509},
+          {frame: 154, x: 1541, y: 509},
+          {frame: 204, x: 1541, y: 812},
+          {frame: 220, x: 1541, y: 812},
+          {frame: 258, x: 1541, y: 812},
         ]}
-        visibleFrom={6}
-        visibleUntil={198}
+        visibleFrom={28}
+        visibleUntil={268}
       />
-      <DemoPill />
     </AbsoluteFill>
   );
 };

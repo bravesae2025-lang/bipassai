@@ -1,62 +1,62 @@
-import {AbsoluteFill, useCurrentFrame} from "remotion";
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from "remotion";
 import {AutoTyperPopup} from "../components/AutoTyperPopup";
-import {DemoPill, FilmCaption} from "../components/FilmCaption";
+import {FilmCaption} from "../components/FilmCaption";
 import {GoogleDocs} from "../components/GoogleDocs";
 import {Pointer} from "../components/Pointer";
-import {eased} from "../lib/motion";
 
 export const SelectTextScene = () => {
   const frame = useCurrentFrame();
-  const popupOpacity = eased(frame, [0, 22], [0, 1]);
-  const popupX = eased(frame, [0, 40, 149], [100, 0, -16]);
-  const popupScale = eased(frame, [0, 42, 149], [1.16, 1.25, 1.27]);
-  const browserScale = eased(frame, [0, 149], [0.69, 0.72]);
-  const selectedIndex = frame >= 108 ? 0 : null;
+  const popupX = interpolate(frame, [0, 329], [38, 0], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const documentX = interpolate(frame, [0, 329], [-18, 4], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const selected = frame >= 210;
 
   return (
-    <AbsoluteFill className="film">
-      <div className="film-grid" />
-      <div className="film-beam" />
+    <AbsoluteFill className="scene">
       <FilmCaption
-        step="01"
-        kicker="Choose a draft"
-        title="Your reviewed text is ready."
-        copy="Open the extension and pick the draft you want to type."
+        kicker="01 · Choose the text"
+        title="Start with a reviewed draft."
+        copy="Open Auto Typer and choose the result you want to move into your document."
       />
       <GoogleDocs
         style={{
-          left: 86,
-          top: 370,
-          opacity: 0.52,
-          rotate: "-1.7deg",
-          scale: browserScale,
+          left: 70,
+          top: 422,
+          opacity: 0.38,
+          scale: 0.68,
+          translate: `${documentX}px 0`,
           transformOrigin: "top left",
         }}
       />
       <AutoTyperPopup
-        selectedIndex={selectedIndex}
+        selected={selected}
         state="list"
         style={{
-          left: 1284,
-          top: 116,
-          opacity: popupOpacity,
-          scale: popupScale,
+          left: 1260,
+          top: 100,
+          scale: 1.08,
           translate: `${popupX}px 0`,
           transformOrigin: "top left",
         }}
       />
       <Pointer
-        clickFrames={[108]}
+        clickFrames={[210]}
         points={[
-          {frame: 22, x: 1770, y: 160},
-          {frame: 78, x: 1528, y: 295},
-          {frame: 108, x: 1528, y: 295},
-          {frame: 140, x: 1528, y: 295},
+          {frame: 78, x: 1770, y: 250},
+          {frame: 176, x: 1541, y: 360},
+          {frame: 210, x: 1541, y: 360},
+          {frame: 272, x: 1541, y: 360},
         ]}
-        visibleFrom={18}
-        visibleUntil={146}
+        visibleFrom={68}
+        visibleUntil={286}
       />
-      <DemoPill />
     </AbsoluteFill>
   );
 };

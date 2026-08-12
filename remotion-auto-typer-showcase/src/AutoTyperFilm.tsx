@@ -1,28 +1,28 @@
-import {TransitionSeries, linearTiming} from "@remotion/transitions";
-import {fade} from "@remotion/transitions/fade";
+import {AbsoluteFill, Sequence} from "remotion";
+import {PaperBackdrop} from "./components/PaperBackdrop";
 import {CompleteScene} from "./scenes/CompleteScene";
 import {ConfigureScene} from "./scenes/ConfigureScene";
+import {OpeningScene} from "./scenes/OpeningScene";
 import {SelectTextScene} from "./scenes/SelectTextScene";
 import {TypingScene} from "./scenes/TypingScene";
 
-const transitionTiming = linearTiming({durationInFrames: 18});
-
 export const AutoTyperFilm = () => (
-  <TransitionSeries>
-    <TransitionSeries.Sequence durationInFrames={150} name="Choose text" premountFor={60}>
+  <AbsoluteFill className="film">
+    <PaperBackdrop />
+    <Sequence durationInFrames={180} name="Opening" premountFor={60}>
+      <OpeningScene />
+    </Sequence>
+    <Sequence durationInFrames={330} from={180} name="Choose text" premountFor={60}>
       <SelectTextScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={200} name="Configure" premountFor={60}>
+    </Sequence>
+    <Sequence durationInFrames={300} from={510} name="Set pace" premountFor={60}>
       <ConfigureScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={300} name="Type in Docs" premountFor={60}>
+    </Sequence>
+    <Sequence durationInFrames={840} from={810} name="Type in document" premountFor={60}>
       <TypingScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
-    <TransitionSeries.Sequence durationInFrames={110} name="Complete" premountFor={60}>
+    </Sequence>
+    <Sequence durationInFrames={150} from={1650} name="Finish" premountFor={60}>
       <CompleteScene />
-    </TransitionSeries.Sequence>
-  </TransitionSeries>
+    </Sequence>
+  </AbsoluteFill>
 );

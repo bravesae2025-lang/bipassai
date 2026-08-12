@@ -1,103 +1,70 @@
-import {AbsoluteFill, useCurrentFrame} from "remotion";
-import {AutoTyperPopup} from "../components/AutoTyperPopup";
-import {DemoPill, FilmCaption} from "../components/FilmCaption";
+import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from "remotion";
+import {FilmCaption} from "../components/FilmCaption";
 import {FloatState, GoogleDocs} from "../components/GoogleDocs";
 import {Pointer} from "../components/Pointer";
-import {eased, linear} from "../lib/motion";
 
-const prefix = "Clear writing makes complex ideas easier to understand. ";
-const remainder = "Technology can support the work, while your judgment shapes the final draft.";
-
-const typedChunk = (frame: number, from: number, to: number, text: string) =>
-  text.slice(0, Math.floor(linear(frame, [from, to], [0, text.length])));
+const finalText = "Clear writing makes ideas easier to follow. Your judgment shapes the final draft.";
 
 const getTypedText = (frame: number) => {
-  if (frame < 92) return "";
-  if (frame < 166) return typedChunk(frame, 92, 165, prefix);
-  if (frame < 202) return prefix;
-  if (frame < 214) return `${prefix}${typedChunk(frame, 202, 213, "Teh")}`;
-  if (frame < 220) return `${prefix}Te`;
-  if (frame < 226) return `${prefix}T`;
-  if (frame < 232) return prefix;
-  return `${prefix}${typedChunk(frame, 232, 296, remainder)}`;
+  const characters = Math.floor(
+    interpolate(frame, [230, 780], [0, finalText.length], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }),
+  );
+  return finalText.slice(0, characters);
 };
 
 export const TypingScene = () => {
   const frame = useCurrentFrame();
-  const armedOpacity = eased(frame, [0, 12, 52, 72], [0, 1, 1, 0]);
-  const armedY = eased(frame, [45, 74], [0, -56]);
-  const browserScale = eased(frame, [0, 70, 299], [1.13, 1.2, 1.23]);
-  const browserX = eased(frame, [0, 299], [208, 155]);
-  const browserY = eased(frame, [0, 299], [142, 116]);
-  const floatOpacity = eased(frame, [55, 78], [0, 1]);
-  const floatState: FloatState =
-    frame < 55
-      ? "hidden"
-      : frame < 92
-        ? "start"
-        : frame < 166
-          ? "typing"
-          : frame < 192
-            ? "paused"
-            : "typing";
+  const documentScale = interpolate(frame, [0, 839], [0.975, 1], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const floatState: FloatState = frame < 145 ? "hidden" : frame < 220 ? "start" : "typing";
+  const floatOpacity = interpolate(frame, [145, 174], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
-    <AbsoluteFill className="film">
-      <div className="film-grid" />
+    <AbsoluteFill className="scene">
       <FilmCaption
-        compact
-        step="03"
-        kicker="Type in Google Docs"
-        title="Start. Stop. Continue."
-        copy="The floating control stays within reach while each character is typed."
-        style={{top: 40, left: 70, width: 820}}
+        kicker="03 · Type in the document"
+        title="Click once. Keep writing."
+        copy="The floating control stays close while every character lands at a readable pace."
+        fadeOutFrom={168}
+        style={{left: 76, top: 58, width: 780}}
       />
       <GoogleDocs
         floatOpacity={floatOpacity}
         floatState={floatState}
-        showCaret={frame >= 72}
-        showFocus={frame >= 58 && frame < 88}
+        showCaret={frame >= 112}
+        showFocus={frame >= 100 && frame < 144}
         text={getTypedText(frame)}
         style={{
-          left: browserX,
-          top: browserY,
-          scale: browserScale,
+          left: 320,
+          top: 230,
+          scale: documentScale,
           transformOrigin: "top left",
         }}
       />
-      <AutoTyperPopup
-        mistype={2}
-        speed="fast"
-        state="armed"
-        target="5m"
-        style={{
-          left: 1370,
-          top: 98,
-          opacity: armedOpacity,
-          scale: 0.92,
-          translate: `0 ${armedY}px`,
-          transformOrigin: "top right",
-        }}
-      />
       <Pointer
-        clickFrames={[66, 92, 166, 192]}
+        clickFrames={[112, 220]}
         points={[
-          {frame: 15, x: 1580, y: 300},
-          {frame: 58, x: 670, y: 575},
-          {frame: 66, x: 670, y: 575},
-          {frame: 82, x: 1535, y: 936},
-          {frame: 92, x: 1535, y: 936},
-          {frame: 154, x: 1535, y: 936},
-          {frame: 166, x: 1535, y: 936},
-          {frame: 184, x: 1535, y: 936},
-          {frame: 192, x: 1535, y: 936},
-          {frame: 222, x: 830, y: 645},
-          {frame: 285, x: 1040, y: 664},
+          {frame: 48, x: 860, y: 225},
+          {frame: 96, x: 438, y: 506},
+          {frame: 112, x: 438, y: 506},
+          {frame: 156, x: 438, y: 506},
+          {frame: 202, x: 1436, y: 954},
+          {frame: 220, x: 1436, y: 954},
+          {frame: 268, x: 1436, y: 954},
+          {frame: 620, x: 985, y: 544},
         ]}
-        visibleFrom={12}
-        visibleUntil={292}
+        visibleFrom={42}
+        visibleUntil={650}
       />
-      <DemoPill />
     </AbsoluteFill>
   );
 };

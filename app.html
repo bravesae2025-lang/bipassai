@@ -37,12 +37,15 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=76">
+  <link rel="stylesheet" href="style.css?v=77">
 </head>
 <body class="creation-page">
 
   <div class="bg-dots" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
+  <div class="appbg" id="appbg" aria-hidden="true">
+    <canvas class="appbg-canvas" id="appbg-canvas"></canvas>
+  </div>
 
   <!-- Loading overlay — shown while API call is in progress -->
   <div class="loading-overlay" id="loading-overlay" aria-live="polite">
@@ -177,9 +180,6 @@
   <span id="status-label" style="display:none">Ready</span>
 
   <main class="app-main">
-    <div class="appbg" id="appbg" aria-hidden="true">
-      <canvas class="appbg-canvas" id="appbg-canvas"></canvas>
-    </div>
     <div class="workspace mode-humanize mode-both" id="workspace">
 
       <!-- ── LEFT COLUMN: Humanize / Level Matching (tabbed) ─────── -->

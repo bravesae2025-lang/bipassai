@@ -10921,12 +10921,26 @@ mark.word-changed.hz-flash {
 
 body.creation-page {
   padding-top: 78px;
+  background: #f2f0ec;
 }
 
-/* Keep the floating navigation on a clean surface; the editor canvas below
-   supplies the creation page's visual texture. */
+/* One canvas runs behind both the floating navigation and the editor. This
+   makes the navigation feel like a layer over the workspace, rather than a
+   separate white strip above it. */
 .creation-page > .bg-dots {
   display: none;
+}
+
+.creation-page .appbg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  -webkit-mask-image: none;
+          mask-image: none;
+}
+
+.creation-page .app-main {
+  background: transparent;
 }
 
 .creation-page .navbar {

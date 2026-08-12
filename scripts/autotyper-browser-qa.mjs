@@ -165,6 +165,9 @@ const failures = [];
       videoPaused: video.paused,
       videoReady: video.readyState,
       overflow: document.documentElement.scrollWidth - innerWidth,
+      bodyCursor: getComputedStyle(document.body).cursor,
+      navCursor: getComputedStyle(document.querySelector('a.nav-link')).cursor,
+      canvasCount: document.querySelectorAll('body > canvas').length,
     };
   })()`);
   check(initial.hash === '#auto-typer', 'desktop nav link did not reach #auto-typer', failures);
@@ -173,6 +176,9 @@ const failures = [];
   check(initial.videoReady >= 2, `desktop video readyState is ${initial.videoReady}`, failures);
   check(!initial.videoPaused && initial.videoTime > 0.15, 'desktop film did not autoplay once visible', failures);
   check(initial.overflow <= 1, `desktop horizontal overflow is ${initial.overflow}px`, failures);
+  check(initial.bodyCursor !== 'none', `desktop body cursor is ${initial.bodyCursor}`, failures);
+  check(initial.navCursor === 'pointer', `desktop nav cursor is ${initial.navCursor}`, failures);
+  check(initial.canvasCount === 0, `desktop loaded ${initial.canvasCount} custom cursor canvas`, failures);
 
   await wheelTo(client, '.autotyper-film-card', 112);
   await screenshot(client, 'autotyper-desktop.png');
@@ -254,6 +260,42 @@ const failures = [];
   await closePage(target, client);
 }
 
+// Cursor regression: blogs formerly loaded the custom canvas while app pages
+// hid the system cursor without loading it. Verify both surfaces plus text input.
+{
+  const {client, target} = await openPage({width: 1440, height: 900, deviceScaleFactor: 1, mobile: false});
+  await navigate(client, `${baseUrl}/blog/`);
+  await client.send('Input.dispatchMouseEvent', {type: 'mouseMoved', x: 720, y: 420});
+  await wheel(client, 900);
+  await wait(250);
+  const blogCursor = await evaluate(client, `(() => {
+    const link = document.querySelector('a');
+    return {
+      body: getComputedStyle(document.body).cursor,
+      link: link ? getComputedStyle(link).cursor : null,
+      canvases: document.querySelectorAll('body > canvas').length,
+      cursorScripts: [...document.scripts].filter((script) => /cursor\\.js/.test(script.src)).length,
+    };
+  })()`);
+  check(blogCursor.body !== 'none', `blog body cursor is ${blogCursor.body}`, failures);
+  check(blogCursor.link === 'pointer', `blog link cursor is ${blogCursor.link}`, failures);
+  check(blogCursor.canvases === 0, `blog loaded ${blogCursor.canvases} custom cursor canvas`, failures);
+  check(blogCursor.cursorScripts === 0, `blog loaded ${blogCursor.cursorScripts} custom cursor script`, failures);
+
+  await navigate(client, `${baseUrl}/login.html`);
+  const loginCursor = await evaluate(client, `(() => ({
+    body: getComputedStyle(document.body).cursor,
+    input: getComputedStyle(document.querySelector('input')).cursor,
+    button: getComputedStyle(document.querySelector('button')).cursor,
+    canvases: document.querySelectorAll('body > canvas').length,
+  }))()`);
+  check(loginCursor.body !== 'none', `login body cursor is ${loginCursor.body}`, failures);
+  check(loginCursor.input === 'text', `login input cursor is ${loginCursor.input}`, failures);
+  check(loginCursor.button === 'pointer', `login button cursor is ${loginCursor.button}`, failures);
+  check(loginCursor.canvases === 0, `login loaded ${loginCursor.canvases} custom cursor canvas`, failures);
+  await closePage(target, client);
+}
+
 // Reduced motion: the poster remains, while autoplay and its control are removed.
 {
   const {client, target} = await openPage({width: 1440, height: 900, deviceScaleFactor: 1, mobile: false}, true);
@@ -284,5 +326,5 @@ if (failures.length) {
   for (const failure of failures) console.error(`- ${failure}`);
   process.exitCode = 1;
 } else {
-  console.log('Auto Typer browser QA passed: desktop controls, offscreen pause, mobile scroll stability, and reduced-motion poster.');
+  console.log('Browser QA passed: stable system cursors, desktop controls, offscreen pause, mobile scroll stability, and reduced-motion poster.');
 }

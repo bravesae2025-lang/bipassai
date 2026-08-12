@@ -7226,7 +7226,18 @@ body.drawer-lock { overflow: hidden; }
    Custom cursor (desktop only)
 ───────────────────────────────────────────────────────────── */
 @media (pointer: fine) {
-  * { cursor: none !important; }
+  html,
+  body { cursor: default; }
+
+  :where(a, button, label[for], select, summary, [role="button"]) {
+    cursor: pointer;
+  }
+
+  :where(input:not([type="button"]):not([type="submit"]):not([type="reset"]), textarea, [contenteditable="true"]) {
+    cursor: text;
+  }
+
+  :where(button, input, select):disabled { cursor: not-allowed; }
 }
 
 /* ─────────────────────────────────────────────────────────────

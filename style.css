@@ -10687,13 +10687,17 @@ mark.word-changed.hz-flash {
 }
 
 .autotyper-header {
-  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
   border-top: 1px solid var(--g150);
+  text-align: center;
 }
 
 .autotyper-label {
   display: inline-block;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
   padding: 5px 14px;
   border: 1px solid var(--g150);
   border-radius: 20px;
@@ -10703,64 +10707,68 @@ mark.word-changed.hz-flash {
   letter-spacing: 0.18em;
 }
 
-.autotyper-heading-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.55fr);
-  gap: clamp(40px, 8vw, 120px);
-  align-items: end;
-  margin-bottom: 48px;
-}
-
 .autotyper-title {
   margin: 0;
   color: var(--black);
   font-family: var(--ff-display);
-  font-size: clamp(68px, 9.6vw, 132px);
+  font-size: clamp(58px, 8.4vw, 124px);
   font-weight: 400;
-  letter-spacing: -0.015em;
-  line-height: 0.82;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
 }
 
-.autotyper-intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 22px;
-  padding-bottom: 4px;
-}
+.autotyper-title-line { display: block; }
 
-.autotyper-sub {
-  color: var(--g400);
-  font-size: 13.5px;
-  line-height: 1.7;
+.autotyper-cta {
+  margin-top: clamp(30px, 3.6vw, 44px);
+  margin-bottom: clamp(38px, 4.4vw, 58px);
 }
 
 .autotyper-store-link {
-  min-height: 46px;
+  min-height: 54px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 0 18px;
+  gap: 12px;
+  padding: 0 32px;
   border: 1px solid var(--black);
-  border-radius: var(--r);
+  border-radius: 999px;
   background: var(--black);
   color: #fff;
   font-family: var(--ff-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-decoration: none;
   text-transform: uppercase;
-  transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autotyper-store-arrow {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .autotyper-store-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 18px 38px rgba(0,0,0,0.22);
 }
 
-.autotyper-store-link:active { transform: translateY(0); }
+.autotyper-store-link:hover .autotyper-store-arrow {
+  transform: translate(3px, -3px);
+}
+
+.autotyper-store-link:active {
+  transform: translateY(-1px) scale(0.99);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+  transition-duration: 0.12s;
+}
+
+.autotyper-store-link:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 4px;
+}
 
 .autotyper-film-card {
   background: transparent;
@@ -10881,12 +10889,6 @@ mark.word-changed.hz-flash {
 
 @media (max-width: 860px) {
   .autotyper-section { padding: 68px 24px 78px; }
-  .autotyper-heading-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-bottom: 36px;
-  }
-  .autotyper-intro { max-width: 560px; }
   .autotyper-features { grid-template-columns: 1fr; }
   .autotyper-feature { min-height: 148px; }
 }
@@ -10894,7 +10896,8 @@ mark.word-changed.hz-flash {
 @media (max-width: 600px) {
   .autotyper-section { padding: 56px 20px 66px; }
   .autotyper-header { padding-top: 22px; }
-  .autotyper-title { font-size: clamp(64px, 23vw, 94px); }
+  .autotyper-title { font-size: clamp(46px, 16vw, 78px); }
+  .autotyper-store-link { min-height: 50px; padding: 0 26px; font-size: 10.5px; }
   .autotyper-film-toggle { top: 9px; right: 9px; width: 30px; height: 30px; }
   .autotyper-features { margin-top: 30px; }
 }
@@ -10902,7 +10905,8 @@ mark.word-changed.hz-flash {
 @media (prefers-reduced-motion: reduce) {
   .autotyper-film-video,
   .autotyper-film-toggle { display: none; }
-  .autotyper-store-link { transition: none; }
+  .autotyper-store-link,
+  .autotyper-store-arrow { transition: none; }
 }
 
 /* ─────────────────────────────────────────────────────────

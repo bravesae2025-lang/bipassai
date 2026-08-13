@@ -227,12 +227,13 @@ const failures = [];
       sectionTop: section.top,
       titleLeft: title.left,
       titleRight: title.right,
-      columns: getComputedStyle(document.querySelector('.autotyper-heading-grid')).gridTemplateColumns,
+      ctaLeft: document.querySelector('.autotyper-store-link').getBoundingClientRect().left,
+      ctaRight: document.querySelector('.autotyper-store-link').getBoundingClientRect().right,
       overflow: document.documentElement.scrollWidth - innerWidth,
     };
   })()`);
   check(Math.abs(mobileHeader.sectionTop - 18) < 4, `mobile section landed at ${mobileHeader.sectionTop}px`, failures);
-  check(!mobileHeader.columns.includes(' '), `mobile heading did not collapse to one column (${mobileHeader.columns})`, failures);
+  check(mobileHeader.ctaLeft >= 0 && mobileHeader.ctaRight <= 390, 'mobile CTA is clipped horizontally', failures);
   check(mobileHeader.titleLeft >= 0 && mobileHeader.titleRight <= 390, 'mobile title is clipped horizontally', failures);
   check(mobileHeader.overflow <= 1, `mobile horizontal overflow is ${mobileHeader.overflow}px`, failures);
   await screenshot(client, 'autotyper-mobile-header.png');

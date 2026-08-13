@@ -89,7 +89,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=79">
+  <link rel="stylesheet" href="style.css?v=80">
 </head>
 <body>
 
@@ -526,12 +526,9 @@
 
     <div class="autotyper-film-card" data-anim="slide-up" data-anim-delay="2">
       <div class="autotyper-film-stage">
-        <button class="autotyper-film-toggle" id="autotyper-film-toggle" type="button" aria-label="Pause Auto Typer demo">
-          <span class="autotyper-film-toggle-symbol" aria-hidden="true">Ⅱ</span>
-        </button>
-        <img class="autotyper-film-poster" src="assets/auto-typer-showcase-poster.png?v=flow21" width="1920" height="1080" alt="Auto Typer choosing a reviewed draft beside an editable document">
-        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/auto-typer-showcase-poster.png?v=flow21" aria-label="A continuous demonstration of choosing a draft, setting its pace, and typing into a document">
-          <source src="assets/auto-typer-showcase.mp4?v=flow21" type="video/mp4">
+        <img class="autotyper-film-poster" src="assets/auto-typer-showcase-poster.png?v=hq22" width="2880" height="1620" alt="Auto Typer choosing a reviewed draft beside an editable document">
+        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/auto-typer-showcase-poster.png?v=hq22" aria-label="A continuous demonstration of choosing a draft, setting its pace, and typing into a document">
+          <source src="assets/auto-typer-showcase.mp4?v=hq22" type="video/mp4">
         </video>
       </div>
     </div>
@@ -1534,44 +1531,26 @@
     // Auto Typer film — decode once, play only while visible.
     (function () {
       const video = document.getElementById('autotyper-film');
-      const toggle = document.getElementById('autotyper-film-toggle');
-      const symbol = toggle?.querySelector('.autotyper-film-toggle-symbol');
-      if (!video || !toggle || !symbol) return;
+      if (!video) return;
 
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
       let inView = false;
-      let userPaused = false;
-
-      const syncButton = () => {
-        const paused = video.paused;
-        symbol.textContent = paused ? '▶' : 'Ⅱ';
-        toggle.setAttribute('aria-label', paused ? 'Play Auto Typer demo' : 'Pause Auto Typer demo');
-      };
 
       const playWhenReady = () => {
-        if (!inView || userPaused || reducedMotion.matches || document.hidden) return;
-        video.play().then(syncButton).catch(syncButton);
+        if (!inView || reducedMotion.matches || document.hidden) return;
+        video.play().catch(() => {});
       };
 
-      video.addEventListener('loadeddata', () => {
+      // From cache the video can already have data before this script runs, so
+      // 'loadeddata' would never fire and the film would stay at opacity 0.
+      const markReady = () => {
         video.classList.add('is-ready');
         playWhenReady();
-      }, { once: true });
-      video.addEventListener('play', syncButton);
-      video.addEventListener('pause', syncButton);
+      };
+      if (video.readyState >= 2) markReady();
+      else video.addEventListener('loadeddata', markReady, { once: true });
       video.addEventListener('error', () => {
-        toggle.hidden = true;
         video.classList.remove('is-ready');
-      });
-
-      toggle.addEventListener('click', () => {
-        if (video.paused) {
-          userPaused = false;
-          playWhenReady();
-        } else {
-          userPaused = true;
-          video.pause();
-        }
       });
 
       const observer = new IntersectionObserver(([entry]) => {
@@ -1589,7 +1568,6 @@
         if (reducedMotion.matches) video.pause();
         else playWhenReady();
       });
-      syncButton();
     })();
 
     document.querySelectorAll('.faq-q').forEach(btn => {

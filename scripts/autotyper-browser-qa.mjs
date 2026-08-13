@@ -182,14 +182,9 @@ const failures = [];
 
   await wheelTo(client, '.autotyper-film-card', 112);
   await screenshot(client, 'autotyper-desktop.png');
-  await click(client, '#autotyper-film-toggle');
-  await wait(350);
-  const paused = await evaluate(client, `({paused: document.getElementById('autotyper-film').paused, label: document.getElementById('autotyper-film-toggle').ariaLabel})`);
-  check(paused.paused && paused.label.startsWith('Play'), 'desktop pause control did not pause the film', failures);
-  await click(client, '#autotyper-film-toggle');
   await wait(500);
   const resumed = await evaluate(client, `({paused: document.getElementById('autotyper-film').paused, time: document.getElementById('autotyper-film').currentTime})`);
-  check(!resumed.paused && resumed.time > initial.videoTime, 'desktop play control did not resume the film', failures);
+  check(!resumed.paused && resumed.time > initial.videoTime, 'desktop film stalled while visible', failures);
   await wheel(client, 1900);
   await wait(500);
   const afterScroll = await evaluate(client, `({paused: document.getElementById('autotyper-film').paused, shift: window.__autotyperQaShift || 0})`);
@@ -297,7 +292,7 @@ const failures = [];
   await closePage(target, client);
 }
 
-// Reduced motion: the poster remains, while autoplay and its control are removed.
+// Reduced motion: the poster remains while autoplay is removed.
 {
   const {client, target} = await openPage({width: 1440, height: 900, deviceScaleFactor: 1, mobile: false}, true);
   await navigate(client, `${baseUrl}/#auto-typer`);
@@ -305,16 +300,13 @@ const failures = [];
   const reduced = await evaluate(client, `(() => {
     const video = document.getElementById('autotyper-film');
     const poster = document.querySelector('.autotyper-film-poster');
-    const toggle = document.getElementById('autotyper-film-toggle');
     return {
       videoDisplay: getComputedStyle(video).display,
-      toggleDisplay: getComputedStyle(toggle).display,
       posterDisplay: getComputedStyle(poster).display,
       paused: video.paused,
     };
   })()`);
   check(reduced.videoDisplay === 'none', `reduced-motion video display is ${reduced.videoDisplay}`, failures);
-  check(reduced.toggleDisplay === 'none', `reduced-motion toggle display is ${reduced.toggleDisplay}`, failures);
   check(reduced.posterDisplay !== 'none', 'reduced-motion poster is hidden', failures);
   check(reduced.paused, 'reduced-motion video is still playing', failures);
   await wheelTo(client, '.autotyper-film-card', 112);

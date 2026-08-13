@@ -10774,31 +10774,6 @@ mark.word-changed.hz-flash {
   background: transparent;
 }
 
-.autotyper-film-toggle {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 4;
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgba(0,0,0,0.11);
-  border-radius: 50%;
-  background: rgba(255,255,255,0.82);
-  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-  color: var(--black);
-  cursor: pointer;
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  line-height: 1;
-  transition: background 0.16s ease, transform 0.16s ease;
-}
-
-.autotyper-film-toggle:hover { background: #fff; }
-.autotyper-film-toggle:active { transform: scale(0.92); }
-
 .autotyper-film-stage {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -10898,13 +10873,11 @@ mark.word-changed.hz-flash {
   .autotyper-header { padding-top: 22px; }
   .autotyper-title { font-size: clamp(46px, 16vw, 78px); }
   .autotyper-store-link { min-height: 50px; padding: 0 26px; font-size: 10.5px; }
-  .autotyper-film-toggle { top: 9px; right: 9px; width: 30px; height: 30px; }
   .autotyper-features { margin-top: 30px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .autotyper-film-video,
-  .autotyper-film-toggle { display: none; }
+  .autotyper-film-video { display: none; }
   .autotyper-store-link,
   .autotyper-store-arrow { transition: none; }
 }

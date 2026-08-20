@@ -34,6 +34,7 @@ import {
 const {
   MAX_SAVED_STYLES,
   canCreateStyle,
+  defaultProfileEnabled,
   fromAnalysisPayload,
   readAnalysis,
   removeStyle,
@@ -365,6 +366,9 @@ test('versioned profile storage keeps rich analysis while legacy arrays still lo
 });
 
 test('Writing Profile selector distinguishes presets, profiles, and manual customization', () => {
+  assert.equal(defaultProfileEnabled(null), true);
+  assert.equal(defaultProfileEnabled('true'), true);
+  assert.equal(defaultProfileEnabled('false'), false);
   assert.equal(selectorMode('easy', true), 'easy');
   assert.equal(selectorMode('customize', true), 'profile');
   assert.equal(selectorMode('customize', false), 'customize');
@@ -373,6 +377,8 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   const empty = profileOptionState(null);
   assert.equal(empty.kind, 'empty');
   assert.equal(empty.title, 'Create Writing Profile');
+  assert.equal(empty.meta, '');
+  assert.equal(empty.status, '+');
   assert.deepEqual(empty.values, [0, 0, 0, 0, 0, 0]);
 
   const richStyle = {
@@ -396,8 +402,8 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   };
   assert.deepEqual(profileOptionState(richStyle, true), {
     kind: 'active',
-    title: 'Writing Profile · School essays',
-    meta: 'Academic vocabulary · Tone and sentences ready',
+    title: 'Writing Profile',
+    meta: 'School essays · Academic vocabulary',
     status: 'Active',
     legacy: false,
     values: [7, 1, 0, 0, 0, 0],
@@ -408,7 +414,7 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
     style_summary: JSON.stringify([{ name: 'Vocabulary level', intensity: 4 }]),
   });
   assert.equal(legacy.kind, 'ready');
-  assert.equal(legacy.meta, 'Basic six-trait profile');
+  assert.equal(legacy.meta, 'Old profile');
   assert.equal(legacy.legacy, true);
 });
 

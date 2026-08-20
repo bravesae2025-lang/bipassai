@@ -174,13 +174,17 @@
     return ['easy', 'medium', 'hard'].includes(level) ? level : null;
   }
 
+  function defaultProfileEnabled(storedValue) {
+    return storedValue !== 'false';
+  }
+
   function profileOptionState(style, active = false) {
     if (!style) {
       return {
         kind: 'empty',
         title: 'Create Writing Profile',
-        meta: 'Match your tone, vocabulary, and sentence style',
-        status: 'Set up',
+        meta: '',
+        status: '+',
         legacy: false,
         values: SCORE_KEYS.map(() => 0),
       };
@@ -192,9 +196,9 @@
     const level = vocabularyLabel(analysis?.scores?.wordLevel ?? values.wordLevel);
     return {
       kind: active ? 'active' : 'ready',
-      title: `Writing Profile · ${name}`,
-      meta: legacy ? 'Basic six-trait profile' : `${level} · Tone and sentences ready`,
-      status: active ? 'Active' : 'Use',
+      title: 'Writing Profile',
+      meta: legacy ? name : `${name} · ${level}`,
+      status: active ? 'Active' : 'Select',
       legacy,
       values: SCORE_KEYS.map((key) => values[key]),
     };
@@ -237,6 +241,7 @@
     MAX_SAVED_STYLES,
     SCORE_KEYS: Object.freeze([...SCORE_KEYS]),
     canCreateStyle,
+    defaultProfileEnabled,
     fromAnalysisPayload,
     normalizeProfile,
     profileOptionState,

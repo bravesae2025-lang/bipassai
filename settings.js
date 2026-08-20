@@ -176,7 +176,11 @@ function setupDefaults() {
   });
 
   const mystyleToggle = document.getElementById('pref-mystyle');
-  mystyleToggle.checked = localStorage.getItem(MYSTYLE_KEY) === 'true';
+  // Writing Profile is the primary style whenever one exists. Users can still
+  // opt out here, and an explicit preset choice remains active for the session.
+  mystyleToggle.checked = window.BipassStyleProfile.defaultProfileEnabled(
+    localStorage.getItem(MYSTYLE_KEY)
+  );
   mystyleToggle.addEventListener('change', () => {
     localStorage.setItem(MYSTYLE_KEY, mystyleToggle.checked ? 'true' : 'false');
     showToast(mystyleToggle.checked ? 'Writing Profile on by default' : 'Writing Profile off by default');

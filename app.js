@@ -1,10 +1,3 @@
-const LEVEL_DESCRIPTIONS = {
-  easy:      'Beginner — most aggressive simplification, missing apostrophes, wrong plurals, casual shortcuts',
-  medium:    'Student — moderate simplification, occasional missing comma or apostrophe',
-  hard:      'Academic — light touch, removes obvious AI words only',
-  customize: 'Customized manually — Writing Profile is not applied',
-};
-
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2 };
 const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student', hard: 'Academic' };
 
@@ -1298,7 +1291,6 @@ const humanizeLoader = document.getElementById('humanize-loader');
 const charCount      = document.getElementById('char-count');
 const wordCount      = document.getElementById('word-count');
 const estCost        = document.getElementById('est-cost');
-const levelDesc      = document.getElementById('level-desc');
 const levelLabel     = document.getElementById('level-label');
 const levelGlider    = document.getElementById('level-glider');
 const statusLabel    = document.getElementById('status-label');
@@ -1665,7 +1657,9 @@ function restoreState() {
   if (savedMyStyle !== null) {
     myStyleActive = savedMyStyle === 'true';
   } else {
-    myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
+    myStyleActive = window.BipassStyleProfile.defaultProfileEnabled(
+      localStorage.getItem('bipass_pref_mystyle')
+    );
   }
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
   syncLevelSelectionUi();
@@ -1891,17 +1885,10 @@ function syncLevelSelectionUi() {
   profileBlock?.classList.toggle('profile-is-manual', manualActive);
 
   if (!mode) {
-    if (levelDesc) levelDesc.textContent = 'Choose a level or use your Writing Profile';
     if (levelLabel) levelLabel.textContent = '';
   } else if (mode === 'profile') {
-    const name = savedStyle?.name?.trim() || 'Writing Profile';
-    const rich = !!window.BipassStyleProfile.readAnalysis(savedStyle)?.profile;
-    if (levelDesc) levelDesc.textContent = rich
-      ? `${name} — matching tone, sentence style, and measured writing level`
-      : `${name} — basic measured profile; add tone and sentence details for full matching`;
     if (levelLabel) levelLabel.textContent = 'Writing Profile';
   } else {
-    if (levelDesc) levelDesc.textContent = LEVEL_DESCRIPTIONS[mode];
     if (levelLabel) levelLabel.textContent = mode === 'customize'
       ? 'Customized'
       : LEVEL_LABELS[mode];
@@ -2233,7 +2220,6 @@ function renderStyleList() {
     const level = window.BipassStyleProfile.vocabularyLabel(
       analysis?.scores?.wordLevel ?? window.BipassStyleProfile.sliderValuesFromStyle(style).wordLevel
     );
-    const summary = analysis?.profile?.summary || 'Six measured writing controls are ready to use.';
     const fingerprint = Array.from({ length: 6 }, (_, index) => {
       const intensity = traits[index]?.intensity ?? 0;
       return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)};--profile-opacity:${isActive ? 1 : Math.max(0.24, intensity / 10)};--profile-scale:${Math.max(0.24, intensity / 10)}"></i>`;
@@ -2245,7 +2231,6 @@ function renderStyleList() {
             <input class="style-card-name" type="text"
                    value="${escapeHtml(style.name || '')}"
                    placeholder="Name this profile…" maxlength="30" aria-label="Writing profile name" />
-            ${isActive ? '<span class="profile-applied-state">Applied</span>' : ''}
           </div>
           <div class="style-card-btns">
             <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button" aria-pressed="${isActive}">
@@ -2258,9 +2243,8 @@ function renderStyleList() {
           <span>${escapeHtml(level)}</span>
           <div class="writing-fingerprint writing-fingerprint-card" aria-hidden="true">${fingerprint}</div>
         </div>
-        <p class="profile-card-summary">${escapeHtml(summary)}</p>
         <details class="writing-profile-details">
-          <summary>View profile</summary>
+          <summary>Details</summary>
           <div class="writing-profile-details-body">${renderProfileDetails(style)}</div>
         </details>
       </article>`;

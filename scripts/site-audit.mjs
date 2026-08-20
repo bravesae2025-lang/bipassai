@@ -185,8 +185,9 @@ if (!appHtml.includes('id="level-heading">Styles</div>')
     || appHtml.includes('class="profile-card-summary"')
     || appJs.includes('profile.tone.evidence')
     || appJs.includes('profile.sentenceStyle.evidence')
-    || appJs.includes('class="profile-score-evidence"')) {
-  add(appFile, 'Styles must lead with a concise default Writing Profile, an OR divider, and evidence-free profile cards');
+    || appJs.includes('class="profile-score-evidence"')
+    || appJs.includes('class="profile-card-level-row"')) {
+  add(appFile, 'Styles must keep vocabulary scoring inside Details and use concise, evidence-free collapsed profile cards');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')

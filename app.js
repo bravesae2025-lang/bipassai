@@ -2211,11 +2211,7 @@ function renderStyleList() {
 
   styleCardsList.innerHTML = savedStyles.map(style => {
     const isActive = style.id === activeStyleId && myStyleActive;
-    const analysis = window.BipassStyleProfile.readAnalysis(style);
     const traits = window.BipassStyleProfile.readTraits(style);
-    const level = window.BipassStyleProfile.vocabularyLabel(
-      analysis?.scores?.wordLevel ?? window.BipassStyleProfile.sliderValuesFromStyle(style).wordLevel
-    );
     const fingerprint = Array.from({ length: 6 }, (_, index) => {
       const intensity = traits[index]?.intensity ?? 0;
       return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)};--profile-opacity:${isActive ? 1 : Math.max(0.24, intensity / 10)};--profile-scale:${Math.max(0.24, intensity / 10)}"></i>`;
@@ -2227,6 +2223,7 @@ function renderStyleList() {
             <input class="style-card-name" type="text"
                    value="${escapeHtml(style.name || '')}"
                    placeholder="Name this profile…" maxlength="30" aria-label="Writing profile name" />
+            <div class="writing-fingerprint writing-fingerprint-card" aria-hidden="true">${fingerprint}</div>
           </div>
           <div class="style-card-btns">
             <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button" aria-pressed="${isActive}">
@@ -2234,10 +2231,6 @@ function renderStyleList() {
             </button>
             <button class="style-delete-btn" data-id="${escapeHtml(style.id)}" type="button" aria-label="Delete ${escapeHtml(style.name || 'writing profile')}">✕</button>
           </div>
-        </div>
-        <div class="profile-card-level-row">
-          <span>${escapeHtml(level)}</span>
-          <div class="writing-fingerprint writing-fingerprint-card" aria-hidden="true">${fingerprint}</div>
         </div>
         <details class="writing-profile-details">
           <summary>Details</summary>

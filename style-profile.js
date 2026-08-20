@@ -193,11 +193,10 @@
     const values = sliderValuesFromStyle(style);
     const name = cleanText(style.name, 40) || 'Saved profile';
     const legacy = !analysis?.profile;
-    const level = vocabularyLabel(analysis?.scores?.wordLevel ?? values.wordLevel);
     return {
       kind: active ? 'active' : 'ready',
       title: 'Writing Profile',
-      meta: legacy ? name : `${name} · ${level}`,
+      meta: name,
       status: active ? 'Active' : 'Select',
       legacy,
       values: SCORE_KEYS.map((key) => values[key]),

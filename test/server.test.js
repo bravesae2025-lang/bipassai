@@ -403,7 +403,7 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   assert.deepEqual(profileOptionState(richStyle, true), {
     kind: 'active',
     title: 'Writing Profile',
-    meta: 'School essays · Academic vocabulary',
+    meta: 'School essays',
     status: 'Active',
     legacy: false,
     values: [7, 1, 0, 0, 0, 0],

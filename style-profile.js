@@ -169,6 +169,37 @@
     };
   }
 
+  function selectorMode(level, profileActive) {
+    if (level === 'customize') return profileActive ? 'profile' : 'customize';
+    return ['easy', 'medium', 'hard'].includes(level) ? level : null;
+  }
+
+  function profileOptionState(style, active = false) {
+    if (!style) {
+      return {
+        kind: 'empty',
+        title: 'Create Writing Profile',
+        meta: 'Match your tone, vocabulary, and sentence style',
+        status: 'Set up',
+        legacy: false,
+        values: SCORE_KEYS.map(() => 0),
+      };
+    }
+    const analysis = readAnalysis(style);
+    const values = sliderValuesFromStyle(style);
+    const name = cleanText(style.name, 40) || 'Saved profile';
+    const legacy = !analysis?.profile;
+    const level = vocabularyLabel(analysis?.scores?.wordLevel ?? values.wordLevel);
+    return {
+      kind: active ? 'active' : 'ready',
+      title: `Writing Profile · ${name}`,
+      meta: legacy ? 'Basic six-trait profile' : `${level} · Tone and sentences ready`,
+      status: active ? 'Active' : 'Use',
+      legacy,
+      values: SCORE_KEYS.map((key) => values[key]),
+    };
+  }
+
   function canCreateStyle(styles) {
     return Array.isArray(styles) && styles.length < MAX_SAVED_STYLES;
   }
@@ -208,11 +239,13 @@
     canCreateStyle,
     fromAnalysisPayload,
     normalizeProfile,
+    profileOptionState,
     readAnalysis,
     readTraits,
     removeStyle,
     resultSnapshot,
     serializeSummary,
+    selectorMode,
     sliderValuesFromStyle,
     upsertStyle,
     vocabularyLabel,

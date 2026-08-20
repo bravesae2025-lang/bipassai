@@ -185,7 +185,13 @@ async function init() {
     changeEl.classList.remove('hidden');
   }
 
-  const levelMap = { easy: 'Beginner', medium: 'Student', hard: 'Academic', customize: 'Custom' };
+  const appliedProfile = readAppliedProfile();
+  const levelMap = {
+    easy: 'Beginner',
+    medium: 'Student',
+    hard: 'Academic',
+    customize: appliedProfile ? 'Writing Profile' : 'Customized',
+  };
   const levelKey = sessionStorage.getItem('bipass_level');
   const levelEl  = document.getElementById('editor-level');
   if (levelEl && levelKey && levelMap[levelKey] && flow !== 'humanize' && flow !== 'edit') {
@@ -822,7 +828,12 @@ async function callEditorStream(prompt) {
 }
 
 function buildEditorRevisionPrompt(instruction, text, level) {
-  const levelName = { easy: 'Beginner', medium: 'Student', hard: 'Academic', customize: 'Custom' }[level];
+  const levelName = {
+    easy: 'Beginner',
+    medium: 'Student',
+    hard: 'Academic',
+    customize: readAppliedProfile() ? 'Writing Profile' : 'Customized',
+  }[level];
   const preserveLevel = levelName
     ? `Keep the existing ${levelName} writing level unless the revision comment explicitly asks for a wording change that requires otherwise.`
     : 'Keep the existing writing level.';

@@ -2,10 +2,11 @@ const LEVEL_DESCRIPTIONS = {
   easy:      'Beginner — most aggressive simplification, missing apostrophes, wrong plurals, casual shortcuts',
   medium:    'Student — moderate simplification, occasional missing comma or apostrophe',
   hard:      'Academic — light touch, removes obvious AI words only',
-  customize: 'Custom — pick exactly which human traits to add',
+  customize: 'Customized manually — Writing Profile is not applied',
 };
 
-const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
+const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2 };
+const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student', hard: 'Academic' };
 
 const HUMANIZE_PROMPTS = {
   easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
@@ -1324,6 +1325,13 @@ const styleCardsList   = document.getElementById('style-cards-list');
 const profileEmpty     = document.getElementById('writing-profile-empty');
 const createProfileBtn = document.getElementById('create-profile-btn');
 const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+const profileBlock     = document.getElementById('writing-profile-block');
+const profileOption    = document.getElementById('writing-profile-option');
+const profileOptionTitle = document.getElementById('writing-profile-option-title');
+const profileOptionMeta = document.getElementById('writing-profile-option-meta');
+const profileOptionStatus = document.getElementById('writing-profile-option-status');
+const manualCustomizeBtn = document.getElementById('manual-customize-btn');
+const manualCustomizeState = document.getElementById('manual-customize-state');
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1618,7 +1626,7 @@ function restoreState() {
   const savedLevel = sessionStorage.getItem('bipass_level');
   const preferredLevel = localStorage.getItem('bipass_pref_level');
   // Capture this before selectLevel(): selecting a level intentionally turns
-  // My Style off for manual changes, but it must not overwrite the saved
+  // the Writing Profile off for manual changes, but it must not overwrite the saved
   // startup preference while state is still being restored.
   const savedMyStyle = sessionStorage.getItem('bipass_my_style');
   selectLevel(validLevels.includes(savedLevel)
@@ -1660,6 +1668,7 @@ function restoreState() {
     myStyleActive = localStorage.getItem('bipass_pref_mystyle') === 'true';
   }
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+  syncLevelSelectionUi();
   colCustomize?.classList.add('col-active');
 }
 
@@ -1674,6 +1683,7 @@ function bindEvents() {
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
+  manualCustomizeBtn?.addEventListener('click', () => selectLevel('customize'));
 
   // Mistake sliders
   optionsPanel?.querySelectorAll('.mistake-slider').forEach(slider => {
@@ -1686,8 +1696,7 @@ function bindEvents() {
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
       // Auto-detach from style on manual adjustment — fires once per drag
       if (myStyleActive) {
-        myStyleActive = false;
-        sessionStorage.setItem('bipass_my_style', 'false');
+        deactivateMyStyle();
         renderStyleList();
       }
     });
@@ -1809,29 +1818,126 @@ function bindEvents() {
 
 // ─── Level selection ──────────────────────────────────────────
 
-function selectLevel(level) {
-  deactivateMyStyle();
-  selectedLevel = level || null;
+function applyFingerprintValues(container, values) {
+  if (!container) return;
+  container.querySelectorAll('i').forEach((segment, index) => {
+    const value = Math.max(0, Math.min(10, Number(values?.[index]) || 0));
+    segment.style.setProperty('--profile-scale', String(Math.max(0.24, value / 10)));
+    segment.style.setProperty('--profile-opacity', String(Math.max(0.28, value / 10)));
+  });
+}
 
-  // No selection: clear pills, hide the glider, prompt the user, hide options.
-  if (!level) {
-    pills.forEach(p => p.classList.remove('active'));
-    if (levelGlider) levelGlider.style.opacity = '0';
-    if (levelDesc) levelDesc.textContent = 'Choose a level to get started';
-    if (optionsPanel) optionsPanel.style.display = 'none';
-    document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level: null } }));
+function restartProfileFingerprintMotion() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = [profileOption, document.querySelector('.style-card-active')].filter(Boolean);
+  targets.forEach(target => target.classList.remove('is-settling'));
+  requestAnimationFrame(() => {
+    targets.forEach(target => target.classList.add('is-settling'));
+    setTimeout(() => target.classList.remove('is-settling'), 900);
+  });
+}
+
+function setProfileAnalysisState(analyzing) {
+  profileOption?.classList.toggle('is-analyzing', analyzing);
+  profileBlock?.classList.toggle('is-analyzing', analyzing);
+  profileOption?.setAttribute('aria-busy', String(analyzing));
+  profileBlock?.setAttribute('aria-busy', String(analyzing));
+  if (profileOption) profileOption.disabled = analyzing;
+  if (analyzing) {
+    if (profileOptionTitle) profileOptionTitle.textContent = 'Building Writing Profile';
+    if (profileOptionMeta) profileOptionMeta.textContent = 'Measuring six traits from your samples';
+    if (profileOptionStatus) profileOptionStatus.textContent = 'Analyzing';
+  } else {
+    syncLevelSelectionUi();
+  }
+}
+
+function syncLevelSelectionUi() {
+  const profileActive = myStyleActive && !!savedStyle;
+  const mode = window.BipassStyleProfile.selectorMode(selectedLevel, profileActive);
+  const presetSelected = Object.hasOwn(LEVEL_INDEX, mode);
+  const optionState = window.BipassStyleProfile.profileOptionState(savedStyle, mode === 'profile');
+
+  pills.forEach((pill) => {
+    const active = pill.dataset.level === mode;
+    pill.classList.toggle('active', active);
+    pill.setAttribute('aria-pressed', String(active));
+  });
+
+  if (levelGlider) {
+    levelGlider.style.opacity = presetSelected ? '' : '0';
+    if (presetSelected) levelGlider.style.transform = `translateX(${LEVEL_INDEX[mode] * 100}%)`;
+  }
+  if (optionsPanel) optionsPanel.style.display = mode === 'customize' ? 'flex' : 'none';
+
+  if (profileOptionTitle) profileOptionTitle.textContent = optionState.title;
+  if (profileOptionMeta) profileOptionMeta.textContent = optionState.meta;
+  if (profileOptionStatus) profileOptionStatus.textContent = optionState.status;
+  profileOption?.classList.toggle('is-ready', optionState.kind === 'ready');
+  profileOption?.classList.toggle('is-active', optionState.kind === 'active');
+  profileOption?.classList.toggle('is-empty', optionState.kind === 'empty');
+  profileOption?.classList.toggle('is-legacy', optionState.legacy);
+  profileOption?.setAttribute('aria-pressed', String(mode === 'profile'));
+  applyFingerprintValues(profileOption?.querySelector('.level-profile-fingerprint'), optionState.values);
+  applyFingerprintValues(profileBlock?.querySelector('.writing-profile-head .writing-fingerprint'), optionState.values);
+
+  const manualActive = mode === 'customize';
+  manualCustomizeBtn?.classList.toggle('active', manualActive);
+  manualCustomizeBtn?.setAttribute('aria-pressed', String(manualActive));
+  manualCustomizeBtn?.setAttribute('aria-expanded', String(manualActive));
+  if (manualCustomizeState) manualCustomizeState.textContent = manualActive ? 'Active' : 'Advanced';
+
+  profileBlock?.classList.toggle('profile-is-active', mode === 'profile');
+  profileBlock?.classList.toggle('profile-is-manual', manualActive);
+
+  if (!mode) {
+    if (levelDesc) levelDesc.textContent = 'Choose a level or use your Writing Profile';
+    if (levelLabel) levelLabel.textContent = '';
+  } else if (mode === 'profile') {
+    const name = savedStyle?.name?.trim() || 'Writing Profile';
+    const rich = !!window.BipassStyleProfile.readAnalysis(savedStyle)?.profile;
+    if (levelDesc) levelDesc.textContent = rich
+      ? `${name} — matching tone, sentence style, and measured writing level`
+      : `${name} — basic measured profile; add tone and sentence details for full matching`;
+    if (levelLabel) levelLabel.textContent = 'Writing Profile';
+  } else {
+    if (levelDesc) levelDesc.textContent = LEVEL_DESCRIPTIONS[mode];
+    if (levelLabel) levelLabel.textContent = mode === 'customize'
+      ? 'Customized'
+      : LEVEL_LABELS[mode];
+  }
+}
+
+function announceLevelChange() {
+  const mode = window.BipassStyleProfile.selectorMode(selectedLevel, myStyleActive && !!savedStyle);
+  document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level: selectedLevel, mode } }));
+}
+
+function selectLevel(level) {
+  if (level === 'profile') {
+    if (!savedStyle && savedStyles.length) {
+      savedStyle = savedStyles.find(style => style.id === activeStyleId) || savedStyles[0];
+      activeStyleId = savedStyle?.id || null;
+    }
+    if (!savedStyle) {
+      showProfileCreator();
+      syncLevelSelectionUi();
+      return;
+    }
+    activateMyStyle();
+    renderStyleList();
+    restartProfileFingerprintMotion();
+    document.querySelector('.col-customize')?.classList.remove('needs-level');
     return;
   }
 
-  pills.forEach(p => p.classList.toggle('active', p.dataset.level === level));
-  if (levelGlider) levelGlider.style.opacity = '';
-  levelDesc.textContent  = LEVEL_DESCRIPTIONS[level];
-  levelLabel.textContent = level.charAt(0).toUpperCase() + level.slice(1);
-  levelGlider.style.transform = `translateX(${LEVEL_INDEX[level] * 100}%)`;
-  optionsPanel.style.display = level === 'customize' ? 'flex' : 'none';
-  // A valid pick clears the "pick a level" error state.
-  document.querySelector('.col-customize')?.classList.remove('needs-level');
-  document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level } }));
+  const hadActiveProfile = myStyleActive;
+  deactivateMyStyle();
+  selectedLevel = level || null;
+  syncLevelSelectionUi();
+  if (hadActiveProfile && savedStyles.length) renderStyleList();
+  if (level) document.querySelector('.col-customize')?.classList.remove('needs-level');
+  announceLevelChange();
 }
 
 // ─── Writing Profile ──────────────────────────────────────────
@@ -1855,6 +1961,7 @@ function closeProfileCreator() {
   if (myStyleInputs) myStyleInputs.hidden = true;
   if (savedStyles.length) renderStyleList();
   else if (profileEmpty) profileEmpty.style.display = '';
+  syncLevelSelectionUi();
 }
 
 function resetProfileCreatorForm() {
@@ -1872,13 +1979,20 @@ function resetProfileCreatorForm() {
 }
 
 function activateMyStyle() {
-  if (savedStyle && selectedLevel !== 'customize') selectLevel('customize');
+  if (!savedStyle) return false;
+  selectedLevel = 'customize';
   myStyleActive = !!savedStyle;
+  sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+  setSlidersFromStyle(savedStyle);
+  syncLevelSelectionUi();
+  announceLevelChange();
+  return true;
 }
 
 function deactivateMyStyle() {
   myStyleActive = false;
+  sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 
@@ -2122,7 +2236,7 @@ function renderStyleList() {
     const summary = analysis?.profile?.summary || 'Six measured writing controls are ready to use.';
     const fingerprint = Array.from({ length: 6 }, (_, index) => {
       const intensity = traits[index]?.intensity ?? 0;
-      return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)}"></i>`;
+      return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)};--profile-opacity:${isActive ? 1 : Math.max(0.24, intensity / 10)};--profile-scale:${Math.max(0.24, intensity / 10)}"></i>`;
     }).join('');
     return `
       <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
@@ -2134,7 +2248,7 @@ function renderStyleList() {
             ${isActive ? '<span class="profile-applied-state">Applied</span>' : ''}
           </div>
           <div class="style-card-btns">
-            <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button">
+            <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button" aria-pressed="${isActive}">
               ${isActive ? 'Using' : 'Use'}
             </button>
             <button class="style-delete-btn" data-id="${escapeHtml(style.id)}" type="button" aria-label="Delete ${escapeHtml(style.name || 'writing profile')}">✕</button>
@@ -2166,12 +2280,13 @@ function renderStyleList() {
       const isAlreadyActive = btn.classList.contains('active');
 
       if (isAlreadyActive) {
-        // Full deactivate — reset sliders to None
-        myStyleActive = false;
-        sessionStorage.setItem('bipass_my_style', 'false');
+        // Detaching leaves the compatible custom request mode active, but the
+        // UI and result metadata now describe it honestly as manual.
+        deactivateMyStyle();
         saveStoredStyles();
-        renderStyleList();
         resetSlidersToNone();
+        renderStyleList();
+        announceLevelChange();
       } else {
         // Activate — load style into sliders
         activeStyleId = id;
@@ -2179,7 +2294,7 @@ function renderStyleList() {
         saveStoredStyles();
         activateMyStyle();
         renderStyleList();
-        if (savedStyle) setSlidersFromStyle(savedStyle);
+        restartProfileFingerprintMotion();
       }
     });
   });
@@ -2194,12 +2309,16 @@ function renderStyleList() {
         savedStyles = remaining.styles;
         activeStyleId = remaining.activeId;
         savedStyle = remaining.activeStyle;
-        if (removedActiveProfile) deactivateMyStyle();
+        if (removedActiveProfile) {
+          deactivateMyStyle();
+          resetSlidersToNone();
+        }
         saveStoredStyles();
         if (savedStyles.length === 0) {
           deactivateMyStyle();
           styleCardsList.style.display = 'none';
           if (profileEmpty) profileEmpty.style.display = '';
+          syncLevelSelectionUi();
         } else {
           renderStyleList();
         }
@@ -2221,6 +2340,7 @@ function renderStyleList() {
     }
     showProfileCreator();
   });
+  syncLevelSelectionUi();
 }
 
 async function loadSavedStyle(session) {
@@ -2243,8 +2363,9 @@ async function loadSavedStyle(session) {
       renderStyleList();
       if (myStyleActive && savedStyle) {
         activateMyStyle();
-        setSlidersFromStyle(savedStyle);
       }
+    } else {
+      syncLevelSelectionUi();
     }
     return;
   }
@@ -2265,10 +2386,13 @@ async function loadSavedStyle(session) {
       renderStyleList();
       if (myStyleActive) {
         activateMyStyle();
-        setSlidersFromStyle(savedStyle);
       }
+    } else {
+      syncLevelSelectionUi();
     }
-  } catch (_) {}
+  } catch (_) {
+    syncLevelSelectionUi();
+  }
 }
 
 async function analyzeStyle() {
@@ -2309,6 +2433,8 @@ async function analyzeStyle() {
   analyzeLoader.style.display = '';
   analyzeLoader.textContent   = 'Analyzing.';
   analyzeStyleBtn.disabled    = true;
+  setProfileAnalysisState(true);
+  let profileCompleted = false;
 
   let _dotCount = 1;
   const _dotsTimer = setInterval(() => {
@@ -2349,11 +2475,11 @@ async function analyzeStyle() {
     profileUpgradeId = null;
     activateMyStyle();
     renderStyleList();
+    profileCompleted = true;
     const nameInput = document.getElementById('style-name-input');
     if (nameInput) nameInput.value = '';
     resetProfileCreatorForm();
     showToast(upgradingStyle ? 'Writing profile updated and applied' : 'Writing profile created and applied');
-    setSlidersFromStyle(newStyle);
 
     try {
       const session = await window.bipassAuth.getSession();
@@ -2375,6 +2501,8 @@ async function analyzeStyle() {
     analyzeLabel.style.display  = '';
     analyzeLoader.style.display = 'none';
     analyzeStyleBtn.disabled    = false;
+    setProfileAnalysisState(false);
+    if (profileCompleted) restartProfileFingerprintMotion();
   }
 }
 
@@ -3405,10 +3533,10 @@ function startTour() {
   }
 
   document.addEventListener('bipass-level-change', (event) => {
-    const customSelected = event.detail?.level === 'customize';
+    const customSelected = event.detail?.mode === 'customize';
 
     if (customSelected) {
-      // Make room for the taller Custom controls without overwriting the
+      // Make room for the taller manual controls without overwriting the
       // user's persisted minimize/expand preference.
       if (!collapsed) {
         collapsed = true;
@@ -3418,7 +3546,7 @@ function startTour() {
       return;
     }
 
-    // Reopen only when Custom caused the collapse. A manual click on the minus
+    // Reopen only when manual controls caused the collapse. A click on the minus
     // button clears this flag, so the user's own collapsed choice is preserved.
     if (autoCollapsedForCustom) {
       collapsed = false;

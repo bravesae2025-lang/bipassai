@@ -38,6 +38,8 @@ const {
   readAnalysis,
   removeStyle,
   resultSnapshot,
+  profileOptionState,
+  selectorMode,
   serializeSummary,
   sliderValuesFromStyle,
   upsertStyle,
@@ -360,6 +362,54 @@ test('versioned profile storage keeps rich analysis while legacy arrays still lo
     styleProfile: analysis.profile,
   });
   assert.equal(resultSnapshot({ style_summary: JSON.stringify(traits) }), null);
+});
+
+test('Writing Profile selector distinguishes presets, profiles, and manual customization', () => {
+  assert.equal(selectorMode('easy', true), 'easy');
+  assert.equal(selectorMode('customize', true), 'profile');
+  assert.equal(selectorMode('customize', false), 'customize');
+  assert.equal(selectorMode('unknown', false), null);
+
+  const empty = profileOptionState(null);
+  assert.equal(empty.kind, 'empty');
+  assert.equal(empty.title, 'Create Writing Profile');
+  assert.deepEqual(empty.values, [0, 0, 0, 0, 0, 0]);
+
+  const richStyle = {
+    id: 'profile-1',
+    name: 'School essays',
+    style_summary: serializeSummary([
+      { name: 'Vocabulary level', intensity: 7 },
+      { name: 'Grammar mistakes', intensity: 1 },
+    ], {
+      version: 3,
+      scores: { wordLevel: 7, grammar: 1, tense: 0, punct: 0, caps: 0, spelling: 0 },
+      evidence: {},
+      profile: {
+        summary: 'Clear academic writing with a direct voice.',
+        tone: { label: 'Direct', evidence: 'Claims are stated plainly.' },
+        sentenceStyle: { label: 'Compact', evidence: 'Sentences stay focused.' },
+        strengths: [],
+        habits: [],
+      },
+    }),
+  };
+  assert.deepEqual(profileOptionState(richStyle, true), {
+    kind: 'active',
+    title: 'Writing Profile · School essays',
+    meta: 'Academic vocabulary · Tone and sentences ready',
+    status: 'Active',
+    legacy: false,
+    values: [7, 1, 0, 0, 0, 0],
+  });
+
+  const legacy = profileOptionState({
+    name: 'Old profile',
+    style_summary: JSON.stringify([{ name: 'Vocabulary level', intensity: 4 }]),
+  });
+  assert.equal(legacy.kind, 'ready');
+  assert.equal(legacy.meta, 'Basic six-trait profile');
+  assert.equal(legacy.legacy, true);
 });
 
 test('browser rejects incomplete AI profiles instead of silently using stale sliders', () => {

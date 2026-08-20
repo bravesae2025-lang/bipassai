@@ -170,11 +170,21 @@ if (!appHtml.includes('id="writing-profile-block"')
     || appHtml.indexOf('id="writing-profile-block"') < appHtml.indexOf('id="level-box"')) {
   add(appFile, 'Writing Profile must be an always-visible block below Level Matching');
 }
+if (!appHtml.includes('id="writing-profile-option"')
+    || !appHtml.includes('data-level="profile"')
+    || !appHtml.includes('id="manual-customize-btn"')
+    || appHtml.includes('level-btn-custom')) {
+  add(appFile, 'Level Matching must feature Writing Profile and keep manual controls secondary');
+}
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')
-    || !appJs.includes('if (removedActiveProfile) deactivateMyStyle()')
-    || !appJs.includes("if (savedStyle && selectedLevel !== 'customize') selectLevel('customize')")) {
+    || !appJs.includes('if (removedActiveProfile) {')
+    || !appJs.includes('sessionStorage.removeItem(APPLIED_PROFILE_KEY)')
+    || !appJs.includes("selectorMode(selectedLevel, profileActive)")) {
   add(appJsFile, 'Writing Profile usage and active-profile deletion must keep result state honest');
+}
+if (!editorJs.includes("customize: appliedProfile ? 'Writing Profile' : 'Customized'")) {
+  add(editorJsFile, 'result metadata must distinguish profile matching from manual customization');
 }
 if (!editorHtml.includes('id="result-profile-wrap"')
     || !/<button class="result-profile-strip"[^>]*aria-expanded="false"[^>]*aria-controls="result-profile-popover"/.test(editorHtml)
@@ -186,7 +196,8 @@ if (!editorJs.includes("sessionStorage.removeItem(APPLIED_PROFILE_KEY)")
   add(editorJsFile, 'non-profile revisions and History results must clear stale profile indicators');
 }
 if (!styleCss.includes('@media (prefers-reduced-motion: reduce)')
-    || !styleCss.includes('.result-profile-wrap.is-revealed .result-profile-fingerprint i { animation: none;')) {
+    || !styleCss.includes('.result-profile-wrap.is-revealed .result-profile-fingerprint i { animation: none;')
+    || !styleCss.includes('.level-btn-profile.is-analyzing .level-profile-fingerprint i,')) {
   add(styleFile, 'Writing Profile motion must have a static reduced-motion state');
 }
 const restoreStart = appJs.indexOf('function restoreState()');

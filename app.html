@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=74">
+  <link rel="stylesheet" href="style.css?v=75">
 </head>
 <body class="creation-page">
 
@@ -344,14 +344,27 @@
           <div class="control-block" id="level-box">
             <div class="control-head" id="level-heading">Level Matching</div>
             <div class="level-presets-label">Presets</div>
-            <div class="level-track-wrap">
-              <div class="level-track" role="group" aria-label="Level">
+            <div class="level-track-wrap" role="group" aria-label="Level Matching method">
+              <div class="level-track">
                 <div class="level-glider" id="level-glider"></div>
-                <button class="level-btn" data-level="easy">Beginner</button>
-                <button class="level-btn" data-level="medium">Student</button>
-                <button class="level-btn" data-level="hard">Academic</button>
+                <button class="level-btn" type="button" data-level="easy" aria-pressed="false">Beginner</button>
+                <button class="level-btn" type="button" data-level="medium" aria-pressed="false">Student</button>
+                <button class="level-btn" type="button" data-level="hard" aria-pressed="false">Academic</button>
               </div>
-              <button class="level-btn level-btn-custom" data-level="customize">Custom</button>
+              <button class="level-btn level-btn-profile" id="writing-profile-option" type="button" data-level="profile" aria-pressed="false" aria-controls="writing-profile-block">
+                <span class="level-profile-fingerprint" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i>
+                </span>
+                <span class="level-profile-copy">
+                  <strong id="writing-profile-option-title">Create Writing Profile</strong>
+                  <span id="writing-profile-option-meta">Match your tone, vocabulary, and sentence style</span>
+                </span>
+                <span class="level-profile-status" id="writing-profile-option-status">Set up</span>
+              </button>
+              <button class="level-manual-btn" id="manual-customize-btn" type="button" aria-pressed="false" aria-controls="options-panel">
+                <span>Fine-tune manually</span>
+                <span class="level-manual-state" id="manual-customize-state">Advanced</span>
+              </button>
             </div>
             <p class="level-desc" id="level-desc">Simple words, short sentences — like a beginner English speaker wrote it</p>
           </div>
@@ -511,14 +524,18 @@
                     <div class="rec-lv-sublabel">Presets</div>
                     <div class="rec-lv-track-wrap">
                       <div class="rec-lv-track">
-                        <span class="rec-lv-glider"></span>
-                        <span class="rec-lv-btn active">Beginner</span>
+                        <span class="rec-lv-glider rec-lv-glider-hidden"></span>
+                        <span class="rec-lv-btn">Beginner</span>
                         <span class="rec-lv-btn">Student</span>
                         <span class="rec-lv-btn">Academic</span>
                       </div>
-                      <span class="rec-lv-btn rec-lv-custom">Custom</span>
+                      <span class="rec-lv-profile active">
+                        <span class="rec-lv-fingerprint" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                        <strong>Writing Profile · School essays</strong>
+                        <em>Active</em>
+                      </span>
                     </div>
-                    <div class="rec-lv-desc">Simple words, short sentences — like a beginner English speaker wrote it</div>
+                    <div class="rec-lv-desc">Matches your vocabulary, tone, and sentence style.</div>
                     <div class="rec-lv-lock">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                       Free rewrite
@@ -739,9 +756,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=3"></script>
+  <script src="style-profile.js?v=4"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=31"></script>
+  <script src="app.js?v=32"></script>
 
   <script>
   /* Mode dropdown — switch the editor card between rewriting and extension modes */

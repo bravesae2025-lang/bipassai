@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=76">
+  <link rel="stylesheet" href="style.css?v=77">
 </head>
 <body class="creation-page">
 
@@ -349,12 +349,15 @@
                   <i></i><i></i><i></i><i></i><i></i><i></i>
                 </span>
                 <span class="level-profile-copy">
-                  <strong id="writing-profile-option-title">Create Writing Profile</strong>
+                  <span class="level-profile-title-row">
+                    <strong id="writing-profile-option-title">Create Writing Profile</strong>
+                    <span class="level-profile-default">Default</span>
+                  </span>
                   <span id="writing-profile-option-meta"></span>
                 </span>
                 <span class="level-profile-status" id="writing-profile-option-status">+</span>
               </button>
-              <div class="style-presets-head" aria-hidden="true"><span>Presets</span></div>
+              <div class="style-presets-head" aria-hidden="true"><span>OR</span></div>
               <div class="level-track">
                 <div class="level-glider" id="level-glider"></div>
                 <button class="level-btn" type="button" data-level="easy" aria-pressed="false">Beginner</button>
@@ -428,8 +431,13 @@
 
             <div class="writing-profile-empty" id="writing-profile-empty">
               <button class="writing-profile-create" id="create-profile-btn" type="button">
-                <span>Create my writing profile</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                <span class="create-profile-fingerprint" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i>
+                </span>
+                <strong>Create Writing Profile</strong>
+                <span class="create-profile-arrow" aria-hidden="true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </span>
               </button>
             </div>
 
@@ -749,7 +757,7 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=5"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=33"></script>
+  <script src="app.js?v=34"></script>
 
   <script>
   /* Mode dropdown — switch the editor card between rewriting and extension modes */

@@ -178,9 +178,15 @@ if (!appHtml.includes('id="writing-profile-option"')
 }
 if (!appHtml.includes('id="level-heading">Styles</div>')
     || appHtml.indexOf('id="writing-profile-option"') > appHtml.indexOf('class="level-track"')
+    || !appHtml.includes('class="style-presets-head" aria-hidden="true"><span>OR</span>')
+    || !appHtml.includes('class="level-profile-default">Default</span>')
+    || !appHtml.includes('class="create-profile-fingerprint"')
     || appHtml.includes('class="writing-profile-sub"')
-    || appHtml.includes('class="profile-card-summary"')) {
-  add(appFile, 'Styles must lead with a concise Writing Profile before the preset row');
+    || appHtml.includes('class="profile-card-summary"')
+    || appJs.includes('profile.tone.evidence')
+    || appJs.includes('profile.sentenceStyle.evidence')
+    || appJs.includes('class="profile-score-evidence"')) {
+  add(appFile, 'Styles must lead with a concise default Writing Profile, an OR divider, and evidence-free profile cards');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')

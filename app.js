@@ -2165,19 +2165,17 @@ function renderProfileDetails(style) {
   const insightList = (title, items) => !items.length ? '' : `
     <div class="profile-insight-group">
       <span class="profile-detail-label">${title}</span>
-      <ul>${items.map((item) => `<li><strong>${escapeHtml(item.label)}</strong>${item.evidence ? `<span>${escapeHtml(item.evidence)}</span>` : ''}</li>`).join('')}</ul>
+      <ul>${items.map((item) => `<li><strong>${escapeHtml(item.label)}</strong></li>`).join('')}</ul>
     </div>`;
   const scoreKeys = window.BipassStyleProfile.SCORE_KEYS;
   const scoreRows = traits.map((trait, index) => {
     const score = trait.intensity;
     const key = scoreKeys[index];
     const label = key === 'wordLevel' ? wordLevelLabel(score) : traitIntensityLabel(score);
-    const evidence = analysis.evidence?.[key] || '';
     return `
       <div class="profile-score-row">
         <div class="profile-score-head"><span>${escapeHtml(trait.name)}</span><strong>${escapeHtml(label)}</strong></div>
         <span class="profile-score-track"><i style="--profile-score:${score * 10}%"></i></span>
-        ${evidence ? `<span class="profile-score-evidence">${escapeHtml(evidence)}</span>` : ''}
       </div>`;
   }).join('');
 
@@ -2186,12 +2184,10 @@ function renderProfileDetails(style) {
       <div class="profile-voice-item">
         <span class="profile-detail-label">Tone</span>
         <strong>${escapeHtml(profile.tone.label)}</strong>
-        ${profile.tone.evidence ? `<p>${escapeHtml(profile.tone.evidence)}</p>` : ''}
       </div>
       <div class="profile-voice-item">
         <span class="profile-detail-label">Sentence style</span>
         <strong>${escapeHtml(profile.sentenceStyle.label)}</strong>
-        ${profile.sentenceStyle.evidence ? `<p>${escapeHtml(profile.sentenceStyle.evidence)}</p>` : ''}
       </div>
     </div>
     <div class="profile-insights">
@@ -2347,6 +2343,7 @@ async function loadSavedStyle(session) {
       renderStyleList();
       if (myStyleActive && savedStyle) {
         activateMyStyle();
+        restartProfileFingerprintMotion();
       }
     } else {
       syncLevelSelectionUi();
@@ -2370,6 +2367,7 @@ async function loadSavedStyle(session) {
       renderStyleList();
       if (myStyleActive) {
         activateMyStyle();
+        restartProfileFingerprintMotion();
       }
     } else {
       syncLevelSelectionUi();

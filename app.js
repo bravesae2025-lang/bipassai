@@ -1038,6 +1038,21 @@ function requireLevel() {
   return false;
 }
 
+const APPLIED_PROFILE_KEY = 'bipass_applied_profile';
+
+function activeStyleProfilePayload() {
+  if (!myStyleActive || !savedStyle || selectedLevel !== 'customize') return null;
+  return window.BipassStyleProfile.readAnalysis(savedStyle)?.profile || null;
+}
+
+function storeAppliedProfile(confirmed) {
+  const snapshot = confirmed && savedStyle
+    ? window.BipassStyleProfile.resultSnapshot(savedStyle)
+    : null;
+  if (snapshot) sessionStorage.setItem(APPLIED_PROFILE_KEY, JSON.stringify(snapshot));
+  else sessionStorage.removeItem(APPLIED_PROFILE_KEY);
+}
+
 async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
@@ -1052,6 +1067,7 @@ async function adjustLevel() {
     spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
     wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
   });
+  const styleProfile = activeStyleProfilePayload();
 
   setLoading(true, 'Matching level…');
   try {
@@ -1063,6 +1079,7 @@ async function adjustLevel() {
         text,
         level: selectedLevel,
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+        styleProfile: styleProfile || undefined,
       }),
     });
     // Out of credits — show the warning and STOP. Do not fall through to the
@@ -1105,6 +1122,7 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
+    storeAppliedProfile(data.profileApplied === true);
     sessionStorage.removeItem('bipass_result_id');
     window.location.href = 'editor.html';
   } catch (err) {
@@ -1117,7 +1135,7 @@ async function adjustLevel() {
 // ─── Humanize (RewriteAI) ─────────────────────────────────────
 // Stash the result and open the editor (shared by both humanize paths).
 // flow: 'humanize' | 'both' — tells the editor which result UI to render.
-function _goEditor(input, result, html, changed, flow) {
+function _goEditor(input, result, html, changed, flow, profileApplied = false) {
   sessionStorage.setItem('bipass_input',        input);
   sessionStorage.setItem('bipass_result',       result);
   sessionStorage.setItem('bipass_result_html',  html);
@@ -1130,6 +1148,7 @@ function _goEditor(input, result, html, changed, flow) {
   sessionStorage.setItem('bipass_change_count', String(changed));
   sessionStorage.setItem('bipass_wc',           String(countWords(input)));
   sessionStorage.setItem('bipass_level',        selectedLevel || '');
+  storeAppliedProfile(profileApplied);
   sessionStorage.removeItem('bipass_result_id');
   window.location.href = 'editor.html';
 }
@@ -1155,6 +1174,7 @@ async function runHumanize() {
     spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
     wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
   });
+  const styleProfile = activeStyleProfilePayload();
 
   // "both" gets a manual, progress-driven loading sequence; humanize-only keeps the default phases.
   if (mode === 'both') {
@@ -1208,6 +1228,7 @@ async function runHumanize() {
         text: humanized,
         level: selectedLevel,
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+        styleProfile: styleProfile || undefined,
         // Receipt from step 1 — the discounted combined rate is already paid,
         // so the level-matching pass runs without charging a second time.
         continuation: hData.continuation,
@@ -1239,7 +1260,7 @@ async function runHumanize() {
     // switcher (final highlights are level-matching edits vs this draft).
     sessionStorage.setItem('bipass_humanized', humanized);
     sessionStorage.setItem('bipass_humanized_html', _buildDiffHtml(text, humanized, 'rephrase'));
-    _goEditor(text, cleanRes, htmlDiff, changed, 'both');
+    _goEditor(text, cleanRes, htmlDiff, changed, 'both', alData.profileApplied === true);
   } catch (err) {
     setLoading(false);
     showToast(err.message || 'Something went wrong. Please try again.');
@@ -1257,6 +1278,8 @@ let myStyleActive          = false;
 let savedStyle             = null; // points to the active style in savedStyles
 let savedStyles            = [];   // array of {id, name, style_summary, style_prompt}
 let activeStyleId          = null;
+let profileUpgradeId       = null;
+let profileSampleCount     = 1;
 let currentAbortController = null;
 
 // ─── Elements ─────────────────────────────────────────────────
@@ -1298,6 +1321,9 @@ const analyzeLabel     = document.getElementById('analyze-label');
 const analyzeLoader    = document.getElementById('analyze-loader');
 const myStyleInputs    = document.getElementById('my-style-inputs');
 const styleCardsList   = document.getElementById('style-cards-list');
+const profileEmpty     = document.getElementById('writing-profile-empty');
+const createProfileBtn = document.getElementById('create-profile-btn');
+const cancelProfileBtn = document.getElementById('cancel-profile-btn');
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1676,9 +1702,9 @@ function bindEvents() {
     showToast('Cancelled');
   });
 
-  // My Style events
-  let sampleCount = 1;
-
+  // Writing Profile events
+  createProfileBtn?.addEventListener('click', () => showProfileCreator());
+  cancelProfileBtn?.addEventListener('click', closeProfileCreator);
   function updateSampleScrollState() {
     if (!sampleContainer || !sampleScrollShell) return;
     const overflowing = sampleContainer.scrollHeight > sampleContainer.clientHeight + 1;
@@ -1700,7 +1726,7 @@ function bindEvents() {
 
   function updateDeleteVisibility() {
     const btns = sampleContainer.querySelectorAll('.sample-delete-btn');
-    btns.forEach(b => { b.style.visibility = sampleCount <= 1 ? 'hidden' : ''; });
+    btns.forEach(b => { b.style.visibility = profileSampleCount <= 1 ? 'hidden' : ''; });
   }
 
   function makeSampleDeleteBtn(row) {
@@ -1710,9 +1736,9 @@ function bindEvents() {
     del.setAttribute('aria-label', 'Remove sample');
     del.textContent = '×';
     del.addEventListener('click', () => {
-      if (sampleCount <= 1) return;
+      if (profileSampleCount <= 1) return;
       row.remove();
-      sampleCount--;
+      profileSampleCount--;
       addSampleBtn.style.display = '';
       updateDeleteVisibility();
       requestAnimationFrame(updateSampleScrollState);
@@ -1723,9 +1749,9 @@ function bindEvents() {
   // Wire delete on the initial first sample
   document.querySelectorAll('.sample-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (sampleCount <= 1) return;
+      if (profileSampleCount <= 1) return;
       btn.closest('.sample-row').remove();
-      sampleCount--;
+      profileSampleCount--;
       addSampleBtn.style.display = '';
       updateDeleteVisibility();
       requestAnimationFrame(updateSampleScrollState);
@@ -1739,15 +1765,15 @@ function bindEvents() {
   window.addEventListener('resize', updateSampleScrollState);
 
   addSampleBtn.addEventListener('click', () => {
-    if (sampleCount >= 5) return;
-    sampleCount++;
+    if (profileSampleCount >= 5) return;
+    profileSampleCount++;
     const row = document.createElement('div');
     row.className = 'sample-row';
     const ta = document.createElement('textarea');
     ta.className = 'style-sample-textarea';
-    ta.id = `style-sample-${sampleCount}`;
-    ta.setAttribute('aria-label', `Writing sample ${sampleCount}`);
-    ta.placeholder = `Paste sample ${sampleCount}…`;
+    ta.id = `style-sample-${profileSampleCount}`;
+    ta.setAttribute('aria-label', `Writing sample ${profileSampleCount}`);
+    ta.placeholder = `Paste sample ${profileSampleCount}…`;
     ta.rows = 4;
     row.appendChild(ta);
     row.appendChild(makeSampleDeleteBtn(row));
@@ -1756,7 +1782,7 @@ function bindEvents() {
     wc.textContent = '50 Words min';
     row.appendChild(wc);
     sampleContainer.appendChild(row);
-    if (sampleCount >= 5) addSampleBtn.style.display = 'none';
+    if (profileSampleCount >= 5) addSampleBtn.style.display = 'none';
     updateDeleteVisibility();
     revealNewestSample();
   });
@@ -1808,9 +1834,45 @@ function selectLevel(level) {
   document.dispatchEvent(new CustomEvent('bipass-level-change', { detail: { level } }));
 }
 
-// ─── My Style ─────────────────────────────────────────────────
+// ─── Writing Profile ──────────────────────────────────────────
+
+function showProfileCreator(style = null) {
+  profileUpgradeId = style?.id || null;
+  if (profileEmpty) profileEmpty.style.display = 'none';
+  if (styleCardsList) styleCardsList.style.display = 'none';
+  if (myStyleInputs) myStyleInputs.hidden = false;
+  const nameInput = document.getElementById('style-name-input');
+  if (nameInput) {
+    nameInput.value = style?.name || '';
+    nameInput.placeholder = style ? 'Updated profile name' : 'Profile name';
+    requestAnimationFrame(() => nameInput.focus());
+  }
+  if (analyzeLabel) analyzeLabel.textContent = style ? 'Update Writing Profile' : 'Create Writing Profile';
+}
+
+function closeProfileCreator() {
+  profileUpgradeId = null;
+  if (myStyleInputs) myStyleInputs.hidden = true;
+  if (savedStyles.length) renderStyleList();
+  else if (profileEmpty) profileEmpty.style.display = '';
+}
+
+function resetProfileCreatorForm() {
+  const rows = Array.from(sampleContainer?.querySelectorAll('.sample-row') || []);
+  rows.slice(1).forEach(row => row.remove());
+  const first = rows[0];
+  const textarea = first?.querySelector('.style-sample-textarea');
+  const count = first?.querySelector('.sample-wc');
+  const deleteButton = first?.querySelector('.sample-delete-btn');
+  if (textarea) textarea.value = '';
+  if (count) { count.textContent = '50 Words min'; count.classList.remove('wc-ok'); }
+  if (deleteButton) deleteButton.style.visibility = 'hidden';
+  if (addSampleBtn) addSampleBtn.style.display = '';
+  profileSampleCount = 1;
+}
 
 function activateMyStyle() {
+  if (savedStyle && selectedLevel !== 'customize') selectLevel('customize');
   myStyleActive = !!savedStyle;
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
 }
@@ -1921,7 +1983,10 @@ function renderTraitSliders(container, style) {
       slider.previousElementSibling.querySelector('.trait-slider-val').textContent = traitIntensityLabel(val);
       updateSliderFill(slider);
       currentTraits[idx].intensity = val;
-      s.style_summary = JSON.stringify(currentTraits);
+      s.style_summary = window.BipassStyleProfile.serializeSummary(
+        currentTraits,
+        window.BipassStyleProfile.readAnalysis(s),
+      );
       if (s.id === activeStyleId) savedStyle = s;
       saveStyleTraits();
     });
@@ -1943,7 +2008,7 @@ function showStyleDeleteModal(styleName, onConfirm) {
           <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </div>
-      <div class="style-delete-modal-title" id="style-delete-modal-title">Delete style?</div>
+      <div class="style-delete-modal-title" id="style-delete-modal-title">Delete profile?</div>
       <div class="style-delete-modal-sub" id="style-delete-modal-description">
         "${escapeHtml(styleName)}" will be permanently removed.
       </div>
@@ -1984,30 +2049,107 @@ function showStyleDeleteModal(styleName, onConfirm) {
   requestAnimationFrame(() => cancelButton.focus());
 }
 
+function renderProfileDetails(style) {
+  const traits = window.BipassStyleProfile.readTraits(style);
+  const analysis = window.BipassStyleProfile.readAnalysis(style);
+  if (!analysis?.profile) {
+    return `
+      <div class="writing-profile-legacy">
+        <p>This profile still matches the six original writing controls.</p>
+        <button type="button" class="profile-upgrade-btn" data-id="${escapeHtml(style.id)}">Add tone and sentence details</button>
+      </div>`;
+  }
+
+  const profile = analysis.profile;
+  const insightList = (title, items) => !items.length ? '' : `
+    <div class="profile-insight-group">
+      <span class="profile-detail-label">${title}</span>
+      <ul>${items.map((item) => `<li><strong>${escapeHtml(item.label)}</strong>${item.evidence ? `<span>${escapeHtml(item.evidence)}</span>` : ''}</li>`).join('')}</ul>
+    </div>`;
+  const scoreKeys = window.BipassStyleProfile.SCORE_KEYS;
+  const scoreRows = traits.map((trait, index) => {
+    const score = trait.intensity;
+    const key = scoreKeys[index];
+    const label = key === 'wordLevel' ? wordLevelLabel(score) : traitIntensityLabel(score);
+    const evidence = analysis.evidence?.[key] || '';
+    return `
+      <div class="profile-score-row">
+        <div class="profile-score-head"><span>${escapeHtml(trait.name)}</span><strong>${escapeHtml(label)}</strong></div>
+        <span class="profile-score-track"><i style="--profile-score:${score * 10}%"></i></span>
+        ${evidence ? `<span class="profile-score-evidence">${escapeHtml(evidence)}</span>` : ''}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="profile-voice-grid">
+      <div class="profile-voice-item">
+        <span class="profile-detail-label">Tone</span>
+        <strong>${escapeHtml(profile.tone.label)}</strong>
+        ${profile.tone.evidence ? `<p>${escapeHtml(profile.tone.evidence)}</p>` : ''}
+      </div>
+      <div class="profile-voice-item">
+        <span class="profile-detail-label">Sentence style</span>
+        <strong>${escapeHtml(profile.sentenceStyle.label)}</strong>
+        ${profile.sentenceStyle.evidence ? `<p>${escapeHtml(profile.sentenceStyle.evidence)}</p>` : ''}
+      </div>
+    </div>
+    <div class="profile-insights">
+      ${insightList('Strengths', profile.strengths)}
+      ${insightList('Recurring habits', profile.habits)}
+    </div>
+    <div class="profile-score-list">
+      <span class="profile-detail-label">Measured traits</span>
+      ${scoreRows}
+    </div>`;
+}
+
 function renderStyleList() {
-  myStyleInputs.style.display = 'none';
+  if (profileEmpty) profileEmpty.style.display = 'none';
+  myStyleInputs.hidden = true;
   styleCardsList.style.display = 'flex';
   const canCreateMore = window.BipassStyleProfile.canCreateStyle(savedStyles);
   const createControl = canCreateMore
-    ? '<button class="create-another-btn" id="create-another-btn">+ Create another style</button>'
-    : `<div class="style-limit-note"><strong>${savedStyles.length} / ${window.BipassStyleProfile.MAX_SAVED_STYLES}</strong> styles used · Delete one to create another</div>`;
+    ? '<button class="create-another-btn" id="create-another-btn">+ Create another profile</button>'
+    : `<div class="style-limit-note"><strong>${savedStyles.length} / ${window.BipassStyleProfile.MAX_SAVED_STYLES}</strong> profiles used · Delete one to create another</div>`;
 
   styleCardsList.innerHTML = savedStyles.map(style => {
     const isActive = style.id === activeStyleId && myStyleActive;
+    const analysis = window.BipassStyleProfile.readAnalysis(style);
+    const traits = window.BipassStyleProfile.readTraits(style);
+    const level = window.BipassStyleProfile.vocabularyLabel(
+      analysis?.scores?.wordLevel ?? window.BipassStyleProfile.sliderValuesFromStyle(style).wordLevel
+    );
+    const summary = analysis?.profile?.summary || 'Six measured writing controls are ready to use.';
+    const fingerprint = Array.from({ length: 6 }, (_, index) => {
+      const intensity = traits[index]?.intensity ?? 0;
+      return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)}"></i>`;
+    }).join('');
     return `
-      <div class="style-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
+      <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
         <div class="style-card-header">
-          <input class="style-card-name" type="text"
-                 value="${escapeHtml(style.name || '')}"
-                 placeholder="Name this style…" maxlength="30" aria-label="Writing style name" />
+          <div class="profile-card-identity">
+            <input class="style-card-name" type="text"
+                   value="${escapeHtml(style.name || '')}"
+                   placeholder="Name this profile…" maxlength="30" aria-label="Writing profile name" />
+            ${isActive ? '<span class="profile-applied-state">Applied</span>' : ''}
+          </div>
           <div class="style-card-btns">
             <button class="style-use-btn ${isActive ? 'active' : ''}" data-id="${escapeHtml(style.id)}" type="button">
               ${isActive ? 'Using' : 'Use'}
             </button>
-            <button class="style-delete-btn" data-id="${escapeHtml(style.id)}" type="button" aria-label="Delete ${escapeHtml(style.name || 'writing style')}">✕</button>
+            <button class="style-delete-btn" data-id="${escapeHtml(style.id)}" type="button" aria-label="Delete ${escapeHtml(style.name || 'writing profile')}">✕</button>
           </div>
         </div>
-      </div>`;
+        <div class="profile-card-level-row">
+          <span>${escapeHtml(level)}</span>
+          <div class="writing-fingerprint writing-fingerprint-card" aria-hidden="true">${fingerprint}</div>
+        </div>
+        <p class="profile-card-summary">${escapeHtml(summary)}</p>
+        <details class="writing-profile-details">
+          <summary>View profile</summary>
+          <div class="writing-profile-details-body">${renderProfileDetails(style)}</div>
+        </details>
+      </article>`;
   }).join('') + createControl;
 
   styleCardsList.querySelectorAll('.style-card-name').forEach(input => {
@@ -2035,10 +2177,7 @@ function renderStyleList() {
         activeStyleId = id;
         savedStyle = savedStyles.find(s => s.id === id) || null;
         saveStoredStyles();
-        // selectLevel calls deactivateMyStyle, so it must come before we set myStyleActive
-        if (selectedLevel !== 'customize') selectLevel('customize');
-        myStyleActive = !!savedStyle;
-        sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
+        activateMyStyle();
         renderStyleList();
         if (savedStyle) setSlidersFromStyle(savedStyle);
       }
@@ -2048,44 +2187,39 @@ function renderStyleList() {
   styleCardsList.querySelectorAll('.style-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
-      const styleName = savedStyles.find(s => s.id === id)?.name || 'this style';
+      const styleName = savedStyles.find(s => s.id === id)?.name || 'this profile';
       showStyleDeleteModal(styleName, () => {
-        savedStyles = savedStyles.filter(s => s.id !== id);
-        if (activeStyleId === id) {
-          activeStyleId = savedStyles[0]?.id || null;
-          savedStyle = savedStyles[0] || null;
-        }
+        const removedActiveProfile = activeStyleId === id && myStyleActive;
+        const remaining = window.BipassStyleProfile.removeStyle(savedStyles, id, activeStyleId);
+        savedStyles = remaining.styles;
+        activeStyleId = remaining.activeId;
+        savedStyle = remaining.activeStyle;
+        if (removedActiveProfile) deactivateMyStyle();
         saveStoredStyles();
         if (savedStyles.length === 0) {
           deactivateMyStyle();
           styleCardsList.style.display = 'none';
-          myStyleInputs.style.display = '';
+          if (profileEmpty) profileEmpty.style.display = '';
         } else {
           renderStyleList();
         }
       });
     });
   });
-
-
+  styleCardsList.querySelectorAll('.profile-upgrade-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const style = savedStyles.find(item => item.id === btn.dataset.id);
+      if (style) showProfileCreator(style);
+    });
+  });
 
   document.getElementById('create-another-btn')?.addEventListener('click', () => {
     if (!window.BipassStyleProfile.canCreateStyle(savedStyles)) {
-      showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} styles`);
+      showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} profiles`);
       renderStyleList();
       return;
     }
-    styleCardsList.style.display = 'none';
-    myStyleInputs.style.display = '';
-    if (!document.getElementById('back-to-styles-btn')) {
-      const backBtn = document.createElement('button');
-      backBtn.id = 'back-to-styles-btn';
-      backBtn.className = 'reanalyze-link';
-      backBtn.style.marginTop = '6px';
-      backBtn.textContent = '← Back to styles';
-      backBtn.addEventListener('click', () => { backBtn.remove(); renderStyleList(); });
-      myStyleInputs.appendChild(backBtn);
-    }
+    showProfileCreator();
   });
 }
 
@@ -2129,14 +2263,20 @@ async function loadSavedStyle(session) {
       savedStyle = savedStyles[0];
       saveStoredStyles();
       renderStyleList();
-      if (myStyleActive) activateMyStyle();
+      if (myStyleActive) {
+        activateMyStyle();
+        setSlidersFromStyle(savedStyle);
+      }
     }
   } catch (_) {}
 }
 
 async function analyzeStyle() {
-  if (!window.BipassStyleProfile.canCreateStyle(savedStyles)) {
-    showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} styles`);
+  const upgradingStyle = profileUpgradeId
+    ? savedStyles.find(style => style.id === profileUpgradeId) || null
+    : null;
+  if (!upgradingStyle && !window.BipassStyleProfile.canCreateStyle(savedStyles)) {
+    showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} profiles`);
     renderStyleList();
     return;
   }
@@ -2193,32 +2333,33 @@ async function analyzeStyle() {
     const normTraits = profile.traits;
 
     const styleName = document.getElementById('style-name-input')?.value.trim() || '';
+    const serializedSummary = window.BipassStyleProfile.serializeSummary(normTraits, profile.analysis);
     const newStyle = {
-      id: Date.now().toString(),
+      id: upgradingStyle?.id || Date.now().toString(),
       name: styleName,
-      style_summary: JSON.stringify(normTraits),
+      style_summary: serializedSummary,
       style_prompt: profile.stylePrompt,
-      analysis_version: 2,
+      analysis_version: 3,
       style_analysis: profile.analysis,
     };
-    savedStyles.push(newStyle);
+    savedStyles = window.BipassStyleProfile.upsertStyle(savedStyles, newStyle, upgradingStyle?.id);
     activeStyleId = newStyle.id;
     savedStyle = newStyle;
     saveStoredStyles();
-    document.getElementById('back-to-styles-btn')?.remove();
-    myStyleActive = true;
-    sessionStorage.setItem('bipass_my_style', 'true');
+    profileUpgradeId = null;
+    activateMyStyle();
     renderStyleList();
     const nameInput = document.getElementById('style-name-input');
     if (nameInput) nameInput.value = '';
-    showToast('Style analyzed and applied');
+    resetProfileCreatorForm();
+    showToast(upgradingStyle ? 'Writing profile updated and applied' : 'Writing profile created and applied');
     setSlidersFromStyle(newStyle);
 
     try {
       const session = await window.bipassAuth.getSession();
       await window.bipassAuth.client.from('user_styles').upsert({
         user_id:       session.user.id,
-        style_summary: JSON.stringify(normTraits),
+        style_summary: serializedSummary,
         style_prompt:  profile.stylePrompt,
         sample_count:  samples.length,
         updated_at:    new Date().toISOString(),
@@ -2487,6 +2628,7 @@ async function generateNew() {
     await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'generate');
+    sessionStorage.removeItem(APPLIED_PROFILE_KEY);
     window.location.href = 'editor.html';
   } catch (err) {
     if (err.name === 'AbortError' || err.name === 'CreditError') return;
@@ -2511,6 +2653,7 @@ async function humanize() {
     await new Promise(r => setTimeout(r, 1200));
     sessionStorage.setItem('bipass_result', result);
     sessionStorage.setItem('bipass_mode', 'humanize');
+    sessionStorage.removeItem(APPLIED_PROFILE_KEY);
     window.location.href = 'editor.html';
   } catch (err) {
     if (err.name === 'AbortError' || err.name === 'CreditError') return;

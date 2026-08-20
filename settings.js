@@ -179,18 +179,17 @@ function setupDefaults() {
   mystyleToggle.checked = localStorage.getItem(MYSTYLE_KEY) === 'true';
   mystyleToggle.addEventListener('change', () => {
     localStorage.setItem(MYSTYLE_KEY, mystyleToggle.checked ? 'true' : 'false');
-    showToast(mystyleToggle.checked ? 'My Style on by default' : 'My Style off by default');
+    showToast(mystyleToggle.checked ? 'Writing Profile on by default' : 'Writing Profile off by default');
   });
 }
 
-// ─── My Style ─────────────────────────────────────────────────
+// ─── Writing Profile ──────────────────────────────────────────
 
 async function setupMyStyle(session) {
   const loadingEl = document.getElementById('mystyle-loading');
   const emptyEl   = document.getElementById('mystyle-empty');
   const contentEl = document.getElementById('mystyle-content');
   const traitsEl  = document.getElementById('settings-traits');
-  const promptEl  = document.getElementById('settings-style-prompt');
   const clearBtn  = document.getElementById('clear-style-btn');
 
   try {
@@ -209,13 +208,17 @@ async function setupMyStyle(session) {
 
     contentEl.classList.remove('hidden');
 
-    let traits = [];
-    try { traits = JSON.parse(data.style_summary); } catch { traits = [data.style_summary]; }
-    traitsEl.innerHTML = traits.map(t => `<span class="settings-trait-chip">${escapeHtml(typeof t === 'string' ? t : t?.name)}</span>`).join('');
-    promptEl.textContent = data.style_prompt;
+    const traits = window.BipassStyleProfile?.readTraits(data) || [];
+    const analysis = window.BipassStyleProfile?.readAnalysis(data);
+    const profileLabels = analysis?.profile
+      ? [analysis.profile.tone.label, analysis.profile.sentenceStyle.label]
+      : [];
+    const traitLabels = traits.map((trait) => `${trait.name} · ${trait.intensity}/10`);
+    traitsEl.innerHTML = [...profileLabels, ...traitLabels]
+      .map(label => `<span class="settings-trait-chip">${escapeHtml(label)}</span>`).join('');
 
     clearBtn.addEventListener('click', async () => {
-      if (!confirm('Clear your style profile? This cannot be undone.')) return;
+      if (!confirm('Clear your writing profile? This cannot be undone.')) return;
       try {
         await window.bipassAuth.client
           .from('user_styles')
@@ -223,7 +226,7 @@ async function setupMyStyle(session) {
           .eq('user_id', session.user.id);
         contentEl.classList.add('hidden');
         emptyEl.classList.remove('hidden');
-        showToast('Style profile cleared');
+        showToast('Writing profile cleared');
       } catch { showToast('Could not clear style'); }
     });
   } catch {

@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=73">
+  <link rel="stylesheet" href="style.css?v=74">
 </head>
 <body class="creation-page">
 
@@ -407,12 +407,30 @@
                 <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="spelling" aria-label="Spelling mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="spelling">None</span>
             </div>
+          </div>
 
-            <div class="custom-style-divider"><span>My Writing Style<button type="button" class="style-info" aria-label="What is My Writing Style?"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span class="style-info-pop" role="tooltip">Paste something you've actually written — an essay, a message, anything. The AI studies your habits (spelling, grammar, punctuation) so it writes in your voice. 50+ words per sample; the more you give, the better it matches you.</span></button></span></div>
+          <div class="control-block writing-profile-block" id="writing-profile-block">
+            <div class="writing-profile-head">
+              <div>
+                <div class="control-head">Writing Profile</div>
+                <p class="writing-profile-sub">Match new text to writing you have already done.</p>
+              </div>
+              <div class="writing-fingerprint" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
 
-            <div id="my-style-inputs">
+            <div class="writing-profile-empty" id="writing-profile-empty">
+              <button class="writing-profile-create" id="create-profile-btn" type="button">
+                <span>Create my writing profile</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <span>Analyze one or more samples. No credits used.</span>
+            </div>
+
+            <div id="my-style-inputs" hidden>
               <div class="style-name-field">
-                <input class="style-name-input" id="style-name-input" type="text" placeholder="Name" maxlength="30" aria-label="Writing style name">
+                <input class="style-name-input" id="style-name-input" type="text" placeholder="Profile name" maxlength="30" aria-label="Writing profile name">
               </div>
               <div class="sample-scroll-shell" id="sample-scroll-shell">
                 <div id="sample-container" tabindex="0" aria-label="Writing samples">
@@ -426,7 +444,7 @@
               <button class="add-sample-btn" id="add-sample-btn" type="button">+ Add another sample</button>
               <button class="analyze-btn" id="analyze-style-btn" type="button">
                 <span class="btn-content">
-                  <span id="analyze-label">Analyze My Writing</span>
+                  <span id="analyze-label">Create Writing Profile</span>
                   <span id="analyze-loader" style="display:none"></span>
                 </span>
                 <span class="btn-arrow" aria-hidden="true">
@@ -434,10 +452,10 @@
                 </span>
                 <span class="btn-sweep" aria-hidden="true"></span>
               </button>
+              <button class="reanalyze-link" id="cancel-profile-btn" type="button">Cancel</button>
             </div>
 
             <div id="style-cards-list" style="display:none"></div>
-
           </div>
 
         </section>
@@ -721,9 +739,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=2"></script>
+  <script src="style-profile.js?v=3"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=30"></script>
+  <script src="app.js?v=31"></script>
 
   <script>
   /* Mode dropdown — switch the editor card between rewriting and extension modes */

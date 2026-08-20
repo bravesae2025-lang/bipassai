@@ -102,6 +102,52 @@ function setupDrawer(session) {
   if (signoutBtn) signoutBtn.addEventListener('click', () => window.bipassAuth.signOut());
 }
 
+const APPLIED_PROFILE_KEY = 'bipass_applied_profile';
+
+function readAppliedProfile() {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(APPLIED_PROFILE_KEY) || 'null');
+    if (!value || typeof value !== 'object') return null;
+    for (const key of ['name', 'level', 'summary', 'tone', 'sentenceStyle']) {
+      if (typeof value[key] !== 'string') return null;
+    }
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+function setupResultProfile() {
+  const profile = readAppliedProfile();
+  const wrap = document.getElementById('result-profile-wrap');
+  const toggle = document.getElementById('result-profile-toggle');
+  const popover = document.getElementById('result-profile-popover');
+  if (!profile || !wrap || !toggle || !popover) return;
+
+  document.getElementById('result-profile-name').textContent = `· ${profile.name}`;
+  document.getElementById('result-profile-level').textContent = profile.level;
+  document.getElementById('result-profile-summary').textContent = profile.summary;
+  document.getElementById('result-profile-tone').textContent = profile.tone;
+  document.getElementById('result-profile-sentences').textContent = profile.sentenceStyle;
+  wrap.classList.remove('hidden');
+  requestAnimationFrame(() => wrap.classList.add('is-revealed'));
+
+  const setOpen = (open) => {
+    popover.classList.toggle('hidden', !open);
+    toggle.classList.toggle('active', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  toggle.addEventListener('click', () => setOpen(popover.classList.contains('hidden')));
+  document.addEventListener('click', (event) => {
+    if (!wrap.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || popover.classList.contains('hidden')) return;
+    setOpen(false);
+    toggle.focus();
+  });
+}
+
 // ─── Init ─────────────────────────────────────────────────────
 
 async function init() {
@@ -160,6 +206,7 @@ async function init() {
     } catch {}
   }
 
+  setupResultProfile();
   typewriter(result);
 
   editorTextarea.addEventListener('input', updateWc);
@@ -1117,7 +1164,7 @@ function setRevisionBusy(on, label) {
   document.querySelectorAll('[data-revision-comment]').forEach(button => { button.disabled = on; });
 }
 
-function storeRevisionResult({ source, result, resultHtml, flow, level, changed, humanized, humanizedHtml }) {
+function storeRevisionResult({ source, result, resultHtml, flow, level, changed, humanized, humanizedHtml, profileApplied = false }) {
   sessionStorage.setItem('bipass_input', source);
   sessionStorage.setItem('bipass_result', result);
   sessionStorage.setItem('bipass_result_html', resultHtml);
@@ -1128,6 +1175,7 @@ function storeRevisionResult({ source, result, resultHtml, flow, level, changed,
   sessionStorage.setItem('bipass_wc', String(countWords(source)));
   sessionStorage.removeItem('bipass_tokens');
   sessionStorage.removeItem('bipass_result_id');
+  if (!profileApplied) sessionStorage.removeItem(APPLIED_PROFILE_KEY);
 
   if (flow === 'both' && humanized && humanizedHtml) {
     sessionStorage.setItem('bipass_humanized', humanized);
@@ -1156,6 +1204,7 @@ async function applyRevision() {
   if (!comment) { showToast('Tell us what you want changed'); aiPromptInput?.focus(); return; }
 
   const currentLevel = sessionStorage.getItem('bipass_level') || 'medium';
+  const appliedProfile = readAppliedProfile();
   const classifier = window.BipassRevisionIntent?.classifyRevisionIntent;
   const intent = classifier ? classifier(comment, currentLevel) : { kind: 'edit', level: currentLevel };
   const labels = {
@@ -1203,6 +1252,7 @@ async function applyRevision() {
           text: source,
           level: intent.level,
           mistakes: intent.level === 'customize' ? storedMatchSettings() : undefined,
+          styleProfile: intent.level === 'customize' ? appliedProfile?.styleProfile : undefined,
         }, token);
         const levelResult = levelResultData(levelData.result, source);
         payload = {
@@ -1212,6 +1262,7 @@ async function applyRevision() {
           changed: levelResult.changed,
           flow: 'level',
           level: intent.level,
+          profileApplied: levelData.profileApplied === true,
         };
       } else {
         const humanizeData = await callEditorJson('/api/rw-humanize', {
@@ -1223,6 +1274,7 @@ async function applyRevision() {
           text: humanized,
           level: intent.level,
           mistakes: intent.level === 'customize' ? storedMatchSettings() : undefined,
+          styleProfile: intent.level === 'customize' ? appliedProfile?.styleProfile : undefined,
           continuation: humanizeData.continuation,
         }, token);
         const final = levelResultData(levelData.result, humanized);
@@ -1235,6 +1287,7 @@ async function applyRevision() {
           changed: final.changed,
           humanized,
           humanizedHtml: buildDiffHtml(source, humanized, 'rephrase'),
+          profileApplied: levelData.profileApplied === true,
         };
       }
     }

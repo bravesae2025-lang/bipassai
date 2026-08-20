@@ -96,8 +96,12 @@ const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
 const appJsFile = join(root, 'app.js');
 const appJs = readFileSync(appJsFile, 'utf8');
+const editorFile = join(root, 'editor.html');
+const editorHtml = readFileSync(editorFile, 'utf8');
 const editorJsFile = join(root, 'editor.js');
 const editorJs = readFileSync(editorJsFile, 'utf8');
+const styleFile = join(root, 'style.css');
+const styleCss = readFileSync(styleFile, 'utf8');
 const serverFile = join(root, 'server.js');
 const serverJs = readFileSync(serverFile, 'utf8');
 const authFile = join(root, 'auth.js');
@@ -160,6 +164,30 @@ if (!appHtml.includes('id="sample-scroll-shell"')
     || !appJs.includes('sampleContainer.scrollTo({')
     || !appHtml.includes('<span class="sample-wc">50 Words min</span>')) {
   add(appFile, 'writing samples must stay inside a capped, internally scrolling region');
+}
+if (!appHtml.includes('id="writing-profile-block"')
+    || !appHtml.includes('id="create-profile-btn"')
+    || appHtml.indexOf('id="writing-profile-block"') < appHtml.indexOf('id="level-box"')) {
+  add(appFile, 'Writing Profile must be an always-visible block below Level Matching');
+}
+if (!appJs.includes('styleProfile: styleProfile || undefined')
+    || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')
+    || !appJs.includes('if (removedActiveProfile) deactivateMyStyle()')
+    || !appJs.includes("if (savedStyle && selectedLevel !== 'customize') selectLevel('customize')")) {
+  add(appJsFile, 'Writing Profile usage and active-profile deletion must keep result state honest');
+}
+if (!editorHtml.includes('id="result-profile-wrap"')
+    || !/<button class="result-profile-strip"[^>]*aria-expanded="false"[^>]*aria-controls="result-profile-popover"/.test(editorHtml)
+    || !editorHtml.includes('role="region" aria-label="Applied writing profile details"')) {
+  add(editorFile, 'result profile indicator must expose an accessible anchored detail region');
+}
+if (!editorJs.includes("sessionStorage.removeItem(APPLIED_PROFILE_KEY)")
+    || !historyJs.includes("sessionStorage.removeItem('bipass_applied_profile')")) {
+  add(editorJsFile, 'non-profile revisions and History results must clear stale profile indicators');
+}
+if (!styleCss.includes('@media (prefers-reduced-motion: reduce)')
+    || !styleCss.includes('.result-profile-wrap.is-revealed .result-profile-fingerprint i { animation: none;')) {
+  add(styleFile, 'Writing Profile motion must have a static reduced-motion state');
 }
 const restoreStart = appJs.indexOf('function restoreState()');
 const restoreEnd = appJs.indexOf('// ─── Events', restoreStart);

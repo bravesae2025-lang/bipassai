@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=73">
+  <link rel="stylesheet" href="style.css?v=74">
 </head>
 <body class="editor-page">
 
@@ -80,6 +80,28 @@
           <span class="editor-level hidden" id="editor-level"></span>
         </div>
         <button class="editor-copy-btn" id="copy-btn">Copy</button>
+      </div>
+
+      <div class="result-profile-wrap hidden" id="result-profile-wrap">
+        <button class="result-profile-strip" id="result-profile-toggle" type="button" aria-expanded="false" aria-controls="result-profile-popover">
+          <span class="result-profile-fingerprint" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="result-profile-copy">
+            <strong>Writing profile applied</strong>
+            <span id="result-profile-name"></span>
+          </span>
+          <svg class="result-profile-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="result-profile-popover hidden" id="result-profile-popover" role="region" aria-label="Applied writing profile details">
+          <div class="result-profile-level" id="result-profile-level"></div>
+          <p class="result-profile-summary" id="result-profile-summary"></p>
+          <div class="result-profile-detail-grid">
+            <div><span>Tone</span><strong id="result-profile-tone"></strong></div>
+            <div><span>Sentence style</span><strong id="result-profile-sentences"></strong></div>
+          </div>
+          <p class="result-profile-note">This confirms the profile was used. It is not a separate accuracy score.</p>
+        </div>
       </div>
 
       <textarea
@@ -226,6 +248,6 @@
   <script src="auth.js"></script>
   <script src="revision-intent.js?v=1"></script>
   <script src="change-search.js?v=2"></script>
-  <script src="editor.js?v=27"></script>
+  <script src="editor.js?v=28"></script>
 </body>
 </html>

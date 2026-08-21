@@ -504,7 +504,7 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   assert.deepEqual(profileOptionState(richStyle, true), {
     kind: 'active',
     title: 'Writing Profile',
-    meta: 'School essays',
+    meta: '',
     status: 'Active',
     legacy: false,
     values: [7, 1, 0, 0, 0, 0],
@@ -515,7 +515,7 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
     style_summary: JSON.stringify([{ name: 'Vocabulary level', intensity: 4 }]),
   });
   assert.equal(legacy.kind, 'ready');
-  assert.equal(legacy.meta, 'Old profile');
+  assert.equal(legacy.meta, '');
   assert.equal(legacy.legacy, true);
 });
 

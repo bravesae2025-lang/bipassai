@@ -239,12 +239,11 @@
     }
     const analysis = readAnalysis(style);
     const values = sliderValuesFromStyle(style);
-    const name = cleanText(style.name, 40) || 'Saved profile';
     const legacy = !analysis?.profile;
     return {
       kind: active ? 'active' : 'ready',
       title: 'Writing Profile',
-      meta: name,
+      meta: '',
       status: active ? 'Active' : 'Select',
       legacy,
       values: SCORE_KEYS.map((key) => values[key]),

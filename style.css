@@ -8754,6 +8754,9 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
 .level-btn-profile.is-active .level-profile-status {
   color: var(--profile-accent);
 }
+.level-btn-profile.is-ready:not(.is-active) .level-profile-status {
+  color: rgba(255,255,255,0.68);
+}
 
 .level-manual-btn {
   width: 100%;
@@ -12329,7 +12332,29 @@ body.creation-page {
 }
 
 .col-customize .level-btn-profile.is-ready:not(.is-active) {
-  border-color: transparent;
+  border-color: rgba(255,255,255,0.17);
+  background:
+    radial-gradient(100% 135% at 0% 0%, rgba(255,255,255,0.13), transparent 58%),
+    linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.028)),
+    rgba(var(--profile-surface-rgb),0.74);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    inset 0 -1px 0 rgba(0,0,0,0.14),
+    0 12px 28px rgba(0,0,0,0.16);
+}
+
+.col-customize .level-btn-profile.is-ready:not(.is-active):hover {
+  border-color: rgba(255,255,255,0.28);
+  background:
+    radial-gradient(100% 135% at 0% 0%, rgba(255,255,255,0.16), transparent 58%),
+    linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)),
+    rgba(var(--profile-surface-rgb),0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.14),
+    0 16px 34px rgba(0,0,0,0.2);
 }
 
 .col-customize .level-btn-profile.is-active:hover {

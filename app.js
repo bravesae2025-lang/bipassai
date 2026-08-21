@@ -1860,6 +1860,7 @@ function syncLevelSelectionUi() {
     levelGlider.style.opacity = presetSelected ? '' : '0';
     if (presetSelected) levelGlider.style.transform = `translateX(${LEVEL_INDEX[mode] * 100}%)`;
   }
+  levelTrack?.classList.toggle('custom-active', mode === 'customize');
   if (optionsPanel) optionsPanel.style.display = mode === 'customize' ? 'flex' : 'none';
 
   if (profileOptionTitle) profileOptionTitle.textContent = optionState.title;
@@ -3649,8 +3650,10 @@ function startTour() {
 
   // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
-  let collapsed = localStorage.getItem('rec-flow-collapsed') === '1';
+  let userCollapsed = localStorage.getItem('rec-flow-collapsed') === '1';
+  let collapsed = userCollapsed;
   let autoCollapsedForProfileDetails = false;
+  let autoCollapsedForCustomMode = false;
   function applyCollapsed() {
     box.classList.toggle('is-collapsed', collapsed);
     if (toggle) {
@@ -3660,14 +3663,22 @@ function startTour() {
     }
     if (collapsed) stop(); else { setHeight(); start(); }
   }
+  function syncCollapsed() {
+    collapsed = userCollapsed
+      || autoCollapsedForProfileDetails
+      || autoCollapsedForCustomMode;
+    applyCollapsed();
+  }
   if (toggle) {
     toggle.addEventListener('click', () => {
       // A direct click is the user's preference and takes ownership away from
-      // the temporary profile-details collapse.
+      // any temporary space-saving collapse.
+      const nextCollapsed = !collapsed;
       autoCollapsedForProfileDetails = false;
-      collapsed = !collapsed;
-      localStorage.setItem('rec-flow-collapsed', collapsed ? '1' : '0');
-      applyCollapsed();
+      autoCollapsedForCustomMode = false;
+      userCollapsed = nextCollapsed;
+      localStorage.setItem('rec-flow-collapsed', userCollapsed ? '1' : '0');
+      syncCollapsed();
     });
   }
 
@@ -3677,25 +3688,24 @@ function startTour() {
     if (detailsOpen) {
       // Make room for the expanded profile without overwriting the
       // user's persisted minimize/expand preference.
-      if (!collapsed) {
-        collapsed = true;
-        autoCollapsedForProfileDetails = true;
-        applyCollapsed();
-      }
+      autoCollapsedForProfileDetails = true;
+      syncCollapsed();
       return;
     }
 
-    // Reopen only when profile details caused the collapse. A click on the minus
-    // button clears this flag, so the user's own collapsed choice is preserved.
-    if (autoCollapsedForProfileDetails) {
-      collapsed = false;
-      autoCollapsedForProfileDetails = false;
-      applyCollapsed();
-    }
+    autoCollapsedForProfileDetails = false;
+    syncCollapsed();
+  });
+
+  document.addEventListener('bipass-level-change', (event) => {
+    // The manual controls need the extra vertical room. This uses the same
+    // animated guide transition and reverses when another mode is selected.
+    autoCollapsedForCustomMode = event.detail?.mode === 'customize';
+    syncCollapsed();
   });
 
   go(0);
-  applyCollapsed();
+  syncCollapsed();
 })();
 
 // ─── Start ────────────────────────────────────────────────────

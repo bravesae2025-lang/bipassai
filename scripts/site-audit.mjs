@@ -204,6 +204,11 @@ if (!appJs.includes("'bipass-profile-details-toggle'")
     || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')) {
   add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }
+if (!appJs.includes("document.addEventListener('bipass-level-change'")
+    || !appJs.includes("event.detail?.mode === 'customize'")
+    || !appJs.includes('autoCollapsedForCustomMode')) {
+  add(appJsFile, 'Custom mode must compact the workflow guide through its animated collapse state');
+}
 if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
     || !appJs.includes("fetch('/api/refine-profile'")

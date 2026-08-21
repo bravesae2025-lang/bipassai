@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=94">
+  <link rel="stylesheet" href="style.css?v=96">
 </head>
 <body class="creation-page">
 
@@ -369,7 +369,8 @@
           </div>
 
           <div class="control-block" id="options-panel" style="display:none">
-            <div class="control-head">Word Level</div>
+            <section class="custom-control-group custom-word-group" aria-labelledby="custom-word-heading">
+            <div class="control-head" id="custom-word-heading">Word Level</div>
 
             <div class="mistake-row">
               <span class="mistake-label">Vocabulary</span>
@@ -382,8 +383,10 @@
               </div>
               <span class="mistake-slider-val" data-mistake="wordlevel">Student</span>
             </div>
+            </section>
 
-            <div class="control-head" style="margin-top:8px">Human Mistakes</div>
+            <section class="custom-control-group custom-mistakes-group" aria-labelledby="custom-mistakes-heading">
+            <div class="control-head" id="custom-mistakes-heading">Human Mistakes</div>
 
             <div class="mistake-row">
               <span class="mistake-label">Grammar</span>
@@ -419,6 +422,7 @@
                 <input class="mistake-slider" type="range" min="0" max="10" value="0" step="1" data-mistake="spelling" aria-label="Spelling mistakes">              </div>
               <span class="mistake-slider-val" data-mistake="spelling">None</span>
             </div>
+            </section>
           </div>
 
           <div class="control-block writing-profile-block" id="writing-profile-block">
@@ -745,7 +749,7 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=7"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=42"></script>
+  <script src="app.js?v=44"></script>
 
   <script>
   /* Mode dropdown — switch the editor card between rewriting and extension modes */

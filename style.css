@@ -12556,10 +12556,10 @@ body.creation-page {
 .col-customize .writing-profile-card.style-card-active {
   position: relative;
   isolation: isolate;
-  border-color: rgba(255,255,255,0.17);
+  border-color: rgba(214,216,226,0.18);
   background:
-    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
-    linear-gradient(145deg, rgba(78,80,90,0.96), rgba(49,51,59,0.96));
+    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.18), transparent 54%),
+    linear-gradient(145deg, rgba(75,75,84,0.97), rgba(45,45,53,0.97));
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
   box-shadow:
@@ -12791,10 +12791,14 @@ body.creation-page {
       linear-gradient(145deg, rgba(49,49,56,0.92) 0%, rgba(37,37,43,0.93) 50%, rgba(29,29,34,0.94) 100%);
   }
   .col-customize .writing-profile-create,
-  .col-customize #my-style-inputs,
+  .col-customize #my-style-inputs {
+    background: linear-gradient(145deg, rgba(54,57,55,0.94), rgba(30,33,31,0.96) 72%);
+  }
   .col-customize .writing-profile-card,
   .col-customize .style-card {
-    background: linear-gradient(145deg, rgba(54,57,55,0.94), rgba(30,33,31,0.96) 72%);
+    background:
+      radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.16), transparent 54%),
+      linear-gradient(145deg, rgb(75,75,84), rgb(45,45,53));
   }
   .col-customize .level-btn-profile {
     background: transparent;

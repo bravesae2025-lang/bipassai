@@ -2304,27 +2304,14 @@ function announceProfileDetailsState() {
   }));
 }
 
-let profileDetailsScrollRequest = 0;
-
-function centerExpandedProfileDetails(details, delay = 0) {
-  const request = ++profileDetailsScrollRequest;
+function centerExpandedProfileDetails(details) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const center = () => {
-    if (request !== profileDetailsScrollRequest
-        || details.dataset.targetOpen === 'false'
-        || !details.open) return;
-    details.scrollIntoView({
-      behavior: reduce ? 'auto' : 'smooth',
-      block: 'center',
-      inline: 'nearest',
-    });
-  };
-
-  if (delay > 0 && !reduce) {
-    setTimeout(() => requestAnimationFrame(center), delay);
-  } else {
-    requestAnimationFrame(center);
-  }
+  if (details.dataset.targetOpen === 'false' || !details.open) return;
+  details.scrollIntoView({
+    behavior: reduce ? 'auto' : 'smooth',
+    block: 'center',
+    inline: 'nearest',
+  });
 }
 
 function animateProfileDetails(details, shouldOpen) {
@@ -2339,7 +2326,6 @@ function animateProfileDetails(details, shouldOpen) {
 
   body.getAnimations().forEach(animation => animation.cancel());
   if (shouldOpen && !details.open) details.open = true;
-  profileDetailsScrollRequest++;
   details.dataset.targetOpen = String(shouldOpen);
   announceProfileDetailsState();
 
@@ -2354,6 +2340,7 @@ function animateProfileDetails(details, shouldOpen) {
   }
 
   const targetHeight = shouldOpen ? body.getBoundingClientRect().height : 0;
+  if (shouldOpen) centerExpandedProfileDetails(details);
   body.style.overflow = 'hidden';
   const animation = body.animate([
     { height: `${currentHeight}px`, opacity: currentOpacity },
@@ -2370,9 +2357,6 @@ function animateProfileDetails(details, shouldOpen) {
     body.style.removeProperty('overflow');
     body.style.removeProperty('height');
     body.style.removeProperty('opacity');
-    // Let the workflow guide finish compacting before measuring the final
-    // page position, then use the browser's interruptible native scroll.
-    if (shouldOpen) centerExpandedProfileDetails(details, 120);
   };
 }
 

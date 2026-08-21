@@ -12039,3 +12039,382 @@ body.creation-page {
   .writing-profile-empty,
   .writing-profile-card { border-color: rgba(255,255,255,0.5); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Styles panel — smoked titanium glass material
+   The cool light field sits behind the panel so backdrop-filter has real
+   depth to refract instead of reading like a semi-transparent gray fill.
+═══════════════════════════════════════════════════════════════ */
+
+.right-panel-wrap {
+  isolation: isolate;
+}
+
+.right-panel-wrap::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: -28px;
+  right: -10px;
+  left: clamp(8px, 2vw, 28px);
+  height: min(720px, 76vh);
+  border-radius: 42px;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(247,249,255,0.84) 0, rgba(218,226,242,0.42) 22%, transparent 48%),
+    radial-gradient(circle at 96% 28%, rgba(128,151,190,0.54) 0, rgba(105,124,160,0.25) 30%, transparent 58%),
+    radial-gradient(circle at 54% 100%, rgba(122,104,142,0.34) 0, transparent 52%);
+  filter: blur(24px) saturate(120%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.col.col-customize {
+  --glass-white: 245, 245, 247;
+  --glass-ink: 18, 18, 22;
+  --glass-edge: rgba(var(--glass-white), 0.24);
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--glass-edge);
+  border-radius: 22px;
+  background:
+    radial-gradient(140% 90% at 0% 0%, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0.045) 36%, transparent 62%),
+    radial-gradient(90% 80% at 100% 100%, rgba(137,154,191,0.20) 0%, transparent 68%),
+    linear-gradient(145deg, rgba(45,45,51,0.58) 0%, rgba(26,26,31,0.55) 48%, rgba(19,19,23,0.64) 100%);
+  -webkit-backdrop-filter: blur(38px) saturate(175%) contrast(104%);
+  backdrop-filter: blur(38px) saturate(175%) contrast(104%);
+  color: rgba(var(--glass-white), 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 1px 0 0 rgba(255,255,255,0.07),
+    inset 0 -1px 0 rgba(0,0,0,0.22),
+    0 1px 1px rgba(255,255,255,0.16),
+    0 12px 30px rgba(20,20,28,0.18),
+    0 34px 80px rgba(20,20,28,0.22);
+  transform: translateZ(0);
+  transition: opacity 180ms ease, transform 320ms var(--ease-out), box-shadow 320ms ease;
+}
+
+/* Reflected light inside the material, plus a crisp inner rim. */
+.col.col-customize::before,
+.col.col-customize::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.col.col-customize::before {
+  z-index: 0;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,0.16), transparent 18%, transparent 72%, rgba(181,196,225,0.055)),
+    radial-gradient(75% 18% at 48% -4%, rgba(255,255,255,0.19), transparent 72%);
+  opacity: 0.78;
+}
+
+.col.col-customize::after {
+  z-index: 2;
+  inset: 1px;
+  border: 1px solid rgba(255,255,255,0.055);
+  box-shadow: inset 0 0 34px rgba(255,255,255,0.018);
+}
+
+.col.col-customize > * {
+  position: relative;
+  z-index: 1;
+}
+
+.col.col-customize.col-active,
+.col.col-customize.col-active:hover {
+  transform: translateY(-4px) scale(1.006);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.29),
+    inset 1px 0 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.24),
+    0 1px 1px rgba(255,255,255,0.18),
+    0 18px 42px rgba(20,20,28,0.21),
+    0 44px 96px rgba(20,20,28,0.25);
+}
+
+.col.col-customize:not(.col-active):not(.col-dimmed):hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.col-customize .control-head {
+  color: rgba(var(--glass-white), 0.95);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--ff-ui);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.22);
+}
+
+.col-customize .style-presets-head {
+  color: rgba(var(--glass-white), 0.34);
+}
+
+.col-customize .style-presets-head::before,
+.col-customize .style-presets-head::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.17));
+}
+
+.col-customize .style-presets-head::after {
+  background: linear-gradient(90deg, rgba(255,255,255,0.17), transparent);
+}
+
+/* Primary profile surface — a lighter material above the structural glass. */
+.col-customize .level-btn-profile {
+  border-color: rgba(255,255,255,0.22);
+  border-radius: 15px;
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(255,255,255,0.12), transparent 55%),
+    linear-gradient(135deg, rgba(255,255,255,0.095), rgba(255,255,255,0.038));
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    inset 0 -1px 0 rgba(0,0,0,0.18),
+    0 10px 28px rgba(0,0,0,0.16);
+}
+
+.col-customize .level-btn-profile::before {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.025),
+    inset 0 14px 24px rgba(255,255,255,0.025);
+}
+
+.col-customize .level-btn-profile:hover {
+  border-color: rgba(255,255,255,0.42);
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(255,255,255,0.16), transparent 56%),
+    linear-gradient(135deg, rgba(255,255,255,0.13), rgba(255,255,255,0.055));
+  transform: translateY(-2px) scale(1.003);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.18),
+    0 16px 34px rgba(0,0,0,0.21);
+}
+
+.col-customize .level-btn-profile:active {
+  transform: scale(0.986);
+  transition-duration: 90ms;
+}
+
+.col-customize .level-btn-profile.is-active {
+  border-color: rgba(112,239,157,0.54);
+  background:
+    radial-gradient(100% 140% at 0% 0%, rgba(126,244,169,0.12), transparent 54%),
+    linear-gradient(135deg, rgba(255,255,255,0.105), rgba(74,222,128,0.045));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.16),
+    0 0 0 1px rgba(74,222,128,0.035),
+    0 16px 34px rgba(4,18,10,0.22);
+}
+
+.col-customize .level-profile-fingerprint,
+.col-customize .create-profile-fingerprint {
+  border-color: rgba(255,255,255,0.14);
+  background: linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 6px 14px rgba(0,0,0,0.12);
+}
+
+/* Presets read as a recessed glass segmented control. */
+.col-customize .level-track {
+  height: 36px;
+  padding: 3px;
+  border-color: rgba(255,255,255,0.14);
+  border-radius: 11px;
+  background: rgba(7,7,10,0.24);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 5px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.055);
+}
+
+.col-customize .level-glider {
+  top: 3px;
+  left: 3px;
+  width: calc(33.333% - 2px);
+  height: calc(100% - 6px);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(236,236,240,0.91));
+  box-shadow: inset 0 1px 0 #fff, 0 3px 10px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.28);
+}
+
+.col-customize .level-btn {
+  color: rgba(var(--glass-white), 0.48);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--ff-ui);
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.col-customize .level-btn:not(.active):hover {
+  color: rgba(var(--glass-white), 0.88);
+}
+
+.col-customize .level-manual-btn {
+  min-height: 30px;
+  margin-top: 1px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  color: rgba(var(--glass-white), 0.48);
+  transition: color 160ms ease, background-color 160ms ease, transform 100ms ease;
+}
+
+.col-customize .level-manual-btn:hover,
+.col-customize .level-manual-btn.active {
+  color: rgba(var(--glass-white), 0.92);
+  background: rgba(255,255,255,0.065);
+}
+
+.col-customize .writing-profile-block {
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top-color: rgba(255,255,255,0.13);
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.08);
+}
+
+.col-customize .writing-profile-create,
+.col-customize #my-style-inputs,
+.col-customize .writing-profile-card,
+.col-customize .style-card {
+  border-color: rgba(255,255,255,0.14);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)),
+    rgba(6,6,9,0.18);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  backdrop-filter: blur(16px) saturate(135%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 10px 24px rgba(0,0,0,0.14);
+}
+
+.col-customize .writing-profile-create:hover {
+  border-color: rgba(255,255,255,0.28);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.105), rgba(255,255,255,0.035)),
+    rgba(6,6,9,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 14px 30px rgba(0,0,0,0.19);
+}
+
+.col-customize .create-profile-arrow {
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.075);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.col-customize .writing-profile-details-body,
+.col-customize #options-panel {
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(5,5,8,0.22), rgba(255,255,255,0.025));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), inset 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.col-customize #options-panel {
+  padding: 12px;
+}
+
+.col-customize .level-btn-profile:focus-visible,
+.col-customize .level-manual-btn:focus-visible,
+.col-customize .writing-profile-create:focus-visible,
+.col-customize .level-btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.95);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(142,162,204,0.22);
+}
+
+@media (max-width: 740px) {
+  .right-panel-wrap {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0 16px;
+  }
+
+  .right-panel,
+  .col.col-customize {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .right-panel-wrap::before {
+    top: -12px;
+    right: -18px;
+    left: -18px;
+    height: 640px;
+    border-radius: 32px;
+  }
+
+  .col.col-customize {
+    border-radius: 18px;
+    -webkit-backdrop-filter: blur(32px) saturate(165%);
+    backdrop-filter: blur(32px) saturate(165%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .col.col-customize,
+  .col.col-customize.col-active,
+  .col-customize .level-btn-profile,
+  .col-customize .level-manual-btn,
+  .col-customize .writing-profile-create {
+    transition: none;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .right-panel-wrap::before {
+    display: block;
+    opacity: 0.42;
+    filter: blur(30px) saturate(90%);
+  }
+
+  .col.col-customize,
+  .col-customize .level-btn-profile,
+  .col-customize .level-track,
+  .col-customize .writing-profile-create,
+  .col-customize #my-style-inputs,
+  .col-customize .writing-profile-card,
+  .col-customize .style-card,
+  .col-customize .writing-profile-details-body,
+  .col-customize #options-panel {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .col.col-customize {
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgba(104,106,118,0.48) 0%, transparent 48%),
+      radial-gradient(90% 80% at 100% 100%, rgba(72,85,108,0.34) 0%, transparent 62%),
+      linear-gradient(145deg, rgba(49,49,56,0.92) 0%, rgba(37,37,43,0.93) 50%, rgba(29,29,34,0.94) 100%);
+  }
+  .col-customize .level-btn-profile,
+  .col-customize .writing-profile-create,
+  .col-customize #my-style-inputs,
+  .col-customize .writing-profile-card,
+  .col-customize .style-card {
+    background: linear-gradient(145deg, rgba(66,66,74,0.90), rgba(43,43,49,0.92) 72%);
+  }
+  .col-customize .level-track,
+  .col-customize .writing-profile-details-body,
+  .col-customize #options-panel {
+    background: linear-gradient(145deg, rgba(27,27,32,0.94), rgba(38,38,44,0.92));
+  }
+}
+
+@media (prefers-contrast: more) {
+  .col.col-customize {
+    border-color: rgba(255,255,255,0.68);
+    background: rgba(20,20,24,0.97);
+  }
+
+  .col-customize .level-btn-profile,
+  .col-customize .writing-profile-create,
+  .col-customize #my-style-inputs,
+  .col-customize .writing-profile-card,
+  .col-customize .style-card { border-color: rgba(255,255,255,0.46); }
+}

@@ -7303,6 +7303,46 @@ body.drawer-lock { overflow: hidden; }
   margin-top: 8px;
   transition: margin-top 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.rec-flow-open {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: #242424;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, color 0.18s ease,
+    transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.36s;
+}
+.rec-flow-open svg {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rec-flow-open:hover { color: #000; }
+.rec-flow-open:hover svg { transform: translateX(3px); }
+.rec-flow-open:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.rec-flow-box.is-collapsed .rec-flow-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition-delay: 0.12s, 0s, 0.12s, 0s;
+}
 .rec-flow-dots {
   grid-column: 2;
   max-height: 16px;
@@ -7335,6 +7375,8 @@ body.drawer-lock { overflow: hidden; }
   .rec-gd-typing::after,
   .rec-flow-progress i.run { animation: none; }
   .rec-flow-box,
+  .rec-flow-open,
+  .rec-flow-open svg,
   .rec-flow-controls,
   .rec-flow-viewport,
   .rec-flow-progress,

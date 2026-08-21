@@ -3678,6 +3678,7 @@ function startTour() {
 
   // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
+  const openButton = document.getElementById('rec-flow-open');
   let userCollapsed = localStorage.getItem('rec-flow-collapsed') === '1';
   let collapsed = userCollapsed;
   let autoCollapsedForProfileDetails = false;
@@ -3689,6 +3690,10 @@ function startTour() {
       toggle.setAttribute('aria-label', collapsed ? 'Expand' : 'Minimize');
       toggle.title = collapsed ? 'Expand' : 'Minimize';
     }
+    if (openButton) {
+      openButton.setAttribute('aria-hidden', String(!collapsed));
+      openButton.tabIndex = collapsed ? 0 : -1;
+    }
     if (collapsed) stop(); else { setHeight(); start(); }
   }
   function syncCollapsed() {
@@ -3697,18 +3702,20 @@ function startTour() {
       || autoCollapsedForCustomMode;
     applyCollapsed();
   }
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      // A direct click is the user's preference and takes ownership away from
-      // any temporary space-saving collapse.
-      const nextCollapsed = !collapsed;
-      autoCollapsedForProfileDetails = false;
-      autoCollapsedForCustomMode = false;
-      userCollapsed = nextCollapsed;
-      localStorage.setItem('rec-flow-collapsed', userCollapsed ? '1' : '0');
-      syncCollapsed();
-    });
+  function toggleCollapsedByUser(event) {
+    // A direct click is the user's preference and takes ownership away from
+    // any temporary space-saving collapse.
+    const openedFromLabel = collapsed && event?.currentTarget === openButton;
+    const nextCollapsed = !collapsed;
+    autoCollapsedForProfileDetails = false;
+    autoCollapsedForCustomMode = false;
+    userCollapsed = nextCollapsed;
+    localStorage.setItem('rec-flow-collapsed', userCollapsed ? '1' : '0');
+    syncCollapsed();
+    if (openedFromLabel) toggle?.focus({ preventScroll: true });
   }
+  toggle?.addEventListener('click', toggleCollapsedByUser);
+  openButton?.addEventListener('click', toggleCollapsedByUser);
 
   document.addEventListener('bipass-profile-details-toggle', (event) => {
     const detailsOpen = event.detail?.open === true;

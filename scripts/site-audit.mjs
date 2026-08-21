@@ -211,6 +211,11 @@ if (!appJs.includes("document.addEventListener('bipass-level-change'")
     || !appJs.includes('autoCollapsedForCustomMode')) {
   add(appJsFile, 'Custom mode must compact the workflow guide through its animated collapse state');
 }
+if (!appHtml.includes('id="rec-flow-open"')
+    || !appHtml.includes('<span>Open tutorial</span>')
+    || !appJs.includes("openButton?.addEventListener('click', toggleCollapsedByUser)")) {
+  add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
+}
 if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
     || !appJs.includes("fetch('/api/refine-profile'")

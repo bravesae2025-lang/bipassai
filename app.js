@@ -1690,8 +1690,9 @@ function bindEvents() {
       sessionStorage.setItem(`bipass_m_${type}`, slider.value);
       // Auto-detach from style on manual adjustment — fires once per drag
       if (myStyleActive) {
+        const deactivatingStyleId = activeStyleId;
         deactivateMyStyle();
-        renderStyleList();
+        renderStyleList(null, deactivatingStyleId);
       }
     });
   });
@@ -1912,17 +1913,18 @@ function selectLevel(level) {
       return;
     }
     activateMyStyle();
-    renderStyleList();
+    renderStyleList(activeStyleId);
     restartProfileFingerprintMotion();
     document.querySelector('.col-customize')?.classList.remove('needs-level');
     return;
   }
 
   const hadActiveProfile = myStyleActive;
+  const deactivatingStyleId = hadActiveProfile ? activeStyleId : null;
   deactivateMyStyle();
   selectedLevel = level || null;
   syncLevelSelectionUi();
-  if (hadActiveProfile && savedStyles.length) renderStyleList();
+  if (hadActiveProfile && savedStyles.length) renderStyleList(null, deactivatingStyleId);
   if (level) document.querySelector('.col-customize')?.classList.remove('needs-level');
   announceLevelChange();
 }
@@ -2351,7 +2353,7 @@ function animateProfileDetails(details, shouldOpen) {
   };
 }
 
-function renderStyleList(activatingStyleId = null) {
+function renderStyleList(activatingStyleId = null, deactivatingStyleId = null) {
   if (profileEmpty) profileEmpty.style.display = 'none';
   myStyleInputs.hidden = true;
   styleCardsList.style.display = 'flex';
@@ -2363,13 +2365,14 @@ function renderStyleList(activatingStyleId = null) {
   styleCardsList.innerHTML = savedStyles.map(style => {
     const isActive = style.id === activeStyleId && myStyleActive;
     const isActivating = isActive && String(style.id) === String(activatingStyleId);
+    const isDeactivating = !isActive && String(style.id) === String(deactivatingStyleId);
     const traits = window.BipassStyleProfile.readTraits(style);
     const fingerprint = Array.from({ length: 6 }, (_, index) => {
       const intensity = traits[index]?.intensity ?? 0;
       return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)};--profile-opacity:${isActive ? 1 : Math.max(0.24, intensity / 10)};--profile-scale:${Math.max(0.24, intensity / 10)}"></i>`;
     }).join('');
     return `
-      <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''} ${isActivating ? 'profile-activating' : ''}" data-id="${escapeHtml(style.id)}">
+      <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''} ${isActivating ? 'profile-activating' : ''} ${isDeactivating ? 'profile-deactivating' : ''}" data-id="${escapeHtml(style.id)}">
         <div class="style-card-header">
           <div class="profile-card-identity">
             <input class="style-card-name" type="text"
@@ -2423,15 +2426,16 @@ function renderStyleList(activatingStyleId = null) {
         deactivateMyStyle();
         saveStoredStyles();
         resetSlidersToNone();
-        renderStyleList();
+        renderStyleList(null, id);
         announceLevelChange();
       } else {
         // Activate — load style into sliders
+        const previousActiveStyleId = myStyleActive ? activeStyleId : null;
         activeStyleId = id;
         savedStyle = savedStyles.find(s => s.id === id) || null;
         saveStoredStyles();
         activateMyStyle();
-        renderStyleList(id);
+        renderStyleList(id, previousActiveStyleId && previousActiveStyleId !== id ? previousActiveStyleId : null);
       }
     });
   });

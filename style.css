@@ -8595,6 +8595,12 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   --profile-inset-rgb: 21, 23, 22;
 }
 
+@property --profile-rim-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .level-btn-profile {
   position: relative;
   isolation: isolate;
@@ -8665,6 +8671,10 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   background: rgba(255,255,255,0.035);
+  transition:
+    border-color 320ms cubic-bezier(0.16,1,0.3,1),
+    background 320ms cubic-bezier(0.16,1,0.3,1),
+    box-shadow 320ms cubic-bezier(0.16,1,0.3,1);
 }
 .level-profile-fingerprint i {
   width: 3px;
@@ -8675,6 +8685,10 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   opacity: var(--profile-opacity, 0.28);
   transform: scaleY(var(--profile-scale, 0.24));
   transform-origin: bottom;
+  transition:
+    background-color 300ms ease,
+    opacity 300ms ease,
+    transform 360ms cubic-bezier(0.16,1,0.3,1);
 }
 .level-profile-fingerprint i:nth-child(2) { height: 9px; }
 .level-profile-fingerprint i:nth-child(3) { height: 17px; }
@@ -8718,6 +8732,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   line-height: 1;
   letter-spacing: 0.11em;
   text-transform: uppercase;
+  transition: color 300ms ease, opacity 300ms ease;
 }
 .level-btn-profile.is-active .level-profile-default { color: rgba(var(--profile-accent-rgb), 0.72); }
 #writing-profile-option-meta {
@@ -8728,6 +8743,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 300ms ease, opacity 300ms ease;
 }
 #writing-profile-option-meta:empty { display: none; }
 .level-btn-profile.is-active #writing-profile-option-meta { color: rgba(var(--profile-accent-rgb), 0.66); }
@@ -8743,6 +8759,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   letter-spacing: 0.07em;
   text-align: center;
   text-transform: uppercase;
+  transition: color 300ms ease, opacity 300ms ease, transform 360ms cubic-bezier(0.16,1,0.3,1);
 }
 .level-btn-profile.is-active .level-profile-status {
   color: var(--profile-accent);
@@ -12112,6 +12129,13 @@ body.creation-page {
 
 @media (prefers-reduced-motion: reduce) {
   .level-btn-profile,
+  .level-btn-profile::before,
+  .level-btn-profile::after,
+  .level-profile-fingerprint,
+  .level-profile-fingerprint i,
+  .level-profile-default,
+  #writing-profile-option-meta,
+  .level-profile-status,
   .level-manual-btn,
   .writing-profile-block,
   .writing-profile-create,
@@ -12128,7 +12152,10 @@ body.creation-page {
   .writing-profile-card.is-settling .writing-fingerprint-card i { animation: none; }
   .writing-profile-card.profile-activating::after,
   .writing-profile-card.profile-activating .writing-fingerprint-card i,
-  .writing-profile-card.profile-activating .style-use-btn.active { animation: none; }
+  .writing-profile-card.profile-activating .style-use-btn.active,
+  .writing-profile-card.profile-deactivating::after,
+  .writing-profile-card.profile-deactivating .writing-fingerprint-card i,
+  .writing-profile-card.profile-deactivating .style-use-btn { animation: none; }
   .result-profile-wrap { opacity: 1; transform: none; transition: none; }
   .result-profile-wrap.is-revealed .result-profile-fingerprint i { animation: none; opacity: 1; transform: none; }
   .result-profile-popover { animation: none; }
@@ -12276,22 +12303,63 @@ body.creation-page {
 
 /* Primary profile surface — a lighter material above the structural glass. */
 .col-customize .level-btn-profile {
+  isolation: isolate;
   border-color: transparent;
   border-radius: 15px;
   background: transparent;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: none;
+  transition:
+    border-color 260ms ease,
+    box-shadow 380ms cubic-bezier(0.16,1,0.3,1),
+    transform 380ms cubic-bezier(0.16,1,0.3,1),
+    -webkit-backdrop-filter 380ms cubic-bezier(0.16,1,0.3,1),
+    backdrop-filter 380ms cubic-bezier(0.16,1,0.3,1),
+    opacity 180ms ease;
 }
 
 .col-customize .level-btn-profile::before {
-  inset: 9px;
-  border-radius: 10px;
-  background: rgba(var(--glass-white),0.055);
-  filter: blur(13px);
-  opacity: 0.68;
-  box-shadow: none;
-  transition: opacity 180ms ease, background-color 180ms ease;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
+    linear-gradient(145deg, rgba(78,80,90,0.96), rgba(49,51,59,0.96));
+  filter: none;
+  opacity: 0;
+  box-shadow: inset 0 10px 18px -18px rgba(255,255,255,0.48);
+  transition: opacity 380ms cubic-bezier(0.16,1,0.3,1);
+  will-change: opacity;
+}
+
+.col-customize .level-btn-profile::after {
+  --profile-rim-angle: 0deg;
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: -1px;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--profile-accent-rgb),0.96) 0deg,
+    rgba(var(--profile-accent-rgb),0.96) var(--profile-rim-angle),
+    rgba(var(--profile-accent-rgb),0) var(--profile-rim-angle),
+    rgba(var(--profile-accent-rgb),0) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.16));
+  transition: --profile-rim-angle 720ms cubic-bezier(0.16,1,0.3,1);
+}
+
+.col-customize .level-btn-profile > * {
+  position: relative;
+  z-index: 1;
 }
 
 .col-customize .level-btn-profile:hover {
@@ -12301,21 +12369,14 @@ body.creation-page {
   box-shadow: 0 16px 34px rgba(0,0,0,0.18);
 }
 
-.col-customize .level-btn-profile:hover::before {
-  background: rgba(var(--glass-white),0.075);
-  opacity: 0.92;
-}
-
 .col-customize .level-btn-profile:active {
   transform: scale(0.986);
   transition-duration: 90ms;
 }
 
 .col-customize .level-btn-profile.is-active {
-  border-color: rgba(var(--glass-signal),0.58);
-  background:
-    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
-    linear-gradient(145deg, rgba(78,80,90,0.96), rgba(49,51,59,0.96));
+  border-color: rgba(255,255,255,0.17);
+  background: linear-gradient(180deg, rgba(var(--glass-recess),0.72), rgba(22,23,28,0.68));
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
   transform: translateY(-1px);
@@ -12326,6 +12387,9 @@ body.creation-page {
     0 16px 36px rgba(0,0,0,0.25),
     0 28px 52px rgba(8,10,16,0.14);
 }
+
+.col-customize .level-btn-profile.is-active::before { opacity: 1; }
+.col-customize .level-btn-profile.is-active::after { --profile-rim-angle: 360deg; }
 
 .col-customize .level-btn-profile.is-ready:not(.is-active) {
   border-color: rgba(255,255,255,0.14);
@@ -12358,10 +12422,8 @@ body.creation-page {
 }
 
 .col-customize .level-btn-profile.is-active:hover {
-  border-color: rgba(var(--glass-signal),0.78);
-  background:
-    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.24), transparent 54%),
-    linear-gradient(145deg, rgba(86,88,99,0.97), rgba(55,57,66,0.97));
+  border-color: rgba(255,255,255,0.20);
+  background: linear-gradient(180deg, rgba(var(--glass-recess),0.72), rgba(22,23,28,0.68));
   transform: translateY(-2px) scale(1.002);
   box-shadow:
     inset 0 10px 18px -18px rgba(255,255,255,0.54),
@@ -12369,6 +12431,12 @@ body.creation-page {
     0 0 0 1px rgba(var(--glass-signal),0.045),
     0 18px 40px rgba(0,0,0,0.27),
     0 30px 56px rgba(8,10,16,0.16);
+}
+
+.col-customize .level-btn-profile.is-active:hover::before {
+  background:
+    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.24), transparent 54%),
+    linear-gradient(145deg, rgba(86,88,99,0.97), rgba(55,57,66,0.97));
 }
 
 .col-customize .level-btn-profile.is-active:active {
@@ -12500,23 +12568,38 @@ body.creation-page {
 }
 
 .col-customize .writing-profile-card::after {
+  --profile-rim-angle: 0deg;
   content: '';
   position: absolute;
   z-index: 3;
   inset: -1px;
-  border: 1px solid rgba(var(--profile-accent-rgb),0.74);
+  padding: 1.5px;
   border-radius: inherit;
-  opacity: 0;
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--profile-accent-rgb),0.96) 0deg,
+    rgba(var(--profile-accent-rgb),0.96) var(--profile-rim-angle),
+    rgba(var(--profile-accent-rgb),0) var(--profile-rim-angle),
+    rgba(var(--profile-accent-rgb),0) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
   pointer-events: none;
-  box-shadow: 0 0 18px rgba(var(--profile-accent-rgb),0.08);
+  filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.14));
 }
 
 .col-customize .writing-profile-card.style-card-active::after {
-  opacity: 1;
+  --profile-rim-angle: 360deg;
 }
 
 .col-customize .writing-profile-card.profile-activating::after {
-  animation: profile-green-rim-in 560ms cubic-bezier(0.16,1,0.3,1) both;
+  animation: profile-green-rim-in 720ms cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.col-customize .writing-profile-card.profile-deactivating::after {
+  animation: profile-green-rim-out 620ms cubic-bezier(0.7,0,0.84,0) both;
 }
 
 .col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i {
@@ -12533,9 +12616,22 @@ body.creation-page {
   animation: profile-green-status-in 420ms 120ms cubic-bezier(0.16,1,0.3,1) both;
 }
 
+.col-customize .writing-profile-card.profile-deactivating .writing-fingerprint-card i {
+  animation: profile-green-segment-out 360ms cubic-bezier(0.7,0,0.84,0) both;
+}
+
+.col-customize .writing-profile-card.profile-deactivating .style-use-btn {
+  animation: profile-green-status-out 320ms cubic-bezier(0.7,0,0.84,0) both;
+}
+
 @keyframes profile-green-rim-in {
-  from { opacity: 0.16; clip-path: inset(0 100% 0 0 round 14px); }
-  to { opacity: 1; clip-path: inset(0 0 0 0 round 14px); }
+  from { --profile-rim-angle: 0deg; }
+  to { --profile-rim-angle: 360deg; }
+}
+
+@keyframes profile-green-rim-out {
+  from { --profile-rim-angle: 360deg; }
+  to { --profile-rim-angle: 0deg; }
 }
 
 @keyframes profile-green-segment-in {
@@ -12554,6 +12650,16 @@ body.creation-page {
 @keyframes profile-green-status-in {
   from { color: rgba(255,255,255,0.52); opacity: 0.4; transform: translateX(-4px); }
   to { color: var(--profile-accent); opacity: 1; transform: none; }
+}
+
+@keyframes profile-green-segment-out {
+  from { background: var(--profile-accent); opacity: 1; }
+  to { background: rgba(255,255,255,var(--trait-opacity,0.35)); opacity: var(--trait-opacity,0.35); }
+}
+
+@keyframes profile-green-status-out {
+  from { color: var(--profile-accent); opacity: 1; transform: none; }
+  to { color: rgba(255,255,255,0.52); opacity: 1; transform: translateX(0); }
 }
 
 .col-customize .writing-profile-create:hover {
@@ -12632,6 +12738,13 @@ body.creation-page {
   .col.col-customize,
   .col.col-customize.col-active,
   .col-customize .level-btn-profile,
+  .col-customize .level-btn-profile::before,
+  .col-customize .level-btn-profile::after,
+  .col-customize .level-profile-fingerprint,
+  .col-customize .level-profile-fingerprint i,
+  .col-customize .level-profile-default,
+  .col-customize #writing-profile-option-meta,
+  .col-customize .level-profile-status,
   .col-customize .level-btn,
   .col-customize .level-manual-btn,
   .col-customize .writing-profile-create {
@@ -12640,6 +12753,12 @@ body.creation-page {
   }
 
   .col-customize .level-glider { transition: none; }
+  .col-customize .writing-profile-card.profile-activating::after,
+  .col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i,
+  .col-customize .writing-profile-card.profile-activating .style-use-btn.active,
+  .col-customize .writing-profile-card.profile-deactivating::after,
+  .col-customize .writing-profile-card.profile-deactivating .writing-fingerprint-card i,
+  .col-customize .writing-profile-card.profile-deactivating .style-use-btn { animation: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -12680,18 +12799,26 @@ body.creation-page {
   .col-customize .level-btn-profile:hover {
     background: transparent;
   }
+  .col-customize .level-btn-profile.is-ready,
+  .col-customize .level-btn-profile.is-ready:hover {
+    background: linear-gradient(180deg, rgb(37,38,44), rgb(22,23,28));
+  }
   .col-customize .level-btn-profile.is-active,
   .col-customize .level-btn-profile.is-active:hover {
-    border-color: rgba(var(--glass-signal),0.72);
-    background:
-      radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
-      linear-gradient(145deg, rgba(78,80,90,0.96), rgba(49,51,59,0.96));
+    border-color: rgba(255,255,255,0.20);
+    background: linear-gradient(180deg, rgb(37,38,44), rgb(22,23,28));
     box-shadow:
       inset 0 10px 18px -18px rgba(255,255,255,0.48),
       inset 0 -1px 0 rgba(0,0,0,0.20),
       0 0 0 1px rgba(var(--glass-signal),0.035),
       0 16px 36px rgba(0,0,0,0.25),
       0 28px 52px rgba(8,10,16,0.14);
+  }
+  .col-customize .level-btn-profile.is-active::before,
+  .col-customize .level-btn-profile.is-active:hover::before {
+    background:
+      radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
+      linear-gradient(145deg, rgb(78,80,90), rgb(49,51,59));
   }
   .col-customize .level-track,
   .col-customize #options-panel {

@@ -2158,17 +2158,17 @@ function renderProfileDetails(style) {
       ${insightList('Strengths', profile.strengths)}
       ${insightList('Recurring habits', profile.habits)}
     </div>
-    <div class="profile-score-list">
-      <span class="profile-detail-label">Measured traits</span>
-      ${scoreRows}
-    </div>
     <div class="profile-ai-editor">
       <form class="profile-refine-form" data-id="${escapeHtml(style.id)}">
         <input class="profile-refine-input" type="text" maxlength="280"
-               placeholder="Optional direction for the AI" aria-label="Direction for regenerating this writing profile">
+               placeholder="Write a custom tone (optional)" aria-label="Custom tone for regenerating this writing profile">
         <button class="profile-refine-btn" type="submit">Regenerate with AI</button>
       </form>
       <button class="profile-reanalyze-btn" data-id="${escapeHtml(style.id)}" type="button">Reanalyse samples</button>
+    </div>
+    <div class="profile-score-list">
+      <span class="profile-detail-label">Measured traits</span>
+      ${scoreRows}
     </div>`;
 }
 

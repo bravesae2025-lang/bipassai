@@ -205,6 +205,8 @@ if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
     || !appJs.includes("fetch('/api/refine-profile'")
     || !appJs.includes('class="profile-reanalyze-btn"')
+    || !appJs.includes('placeholder="Write a custom tone (optional)"')
+    || appJs.indexOf('class="profile-ai-editor"') > appJs.indexOf('class="profile-score-list"')
     || appJs.includes('class="profile-score-track"')) {
   add(appJsFile, 'profile details must provide editable traits and compact AI refinement controls');
 }

@@ -7062,7 +7062,7 @@ body.drawer-lock { overflow: hidden; }
 .own-text-push-btn.pushed { background: #16a34a; opacity: 1; }
 
 /* ─────────────────────────────────────────────────────────────
-   Recommended workflow carousel (real app screens)
+   Workflow carousel (real app screens)
 ───────────────────────────────────────────────────────────── */
 .rec-flow-box {
   position: relative;
@@ -7070,14 +7070,14 @@ body.drawer-lock { overflow: hidden; }
   background: linear-gradient(180deg, #fff, #f7f7f5);
   border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
-  padding: 16px 16px 14px;
+  padding: 12px 16px 12px;
   box-shadow:
     0 1px 3px rgba(0,0,0,0.05),
     0 12px 32px rgba(0,0,0,0.08),
     0 28px 56px rgba(0,0,0,0.05);
   overflow: hidden;
   transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease,
-    padding-bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+    padding 0.42s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rec-flow-box:hover {
   transform: translateY(-3px);
@@ -7086,27 +7086,9 @@ body.drawer-lock { overflow: hidden; }
     0 18px 44px rgba(0,0,0,0.10),
     0 36px 72px rgba(0,0,0,0.07);
 }
-.rec-flow-head {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 13px;
-  transition: margin-bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.rec-flow-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #0d0d0d; color: #fff;
-  font-family: var(--ff-mono); font-size: 8.5px; font-weight: 500;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 4px 9px; border-radius: 100px; flex: none;
-}
-.rec-flow-badge svg { color: #34d36b; }
-.rec-flow-title {
-  flex: 1; min-width: 0;
-  font-family: var(--ff-display); font-size: 23px; letter-spacing: 0.02em;
-  color: var(--black); line-height: 1; margin: 0;
-}
 .rec-flow-toggle {
+  grid-column: 3;
+  justify-self: end;
   flex: none; width: 28px; height: 28px; padding: 0;
   display: flex; align-items: center; justify-content: center;
   background: var(--g050); color: var(--g600);
@@ -7120,8 +7102,7 @@ body.drawer-lock { overflow: hidden; }
 .rec-flow-box.is-collapsed .rec-flow-toggle .rec-toggle-max { display: block; }
 
 /* Collapsed → compact little bar */
-.rec-flow-box.is-collapsed { padding-bottom: 16px; }
-.rec-flow-box.is-collapsed .rec-flow-head { margin-bottom: 0; }
+.rec-flow-box.is-collapsed { padding: 10px 12px; }
 .rec-flow-box.is-collapsed .rec-flow-viewport {
   height: 0 !important;
   opacity: 0;
@@ -7139,6 +7120,7 @@ body.drawer-lock { overflow: hidden; }
   opacity: 0;
   pointer-events: none;
 }
+.rec-flow-box.is-collapsed .rec-flow-controls { margin-top: 0; }
 
 .rec-flow-viewport {
   overflow: hidden;
@@ -7313,13 +7295,22 @@ body.drawer-lock { overflow: hidden; }
 @keyframes rec-progress { from { width: 0; } to { width: 100%; } }
 
 /* Dots */
+.rec-flow-controls {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  align-items: center;
+  min-height: 28px;
+  margin-top: 8px;
+  transition: margin-top 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .rec-flow-dots {
+  grid-column: 2;
   max-height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 0;
   overflow: hidden;
   opacity: 1;
   transition: max-height 0.34s cubic-bezier(0.16, 1, 0.3, 1),
@@ -7344,7 +7335,7 @@ body.drawer-lock { overflow: hidden; }
   .rec-gd-typing::after,
   .rec-flow-progress i.run { animation: none; }
   .rec-flow-box,
-  .rec-flow-head,
+  .rec-flow-controls,
   .rec-flow-viewport,
   .rec-flow-progress,
   .rec-flow-dots,

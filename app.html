@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=84">
+  <link rel="stylesheet" href="style.css?v=85">
 </head>
 <body class="creation-page">
 
@@ -473,20 +473,8 @@
 
         </section>
 
-        <!-- Recommended workflow — auto-sliding carousel of real app screens -->
+        <!-- Workflow — auto-sliding carousel of real app screens -->
         <div class="rec-flow-box" id="rec-flow-box">
-          <div class="rec-flow-head">
-            <span class="rec-flow-badge">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-              Recommended
-            </span>
-            <h3 class="rec-flow-title">Get the best result</h3>
-            <button class="rec-flow-toggle" id="rec-flow-toggle" type="button" aria-label="Minimize" title="Minimize" aria-expanded="true">
-              <svg class="rec-toggle-min" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
-              <svg class="rec-toggle-max" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-            </button>
-          </div>
-
           <div class="rec-flow-viewport">
             <div class="rec-flow-track" id="rec-flow-track">
 
@@ -619,7 +607,13 @@
           </div>
 
           <div class="rec-flow-progress" aria-hidden="true"><i id="rec-flow-progress-fill"></i></div>
-          <div class="rec-flow-dots" id="rec-flow-dots"></div>
+          <div class="rec-flow-controls">
+            <div class="rec-flow-dots" id="rec-flow-dots"></div>
+            <button class="rec-flow-toggle" id="rec-flow-toggle" type="button" aria-label="Minimize" title="Minimize" aria-expanded="true">
+              <svg class="rec-toggle-min" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+              <svg class="rec-toggle-max" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            </button>
+          </div>
 
         </div>
 

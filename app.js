@@ -3579,7 +3579,7 @@ function startTour() {
   });
 })();
 
-// ─── Recommended workflow carousel ────────────────────────────
+// ─── Workflow carousel ────────────────────────────────────────
 (function () {
   const box   = document.getElementById('rec-flow-box');
   const track = document.getElementById('rec-flow-track');

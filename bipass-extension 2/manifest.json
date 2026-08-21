@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Bipass AI — Auto Typer",
+  "version": "1.0.2",
+  "description": "Automatically type your Bipass AI results into any text field",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Bipass AI Auto Typer"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["scripting", "activeTab", "storage", "identity"],
+  "host_permissions": [
+    "https://bipassai.com/*",
+    "https://www.bipassai.com/*"
+  ]
+}

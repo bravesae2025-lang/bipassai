@@ -1,3 +1,14 @@
+# Let OpenAI discover public pages for ChatGPT search and open links when a
+# user explicitly asks. Keep the separate training crawler blocked.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Disallow: /
+
 User-agent: *
 Allow: /
 Disallow: /editor.html

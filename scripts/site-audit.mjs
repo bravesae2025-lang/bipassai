@@ -205,7 +205,7 @@ if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
     || !appJs.includes("fetch('/api/refine-profile'")
     || !appJs.includes('class="profile-reanalyze-btn"')
-    || !appJs.includes('placeholder="Write a custom tone (optional)"')
+    || !appJs.includes('placeholder="Tell AI what to fix or change (optional)"')
     || appJs.indexOf('class="profile-ai-editor"') > appJs.indexOf('class="profile-score-list"')
     || appJs.includes('class="profile-score-track"')) {
   add(appJsFile, 'profile details must provide editable traits and compact AI refinement controls');
@@ -267,6 +267,9 @@ for (const name of ['index.html', 'howto.html']) {
   }
   if (/1 credit\s*=\s*1 character in the output/i.test(html)) {
     add(file, 'contains obsolete output-character billing claim for Level Matching');
+  }
+  if (!/Both mode costs 18 credits per word|Humanize \+ Level Matching costs 18 credits per word/i.test(html)) {
+    add(file, 'must explain the 18-credit Both mode rate');
   }
 }
 

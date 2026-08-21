@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1080, initial-scale=1">
+  <title>Bipass AI Google Flow anchor frames</title>
+  <style>
+    @font-face { font-family: Syne; src: url('../../assets/fonts/syne-latin.woff2') format('woff2'); font-display: block; }
+    @font-face { font-family: DM Mono; src: url('../../assets/fonts/dm-mono-400-latin.woff2') format('woff2'); font-display: block; }
+    @font-face { font-family: Bebas Neue; src: url('../../assets/fonts/bebas-neue-latin.woff2') format('woff2'); font-display: block; }
+
+    :root {
+      --paper: #fbfbf8;
+      --ink: #10100f;
+      --muted: #74746f;
+      --line: #dfdfda;
+      --soft: #f2f2ee;
+      --green: #1aa564;
+      --yellow: #e8a317;
+      --blue: #2f6df6;
+      --purple: #8b5cf6;
+      --red: #e0533d;
+      --pink: #d6336c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; }
+    body { background: var(--paper); color: var(--ink); font-family: Syne, Arial, sans-serif; }
+
+    .frame {
+      position: absolute;
+      inset: 0;
+      display: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 82% 12%, rgba(20, 20, 20, .025), transparent 24%),
+        linear-gradient(var(--paper), var(--paper));
+    }
+    .frame.active { display: block; }
+    .frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .14;
+      background-image: radial-gradient(rgba(15, 15, 15, .18) .7px, transparent .7px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 82%, transparent);
+    }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      font: 500 25px/1 DM Mono, monospace;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .brand-square { width: 15px; height: 15px; background: var(--ink); border-radius: 2px; }
+    .eyebrow {
+      margin: 0 0 28px;
+      font: 500 20px/1.3 DM Mono, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 { margin: 0; font-size: 82px; line-height: .99; letter-spacing: -.065em; font-weight: 700; }
+    .accent { color: var(--green); }
+    .stage-head { position: absolute; left: 72px; right: 72px; top: 92px; z-index: 2; }
+
+    .logo-frame.active { display: grid; place-items: center; }
+    .logo-frame .logo-stack { transform: translateY(-20px); text-align: center; }
+    .logo-frame img { width: 206px; height: 206px; display: block; margin: 0 auto 36px; }
+    .logo-frame .wordmark { font: 400 62px/1 Bebas Neue, sans-serif; letter-spacing: .065em; }
+
+    .window {
+      border: 1px solid #d6d6d1;
+      border-radius: 28px;
+      background: rgba(255,255,255,.97);
+      box-shadow: 0 30px 80px rgba(15,15,15,.10);
+      overflow: hidden;
+    }
+    .window-bar {
+      height: 74px;
+      padding: 0 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      font: 500 17px/1 DM Mono, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .window-brand { display: flex; align-items: center; gap: 12px; }
+    .status-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(26,165,100,.11); }
+    .muted { color: var(--muted); }
+
+    /* 02 — input and level matching */
+    .input-stage .product-window { position: absolute; z-index: 2; left: 58px; right: 58px; top: 485px; height: 1300px; }
+    .input-body { padding: 34px; }
+    .mode-row {
+      height: 82px;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 23px;
+      font-weight: 700;
+    }
+    .down { font: 400 24px/1 DM Mono, monospace; }
+    .input-area {
+      margin-top: 24px;
+      height: 410px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      font-size: 27px;
+      line-height: 1.52;
+      letter-spacing: -.02em;
+    }
+    .field-label { margin-bottom: 22px; font: 500 16px/1 DM Mono, monospace; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+    .caret { display: inline-block; width: 2px; height: 30px; margin-left: 4px; background: var(--ink); vertical-align: -5px; }
+    .levels-card { margin-top: 24px; padding: 28px; border-radius: 18px; background: #151515; color: white; }
+    .levels-title { margin-bottom: 24px; font: 500 17px/1 DM Mono, monospace; letter-spacing: .12em; text-transform: uppercase; color: #b7b7b0; }
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+    .level {
+      min-height: 72px;
+      border: 1px solid #4a4a48;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 21px;
+      color: #bdbdb8;
+    }
+    .level.active { background: white; color: var(--ink); border-color: white; font-weight: 700; }
+    .level.custom { grid-column: 1 / -1; }
+    .level-note { margin: 19px 0 0; color: #a2a29c; font: 400 17px/1.45 DM Mono, monospace; }
+    .run-button {
+      margin-top: 24px;
+      height: 88px;
+      border-radius: 14px;
+      background: var(--ink);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      font-size: 23px;
+      font-weight: 700;
+    }
+
+    /* 03 — result and review */
+    .result-stage .result-window { position: absolute; z-index: 2; left: 58px; right: 58px; top: 435px; height: 1350px; }
+    .result-body { padding: 34px; }
+    .result-meta { display: flex; align-items: center; gap: 13px; margin-bottom: 30px; }
+    .badge { padding: 11px 14px; border-radius: 999px; background: var(--ink); color: white; font: 500 15px/1 DM Mono, monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .meta-text { font: 400 16px/1 DM Mono, monospace; color: var(--muted); }
+    .review-copy {
+      min-height: 640px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px;
+      font-size: 29px;
+      line-height: 1.7;
+      letter-spacing: -.025em;
+    }
+    mark { color: inherit; padding: 2px 5px; border-radius: 5px; background: transparent; }
+    mark.yellow { background: rgba(232,163,23,.16); border-bottom: 3px solid var(--yellow); }
+    mark.blue { background: rgba(47,109,246,.13); border-bottom: 3px solid var(--blue); }
+    mark.purple { background: rgba(139,92,246,.13); border-bottom: 3px solid var(--purple); }
+    mark.red { background: rgba(224,83,61,.13); border-bottom: 3px solid var(--red); }
+    mark.pink { background: rgba(214,51,108,.12); border-bottom: 3px solid var(--pink); }
+    .filter-label { margin: 25px 0 14px; font: 500 15px/1 DM Mono, monospace; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-chip { display: flex; align-items: center; gap: 9px; padding: 12px 15px; border: 1px solid var(--line); border-radius: 999px; font: 400 15px/1 DM Mono, monospace; }
+    .filter-chip i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+    .result-actions { display: grid; grid-template-columns: 1.45fr 1fr; gap: 14px; margin-top: 27px; }
+    .action { height: 78px; border-radius: 13px; display: grid; place-items: center; border: 1px solid var(--line); font-size: 20px; font-weight: 700; }
+    .action.primary { background: var(--ink); color: white; border-color: var(--ink); }
+
+    /* 04 — Auto Typer */
+    .type-stage .docs-window { position: absolute; z-index: 1; left: 58px; right: 58px; top: 430px; height: 760px; }
+    .docs-toolbar { height: 70px; padding: 0 30px; display: flex; align-items: center; gap: 21px; background: #f7f7f4; border-bottom: 1px solid var(--line); font: 400 15px/1 DM Mono, monospace; color: #777770; }
+    .doc-paper { width: 760px; height: 520px; margin: 42px auto; border: 1px solid var(--line); background: white; box-shadow: 0 8px 28px rgba(20,20,20,.07); padding: 62px 68px; }
+    .doc-title { font-size: 29px; font-weight: 700; margin-bottom: 38px; }
+    .doc-copy { font: 400 22px/1.75 Syne, sans-serif; color: #2f2f2c; }
+    .doc-caret { display: inline-block; width: 2px; height: 25px; background: var(--ink); vertical-align: -4px; }
+    .type-stage .extension-window { position: absolute; z-index: 3; left: 140px; right: 58px; top: 1065px; height: 720px; }
+    .extension-window .window-bar { background: #111; color: white; border-bottom-color: #272727; }
+    .extension-body { padding: 30px; }
+    .draft-card { border: 1px solid var(--line); border-radius: 15px; padding: 22px; }
+    .draft-card-top { display: flex; justify-content: space-between; margin-bottom: 14px; font: 500 15px/1 DM Mono, monospace; color: var(--muted); text-transform: uppercase; }
+    .draft-copy { font-size: 20px; line-height: 1.45; }
+    .control-label { margin: 26px 0 13px; font: 500 15px/1 DM Mono, monospace; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+    .speed-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .speed { height: 62px; border-radius: 12px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 18px; }
+    .speed.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .progress { margin-top: 25px; height: 12px; background: #e8e8e4; border-radius: 99px; overflow: hidden; }
+    .progress > span { display: block; height: 100%; width: 44%; border-radius: inherit; background: var(--ink); }
+    .start-button { margin-top: 26px; height: 78px; border-radius: 13px; background: var(--ink); color: white; display: grid; place-items: center; font-size: 21px; font-weight: 700; }
+
+    /* 05 — end card */
+    .end-frame.active { display: grid; place-items: center; }
+    .end-card { width: 100%; padding: 70px; text-align: center; transform: translateY(-12px); }
+    .end-logo { width: 158px; height: 158px; display: block; margin: 0 auto 38px; }
+    .end-wordmark { margin: 0 0 48px; font: 400 68px/1 Bebas Neue, sans-serif; letter-spacing: .065em; }
+    .end-line { margin: 0 auto; max-width: 900px; font-size: 76px; line-height: 1.02; letter-spacing: -.06em; font-weight: 700; }
+    .domain { margin-top: 76px; font: 500 25px/1 DM Mono, monospace; letter-spacing: .09em; }
+  </style>
+</head>
+<body>
+  <section class="frame logo-frame" data-frame="1">
+    <div class="logo-stack">
+      <img src="../../favicon.png" alt="">
+      <div class="wordmark">BIPASS AI</div>
+    </div>
+  </section>
+
+  <section class="frame input-stage" data-frame="2">
+    <header class="stage-head">
+      <p class="eyebrow">01 / Set your level</p>
+      <h1>Humanize it.<br><span class="accent">Match your level.</span></h1>
+    </header>
+    <div class="window product-window">
+      <div class="window-bar">
+        <span class="window-brand"><i class="status-dot"></i>Bipass AI</span>
+        <span class="muted">168 words</span>
+      </div>
+      <div class="input-body">
+        <div class="mode-row"><span>Humanize + Level Matching</span><span class="down">⌄</span></div>
+        <div class="input-area">
+          <div class="field-label">Your AI text</div>
+          Artificial intelligence is changing how students learn and work. The tools are useful, but the writing can feel too polished and unlike the student who submits it.<span class="caret"></span>
+        </div>
+        <div class="levels-card">
+          <div class="levels-title">Level matching</div>
+          <div class="level-grid">
+            <div class="level">Beginner</div>
+            <div class="level active">Student</div>
+            <div class="level">Academic</div>
+            <div class="level custom">Custom</div>
+          </div>
+          <p class="level-note">Student selected · natural words and varied sentence rhythm</p>
+        </div>
+        <div class="run-button"><span>Humanize + Level Match</span><span>→</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frame result-stage" data-frame="3">
+    <header class="stage-head">
+      <p class="eyebrow">02 / Review</p>
+      <h1>See every change.<br><span class="accent">Keep your voice.</span></h1>
+    </header>
+    <div class="window result-window">
+      <div class="window-bar">
+        <span class="window-brand"><i class="status-dot"></i>Bipass AI</span>
+        <span class="muted">Result</span>
+      </div>
+      <div class="result-body">
+        <div class="result-meta">
+          <span class="badge">Humanized + Level Matched</span>
+          <span class="meta-text">Student · 47 words</span>
+        </div>
+        <div class="review-copy">
+          AI tools are <mark class="yellow">changing</mark> how students learn. They can be <mark class="blue">really useful</mark>, but the writing sometimes feels <mark class="purple">too perfect</mark>. Bipass AI changes the wording and rhythm so the draft feels <mark class="red">more natural</mark>, while the student still reviews it and <mark class="pink">makes the final call</mark>.
+        </div>
+        <div class="filter-label">Filter changes</div>
+        <div class="filter-row">
+          <span class="filter-chip"><i style="background:var(--yellow)"></i>Vocabulary</span>
+          <span class="filter-chip"><i style="background:var(--blue)"></i>Capitals</span>
+          <span class="filter-chip"><i style="background:var(--purple)"></i>Punctuation</span>
+          <span class="filter-chip"><i style="background:var(--red)"></i>Spelling</span>
+        </div>
+        <div class="result-actions">
+          <div class="action primary">Upload to Extension</div>
+          <div class="action">Regenerate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frame type-stage" data-frame="4">
+    <header class="stage-head">
+      <p class="eyebrow">03 / Auto Typer</p>
+      <h1>Type in your<br><span class="accent">document.</span></h1>
+    </header>
+    <div class="window docs-window">
+      <div class="window-bar">
+        <span class="window-brand"><i class="status-dot"></i>Essay — Google Docs</span>
+        <span class="muted">Saved</span>
+      </div>
+      <div class="docs-toolbar"><span>Undo</span><span>Redo</span><span>100%</span><span>Normal text</span><span>Arial</span></div>
+      <div class="doc-paper">
+        <div class="doc-title">Technology and thoughtful writing</div>
+        <div class="doc-copy">AI tools are changing how students learn. They can be really useful, but the writing sometimes feels too perfect.<span class="doc-caret"></span></div>
+      </div>
+    </div>
+    <div class="window extension-window">
+      <div class="window-bar">
+        <span class="window-brand"><span class="brand-square" style="background:white"></span>Bipass AI</span>
+        <span style="color:#aaa">Auto Typer</span>
+      </div>
+      <div class="extension-body">
+        <div class="draft-card">
+          <div class="draft-card-top"><span>Humanized · Student</span><span>Today</span></div>
+          <div class="draft-copy">AI tools are changing how students learn. They can be really useful…</div>
+        </div>
+        <div class="control-label">Typing speed</div>
+        <div class="speed-row"><div class="speed">Slow</div><div class="speed active">Normal</div><div class="speed">Fast</div></div>
+        <div class="progress"><span></span></div>
+        <div class="start-button">Typing into Google Docs…</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="frame end-frame" data-frame="5">
+    <div class="end-card">
+      <img class="end-logo" src="../../favicon.png" alt="">
+      <div class="end-wordmark">BIPASS AI</div>
+      <p class="end-line">Your AI text,<br><span class="accent">at the right level.</span></p>
+      <div class="domain">bipassai.com</div>
+    </div>
+  </section>
+
+  <script>
+    const number = new URLSearchParams(location.search).get('frame') || '1';
+    document.querySelector(`[data-frame="${number}"]`)?.classList.add('active');
+  </script>
+</body>
+</html>

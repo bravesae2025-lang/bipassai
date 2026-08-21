@@ -1,10 +1,9 @@
 (function initBipassBilling(root) {
   const LEVEL_CREDITS_PER_WORD = 4;
   const HUMANIZE_CREDITS_PER_WORD = 15;
-  const COMBINED_DISCOUNT = 0.20;
-  const BOTH_CREDITS_PER_WORD = Number(((
-    LEVEL_CREDITS_PER_WORD + HUMANIZE_CREDITS_PER_WORD
-  ) * (1 - COMBINED_DISCOUNT)).toFixed(1));
+  // Both mode saves 1 credit/word versus running 15 + 4 separately. This keeps
+  // the bundle worthwhile without making the Level Matching pass nearly free.
+  const BOTH_CREDITS_PER_WORD = 18;
 
   const CREDIT_RATES = Object.freeze({
     level: LEVEL_CREDITS_PER_WORD,
@@ -21,8 +20,7 @@
     const safeWords = Number.isFinite(words) ? Math.max(0, Math.floor(words)) : 0;
     const rate = CREDIT_RATES[mode];
     if (!rate) throw new Error(`Unknown billing mode: ${mode}`);
-    // Round away floating-point residue (for example 15.2 * 1,000 must be
-    // exactly 15,200, not 15,201) before rounding a fractional run upward.
+    // Round away floating-point residue before rounding a fractional run upward.
     return Math.ceil(Number((safeWords * rate).toFixed(8)));
   }
 
@@ -31,7 +29,6 @@
   }
 
   root.BipassBilling = Object.freeze({
-    COMBINED_DISCOUNT,
     CREDIT_RATES,
     billableWordCount,
     creditsForText,

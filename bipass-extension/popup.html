@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bipass AI Auto Typer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #0a0a0a;
+    }
+
+    .header {
+      background: #0a0a0a;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-logo {
+      font-size: 14px; font-weight: 800; color: #fff;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .header-tag {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 20px;
+    }
+
+    .body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    .state { display: none; flex-direction: column; gap: 12px; }
+    .state.active { display: flex; }
+
+    /* Loading */
+    .loading-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 24px 0; color: #888; font-size: 12px;
+    }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 1.5px solid #ddd; border-top-color: #0a0a0a;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Login */
+    .auth-title { font-size: 13px; font-weight: 700; color: #0a0a0a; text-align: center; padding-top: 6px; }
+    .auth-sub { font-size: 11px; color: #888; text-align: center; margin: 0; line-height: 1.5; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+    .form-input {
+      padding: 9px 11px;
+      border: 1.5px solid #e8e8e8; border-radius: 7px;
+      font-size: 12px; color: #0a0a0a; outline: none;
+      transition: border-color 0.15s; width: 100%;
+    }
+    .form-input:focus { border-color: #0a0a0a; }
+    .auth-error { font-size: 11px; color: #d00; min-height: 14px; text-align: center; }
+    .auth-btn {
+      width: 100%; padding: 11px;
+      background: #0a0a0a; color: #fff; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .auth-btn:hover { opacity: 0.85; }
+    .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .auth-divider {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; color: #ccc;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: #e8e8e8;
+    }
+    .google-btn {
+      width: 100%; padding: 10px;
+      background: #fff; color: #0a0a0a;
+      border: 1.5px solid #e8e8e8; border-radius: 8px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .google-btn:hover { border-color: #0a0a0a; background: #fafafa; }
+    .google-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Empty / gate states */
+    .empty-wrap {
+      text-align: center; padding: 24px 0;
+      display: flex; flex-direction: column; gap: 8px; align-items: center;
+    }
+    .empty-icon { font-size: 28px; }
+    .empty-title { font-size: 13px; font-weight: 700; }
+    .empty-sub { font-size: 11px; color: #888; line-height: 1.5; }
+    .empty-link { font-size: 11px; font-weight: 600; color: #0a0a0a; text-decoration: underline; cursor: pointer; }
+    .upgrade-btn {
+      padding: 9px 20px; background: #0a0a0a; color: #fff;
+      border: none; border-radius: 7px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .upgrade-btn:hover { opacity: 0.8; }
+
+    /* Result list */
+    .list-header { display: flex; align-items: center; justify-content: space-between; }
+    .list-title { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+    .signout-btn { font-size: 10px; color: #bbb; background: none; border: none; cursor: pointer; transition: color 0.15s; }
+    .signout-btn:hover { color: #0a0a0a; }
+    .result-list { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
+    .result-list::-webkit-scrollbar { width: 3px; }
+    .result-list::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+    .result-item {
+      padding: 10px 12px; border: 1.5px solid #e8e8e8; border-radius: 8px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .result-item:hover { border-color: #0a0a0a; background: #fafafa; }
+    .result-meta { display: flex; align-items: center; justify-content: space-between; }
+    .result-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      background: #0a0a0a; color: #fff; padding: 2px 7px; border-radius: 20px;
+    }
+    .result-date { font-size: 10px; color: #aaa; }
+    .result-preview { font-size: 11px; color: #555; line-height: 1.5; }
+
+    /* Text preview */
+    .preview-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+    .preview-box {
+      background: #f7f7f7; border: 1px solid #e8e8e8; border-radius: 8px;
+      padding: 10px 12px; font-size: 11px; line-height: 1.6; color: #333;
+      max-height: 100px; overflow-y: auto; white-space: pre-wrap;
+    }
+    .preview-meta { font-size: 10px; color: #aaa; display: flex; justify-content: space-between; }
+
+    /* Duration */
+    .ctrl-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888;
+      display: block; margin-bottom: 8px;
+    }
+    .dur-track { display: flex; gap: 6px; }
+    .dur-btn, .spd-btn {
+      flex: 1; padding: 7px 0; font-size: 11px; font-weight: 600;
+      border: 1.5px solid #e8e8e8; border-radius: 7px; background: #fff; color: #555;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .dur-btn:hover, .spd-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .dur-btn.active, .spd-btn.active { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+    .dur-custom-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 8px;
+    }
+    .dur-custom-row input {
+      flex: 1; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 7px;
+      font-size: 12px; color: #0a0a0a; outline: none; transition: border-color 0.15s;
+    }
+    .dur-custom-row input:focus { border-color: #0a0a0a; }
+    .dur-custom-unit { font-size: 11px; color: #888; font-weight: 600; }
+
+    /* Start */
+    .start-btn {
+      width: 100%; padding: 12px; background: #0a0a0a; color: #fff;
+      border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s;
+    }
+    .start-btn:hover { opacity: 0.85; }
+    .ready-topbar { display: flex; align-items: center; margin-bottom: 2px; }
+    .back-arrow-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px 5px 7px;
+      font-size: 11px; font-weight: 600; color: #555;
+      background: #f5f5f5; border: 1.5px solid #e8e8e8; border-radius: 6px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .back-arrow-btn:hover { color: #0a0a0a; border-color: #0a0a0a; background: #fff; }
+    .instructions { font-size: 10px; color: #999; line-height: 1.6; text-align: center; }
+    .instructions strong { color: #555; }
+
+    /* Armed */
+    .armed-wrap {
+      text-align: center; padding: 8px 0;
+      display: flex; flex-direction: column; gap: 10px; align-items: center;
+    }
+    .armed-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2); animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,0.2)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0.1)} }
+    .armed-title { font-size: 13px; font-weight: 700; }
+    .armed-sub { font-size: 11px; color: #888; line-height: 1.5; }
+    .cancel-btn {
+      font-size: 11px; font-weight: 600; color: #888;
+      background: none; border: 1px solid #e8e8e8; border-radius: 6px;
+      padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+    }
+    .cancel-btn:hover { color: #0a0a0a; border-color: #0a0a0a; }
+
+    /* Mistype slider */
+    .mistype-row { display: flex; flex-direction: column; gap: 6px; }
+    .mistype-track { display: flex; align-items: center; gap: 8px; }
+    .mistype-track input[type=range] {
+      flex: 1; -webkit-appearance: none; height: 3px;
+      background: #e8e8e8; border-radius: 2px; outline: none; cursor: pointer;
+    }
+    .mistype-track input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: #0a0a0a; cursor: pointer;
+    }
+    .mistype-val { font-size: 10px; font-weight: 700; color: #0a0a0a; min-width: 44px; text-align: right; }
+
+    /* Ctrl label row with info icon */
+    .ctrl-label-row {
+      display: flex; align-items: center; gap: 5px;
+      margin-bottom: 8px; position: relative;
+    }
+    .ctrl-label-row .ctrl-label { margin-bottom: 0; }
+    .info-btn {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 1.5px solid #ccc; background: #fff; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; padding: 0; flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .info-btn:hover { border-color: #0a0a0a; color: #0a0a0a; }
+    .info-popup {
+      display: none; position: absolute;
+      top: calc(100% + 6px); left: 0;
+      width: 210px; background: #0a0a0a; color: #fff;
+      font-size: 10.5px; line-height: 1.55;
+      padding: 8px 10px; border-radius: 7px;
+      z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+    .info-popup.open { display: block; }
+
+    .divider { height: 1px; background: #f0f0f0; }
+
+    /* Persistent account footer */
+    .account-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0 2px; border-top: 1px solid #f0f0f0; margin-top: 4px;
+    }
+    #account-email-global {
+      font-size: 9px; font-family: monospace; color: #bbb;
+      max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .signout-global-btn {
+      font-size: 10px; color: #bbb; background: none; border: none;
+      cursor: pointer; transition: color 0.15s; padding: 0; flex-shrink: 0;
+    }
+    .signout-global-btn:hover { color: #0a0a0a; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <span class="header-logo">Bipass AI</span>
+    <span class="header-tag">Auto Typer</span>
+  </div>
+
+  <div class="body">
+
+    <!-- Loading -->
+    <div class="state active" id="state-loading">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <span>Loading…</span>
+      </div>
+    </div>
+
+    <!-- Login -->
+    <div class="state" id="state-login">
+      <div class="auth-title">Sign in to Bipass AI</div>
+
+      <button class="google-btn" id="google-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="auth-divider">or</div>
+
+      <form id="login-form" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="form-field">
+          <label class="form-label" for="login-email">Email</label>
+          <input class="form-input" type="email" id="login-email" placeholder="you@email.com" required autocomplete="email">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="login-password">Password</label>
+          <input class="form-input" type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <p class="auth-error" id="login-error"></p>
+        <button class="auth-btn" type="submit" id="login-btn">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Free tier — upgrade needed -->
+    <div class="state" id="state-upgrade">
+      <div class="empty-wrap">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-title">Pro feature</div>
+        <div class="empty-sub">The Auto Typer is available on the Pro plan. Upgrade to unlock it.</div>
+        <button class="upgrade-btn" id="open-upgrade">Upgrade to Pro →</button>
+      </div>
+    </div>
+
+    <!-- No texts yet -->
+    <div class="state" id="state-empty">
+      <div class="empty-wrap">
+        <div class="empty-icon">✦</div>
+        <div class="empty-title">No texts yet</div>
+        <div class="empty-sub">Generate or humanize text on Bipass AI first, then come back here.</div>
+        <span class="empty-link" id="open-bipass">Open Bipass AI →</span>
+      </div>
+    </div>
+
+    <!-- Result list -->
+    <div class="state" id="state-list">
+      <div class="list-header">
+        <span class="list-title">Your texts</span>
+        <button class="signout-btn" id="signout-btn">Sign out</button>
+      </div>
+      <div class="result-list" id="result-list"></div>
+    </div>
+
+    <!-- Text ready -->
+    <div class="state" id="state-ready">
+      <div class="ready-topbar">
+        <button class="back-arrow-btn" id="back-btn" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </button>
+      </div>
+      <div>
+        <div class="preview-label" style="margin-bottom:6px">Selected text</div>
+        <div class="preview-box" id="preview-text"></div>
+        <div class="preview-meta" style="margin-top:5px">
+          <span id="preview-wc"></span>
+          <span id="preview-mode"></span>
+        </div>
+      </div>
+
+      <div>
+        <span class="ctrl-label">Typing Speed</span>
+        <div class="dur-track">
+          <button class="spd-btn" data-spd="150">Slow</button>
+          <button class="spd-btn active" data-spd="90">Normal</button>
+          <button class="spd-btn" data-spd="55">Fast</button>
+        </div>
+      </div>
+
+      <div class="mistype-row">
+        <div class="ctrl-label-row">
+          <span class="ctrl-label">Mistyping</span>
+          <button class="info-btn" id="mistype-info-btn" type="button" aria-label="What is mistyping?">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>
+          </button>
+          <div class="info-popup" id="mistype-popup">
+            Occasionally types the wrong character, pauses briefly, backspaces, then types the correct one — like a real human making and catching a typo.
+          </div>
+        </div>
+        <div class="mistype-track">
+          <input type="range" id="mistype-slider" min="0" max="4" value="0" step="1">
+          <span class="mistype-val" id="mistype-val-label">None</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <span class="ctrl-label">Target Time</span>
+        <div class="dur-track">
+          <button class="dur-btn active" data-dur="0">Off</button>
+          <button class="dur-btn" data-dur="5">5m</button>
+          <button class="dur-btn" data-dur="10">10m</button>
+          <button class="dur-btn" data-dur="20">20m</button>
+          <button class="dur-btn" data-dur="custom" title="Custom time" aria-label="Custom duration">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+              <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+            </svg>
+          </button>
+        </div>
+        <div class="dur-custom-row" id="dur-custom-row" style="display:none">
+          <input type="number" id="dur-custom-val" min="1" max="120" value="15" />
+          <span class="dur-custom-unit">min</span>
+        </div>
+      </div>
+
+      <button class="start-btn" id="start-btn">Start Typing →</button>
+
+      <div class="instructions">
+        After clicking Start, switch to the page where you want to type.<br>
+        A <strong>▶ button</strong> will appear — click into your text field, then press it.
+      </div>
+
+    </div>
+
+    <!-- Armed -->
+    <div class="state" id="state-armed">
+      <div class="armed-wrap">
+        <div class="armed-dot"></div>
+        <div class="armed-title">Ready to type</div>
+        <div class="armed-sub">
+          Switch to your target page.<br>
+          Click into the text field, then press the <strong>▶</strong> button.
+        </div>
+        <button class="cancel-btn" id="cancel-btn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Persistent account footer — shown in all authenticated states -->
+    <div class="account-footer" id="account-footer" style="display:none">
+      <span id="account-email-global"></span>
+      <button class="signout-global-btn" id="signout-global" type="button">Sign out</button>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -13,12 +13,12 @@
       .match(WORD_PATTERN) || [];
   }
 
-  function sameWords(value, query) {
+  function startsWithWords(value, query) {
     const valueWords = tokenize(value);
     const queryWords = tokenize(query);
     return queryWords.length > 0
       && valueWords.length === queryWords.length
-      && valueWords.every((word, index) => word === queryWords[index]);
+      && valueWords.every((word, index) => word.startsWith(queryWords[index]));
   }
 
   function countOccurrences(text, query) {
@@ -28,7 +28,7 @@
 
     let count = 0;
     for (let index = 0; index <= textWords.length - queryWords.length; index += 1) {
-      if (queryWords.every((word, offset) => textWords[index + offset] === word)) count += 1;
+      if (queryWords.every((word, offset) => textWords[index + offset].startsWith(word))) count += 1;
     }
     return count;
   }
@@ -41,5 +41,5 @@
     return tokenize(query).join(' ');
   }
 
-  return { tokenize, sameWords, containsWords, countOccurrences, displayQuery };
+  return { tokenize, startsWithWords, containsWords, countOccurrences, displayQuery };
 });

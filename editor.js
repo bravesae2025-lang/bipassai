@@ -370,7 +370,7 @@ function setupViewToggle(result, mode) {
 
     if (!query) {
       finderMatches = [];
-      if (searchTerm) searchTerm.textContent = 'Exact words only';
+      if (searchTerm) searchTerm.textContent = 'Partial words work';
       if (searchOccurrences) searchOccurrences.textContent = 'Search the current text';
     } else {
       finderMatches = available.filter(el => searchTools?.containsWords(changedText(el), query));

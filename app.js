@@ -1931,6 +1931,18 @@ function selectLevel(level) {
 
 function showProfileCreator(style = null) {
   profileUpgradeId = style?.id || null;
+  resetProfileCreatorForm();
+  const originalSamples = Array.isArray(style?.writing_samples)
+    ? style.writing_samples.filter(sample => typeof sample === 'string' && sample.trim())
+    : [];
+  originalSamples.slice(0, 5).forEach((sample, index) => {
+    if (index > 0) addSampleBtn?.click();
+    const textarea = sampleContainer?.querySelectorAll('.style-sample-textarea')?.[index];
+    if (textarea) {
+      textarea.value = sample;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  });
   if (profileEmpty) profileEmpty.style.display = 'none';
   if (styleCardsList) styleCardsList.style.display = 'none';
   if (myStyleInputs) myStyleInputs.hidden = false;
@@ -2161,7 +2173,7 @@ function renderProfileDetails(style) {
     <div class="profile-ai-editor">
       <form class="profile-refine-form" data-id="${escapeHtml(style.id)}">
         <input class="profile-refine-input" type="text" maxlength="280"
-               placeholder="Write a custom tone (optional)" aria-label="Custom tone for regenerating this writing profile">
+               placeholder="Tell AI what to fix or change (optional)" aria-label="Instructions for regenerating this writing profile">
         <button class="profile-refine-btn" type="submit">Regenerate with AI</button>
       </form>
       <button class="profile-reanalyze-btn" data-id="${escapeHtml(style.id)}" type="button">Reanalyse samples</button>
@@ -2218,6 +2230,12 @@ function bindProfileDetailEditor(details, style) {
     const form = event.currentTarget;
     const button = form.querySelector('.profile-refine-btn');
     const input = form.querySelector('.profile-refine-input');
+    if (!Array.isArray(style.writing_samples) || style.writing_samples.length === 0) {
+      showToast('Reanalyse your original samples once before regenerating with AI');
+      animateProfileDetails(details, false);
+      showProfileCreator(style);
+      return;
+    }
     const originalLabel = button.textContent;
     button.disabled = true;
     input.disabled = true;
@@ -2231,7 +2249,11 @@ function bindProfileDetailEditor(details, style) {
       const response = await fetch('/api/refine-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ analysis, instruction: input.value.trim() }),
+        body: JSON.stringify({
+          analysis,
+          instruction: input.value.trim(),
+          samples: Array.isArray(style.writing_samples) ? style.writing_samples : undefined,
+        }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Could not regenerate profile');
@@ -2584,6 +2606,7 @@ async function analyzeStyle() {
       style_prompt: profile.stylePrompt,
       analysis_version: 3,
       style_analysis: profile.analysis,
+      writing_samples: samples,
     };
     savedStyles = window.BipassStyleProfile.upsertStyle(savedStyles, newStyle, upgradingStyle?.id);
     activeStyleId = newStyle.id;
@@ -2693,8 +2716,9 @@ async function preflightGate() {
   return true;
 }
 
-// Estimated word-based cost. Both mode pays (4 + 15) less a 20% bundle
-// discount up front; its second request presents a continuation receipt.
+// Estimated word-based cost. Both mode pays 18 credits/word up front (1 less
+// than running the 15-credit and 4-credit tools separately); its second request
+// presents a continuation receipt.
 // Mirrors /api/adjust-level and /api/rw-humanize in server.js.
 function estimateCost() {
   if (!inputText.value.trim()) return null;

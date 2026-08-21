@@ -58,12 +58,14 @@ async function handleGoogleAuth() {
 
   const tier  = verifyData.user?.app_metadata?.tier || 'free';
   const email = verifyData.user?.email || '';
+  const accountLabel = verifyData.user?.user_metadata?.username || email;
   await chrome.storage.local.set({
     access_token:  verifyData.access_token,
     refresh_token: verifyData.refresh_token,
     user_id:       verifyData.user.id,
     tier,
     email,
+    account_label: accountLabel,
   });
 
   // Flash green badge so user knows to reopen the popup
@@ -71,5 +73,5 @@ async function handleGoogleAuth() {
   chrome.action.setBadgeBackgroundColor({ color: '#22c55e' });
   setTimeout(() => chrome.action.setBadgeText({ text: '' }), 6000);
 
-  return { access_token: verifyData.access_token, user_id: verifyData.user.id, tier, email };
+  return { access_token: verifyData.access_token, user_id: verifyData.user.id, tier, email, account_label: accountLabel };
 }

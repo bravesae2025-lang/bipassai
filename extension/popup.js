@@ -36,17 +36,32 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function formatPreviewText(value) {
+  const cleaned = String(value || '')
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/[`*_~]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleaned.length > 180 ? `${cleaned.slice(0, 180).trimEnd()}…` : cleaned;
+}
+
 async function storeSession(data) {
   const tier = data.user?.app_metadata?.tier || 'free';
   const email = data.user?.email || '';
+  const username = data.user?.user_metadata?.username || '';
+  const account_label = username || email;
   await chrome.storage.local.set({
     access_token:  data.access_token,
     refresh_token: data.refresh_token,
     user_id:       data.user.id,
     tier,
     email,
+    username,
+    account_label,
   });
-  return { access_token: data.access_token, user_id: data.user.id, tier, email };
+  return { access_token: data.access_token, user_id: data.user.id, tier, email, username, account_label };
 }
 
 async function refreshSession() {
@@ -61,15 +76,25 @@ async function refreshSession() {
   return storeSession(await res.json());
 }
 
-function setAccountEmail(email, userId) {
-  const display = email || (userId ? userId.slice(0, 8) + '…' : '');
+function readableAccountLabel(label) {
+  const value = String(label || '').trim();
+  const syntheticSuffix = `@${USERNAME_EMAIL_DOMAIN}`;
+  return value.toLowerCase().endsWith(syntheticSuffix)
+    ? value.slice(0, -syntheticSuffix.length)
+    : value;
+}
+
+function setAccountIdentity(label, userId) {
+  const display = readableAccountLabel(label) || (userId ? userId.slice(0, 8) + '…' : 'Bipass user');
   const el = document.getElementById('account-email-global');
   if (el) el.textContent = display;
+  const avatar = document.getElementById('account-avatar');
+  if (avatar) avatar.textContent = display.charAt(0).toUpperCase() || 'B';
 }
 
 async function fetchResults(accessToken, userId, tier) {
-  const { email } = await chrome.storage.local.get(['email']);
-  setAccountEmail(email, userId);
+  const { account_label, username, email } = await chrome.storage.local.get(['account_label', 'username', 'email']);
+  setAccountIdentity(account_label || username || email, userId);
 
   let res = await fetch(
     `${SUPABASE_URL}/rest/v1/results?user_id=eq.${userId}&ext_push=eq.true&order=created_at.desc&limit=20`,
@@ -96,18 +121,27 @@ async function fetchResults(accessToken, userId, tier) {
   rows.forEach(row => {
     const item        = document.createElement('div');
     item.className    = 'result-item';
+    item.tabIndex     = 0;
+    item.setAttribute('role', 'button');
+    const text        = String(row.text || '');
     const modeLabel   = row.mode === 'generate' ? 'Generated' : 'Humanized';
     const levelLabel  = row.level ? ` · ${row.level}` : '';
-    const preview     = row.text.length > 80 ? row.text.slice(0, 80) + '…' : row.text;
     item.innerHTML = `
       <div class="result-meta">
-        <span class="result-badge">${modeLabel}${levelLabel}</span>
-        <span class="result-date">${formatDate(row.created_at)}</span>
+        <span class="result-badge"></span>
+        <span class="result-date"></span>
       </div>
       <div class="result-preview"></div>
     `;
-    item.querySelector('.result-preview').textContent = preview;
-    item.addEventListener('click', () => selectResult(row.text, row.mode));
+    item.querySelector('.result-badge').textContent = `${modeLabel}${levelLabel}`;
+    item.querySelector('.result-date').textContent = formatDate(row.created_at);
+    item.querySelector('.result-preview').textContent = formatPreviewText(text) || 'Empty text';
+    item.addEventListener('click', () => selectResult(text, row.mode));
+    item.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      selectResult(text, row.mode);
+    });
     list.appendChild(item);
   });
   showState('list');
@@ -137,7 +171,9 @@ async function checkForUpdate() {
     const res = await fetch('https://bipassai.com/extension-version.json?t=' + Date.now());
     const { version: latest } = await res.json();
     const installed = chrome.runtime.getManifest().version;
-    if (semverGt(latest, installed)) chrome.runtime.reload();
+    if (semverGt(latest, installed) && chrome.runtime.requestUpdateCheck) {
+      await chrome.runtime.requestUpdateCheck();
+    }
   } catch {}
 }
 
@@ -148,7 +184,7 @@ async function init() {
   if (!access_token && !refresh_token) { showState('login'); return; }
   if (!access_token) {
     const refreshed = await refreshSession();
-    if (!refreshed) { showState('login'); return; }
+    if (!refreshed) { await chrome.storage.local.clear(); showState('login'); return; }
     await fetchResults(refreshed.access_token, refreshed.user_id, refreshed.tier);
     return;
   }
@@ -214,7 +250,6 @@ async function signOut() {
   await chrome.storage.local.clear();
   showState('login');
 }
-document.getElementById('signout-btn').addEventListener('click', signOut);
 document.getElementById('signout-global').addEventListener('click', signOut);
 
 // ── Back (ready → list) ─────────────────────────────────────────

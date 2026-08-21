@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.bipassai.project-backup</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/bravesaengsiripongpun/Library/Application Support/Bipass Project Backup/backup-to-icloud.sh</string>
+    <string>/Users/bravesaengsiripongpun/ai avoider</string>
+    <string>/Users/bravesaengsiripongpun/Library/Mobile Documents/com~apple~CloudDocs/Bipass AI Backups</string>
+    <string>7</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StartInterval</key>
+  <integer>21600</integer>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>LowPriorityIO</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/bravesaengsiripongpun/Library/Logs/com.bipassai.project-backup.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/bravesaengsiripongpun/Library/Logs/com.bipassai.project-backup.error.log</string>
+</dict>
+</plist>

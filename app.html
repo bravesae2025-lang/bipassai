@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=98">
+  <link rel="stylesheet" href="style.css?v=99">
 </head>
 <body class="creation-page">
 
@@ -197,7 +197,6 @@
                   <span class="mode-dd-option-title-row">
                     <span class="mode-dd-option-title">Humanize + Level Matching</span>
                     <span class="mode-dd-badges">
-                      <span class="mode-dd-default">Default</span>
                       <span class="mode-dd-recommended">Recommended</span>
                     </span>
                   </span>
@@ -753,9 +752,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=7"></script>
+  <script src="style-profile.js?v=8"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=50"></script>
+  <script src="app.js?v=51"></script>
 
   <script>
   /* Mode dropdown — switch the editor card between rewriting and extension modes */
@@ -796,7 +795,8 @@
       // Let app.js refresh the cost estimate (it changes with mode, not just text).
       document.dispatchEvent(new CustomEvent('bipass-mode-change'));
     }
-    setMode('both');
+    const preferredMode = localStorage.getItem('bipass_pref_mode');
+    setMode(['both', 'level', 'humanize', 'own'].includes(preferredMode) ? preferredMode : 'both');
 
     function closeMenu(returnFocus = false) {
       dd?.classList.remove('open');

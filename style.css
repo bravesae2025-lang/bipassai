@@ -7462,6 +7462,28 @@ body.drawer-lock { overflow: hidden; }
   line-height: 1.5;
 }
 
+.settings-section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.settings-section-sub-heading {
+  margin: 7px 0 0;
+}
+
+.settings-profile-count {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--g150);
+  border-radius: 6px;
+  color: var(--g400);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
 .settings-muted {
   font-family: var(--ff-mono);
   font-size: 12px;
@@ -7670,6 +7692,21 @@ body.drawer-lock { overflow: hidden; }
   color: #fff;
 }
 
+.settings-select {
+  min-width: 168px;
+  padding: 8px 32px 8px 11px;
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  outline: none;
+  background-color: #fff;
+  color: var(--black);
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+}
+
+.settings-select:hover { border-color: var(--g400); }
+.settings-select:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+
 /* Toggle switch */
 .settings-toggle {
   position: relative;
@@ -7710,6 +7747,7 @@ body.drawer-lock { overflow: hidden; }
 
 .settings-toggle input:checked + .settings-toggle-track { background: var(--black); }
 .settings-toggle input:checked + .settings-toggle-track::after { transform: translateX(18px); }
+.settings-toggle input:disabled + .settings-toggle-track { opacity: 0.45; cursor: not-allowed; }
 
 /* My Style content */
 .settings-traits {
@@ -7737,6 +7775,118 @@ body.drawer-lock { overflow: hidden; }
   border: 1px solid var(--g150);
   border-radius: 10px;
   padding: 14px 16px;
+}
+
+.settings-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.settings-writing-profile {
+  position: relative;
+  overflow: hidden;
+  padding: 15px 16px 14px;
+  border: 1px solid var(--g150);
+  border-radius: 12px;
+  background: #fafaf9;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.settings-writing-profile::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: transparent;
+}
+
+.settings-writing-profile.is-default {
+  border-color: var(--g300);
+  background: #fff;
+}
+
+.settings-writing-profile.is-default::before { background: var(--black); }
+
+.settings-writing-profile-head,
+.settings-writing-profile-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settings-writing-profile-name {
+  min-width: 0;
+  width: 100%;
+  padding: 2px 0 3px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  outline: 0;
+  background: transparent;
+  color: var(--black);
+  font-family: var(--ff-ui);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.settings-writing-profile-name:focus { border-bottom-color: var(--black); }
+
+.settings-default-badge {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 99px;
+  background: var(--black);
+  color: #fff;
+  font-family: var(--ff-mono);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.settings-writing-profile-summary {
+  margin: 7px 0 10px;
+  color: var(--g500);
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.settings-writing-profile-actions {
+  justify-content: flex-start;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--g100);
+}
+
+.settings-profile-default-btn,
+.settings-profile-delete-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--g400);
+  font-family: var(--ff-mono);
+  font-size: 9.5px;
+  cursor: pointer;
+}
+
+.settings-profile-default-btn:hover { color: var(--black); }
+.settings-profile-default-btn:disabled { color: var(--black); cursor: default; }
+.settings-profile-delete-btn { margin-left: auto; }
+.settings-profile-delete-btn:hover { color: #b83030; }
+
+.settings-add-profile-btn {
+  align-self: flex-start;
+}
+
+.settings-toggle input:focus-visible + .settings-toggle-track,
+.settings-level-opt:focus-visible,
+.settings-outline-btn:focus-visible,
+.settings-profile-default-btn:focus-visible,
+.settings-profile-delete-btn:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
 }
 
 /* Danger zone */
@@ -7878,8 +8028,13 @@ body.drawer-lock { overflow: hidden; }
   .settings-section { padding: 18px 16px; }
   .settings-row { flex-wrap: wrap; }
   .settings-level-picker { width: 100%; }
-  .settings-level-opt { flex: 1; text-align: center; }
+  .settings-level-opt { min-width: 0; flex: 1; padding-inline: 4px; font-size: 9.5px; text-align: center; }
+  .settings-select { width: 100%; }
+  .settings-section-heading-row { align-items: center; }
+  .settings-add-profile-btn { width: 100%; text-align: center; box-sizing: border-box; }
 }
+
+.rec-flow-box[hidden] { display: none !important; }
 
 /* ─────────────────────────────────────────────────────────────
    My Style — per-trait intensity rows

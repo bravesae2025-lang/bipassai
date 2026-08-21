@@ -162,6 +162,16 @@ function setupCredits(session) {
 function setupDefaults() {
   const LEVEL_KEY   = 'bipass_pref_level';
   const MYSTYLE_KEY = 'bipass_pref_mystyle';
+  const MODE_KEY    = 'bipass_pref_mode';
+
+  const modeSelect = document.getElementById('pref-mode');
+  const validModes = ['both', 'level', 'humanize', 'own'];
+  const storedMode = localStorage.getItem(MODE_KEY);
+  modeSelect.value = validModes.includes(storedMode) ? storedMode : 'both';
+  modeSelect.addEventListener('change', () => {
+    localStorage.setItem(MODE_KEY, modeSelect.value);
+    showToast('Default workflow saved');
+  });
 
   const currentLevel = localStorage.getItem(LEVEL_KEY) || 'easy';
   const levelBtns = document.querySelectorAll('.settings-level-opt');
@@ -171,6 +181,7 @@ function setupDefaults() {
       levelBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       localStorage.setItem(LEVEL_KEY, btn.dataset.level);
+      sessionStorage.removeItem('bipass_level');
       showToast('Default level saved');
     });
   });
@@ -183,56 +194,192 @@ function setupDefaults() {
   );
   mystyleToggle.addEventListener('change', () => {
     localStorage.setItem(MYSTYLE_KEY, mystyleToggle.checked ? 'true' : 'false');
+    sessionStorage.removeItem('bipass_my_style');
     showToast(mystyleToggle.checked ? 'Writing Profile on by default' : 'Writing Profile off by default');
   });
 }
 
-// ─── Writing Profile ──────────────────────────────────────────
+// ─── Workspace ────────────────────────────────────────────────
+
+function setupWorkspace() {
+  const howtoToggle = document.getElementById('pref-show-howto');
+  const tickerToggle = document.getElementById('pref-show-ticker');
+  const extensionTipsToggle = document.getElementById('pref-extension-tips');
+  const replayTourBtn = document.getElementById('replay-tour-btn');
+
+  howtoToggle.checked = localStorage.getItem('bipass_pref_show_howto') !== 'false';
+  howtoToggle.addEventListener('change', () => {
+    localStorage.setItem('bipass_pref_show_howto', String(howtoToggle.checked));
+    showToast(howtoToggle.checked ? 'How-to guide enabled' : 'How-to guide hidden');
+  });
+
+  tickerToggle.checked = localStorage.getItem('ticker-dismissed') !== '1';
+  tickerToggle.addEventListener('change', () => {
+    localStorage.setItem('ticker-dismissed', tickerToggle.checked ? '0' : '1');
+    showToast(tickerToggle.checked ? 'Scrolling tips enabled' : 'Scrolling tips hidden');
+  });
+
+  extensionTipsToggle.checked = localStorage.getItem('bipass_pref_extension_tips') !== 'false';
+  extensionTipsToggle.addEventListener('change', () => {
+    localStorage.setItem('bipass_pref_extension_tips', String(extensionTipsToggle.checked));
+    if (!extensionTipsToggle.checked) localStorage.setItem('ext_popup_seen', '1');
+    showToast(extensionTipsToggle.checked ? 'Auto Typer tips enabled' : 'Auto Typer tips hidden');
+  });
+
+  replayTourBtn.addEventListener('click', () => {
+    localStorage.removeItem('bipass_tour_seen');
+    replayTourBtn.textContent = 'Ready for next visit';
+    replayTourBtn.disabled = true;
+    showToast('Guided tour will open next visit');
+  });
+}
+
+// ─── Writing Profiles ─────────────────────────────────────────
 
 async function setupMyStyle(session) {
   const loadingEl = document.getElementById('mystyle-loading');
   const emptyEl   = document.getElementById('mystyle-empty');
   const contentEl = document.getElementById('mystyle-content');
-  const traitsEl  = document.getElementById('settings-traits');
-  const clearBtn  = document.getElementById('clear-style-btn');
+  const listEl    = document.getElementById('settings-profile-list');
+  const countEl   = document.getElementById('settings-profile-count');
+  const addBtn    = document.getElementById('settings-add-profile-btn');
+  let styles = [];
+  let activeId = null;
+  let saveTimer = null;
 
-  try {
-    const { data } = await window.bipassAuth.client
-      .from('user_styles')
-      .select('style_summary, style_prompt')
-      .eq('user_id', session.user.id)
-      .single();
+  function saveLocal() {
+    localStorage.setItem(
+      'bipass_styles_v1',
+      window.BipassStyleProfile.serializeProfileStore(styles, activeId),
+    );
+  }
 
+  async function saveCloud() {
+    const active = styles.find(style => String(style.id) === String(activeId)) || styles[0] || null;
+    const { error } = await window.bipassAuth.client.from('user_styles').upsert({
+      user_id: session.user.id,
+      style_summary: window.BipassStyleProfile.serializeProfileStore(styles, activeId, { includeSamples: false }),
+      style_prompt: active?.style_prompt || '',
+      sample_count: styles.reduce((total, style) => total + (style.writing_samples?.length || 0), 0),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+  }
+
+  function persistSoon() {
+    saveLocal();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => saveCloud().catch(() => showToast('Saved on this device; cloud sync failed')), 500);
+  }
+
+  function render() {
     loadingEl.classList.add('hidden');
+    countEl.textContent = `${styles.length} / ${window.BipassStyleProfile.MAX_SAVED_STYLES}`;
+    const canAdd = window.BipassStyleProfile.canCreateStyle(styles);
+    addBtn.classList.toggle('hidden', !canAdd);
+    const defaultToggle = document.getElementById('pref-mystyle');
+    if (defaultToggle) {
+      defaultToggle.disabled = styles.length === 0;
+      defaultToggle.checked = styles.length > 0
+        && window.BipassStyleProfile.defaultProfileEnabled(localStorage.getItem('bipass_pref_mystyle'));
+    }
 
-    if (!data) {
+    if (!styles.length) {
+      contentEl.classList.add('hidden');
       emptyEl.classList.remove('hidden');
       return;
     }
 
+    emptyEl.classList.add('hidden');
     contentEl.classList.remove('hidden');
+    listEl.innerHTML = styles.map((style) => {
+      const analysis = window.BipassStyleProfile.readAnalysis(style);
+      const traits = window.BipassStyleProfile.readTraits(style);
+      const isDefault = String(style.id) === String(activeId);
+      const summary = analysis?.profile?.summary || 'Profile traits are ready to use.';
+      const labels = [
+        analysis?.profile?.tone?.label,
+        analysis?.profile?.sentenceStyle?.label,
+        ...traits.slice(0, 3).map(trait => `${trait.name} · ${trait.intensity}/10`),
+      ].filter(Boolean);
+      return `
+        <article class="settings-writing-profile ${isDefault ? 'is-default' : ''}" data-profile-id="${escapeHtml(style.id)}">
+          <div class="settings-writing-profile-head">
+            <input class="settings-writing-profile-name" type="text" value="${escapeHtml(style.name || '')}" placeholder="Writing profile" maxlength="30" aria-label="Writing profile name">
+            ${isDefault ? '<span class="settings-default-badge">Default</span>' : ''}
+          </div>
+          <p class="settings-writing-profile-summary">${escapeHtml(summary)}</p>
+          <div class="settings-traits">${labels.map(label => `<span class="settings-trait-chip">${escapeHtml(label)}</span>`).join('')}</div>
+          <div class="settings-writing-profile-actions">
+            <button class="settings-profile-default-btn" type="button" data-action="default" ${isDefault ? 'disabled' : ''}>${isDefault ? 'Used by default' : 'Make default'}</button>
+            <button class="settings-profile-delete-btn" type="button" data-action="delete">Delete</button>
+          </div>
+        </article>`;
+    }).join('');
 
-    const traits = window.BipassStyleProfile?.readTraits(data) || [];
-    const analysis = window.BipassStyleProfile?.readAnalysis(data);
-    const profileLabels = analysis?.profile
-      ? [analysis.profile.tone.label, analysis.profile.sentenceStyle.label]
-      : [];
-    const traitLabels = traits.map((trait) => `${trait.name} · ${trait.intensity}/10`);
-    traitsEl.innerHTML = [...profileLabels, ...traitLabels]
-      .map(label => `<span class="settings-trait-chip">${escapeHtml(label)}</span>`).join('');
-
-    clearBtn.addEventListener('click', async () => {
-      if (!confirm('Clear your writing profile? This cannot be undone.')) return;
-      try {
-        await window.bipassAuth.client
-          .from('user_styles')
-          .delete()
-          .eq('user_id', session.user.id);
-        contentEl.classList.add('hidden');
-        emptyEl.classList.remove('hidden');
-        showToast('Writing profile cleared');
-      } catch { showToast('Could not clear style'); }
+    listEl.querySelectorAll('.settings-writing-profile-name').forEach((input) => {
+      input.addEventListener('input', () => {
+        const id = input.closest('[data-profile-id]').dataset.profileId;
+        const style = styles.find(item => String(item.id) === String(id));
+        if (style) {
+          style.name = input.value.slice(0, 30);
+          persistSoon();
+        }
+      });
     });
+
+    listEl.querySelectorAll('[data-action="default"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeId = button.closest('[data-profile-id]').dataset.profileId;
+        localStorage.setItem('bipass_pref_mystyle', 'true');
+        const toggle = document.getElementById('pref-mystyle');
+        if (toggle) toggle.checked = true;
+        sessionStorage.removeItem('bipass_my_style');
+        persistSoon();
+        render();
+        showToast('Default writing profile saved');
+      });
+    });
+
+    listEl.querySelectorAll('[data-action="delete"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const id = button.closest('[data-profile-id]').dataset.profileId;
+        const style = styles.find(item => String(item.id) === String(id));
+        if (!confirm(`Delete “${style?.name || 'this writing profile'}”? This cannot be undone.`)) return;
+        const remaining = window.BipassStyleProfile.removeStyle(styles, id, activeId);
+        styles = remaining.styles;
+        activeId = remaining.activeId;
+        sessionStorage.removeItem('bipass_my_style');
+        saveLocal();
+        render();
+        try {
+          await saveCloud();
+          showToast('Writing profile deleted');
+        } catch {
+          showToast('Deleted on this device; cloud sync failed');
+        }
+      });
+    });
+  }
+
+  try {
+    const local = localStorage.getItem('bipass_styles_v1');
+    if (local) {
+      const parsed = window.BipassStyleProfile.readProfileStore(local);
+      styles = parsed.styles;
+      activeId = parsed.activeId;
+    } else {
+      const { data } = await window.bipassAuth.client
+        .from('user_styles')
+        .select('style_summary, style_prompt, sample_count, updated_at')
+        .eq('user_id', session.user.id)
+        .single();
+      const parsed = window.BipassStyleProfile.readProfileStore(data);
+      styles = parsed.styles;
+      activeId = parsed.activeId;
+      if (styles.length) saveLocal();
+    }
+    render();
   } catch {
     loadingEl.classList.add('hidden');
     emptyEl.classList.remove('hidden');
@@ -315,6 +462,7 @@ async function init() {
   setupProfile(session);
   setupCredits(session);
   setupDefaults();
+  setupWorkspace();
   await setupMyStyle(session);
   setupDangerZone();
 }

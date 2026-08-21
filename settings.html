@@ -20,7 +20,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=76">
+  <link rel="stylesheet" href="style.css?v=99">
 </head>
 <body class="editor-page">
 
@@ -71,7 +71,7 @@
 
       <div class="settings-head">
         <h1 class="settings-title">Settings</h1>
-        <p class="settings-sub">Manage your account, preferences, and writing profile.</p>
+        <p class="settings-sub">Manage your account, workspace, and writing profiles.</p>
       </div>
 
       <!-- ── Account ──────────────────────────────────────────── -->
@@ -122,6 +122,19 @@
 
         <div class="settings-row">
           <div class="settings-row-info">
+            <div class="settings-row-title">Default workflow</div>
+            <div class="settings-row-sub">Which writing tool opens first</div>
+          </div>
+          <select class="settings-select" id="pref-mode" aria-label="Default workflow">
+            <option value="both">Humanize + Level</option>
+            <option value="level">Level Matching</option>
+            <option value="humanize">Humanize Only</option>
+            <option value="own">Push My Own Text</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
             <div class="settings-row-title">Default Level</div>
             <div class="settings-row-sub">Which writing level opens by default</div>
           </div>
@@ -129,6 +142,7 @@
             <button class="settings-level-opt" type="button" data-level="easy">Beginner</button>
             <button class="settings-level-opt" type="button" data-level="medium">Student</button>
             <button class="settings-level-opt" type="button" data-level="hard">Academic</button>
+            <button class="settings-level-opt" type="button" data-level="customize">Custom</button>
           </div>
         </div>
 
@@ -144,24 +158,74 @@
         </div>
       </section>
 
-      <!-- ── Writing Profile ────────────────────────────────── -->
+      <!-- ── Workspace ──────────────────────────────────────── -->
       <section class="settings-section">
-        <div class="settings-section-label">Writing Profile</div>
+        <div class="settings-section-label">Workspace</div>
+        <p class="settings-section-sub">Choose how much guidance appears around the writing tool.</p>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">How-to guide</div>
+            <div class="settings-row-sub">Show the illustrated workflow beside the writing tool</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="pref-show-howto" aria-label="Show how-to guide">
+            <span class="settings-toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Scrolling tips</div>
+            <div class="settings-row-sub">Show the moving tips strip above the workspace</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="pref-show-ticker" aria-label="Show scrolling tips">
+            <span class="settings-toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Guided tour</div>
+            <div class="settings-row-sub">Run the three-step workspace tour on your next visit</div>
+          </div>
+          <button class="settings-outline-btn" id="replay-tour-btn" type="button">Show next visit</button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Auto Typer tips</div>
+            <div class="settings-row-sub">Show occasional help for the browser extension</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="pref-extension-tips" aria-label="Show Auto Typer tips">
+            <span class="settings-toggle-track"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- ── Writing Profiles ───────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-heading-row">
+          <div>
+            <div class="settings-section-label">Writing Profiles</div>
+            <p class="settings-section-sub settings-section-sub-heading">Save different voices for essays, reports, and everyday writing.</p>
+          </div>
+          <span class="settings-profile-count" id="settings-profile-count">0 / 3</span>
+        </div>
 
         <div id="mystyle-loading" class="settings-muted">Loading…</div>
 
         <div id="mystyle-empty" class="settings-muted hidden">
-          No writing profile saved yet.
-          <a href="/home" style="color:var(--black);text-decoration:underline;">Analyze your writing</a> to create one.
+          No writing profiles saved yet. Create one from a sample of your writing.
         </div>
 
         <div id="mystyle-content" class="hidden">
-          <div class="settings-row-title" style="margin-bottom:10px;">Detected traits</div>
-          <div class="settings-traits" id="settings-traits"></div>
-          <div style="margin-top:16px;">
-            <button class="settings-danger-outline-btn" id="clear-style-btn">Clear Writing Profile</button>
-          </div>
+          <div class="settings-profile-list" id="settings-profile-list"></div>
         </div>
+
+        <a class="settings-outline-btn settings-add-profile-btn" id="settings-add-profile-btn" href="/home?createProfile=1">+ Add writing profile</a>
       </section>
 
       <!-- ── Danger Zone ─────────────────────────────────────── -->
@@ -193,7 +257,7 @@
     <div class="settings-modal">
       <div class="settings-modal-title" id="delete-modal-title">Delete Account?</div>
       <div class="settings-modal-body" id="delete-modal-body">
-        This will permanently delete your account, all credits, and your writing profile.
+        This will permanently delete your account, all credits, and your writing profiles.
         This cannot be undone.
       </div>
       <div class="settings-modal-actions">
@@ -207,8 +271,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=7"></script>
-  <script src="settings.js?v=4"></script>
+  <script src="style-profile.js?v=8"></script>
+  <script src="settings.js?v=5"></script>
 
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>

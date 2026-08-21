@@ -144,13 +144,12 @@ if (!/not affiliated with BypassAI/i.test(indexHtml)) {
 
 if (!appHtml.includes('id="mode-dd-current">Humanize + Level Matching</span>')
     || !/<li class="mode-dd-option is-selected"[^>]*aria-selected="true"[^>]*data-mode="both">/.test(appHtml)
-    || !/setMode\(['"]both['"]\);/.test(appHtml)) {
-  add(appFile, 'Humanize + Level Matching must be the synchronized default mode');
+    || !/setMode\(\[[^\]]*['"]both['"][^\]]*\]\.includes\(preferredMode\) \? preferredMode : ['"]both['"]\);/.test(appHtml)) {
+  add(appFile, 'Humanize + Level Matching must remain the fallback mode when no saved default exists');
 }
 if (!/<ul class="mode-dd-menu"[^>]*>\s*<li class="mode-dd-option is-selected"[^>]*data-mode="both">/.test(appHtml)
-    || !appHtml.includes('class="mode-dd-default">Default</span>')
     || !appHtml.includes('class="mode-dd-recommended">Recommended</span>')) {
-  add(appFile, 'the combined default mode must be first and show Default and Recommended badges');
+  add(appFile, 'the combined recommended mode must remain first and show its Recommended badge');
 }
 if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
     || !appHtml.includes('mode-dd-option-title">Humanize Only</span>')) {

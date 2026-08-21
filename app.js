@@ -1567,7 +1567,17 @@ async function init() {
   restoreState();
   updateStats();
   bindEvents();
-  loadSavedStyle(session);
+  const pageParams = new URLSearchParams(window.location.search);
+  const wantsProfileCreator = pageParams.get('createProfile') === '1';
+  const styleLoad = loadSavedStyle(session);
+  if (wantsProfileCreator) {
+    await styleLoad;
+    if (window.BipassStyleProfile.canCreateStyle(savedStyles)) showProfileCreator();
+    else showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} profiles`);
+    pageParams.delete('createProfile');
+    const nextQuery = pageParams.toString();
+    history.replaceState(null, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`);
+  }
 
   // Seed credit display from session metadata, then immediately refresh from server
   const valEl = document.getElementById('credit-val');
@@ -1863,8 +1873,16 @@ function syncLevelSelectionUi() {
   levelTrack?.classList.toggle('custom-active', mode === 'customize');
   if (optionsPanel) optionsPanel.style.display = mode === 'customize' ? 'flex' : 'none';
 
-  if (profileOptionTitle) profileOptionTitle.textContent = optionState.title;
-  if (profileOptionMeta) profileOptionMeta.textContent = optionState.meta;
+  if (profileOptionTitle) {
+    profileOptionTitle.textContent = savedStyle
+      ? (savedStyle.name || 'Writing Profile')
+      : optionState.title;
+  }
+  if (profileOptionMeta) {
+    profileOptionMeta.textContent = savedStyle
+      ? `${savedStyles.length} saved profile${savedStyles.length === 1 ? '' : 's'}`
+      : optionState.meta;
+  }
   if (profileOptionStatus) profileOptionStatus.textContent = optionState.status;
   profileOption?.classList.toggle('is-ready', optionState.kind === 'ready');
   profileOption?.classList.toggle('is-active', optionState.kind === 'active');
@@ -1992,29 +2010,41 @@ function deactivateMyStyle() {
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 
-let styleTraitSaveTimer = null;
+let styleCloudSaveTimer = null;
+
+async function syncStoredStylesToCloud() {
+  const session = await window.bipassAuth.getSession();
+  if (!session) return;
+  const active = savedStyles.find(style => String(style.id) === String(activeStyleId)) || savedStyles[0] || null;
+  const { error } = await window.bipassAuth.client.from('user_styles').upsert({
+    user_id: session.user.id,
+    style_summary: window.BipassStyleProfile.serializeProfileStore(savedStyles, activeStyleId, { includeSamples: false }),
+    style_prompt: active?.style_prompt || '',
+    sample_count: savedStyles.reduce((total, style) => total + (style.writing_samples?.length || 0), 0),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' });
+  if (error) throw error;
+}
+
+function scheduleStoredStylesCloudSync() {
+  clearTimeout(styleCloudSaveTimer);
+  styleCloudSaveTimer = setTimeout(() => {
+    syncStoredStylesToCloud().catch(() => {});
+  }, 650);
+}
 
 function saveStoredStyles() {
   try {
-    localStorage.setItem('bipass_styles_v1', JSON.stringify({ styles: savedStyles, activeId: activeStyleId }));
+    localStorage.setItem(
+      'bipass_styles_v1',
+      window.BipassStyleProfile.serializeProfileStore(savedStyles, activeStyleId),
+    );
   } catch (_) {}
+  scheduleStoredStylesCloudSync();
 }
 
 function saveStyleTraits() {
   saveStoredStyles();
-  clearTimeout(styleTraitSaveTimer);
-  styleTraitSaveTimer = setTimeout(async () => {
-    try {
-      const session = await window.bipassAuth.getSession();
-      if (!session || !savedStyle) return;
-      await window.bipassAuth.client.from('user_styles').upsert({
-        user_id:       session.user.id,
-        style_summary: savedStyle.style_summary,
-        style_prompt:  savedStyle.style_prompt,
-        updated_at:    new Date().toISOString(),
-      }, { onConflict: 'user_id' });
-    } catch (_) {}
-  }, 500);
 }
 
 function getTraits() {
@@ -2515,9 +2545,9 @@ async function loadSavedStyle(session) {
   try {
     const raw = localStorage.getItem('bipass_styles_v1');
     if (raw) {
-      const parsed = JSON.parse(raw);
-      savedStyles = Array.isArray(parsed.styles) ? parsed.styles : [];
-      activeStyleId = parsed.activeId || null;
+      const parsed = window.BipassStyleProfile.readProfileStore(raw);
+      savedStyles = parsed.styles;
+      activeStyleId = parsed.activeId;
       savedStyle = savedStyles.find(s => s.id === activeStyleId) || savedStyles[0] || null;
       if (savedStyle && !activeStyleId) activeStyleId = savedStyle.id;
       loadedFromStorage = true;
@@ -2537,24 +2567,24 @@ async function loadSavedStyle(session) {
     return;
   }
 
-  // Fallback: migrate legacy single style from Supabase
+  // Fallback: load the portable collection, or migrate a legacy single style.
   try {
     const { data } = await window.bipassAuth.client
       .from('user_styles')
-      .select('style_summary, style_prompt')
+      .select('style_summary, style_prompt, sample_count, updated_at')
       .eq('user_id', session.user.id)
       .single();
     if (data) {
-      const id = Date.now().toString();
-      savedStyles = [{ id, name: '', style_summary: data.style_summary, style_prompt: data.style_prompt }];
-      activeStyleId = id;
-      savedStyle = savedStyles[0];
+      const parsed = window.BipassStyleProfile.readProfileStore(data);
+      savedStyles = parsed.styles;
+      activeStyleId = parsed.activeId;
+      savedStyle = savedStyles.find(style => style.id === activeStyleId) || savedStyles[0] || null;
       saveStoredStyles();
-      renderStyleList();
-      if (myStyleActive) {
+      if (savedStyles.length) renderStyleList();
+      if (myStyleActive && savedStyle) {
         activateMyStyle();
         restartProfileFingerprintMotion();
-      }
+      } else syncLevelSelectionUi();
     } else {
       syncLevelSelectionUi();
     }
@@ -2651,14 +2681,8 @@ async function analyzeStyle() {
     showToast(upgradingStyle ? 'Writing profile updated and applied' : 'Writing profile created and applied');
 
     try {
-      const session = await window.bipassAuth.getSession();
-      await window.bipassAuth.client.from('user_styles').upsert({
-        user_id:       session.user.id,
-        style_summary: serializedSummary,
-        style_prompt:  profile.stylePrompt,
-        sample_count:  samples.length,
-        updated_at:    new Date().toISOString(),
-      }, { onConflict: 'user_id' });
+      clearTimeout(styleCloudSaveTimer);
+      await syncStoredStylesToCloud();
     } catch (saveErr) {
       console.warn('Style save failed (non-critical):', saveErr);
     }
@@ -3394,7 +3418,9 @@ function showToast(msg) {
 
   // Don't collide with the first-visit tour — the ext popup waits until the tour is done
   // (it then auto-shows on a later visit). Still opens anytime from its nav button.
-  if (!localStorage.getItem('ext_popup_seen') && localStorage.getItem('bipass_tour_seen')) {
+  if (localStorage.getItem('bipass_pref_extension_tips') !== 'false'
+      && !localStorage.getItem('ext_popup_seen')
+      && localStorage.getItem('bipass_tour_seen')) {
     setTimeout(showPopup, 1400);
   }
 })();
@@ -3614,6 +3640,10 @@ function startTour() {
   const track = document.getElementById('rec-flow-track');
   const dotsEl = document.getElementById('rec-flow-dots');
   if (!box || !track || !dotsEl) return;
+  if (localStorage.getItem('bipass_pref_show_howto') === 'false') {
+    box.hidden = true;
+    return;
+  }
 
   const slides = Array.from(track.children);
   if (slides.length === 0) return;

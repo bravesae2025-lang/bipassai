@@ -254,6 +254,85 @@
     return Array.isArray(styles) && styles.length < MAX_SAVED_STYLES;
   }
 
+  function normalizeStoredStyle(style, fallbackId = '') {
+    if (!style || typeof style !== 'object' || Array.isArray(style)) return null;
+    const id = cleanText(style.id, 80) || cleanText(fallbackId, 80);
+    if (!id) return null;
+    const samples = (Array.isArray(style.writing_samples) ? style.writing_samples : [])
+      .map((sample) => typeof sample === 'string' ? sample.trim().slice(0, 12000) : '')
+      .filter(Boolean)
+      .slice(0, 5);
+    return {
+      ...style,
+      id,
+      name: cleanText(style.name, 30),
+      style_summary: typeof style.style_summary === 'string' ? style.style_summary : '[]',
+      style_prompt: cleanText(style.style_prompt, 12000),
+      ...(samples.length ? { writing_samples: samples } : {}),
+    };
+  }
+
+  // One portable envelope is used in localStorage and in the legacy one-row
+  // Supabase table. That lets older accounts keep working while newer accounts
+  // can carry several named profiles across devices without a schema migration.
+  function serializeProfileStore(styles, activeId, { includeSamples = true } = {}) {
+    const normalized = (Array.isArray(styles) ? styles : [])
+      .map((style, index) => normalizeStoredStyle(style, `profile-${index + 1}`))
+      .filter(Boolean)
+      .map((style) => {
+        if (includeSamples) return style;
+        const { writing_samples: _samples, ...portableStyle } = style;
+        return portableStyle;
+      })
+      .slice(0, MAX_SAVED_STYLES);
+    const requestedId = cleanText(activeId, 80);
+    const resolvedId = normalized.some((style) => style.id === requestedId)
+      ? requestedId
+      : (normalized[0]?.id || null);
+    return JSON.stringify({
+      version: 2,
+      kind: 'bipass-writing-profiles',
+      styles: normalized,
+      activeId: resolvedId,
+    });
+  }
+
+  function readProfileStore(source) {
+    let container = source;
+    if (typeof container === 'string') {
+      try { container = JSON.parse(container); } catch (_) { container = null; }
+    }
+
+    // A Supabase row may contain either the new collection envelope or the old
+    // single profile fields.
+    if (container && typeof container === 'object' && !Array.isArray(container)
+        && typeof container.style_summary === 'string' && !Array.isArray(container.styles)) {
+      let nested = null;
+      try { nested = JSON.parse(container.style_summary); } catch (_) {}
+      if (nested?.kind === 'bipass-writing-profiles' || Array.isArray(nested?.styles)) {
+        container = nested;
+      } else {
+        const legacy = normalizeStoredStyle({
+          ...container,
+          id: container.id || 'legacy-profile',
+          name: container.name || 'My writing profile',
+        }, 'legacy-profile');
+        return { styles: legacy ? [legacy] : [], activeId: legacy?.id || null };
+      }
+    }
+
+    const rawStyles = Array.isArray(container?.styles) ? container.styles : [];
+    const styles = rawStyles
+      .map((style, index) => normalizeStoredStyle(style, `profile-${index + 1}`))
+      .filter(Boolean)
+      .slice(0, MAX_SAVED_STYLES);
+    const requestedId = cleanText(container?.activeId, 80);
+    const activeId = styles.some((style) => style.id === requestedId)
+      ? requestedId
+      : (styles[0]?.id || null);
+    return { styles, activeId };
+  }
+
   function upsertStyle(styles, style, replaceId = null) {
     const list = Array.isArray(styles) ? [...styles] : [];
     if (!style || typeof style !== 'object' || Array.isArray(style) || !cleanText(style.id, 80)) {
@@ -291,11 +370,13 @@
     fromAnalysisPayload,
     normalizeProfile,
     profileOptionState,
+    readProfileStore,
     readAnalysis,
     readTraits,
     removeStyle,
     resultSnapshot,
     serializeSummary,
+    serializeProfileStore,
     selectorMode,
     sliderValuesFromStyle,
     stylePromptFromAnalysis,

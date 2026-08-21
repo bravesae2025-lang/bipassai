@@ -43,7 +43,9 @@ const {
   removeStyle,
   resultSnapshot,
   profileOptionState,
+  readProfileStore,
   selectorMode,
+  serializeProfileStore,
   serializeSummary,
   sliderValuesFromStyle,
   stylePromptFromAnalysis,
@@ -562,6 +564,26 @@ test('profile collection helpers cover creation, reanalysis and active deletion'
   assert.deepEqual(remaining.styles.map(({ id }) => id), ['one', 'three']);
   assert.equal(remaining.activeId, 'one');
   assert.equal(remaining.activeStyle, first);
+});
+
+test('writing profile store round-trips several profiles and migrates a legacy row', () => {
+  const styles = [
+    { id: 'essays', name: 'School essays', style_summary: '[]', style_prompt: 'Essay voice' },
+    { id: 'messages', name: 'Messages', style_summary: '[]', style_prompt: 'Casual voice' },
+  ];
+  const stored = serializeProfileStore(styles, 'messages');
+  assert.match(stored, /bipass-writing-profiles/);
+  assert.deepEqual(readProfileStore(stored), { styles, activeId: 'messages' });
+
+  const localWithSample = [{ ...styles[0], writing_samples: ['A private draft.'] }];
+  assert.equal(readProfileStore(serializeProfileStore(localWithSample, 'essays')).styles[0].writing_samples.length, 1);
+  assert.equal(readProfileStore(serializeProfileStore(localWithSample, 'essays', { includeSamples: false })).styles[0].writing_samples, undefined);
+
+  const legacy = readProfileStore({ style_summary: '[]', style_prompt: 'Old voice' });
+  assert.equal(legacy.styles.length, 1);
+  assert.equal(legacy.activeId, 'legacy-profile');
+  assert.equal(legacy.styles[0].name, 'My writing profile');
+  assert.equal(legacy.styles[0].style_prompt, 'Old voice');
 });
 
 test('style analysis always maps into the six controls used by Custom mode', () => {

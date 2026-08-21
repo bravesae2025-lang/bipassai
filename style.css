@@ -12170,33 +12170,33 @@ body.creation-page {
 
 /* Primary profile surface — a lighter material above the structural glass. */
 .col-customize .level-btn-profile {
-  border-color: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.15);
   border-radius: 15px;
   background:
-    radial-gradient(90% 120% at 0% 0%, rgba(var(--glass-white),0.15), transparent 56%),
-    linear-gradient(145deg, rgba(var(--glass-control),0.52), rgba(42,43,50,0.50));
+    radial-gradient(120% 170% at 42% -34%, rgba(var(--glass-white),0.13), transparent 62%),
+    linear-gradient(145deg, rgba(var(--glass-control),0.43), rgba(42,43,50,0.46));
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 10px 18px -18px rgba(255,255,255,0.34),
     inset 0 -1px 0 rgba(0,0,0,0.18),
-    0 7px 18px rgba(0,0,0,0.14);
+    0 7px 18px rgba(0,0,0,0.13);
 }
 
 .col-customize .level-btn-profile::before {
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.025),
-    inset 0 14px 24px rgba(255,255,255,0.025);
+    inset 0 0 0 1px rgba(255,255,255,0.018),
+    inset 0 16px 24px -22px rgba(255,255,255,0.20);
 }
 
 .col-customize .level-btn-profile:hover {
-  border-color: rgba(255,255,255,0.42);
+  border-color: rgba(255,255,255,0.30);
   background:
-    radial-gradient(90% 120% at 0% 0%, rgba(var(--glass-white),0.20), transparent 56%),
-    linear-gradient(145deg, rgba(var(--glass-control-hover),0.60), rgba(49,51,59,0.58));
+    radial-gradient(120% 170% at 42% -34%, rgba(var(--glass-white),0.17), transparent 62%),
+    linear-gradient(145deg, rgba(var(--glass-control-hover),0.50), rgba(49,51,59,0.53));
   transform: translateY(-2px) scale(1.003);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.24),
+    inset 0 10px 18px -18px rgba(255,255,255,0.42),
     inset 0 -1px 0 rgba(0,0,0,0.18),
     0 16px 34px rgba(0,0,0,0.21);
 }
@@ -12221,7 +12221,7 @@ body.creation-page {
 }
 
 .col-customize .level-btn-profile.is-ready:not(.is-active) {
-  border-color: rgba(255,255,255,0.28);
+  border-color: rgba(255,255,255,0.19);
 }
 
 .col-customize .level-btn-profile.is-active:hover {
@@ -12452,15 +12452,17 @@ body.creation-page {
       radial-gradient(90% 80% at 100% 100%, rgba(72,85,108,0.34) 0%, transparent 62%),
       linear-gradient(145deg, rgba(49,49,56,0.92) 0%, rgba(37,37,43,0.93) 50%, rgba(29,29,34,0.94) 100%);
   }
-  .col-customize .level-btn-profile,
   .col-customize .writing-profile-create,
   .col-customize #my-style-inputs,
   .col-customize .writing-profile-card,
   .col-customize .style-card {
     background: linear-gradient(145deg, rgba(66,66,74,0.90), rgba(43,43,49,0.92) 72%);
   }
+  .col-customize .level-btn-profile {
+    background: linear-gradient(145deg, rgba(62,63,71,0.92), rgba(52,53,61,0.92) 48%, rgba(44,45,52,0.93));
+  }
   .col-customize .level-btn-profile:hover {
-    background: linear-gradient(145deg, rgba(75,76,85,0.94), rgba(49,50,58,0.94) 72%);
+    background: linear-gradient(145deg, rgba(69,71,80,0.94), rgba(57,59,68,0.94) 50%, rgba(49,50,58,0.94));
   }
   .col-customize .level-btn-profile.is-active,
   .col-customize .level-btn-profile.is-active:hover {

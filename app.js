@@ -2351,7 +2351,7 @@ function animateProfileDetails(details, shouldOpen) {
   };
 }
 
-function renderStyleList() {
+function renderStyleList(activatingStyleId = null) {
   if (profileEmpty) profileEmpty.style.display = 'none';
   myStyleInputs.hidden = true;
   styleCardsList.style.display = 'flex';
@@ -2362,13 +2362,14 @@ function renderStyleList() {
 
   styleCardsList.innerHTML = savedStyles.map(style => {
     const isActive = style.id === activeStyleId && myStyleActive;
+    const isActivating = isActive && String(style.id) === String(activatingStyleId);
     const traits = window.BipassStyleProfile.readTraits(style);
     const fingerprint = Array.from({ length: 6 }, (_, index) => {
       const intensity = traits[index]?.intensity ?? 0;
       return `<i style="--trait-opacity:${Math.max(0.24, intensity / 10)};--profile-opacity:${isActive ? 1 : Math.max(0.24, intensity / 10)};--profile-scale:${Math.max(0.24, intensity / 10)}"></i>`;
     }).join('');
     return `
-      <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''}" data-id="${escapeHtml(style.id)}">
+      <article class="style-card writing-profile-card ${isActive ? 'style-card-active' : ''} ${isActivating ? 'profile-activating' : ''}" data-id="${escapeHtml(style.id)}">
         <div class="style-card-header">
           <div class="profile-card-identity">
             <input class="style-card-name" type="text"
@@ -2430,8 +2431,7 @@ function renderStyleList() {
         savedStyle = savedStyles.find(s => s.id === id) || null;
         saveStoredStyles();
         activateMyStyle();
-        renderStyleList();
-        restartProfileFingerprintMotion();
+        renderStyleList(id);
       }
     });
   });

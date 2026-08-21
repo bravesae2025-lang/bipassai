@@ -12126,6 +12126,9 @@ body.creation-page {
   .level-btn-profile.is-settling .level-profile-fingerprint i,
   .writing-profile-card.is-settling,
   .writing-profile-card.is-settling .writing-fingerprint-card i { animation: none; }
+  .writing-profile-card.profile-activating::after,
+  .writing-profile-card.profile-activating .writing-fingerprint-card i,
+  .writing-profile-card.profile-activating .style-use-btn.active { animation: none; }
   .result-profile-wrap { opacity: 1; transform: none; transition: none; }
   .result-profile-wrap.is-revealed .result-profile-fingerprint i { animation: none; opacity: 1; transform: none; }
   .result-profile-popover { animation: none; }
@@ -12480,21 +12483,9 @@ body.creation-page {
 /* Saved styles use the same neutral glass as the Writing Profile mode card. */
 .col-customize .writing-profile-card,
 .col-customize .writing-profile-card.style-card-active {
+  position: relative;
+  isolation: isolate;
   border-color: rgba(255,255,255,0.17);
-  background:
-    radial-gradient(100% 135% at 0% 0%, rgba(255,255,255,0.13), transparent 58%),
-    linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.028)),
-    rgba(var(--profile-surface-rgb),0.74);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  backdrop-filter: blur(14px) saturate(120%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.16),
-    inset 0 -1px 0 rgba(0,0,0,0.14),
-    0 12px 28px rgba(0,0,0,0.16);
-}
-
-.col-customize .writing-profile-card.style-card-active {
-  border-color: rgba(var(--profile-accent-rgb),0.68);
   background:
     radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.2), transparent 54%),
     linear-gradient(145deg, rgba(78,80,90,0.96), rgba(49,51,59,0.96));
@@ -12506,6 +12497,63 @@ body.creation-page {
     0 0 0 1px rgba(var(--glass-signal),0.035),
     0 16px 36px rgba(0,0,0,0.25),
     0 28px 52px rgba(8,10,16,0.14);
+}
+
+.col-customize .writing-profile-card::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: -1px;
+  border: 1px solid rgba(var(--profile-accent-rgb),0.74);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 18px rgba(var(--profile-accent-rgb),0.08);
+}
+
+.col-customize .writing-profile-card.style-card-active::after {
+  opacity: 1;
+}
+
+.col-customize .writing-profile-card.profile-activating::after {
+  animation: profile-green-rim-in 560ms cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i {
+  animation: profile-green-segment-in 380ms cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(2) { animation-delay: 45ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(3) { animation-delay: 90ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(4) { animation-delay: 135ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(5) { animation-delay: 180ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(6) { animation-delay: 225ms; }
+
+.col-customize .writing-profile-card.profile-activating .style-use-btn.active {
+  animation: profile-green-status-in 420ms 120ms cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes profile-green-rim-in {
+  from { opacity: 0.16; clip-path: inset(0 100% 0 0 round 14px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0 round 14px); }
+}
+
+@keyframes profile-green-segment-in {
+  from {
+    background: rgba(255,255,255,var(--trait-opacity,0.35));
+    opacity: var(--trait-opacity,0.35);
+    transform: scaleY(0.28);
+  }
+  to {
+    background: var(--profile-accent);
+    opacity: 1;
+    transform: scaleY(var(--profile-scale,1));
+  }
+}
+
+@keyframes profile-green-status-in {
+  from { color: rgba(255,255,255,0.52); opacity: 0.4; transform: translateX(-4px); }
+  to { color: var(--profile-accent); opacity: 1; transform: none; }
 }
 
 .col-customize .writing-profile-create:hover {

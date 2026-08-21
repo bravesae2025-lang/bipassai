@@ -2304,6 +2304,29 @@ function announceProfileDetailsState() {
   }));
 }
 
+let profileDetailsScrollRequest = 0;
+
+function centerExpandedProfileDetails(details, delay = 0) {
+  const request = ++profileDetailsScrollRequest;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const center = () => {
+    if (request !== profileDetailsScrollRequest
+        || details.dataset.targetOpen === 'false'
+        || !details.open) return;
+    details.scrollIntoView({
+      behavior: reduce ? 'auto' : 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+  };
+
+  if (delay > 0 && !reduce) {
+    setTimeout(() => requestAnimationFrame(center), delay);
+  } else {
+    requestAnimationFrame(center);
+  }
+}
+
 function animateProfileDetails(details, shouldOpen) {
   const body = details.querySelector('.writing-profile-details-body');
   if (!body) return;
@@ -2316,6 +2339,7 @@ function animateProfileDetails(details, shouldOpen) {
 
   body.getAnimations().forEach(animation => animation.cancel());
   if (shouldOpen && !details.open) details.open = true;
+  profileDetailsScrollRequest++;
   details.dataset.targetOpen = String(shouldOpen);
   announceProfileDetailsState();
 
@@ -2325,6 +2349,7 @@ function animateProfileDetails(details, shouldOpen) {
     body.style.removeProperty('overflow');
     body.style.removeProperty('height');
     body.style.removeProperty('opacity');
+    if (shouldOpen) centerExpandedProfileDetails(details);
     return;
   }
 
@@ -2345,6 +2370,9 @@ function animateProfileDetails(details, shouldOpen) {
     body.style.removeProperty('overflow');
     body.style.removeProperty('height');
     body.style.removeProperty('opacity');
+    // Let the workflow guide finish compacting before measuring the final
+    // page position, then use the browser's interruptible native scroll.
+    if (shouldOpen) centerExpandedProfileDetails(details, 120);
   };
 }
 

@@ -201,7 +201,9 @@ if (!appJs.includes('styleProfile: styleProfile || undefined')
 }
 if (!appJs.includes("'bipass-profile-details-toggle'")
     || !appJs.includes('function animateProfileDetails(details, shouldOpen)')
-    || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')) {
+    || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')
+    || !appJs.includes("behavior: reduce ? 'auto' : 'smooth'")
+    || !appJs.includes("block: 'center'")) {
   add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }
 if (!appJs.includes("document.addEventListener('bipass-level-change'")

@@ -204,8 +204,8 @@ if (!appJs.includes("'bipass-profile-details-toggle'")
     || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')
     || !appJs.includes("behavior: reduce ? 'auto' : 'smooth'")
     || !appJs.includes("block: 'center'")
-    || !appJs.includes('profileDetailsScrollOrigins.set(details, window.scrollY)')
-    || !appJs.includes('restoreProfileDetailsScroll(details)')) {
+    || !appJs.includes('function scrollProfileDetailsToPageTop()')
+    || !appJs.includes('top: 0')) {
   add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }
 if (!appJs.includes("document.addEventListener('bipass-level-change'")

@@ -2314,15 +2314,10 @@ function centerExpandedProfileDetails(details) {
   });
 }
 
-const profileDetailsScrollOrigins = new WeakMap();
-
-function restoreProfileDetailsScroll(details) {
-  const origin = profileDetailsScrollOrigins.get(details);
-  if (!Number.isFinite(origin)) return;
-  profileDetailsScrollOrigins.delete(details);
+function scrollProfileDetailsToPageTop() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.scrollTo({
-    top: origin,
+    top: 0,
     behavior: reduce ? 'auto' : 'smooth',
   });
 }
@@ -2338,13 +2333,10 @@ function animateProfileDetails(details, shouldOpen) {
     : 0;
 
   body.getAnimations().forEach(animation => animation.cancel());
-  if (shouldOpen && !profileDetailsScrollOrigins.has(details)) {
-    profileDetailsScrollOrigins.set(details, window.scrollY);
-  }
   if (shouldOpen && !details.open) details.open = true;
   details.dataset.targetOpen = String(shouldOpen);
   announceProfileDetailsState();
-  if (!shouldOpen) restoreProfileDetailsScroll(details);
+  if (!shouldOpen) scrollProfileDetailsToPageTop();
 
   if (reduce) {
     details.open = shouldOpen;

@@ -7007,7 +7007,8 @@ body.drawer-lock { overflow: hidden; }
     0 12px 32px rgba(0,0,0,0.08),
     0 28px 56px rgba(0,0,0,0.05);
   overflow: hidden;
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease,
+    padding-bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rec-flow-box:hover {
   transform: translateY(-3px);
@@ -7024,7 +7025,13 @@ body.drawer-lock { overflow: hidden; }
 }
 @keyframes rec-accent-slide { to { background-position: -200% 0; } }
 
-.rec-flow-head { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; }
+.rec-flow-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 13px;
+  transition: margin-bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .rec-flow-badge {
   display: inline-flex; align-items: center; gap: 5px;
   background: #0d0d0d; color: #fff;
@@ -7054,11 +7061,33 @@ body.drawer-lock { overflow: hidden; }
 /* Collapsed → compact little bar */
 .rec-flow-box.is-collapsed { padding-bottom: 16px; }
 .rec-flow-box.is-collapsed .rec-flow-head { margin-bottom: 0; }
-.rec-flow-box.is-collapsed .rec-flow-viewport,
-.rec-flow-box.is-collapsed .rec-flow-progress,
-.rec-flow-box.is-collapsed .rec-flow-dots { display: none; }
+.rec-flow-box.is-collapsed .rec-flow-viewport {
+  height: 0 !important;
+  opacity: 0;
+  transform: translateY(-5px) scale(0.99);
+  pointer-events: none;
+}
+.rec-flow-box.is-collapsed .rec-flow-progress {
+  height: 0;
+  margin-top: 0;
+  opacity: 0;
+}
+.rec-flow-box.is-collapsed .rec-flow-dots {
+  max-height: 0;
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 
-.rec-flow-viewport { overflow: hidden; border-radius: 12px; transition: height 0.5s cubic-bezier(0.45, 0, 0.2, 1); }
+.rec-flow-viewport {
+  overflow: hidden;
+  border-radius: 12px;
+  opacity: 1;
+  transform: none;
+  transform-origin: top center;
+  transition: height 0.46s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.22s ease, transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .rec-flow-track { display: flex; align-items: flex-start; transition: transform 0.6s cubic-bezier(0.45, 0, 0.2, 1); }
 .rec-flow-slide {
   flex: 0 0 100%; min-width: 0; padding: 2px; box-sizing: border-box;
@@ -7208,13 +7237,33 @@ body.drawer-lock { overflow: hidden; }
 @keyframes rec-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
 /* Autoplay progress bar */
-.rec-flow-progress { height: 3px; border-radius: 3px; background: var(--g150); overflow: hidden; margin: 12px 2px 0; }
+.rec-flow-progress {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--g150);
+  overflow: hidden;
+  margin: 12px 2px 0;
+  opacity: 1;
+  transition: height 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-top 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+}
 .rec-flow-progress i { display: block; height: 100%; width: 0; background: #0d0d0d; border-radius: 3px; }
 .rec-flow-progress i.run { animation: rec-progress var(--rec-delay, 4200ms) linear forwards; }
 @keyframes rec-progress { from { width: 0; } to { width: 100%; } }
 
 /* Dots */
-.rec-flow-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; }
+.rec-flow-dots {
+  max-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height 0.34s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-top 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+}
 .rec-flow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g200); border: none; padding: 0; cursor: pointer; transition: background 0.3s, width 0.3s; }
 .rec-flow-dot.active { background: var(--black); width: 16px; border-radius: 100px; }
 
@@ -7234,6 +7283,11 @@ body.drawer-lock { overflow: hidden; }
   .rec-flow-slide--active .rec-gd-float,
   .rec-gd-typing::after,
   .rec-flow-progress i.run { animation: none; }
+  .rec-flow-box,
+  .rec-flow-head,
+  .rec-flow-viewport,
+  .rec-flow-progress,
+  .rec-flow-dots,
   .rec-flow-track { transition: none; }
 }
 
@@ -11628,15 +11682,6 @@ body.creation-page {
   background: rgba(0,0,0,0.12);
   scrollbar-width: thin;
 }
-.writing-profile-details[open] .writing-profile-details-body {
-  animation: profile-details-enter 320ms var(--ease-out) both;
-}
-
-@keyframes profile-details-enter {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: none; }
-}
-
 .profile-voice-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

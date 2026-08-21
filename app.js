@@ -2200,6 +2200,63 @@ function renderProfileDetails(style) {
     </div>`;
 }
 
+function profileDetailsAreOpen() {
+  return Array.from(styleCardsList?.querySelectorAll('.writing-profile-details') || [])
+    .some(details => details.dataset.targetOpen
+      ? details.dataset.targetOpen === 'true'
+      : details.open);
+}
+
+function announceProfileDetailsState() {
+  document.dispatchEvent(new CustomEvent('bipass-profile-details-toggle', {
+    detail: { open: profileDetailsAreOpen() },
+  }));
+}
+
+function animateProfileDetails(details, shouldOpen) {
+  const body = details.querySelector('.writing-profile-details-body');
+  if (!body) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const currentHeight = details.open ? body.getBoundingClientRect().height : 0;
+  const currentOpacity = details.open
+    ? Math.max(0, Math.min(1, parseFloat(getComputedStyle(body).opacity) || 1))
+    : 0;
+
+  body.getAnimations().forEach(animation => animation.cancel());
+  if (shouldOpen && !details.open) details.open = true;
+  details.dataset.targetOpen = String(shouldOpen);
+  announceProfileDetailsState();
+
+  if (reduce) {
+    details.open = shouldOpen;
+    delete details.dataset.targetOpen;
+    body.style.removeProperty('overflow');
+    body.style.removeProperty('height');
+    body.style.removeProperty('opacity');
+    return;
+  }
+
+  const targetHeight = shouldOpen ? body.getBoundingClientRect().height : 0;
+  body.style.overflow = 'hidden';
+  const animation = body.animate([
+    { height: `${currentHeight}px`, opacity: currentOpacity },
+    { height: `${targetHeight}px`, opacity: shouldOpen ? 1 : 0 },
+  ], {
+    duration: 360,
+    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  });
+
+  animation.onfinish = () => {
+    if (details.dataset.targetOpen !== String(shouldOpen)) return;
+    details.open = shouldOpen;
+    delete details.dataset.targetOpen;
+    body.style.removeProperty('overflow');
+    body.style.removeProperty('height');
+    body.style.removeProperty('opacity');
+  };
+}
+
 function renderStyleList() {
   if (profileEmpty) profileEmpty.style.display = 'none';
   myStyleInputs.hidden = true;
@@ -2246,6 +2303,17 @@ function renderStyleList() {
       if (s) { s.name = input.value; saveStoredStyles(); }
     });
   });
+
+  styleCardsList.querySelectorAll('.writing-profile-details').forEach(details => {
+    details.querySelector('summary')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      const currentTarget = details.dataset.targetOpen
+        ? details.dataset.targetOpen === 'true'
+        : details.open;
+      animateProfileDetails(details, !currentTarget);
+    });
+  });
+  announceProfileDetailsState();
 
   styleCardsList.querySelectorAll('.style-use-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3486,7 +3554,7 @@ function startTour() {
   // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
   let collapsed = localStorage.getItem('rec-flow-collapsed') === '1';
-  let autoCollapsedForStyle = false;
+  let autoCollapsedForProfileDetails = false;
   function applyCollapsed() {
     box.classList.toggle('is-collapsed', collapsed);
     if (toggle) {
@@ -3499,33 +3567,33 @@ function startTour() {
   if (toggle) {
     toggle.addEventListener('click', () => {
       // A direct click is the user's preference and takes ownership away from
-      // the temporary Writing Profile / Custom collapse.
-      autoCollapsedForStyle = false;
+      // the temporary profile-details collapse.
+      autoCollapsedForProfileDetails = false;
       collapsed = !collapsed;
       localStorage.setItem('rec-flow-collapsed', collapsed ? '1' : '0');
       applyCollapsed();
     });
   }
 
-  document.addEventListener('bipass-level-change', (event) => {
-    const styleNeedsSpace = ['profile', 'customize'].includes(event.detail?.mode);
+  document.addEventListener('bipass-profile-details-toggle', (event) => {
+    const detailsOpen = event.detail?.open === true;
 
-    if (styleNeedsSpace) {
-      // Keep the active style controls in focus without overwriting the
+    if (detailsOpen) {
+      // Make room for the expanded profile without overwriting the
       // user's persisted minimize/expand preference.
       if (!collapsed) {
         collapsed = true;
-        autoCollapsedForStyle = true;
+        autoCollapsedForProfileDetails = true;
         applyCollapsed();
       }
       return;
     }
 
-    // Reopen only when a style choice caused the collapse. A click on the minus
+    // Reopen only when profile details caused the collapse. A click on the minus
     // button clears this flag, so the user's own collapsed choice is preserved.
-    if (autoCollapsedForStyle) {
+    if (autoCollapsedForProfileDetails) {
       collapsed = false;
-      autoCollapsedForStyle = false;
+      autoCollapsedForProfileDetails = false;
       applyCollapsed();
     }
   });

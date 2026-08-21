@@ -196,8 +196,10 @@ if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes("selectorMode(selectedLevel, profileActive)")) {
   add(appJsFile, 'Writing Profile usage and active-profile deletion must keep result state honest');
 }
-if (!appJs.includes("['profile', 'customize'].includes(event.detail?.mode)")) {
-  add(appJsFile, 'Writing Profile and manual customization must both collapse the workflow guide');
+if (!appJs.includes("'bipass-profile-details-toggle'")
+    || !appJs.includes('function animateProfileDetails(details, shouldOpen)')
+    || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')) {
+  add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }
 if (!editorJs.includes("customize: appliedProfile ? 'Writing Profile' : 'Customized'")) {
   add(editorJsFile, 'result metadata must distinguish profile matching from manual customization');

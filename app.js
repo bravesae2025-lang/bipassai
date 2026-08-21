@@ -2316,10 +2316,19 @@ function centerExpandedProfileDetails(details) {
 
 function scrollProfileDetailsToPageTop() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  window.scrollTo({
+  const scrollOptions = {
     top: 0,
     behavior: reduce ? 'auto' : 'smooth',
-  });
+  };
+  const scrollTargets = new Set([
+    document.scrollingElement,
+    document.documentElement,
+    document.body,
+    document.querySelector('.app-main'),
+  ]);
+
+  scrollTargets.forEach(target => target?.scrollTo?.(scrollOptions));
+  window.scrollTo(scrollOptions);
 }
 
 function animateProfileDetails(details, shouldOpen) {

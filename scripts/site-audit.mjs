@@ -205,6 +205,8 @@ if (!appJs.includes("'bipass-profile-details-toggle'")
     || !appJs.includes("behavior: reduce ? 'auto' : 'smooth'")
     || !appJs.includes("block: 'center'")
     || !appJs.includes('function scrollProfileDetailsToPageTop()')
+    || !appJs.includes("document.querySelector('.app-main')")
+    || !appJs.includes('document.body')
     || !appJs.includes('top: 0')) {
   add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }

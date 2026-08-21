@@ -3486,7 +3486,7 @@ function startTour() {
   // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
   let collapsed = localStorage.getItem('rec-flow-collapsed') === '1';
-  let autoCollapsedForCustom = false;
+  let autoCollapsedForStyle = false;
   function applyCollapsed() {
     box.classList.toggle('is-collapsed', collapsed);
     if (toggle) {
@@ -3499,8 +3499,8 @@ function startTour() {
   if (toggle) {
     toggle.addEventListener('click', () => {
       // A direct click is the user's preference and takes ownership away from
-      // the temporary Custom-level collapse.
-      autoCollapsedForCustom = false;
+      // the temporary Writing Profile / Custom collapse.
+      autoCollapsedForStyle = false;
       collapsed = !collapsed;
       localStorage.setItem('rec-flow-collapsed', collapsed ? '1' : '0');
       applyCollapsed();
@@ -3508,24 +3508,24 @@ function startTour() {
   }
 
   document.addEventListener('bipass-level-change', (event) => {
-    const customSelected = event.detail?.mode === 'customize';
+    const styleNeedsSpace = ['profile', 'customize'].includes(event.detail?.mode);
 
-    if (customSelected) {
-      // Make room for the taller manual controls without overwriting the
+    if (styleNeedsSpace) {
+      // Keep the active style controls in focus without overwriting the
       // user's persisted minimize/expand preference.
       if (!collapsed) {
         collapsed = true;
-        autoCollapsedForCustom = true;
+        autoCollapsedForStyle = true;
         applyCollapsed();
       }
       return;
     }
 
-    // Reopen only when manual controls caused the collapse. A click on the minus
+    // Reopen only when a style choice caused the collapse. A click on the minus
     // button clears this flag, so the user's own collapsed choice is preserved.
-    if (autoCollapsedForCustom) {
+    if (autoCollapsedForStyle) {
       collapsed = false;
-      autoCollapsedForCustom = false;
+      autoCollapsedForStyle = false;
       applyCollapsed();
     }
   });

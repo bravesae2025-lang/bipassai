@@ -8593,6 +8593,9 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   --profile-hover-surface: #202420;
   --profile-surface-rgb: 29, 31, 30;
   --profile-inset-rgb: 21, 23, 22;
+  --profile-rim-enter: 1150ms;
+  --profile-rim-exit: 1000ms;
+  --profile-motion-ease: cubic-bezier(0.22,1,0.36,1);
 }
 
 @property --profile-rim-angle {
@@ -12312,10 +12315,10 @@ body.creation-page {
   box-shadow: none;
   transition:
     border-color 260ms ease,
-    box-shadow 380ms cubic-bezier(0.16,1,0.3,1),
-    transform 380ms cubic-bezier(0.16,1,0.3,1),
-    -webkit-backdrop-filter 380ms cubic-bezier(0.16,1,0.3,1),
-    backdrop-filter 380ms cubic-bezier(0.16,1,0.3,1),
+    box-shadow 520ms var(--profile-motion-ease),
+    transform 520ms var(--profile-motion-ease),
+    -webkit-backdrop-filter 520ms var(--profile-motion-ease),
+    backdrop-filter 520ms var(--profile-motion-ease),
     opacity 180ms ease;
 }
 
@@ -12329,7 +12332,7 @@ body.creation-page {
   filter: none;
   opacity: 0;
   box-shadow: inset 0 10px 18px -18px rgba(255,255,255,0.48);
-  transition: opacity 380ms cubic-bezier(0.16,1,0.3,1);
+  transition: opacity 560ms var(--profile-motion-ease);
   will-change: opacity;
 }
 
@@ -12354,7 +12357,7 @@ body.creation-page {
   mask-composite: exclude;
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.16));
-  transition: --profile-rim-angle 720ms cubic-bezier(0.16,1,0.3,1);
+  transition: --profile-rim-angle var(--profile-rim-enter) var(--profile-motion-ease);
 }
 
 .col-customize .level-btn-profile > * {
@@ -12595,33 +12598,33 @@ body.creation-page {
 }
 
 .col-customize .writing-profile-card.profile-activating::after {
-  animation: profile-green-rim-in 720ms cubic-bezier(0.16,1,0.3,1) both;
+  animation: profile-green-rim-in var(--profile-rim-enter) var(--profile-motion-ease) both;
 }
 
 .col-customize .writing-profile-card.profile-deactivating::after {
-  animation: profile-green-rim-out 620ms cubic-bezier(0.7,0,0.84,0) both;
+  animation: profile-green-rim-out var(--profile-rim-exit) var(--profile-motion-ease) both;
 }
 
 .col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i {
-  animation: profile-green-segment-in 380ms cubic-bezier(0.16,1,0.3,1) both;
+  animation: profile-green-segment-in 520ms var(--profile-motion-ease) both;
 }
 
-.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(2) { animation-delay: 45ms; }
-.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(3) { animation-delay: 90ms; }
-.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(4) { animation-delay: 135ms; }
-.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(5) { animation-delay: 180ms; }
-.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(6) { animation-delay: 225ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(2) { animation-delay: 60ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(3) { animation-delay: 120ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(4) { animation-delay: 180ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(5) { animation-delay: 240ms; }
+.col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i:nth-child(6) { animation-delay: 300ms; }
 
 .col-customize .writing-profile-card.profile-activating .style-use-btn.active {
-  animation: profile-green-status-in 420ms 120ms cubic-bezier(0.16,1,0.3,1) both;
+  animation: profile-green-status-in 540ms 180ms var(--profile-motion-ease) both;
 }
 
 .col-customize .writing-profile-card.profile-deactivating .writing-fingerprint-card i {
-  animation: profile-green-segment-out 360ms cubic-bezier(0.7,0,0.84,0) both;
+  animation: profile-green-segment-out 460ms var(--profile-motion-ease) both;
 }
 
 .col-customize .writing-profile-card.profile-deactivating .style-use-btn {
-  animation: profile-green-status-out 320ms cubic-bezier(0.7,0,0.84,0) both;
+  animation: profile-green-status-out 420ms var(--profile-motion-ease) both;
 }
 
 @keyframes profile-green-rim-in {

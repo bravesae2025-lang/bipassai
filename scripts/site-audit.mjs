@@ -173,8 +173,11 @@ if (!appHtml.includes('id="writing-profile-block"')
 if (!appHtml.includes('id="writing-profile-option"')
     || !appHtml.includes('data-level="profile"')
     || !appHtml.includes('id="manual-customize-btn"')
-    || appHtml.includes('level-btn-custom')) {
-  add(appFile, 'Level Matching must feature Writing Profile and keep manual controls secondary');
+    || !appHtml.includes('class="level-btn level-btn-custom"')
+    || !appHtml.includes('data-level="customize"')
+    || appHtml.indexOf('data-level="customize"') < appHtml.indexOf('data-level="hard"')
+    || appHtml.includes('class="level-manual-btn"')) {
+  add(appFile, 'Styles must keep Writing Profile primary and place Custom fourth in the preset selector');
 }
 if (!appHtml.includes('id="level-heading">Styles</div>')
     || appHtml.indexOf('id="writing-profile-option"') > appHtml.indexOf('class="level-track"')

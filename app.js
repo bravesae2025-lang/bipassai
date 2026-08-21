@@ -1,4 +1,4 @@
-const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2 };
+const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student', hard: 'Academic' };
 
 const HUMANIZE_PROMPTS = {
@@ -1323,7 +1323,6 @@ const profileOptionTitle = document.getElementById('writing-profile-option-title
 const profileOptionMeta = document.getElementById('writing-profile-option-meta');
 const profileOptionStatus = document.getElementById('writing-profile-option-status');
 const manualCustomizeBtn = document.getElementById('manual-customize-btn');
-const manualCustomizeState = document.getElementById('manual-customize-state');
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1677,8 +1676,6 @@ function bindEvents() {
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
-  manualCustomizeBtn?.addEventListener('click', () => selectLevel('customize'));
-
   // Mistake sliders
   optionsPanel?.querySelectorAll('.mistake-slider').forEach(slider => {
     const type = slider.dataset.mistake;
@@ -1877,10 +1874,7 @@ function syncLevelSelectionUi() {
   applyFingerprintValues(profileBlock?.querySelector('.writing-profile-head .writing-fingerprint'), optionState.values);
 
   const manualActive = mode === 'customize';
-  manualCustomizeBtn?.classList.toggle('active', manualActive);
-  manualCustomizeBtn?.setAttribute('aria-pressed', String(manualActive));
   manualCustomizeBtn?.setAttribute('aria-expanded', String(manualActive));
-  if (manualCustomizeState) manualCustomizeState.textContent = manualActive ? 'Active' : 'Advanced';
 
   profileBlock?.classList.toggle('profile-is-active', mode === 'profile');
   profileBlock?.classList.toggle('profile-is-manual', manualActive);

@@ -3160,24 +3160,41 @@ body.revision-open { overflow: hidden; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Customize col — solid black (inverted)
+   Customize col — graphite glass
 ───────────────────────────────────────────────────────────── */
 
 .col.col-customize {
   margin-top: 16px;
   gap: 11px;
-  background: #181817;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1px solid rgba(255,255,255,0.07);
+  background:
+    linear-gradient(145deg, rgba(62,62,66,0.82) 0%, rgba(38,38,41,0.78) 46%, rgba(24,24,27,0.84) 100%);
+  backdrop-filter: blur(28px) saturate(145%);
+  -webkit-backdrop-filter: blur(28px) saturate(145%);
+  border: 1px solid rgba(255,255,255,0.18);
   box-shadow:
-    0 1px 2px rgba(0,0,0,0.25),
-    0 4px 8px rgba(0,0,0,0.22),
-    0 16px 32px rgba(0,0,0,0.28),
-    0 40px 80px rgba(0,0,0,0.22);
+    inset 0 1px 0 rgba(255,255,255,0.17),
+    inset 1px 0 0 rgba(255,255,255,0.045),
+    0 2px 6px rgba(0,0,0,0.16),
+    0 18px 44px rgba(0,0,0,0.22),
+    0 42px 90px rgba(0,0,0,0.16);
   transition: opacity 0.3s ease, transform 0.3s var(--ease-out), box-shadow 0.3s ease;
   padding-top: clamp(14px, 2vh, 22px);
   padding-bottom: clamp(12px, 1.6vh, 18px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .col.col-customize {
+    background: #2b2b2e;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .col.col-customize {
+    background: rgba(28,28,30,0.96);
+    border-color: rgba(255,255,255,0.42);
+  }
 }
 
 /* Permanently cancel data-reveal on this element so it never restarts and makes the box invisible */

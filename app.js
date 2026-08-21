@@ -2050,50 +2050,6 @@ function escapeHtml(s) {
   })[char]);
 }
 
-function renderTraitSliders(container, style) {
-  const prevSaved = savedStyle;
-  savedStyle = style;
-  const traits = getTraits();
-  savedStyle = prevSaved;
-
-  container.innerHTML = `<div class="style-trait-rows">${
-    traits.map((t, i) => `
-      <div class="style-trait-row">
-        <div class="trait-slider-head">
-          <span class="style-trait-name">${escapeHtml(t.name)}</span>
-          <span class="trait-slider-val">${traitIntensityLabel(t.intensity)}</span>
-        </div>
-        <input class="trait-slider" type="range" min="0" max="10" step="1"
-               value="${t.intensity}" data-trait-idx="${i}" data-sid="${escapeHtml(style.id)}"
-               aria-label="${escapeHtml(t.name)} intensity">
-      </div>`).join('')
-  }</div>`;
-
-  container.querySelectorAll('.trait-slider').forEach(slider => {
-    updateSliderFill(slider);
-    slider.addEventListener('input', () => {
-      const sid = slider.dataset.sid;
-      const s = savedStyles.find(x => x.id === sid);
-      if (!s) return;
-      const prevSaved2 = savedStyle;
-      savedStyle = s;
-      const currentTraits = getTraits();
-      savedStyle = prevSaved2;
-      const idx = parseInt(slider.dataset.traitIdx);
-      const val = parseInt(slider.value);
-      slider.previousElementSibling.querySelector('.trait-slider-val').textContent = traitIntensityLabel(val);
-      updateSliderFill(slider);
-      currentTraits[idx].intensity = val;
-      s.style_summary = window.BipassStyleProfile.serializeSummary(
-        currentTraits,
-        window.BipassStyleProfile.readAnalysis(s),
-      );
-      if (s.id === activeStyleId) savedStyle = s;
-      saveStyleTraits();
-    });
-  });
-}
-
 function showStyleDeleteModal(styleName, onConfirm) {
   const existing = document.getElementById('style-delete-modal');
   if (existing) existing.remove();
@@ -2168,14 +2124,22 @@ function renderProfileDetails(style) {
       <ul>${items.map((item) => `<li><strong>${escapeHtml(item.label)}</strong></li>`).join('')}</ul>
     </div>`;
   const scoreKeys = window.BipassStyleProfile.SCORE_KEYS;
-  const scoreRows = traits.map((trait, index) => {
-    const score = trait.intensity;
-    const key = scoreKeys[index];
+  const scoreValues = window.BipassStyleProfile.sliderValuesFromStyle(style);
+  const scoreNames = {
+    wordLevel: 'Vocabulary level', grammar: 'Grammar mistakes', tense: 'Tense mistakes',
+    punct: 'Punctuation mistakes', caps: 'Capitalization mistakes', spelling: 'Spelling mistakes',
+  };
+  const scoreRows = scoreKeys.map((key, index) => {
+    const score = scoreValues[key];
+    const trait = traits.find(item => item.name === scoreNames[key]) || { name: scoreNames[key] };
     const label = key === 'wordLevel' ? wordLevelLabel(score) : traitIntensityLabel(score);
     return `
       <div class="profile-score-row">
         <div class="profile-score-head"><span>${escapeHtml(trait.name)}</span><strong>${escapeHtml(label)}</strong></div>
-        <span class="profile-score-track"><i style="--profile-score:${score * 10}%"></i></span>
+        <input class="profile-score-slider" type="range" min="0" max="10" step="1"
+               value="${score}" data-score-key="${escapeHtml(key)}" data-trait-index="${index}"
+               style="--pct:${score * 10}%" aria-label="Adjust ${escapeHtml(trait.name)}"
+               aria-valuetext="${escapeHtml(label)}">
       </div>`;
   }).join('');
 
@@ -2197,7 +2161,115 @@ function renderProfileDetails(style) {
     <div class="profile-score-list">
       <span class="profile-detail-label">Measured traits</span>
       ${scoreRows}
+    </div>
+    <div class="profile-ai-editor">
+      <form class="profile-refine-form" data-id="${escapeHtml(style.id)}">
+        <input class="profile-refine-input" type="text" maxlength="280"
+               placeholder="Optional direction for the AI" aria-label="Direction for regenerating this writing profile">
+        <button class="profile-refine-btn" type="submit">Regenerate with AI</button>
+      </form>
+      <button class="profile-reanalyze-btn" data-id="${escapeHtml(style.id)}" type="button">Reanalyse samples</button>
     </div>`;
+}
+
+function updateSavedStyle(updatedStyle) {
+  const index = savedStyles.findIndex(style => String(style.id) === String(updatedStyle.id));
+  if (index >= 0) savedStyles[index] = updatedStyle;
+  if (String(activeStyleId) === String(updatedStyle.id)) savedStyle = updatedStyle;
+}
+
+function bindProfileDetailEditor(details, style) {
+  details.querySelectorAll('.profile-score-slider').forEach(slider => {
+    updateSliderFill(slider);
+    slider.addEventListener('input', () => {
+      const key = slider.dataset.scoreKey;
+      const updated = window.BipassStyleProfile.updateStyleScore(style, key, slider.value);
+      updateSavedStyle(updated);
+      style = updated;
+      updateSliderFill(slider);
+      const value = parseInt(slider.value);
+      const valueLabel = slider.previousElementSibling?.querySelector('strong');
+      if (valueLabel) valueLabel.textContent = key === 'wordLevel'
+        ? wordLevelLabel(value)
+        : traitIntensityLabel(value);
+      slider.setAttribute('aria-valuetext', valueLabel?.textContent || String(value));
+
+      const scoreValues = window.BipassStyleProfile.sliderValuesFromStyle(updated);
+      const values = window.BipassStyleProfile.SCORE_KEYS.map(scoreKey => scoreValues[scoreKey]);
+      applyFingerprintValues(details.closest('.writing-profile-card')?.querySelector('.writing-fingerprint-card'), values);
+      if (String(activeStyleId) === String(updated.id)) {
+        setSlidersFromStyle(updated);
+        sessionStorage.removeItem(APPLIED_PROFILE_KEY);
+        saveStyleTraits();
+        syncLevelSelectionUi();
+      } else {
+        saveStoredStyles();
+      }
+    });
+  });
+
+  details.querySelector('.profile-reanalyze-btn')?.addEventListener('click', () => {
+    animateProfileDetails(details, false);
+    showProfileCreator(style);
+  });
+
+  details.querySelector('.profile-refine-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = form.querySelector('.profile-refine-btn');
+    const input = form.querySelector('.profile-refine-input');
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    input.disabled = true;
+    button.textContent = 'Regenerating…';
+    setProfileAnalysisState(true);
+
+    try {
+      const token = await window.bipassAuth.getToken();
+      if (!token) throw new Error('Not signed in');
+      const analysis = window.BipassStyleProfile.readAnalysis(style);
+      const response = await fetch('/api/refine-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ analysis, instruction: input.value.trim() }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Could not regenerate profile');
+
+      const refined = window.BipassStyleProfile.fromAnalysisPayload(data);
+      const updated = {
+        ...style,
+        style_summary: window.BipassStyleProfile.serializeSummary(refined.traits, refined.analysis),
+        style_analysis: refined.analysis,
+        style_prompt: refined.stylePrompt,
+        analysis_version: 3,
+      };
+      updateSavedStyle(updated);
+      style = updated;
+      saveStoredStyles();
+      if (String(activeStyleId) === String(updated.id)) {
+        setSlidersFromStyle(updated);
+        sessionStorage.removeItem(APPLIED_PROFILE_KEY);
+        saveStyleTraits();
+        syncLevelSelectionUi();
+      }
+
+      const body = details.querySelector('.writing-profile-details-body');
+      body.innerHTML = renderProfileDetails(updated);
+      bindProfileDetailEditor(details, updated);
+      body.classList.remove('is-refreshed');
+      requestAnimationFrame(() => body.classList.add('is-refreshed'));
+      restartProfileFingerprintMotion();
+      showToast('Writing profile regenerated');
+    } catch (error) {
+      button.disabled = false;
+      input.disabled = false;
+      button.textContent = originalLabel;
+      showToast(error.message || 'Could not regenerate profile');
+    } finally {
+      setProfileAnalysisState(false);
+    }
+  });
 }
 
 function profileDetailsAreOpen() {
@@ -2305,6 +2377,8 @@ function renderStyleList() {
   });
 
   styleCardsList.querySelectorAll('.writing-profile-details').forEach(details => {
+    const style = savedStyles.find(item => String(item.id) === String(details.closest('[data-id]')?.dataset.id));
+    if (style) bindProfileDetailEditor(details, style);
     details.querySelector('summary')?.addEventListener('click', (event) => {
       event.preventDefault();
       const currentTarget = details.dataset.targetOpen

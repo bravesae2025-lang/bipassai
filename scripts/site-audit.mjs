@@ -201,6 +201,13 @@ if (!appJs.includes("'bipass-profile-details-toggle'")
     || !appJs.includes('body.getAnimations().forEach(animation => animation.cancel())')) {
   add(appJsFile, 'profile details must smoothly and interruptibly control the workflow guide');
 }
+if (!appJs.includes('class="profile-score-slider"')
+    || !appJs.includes('class="profile-refine-form"')
+    || !appJs.includes("fetch('/api/refine-profile'")
+    || !appJs.includes('class="profile-reanalyze-btn"')
+    || appJs.includes('class="profile-score-track"')) {
+  add(appJsFile, 'profile details must provide editable traits and compact AI refinement controls');
+}
 if (!editorJs.includes("customize: appliedProfile ? 'Writing Profile' : 'Customized'")) {
   add(editorJsFile, 'result metadata must distinguish profile matching from manual customization');
 }

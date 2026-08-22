@@ -114,13 +114,13 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
       name="Home workspace camera"
       className="real-camera"
       style={{
-        scale: interpolate(frame, [0, 22, 98, 122, 142, 158, 178, 188], [1, 1.04, 1.04, 1.22, 1.26, 1.26, 1.18, 1.18], {
+        scale: interpolate(frame, [0, 22, 98, 124, 142, 158, 180, 188], [1, 1.025, 1.025, 1.12, 1.15, 1.15, 1.05, 1.05], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [0, 98, 122, 142, 158, 178, 188], ["0px 0px", "0px 0px", "-520px -100px", "-600px -130px", "-600px -130px", "210px -170px", "210px -170px"], {
+        translate: interpolate(frame, [0, 98, 124, 142, 158, 180, 188], ["0px 0px", "0px 0px", "-190px -30px", "-240px -40px", "-240px -40px", "0px -50px", "0px -50px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -205,13 +205,13 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
       className="real-camera"
       style={{
         opacity: reveal,
-        scale: interpolate(frame, [250, 280, 318, 344, 360, 372], [1, 1.18, 1.18, 1.22, 1.22, 1.12], {
+        scale: interpolate(frame, [250, 270, 300, 320, 345, 360, 372], [1, 1.02, 1.12, 1.12, 1.08, 1.08, 1.03], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [250, 280, 318, 344, 360, 372], ["0px 0px", "300px 260px", "300px 260px", "-700px -280px", "-700px -280px", "0px 0px"], {
+        translate: interpolate(frame, [250, 270, 300, 320, 345, 360, 372], ["0px 0px", "0px 0px", "180px 100px", "180px 100px", "-40px -40px", "-40px -40px", "0px 0px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -267,13 +267,13 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
           extrapolateRight: "clamp",
           easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
         }),
-        scale: interpolate(frame, [360, 386, 428, 458, 470, 479], [1, 1.16, 1.16, 1.24, 1.24, 1.18], {
+        scale: interpolate(frame, [360, 440, 462, 470, 479], [1, 1, 1.1, 1.1, 1.06], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [360, 386, 428, 458, 470, 479], ["0px 0px", "0px 150px", "0px 150px", "-620px -380px", "-620px -380px", "-500px -300px"], {
+        translate: interpolate(frame, [360, 440, 462, 470, 479], ["0px 0px", "0px 0px", "-260px -220px", "-260px -220px", "-200px -160px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -321,17 +321,17 @@ export const LevelMatchingGuide = () => {
           points={[
             {frame: 10, x: 660, y: 540},
             {frame: 98, x: 660, y: 540},
-            {frame: 122, x: 1490, y: 315},
-            {frame: 138, x: 1490, y: 315},
-            {frame: 158, x: 1490, y: 315},
-            {frame: 178, x: 970, y: 1270},
-            {frame: 182, x: 970, y: 1270},
-            {frame: 188, x: 970, y: 1270},
-            {frame: 266, x: 950, y: 640},
-            {frame: 318, x: 950, y: 640},
-            {frame: 344, x: 1825, y: 905},
-            {frame: 352, x: 1825, y: 905},
-            {frame: 360, x: 1825, y: 905},
+            {frame: 124, x: 1775, y: 430},
+            {frame: 138, x: 1775, y: 430},
+            {frame: 158, x: 1775, y: 430},
+            {frame: 180, x: 820, y: 1310},
+            {frame: 182, x: 820, y: 1310},
+            {frame: 188, x: 820, y: 1310},
+            {frame: 270, x: 865, y: 500},
+            {frame: 320, x: 865, y: 500},
+            {frame: 345, x: 2340, y: 1090},
+            {frame: 352, x: 2340, y: 1090},
+            {frame: 360, x: 2340, y: 1090},
           ]}
           visibleFrom={8}
           visibleUntil={360}

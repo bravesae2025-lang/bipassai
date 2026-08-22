@@ -215,8 +215,8 @@ if (!appHtml.includes('id="rec-flow-open"')
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
 }
 if (!appHtml.includes('id="rec-guide-video"')
-    || !appHtml.includes('assets/level-matching-guide.mp4?v=5')
-    || !appHtml.includes('assets/level-matching-guide-poster.png?v=5')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=6')
+    || !appHtml.includes('assets/level-matching-guide-poster.png?v=6')
     || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")) {
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
 }

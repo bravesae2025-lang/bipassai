@@ -15,7 +15,7 @@ export const MyComposition = () => (
     />
     <Composition
       component={LevelMatchingGuide}
-      durationInFrames={600}
+      durationInFrames={360}
       fps={30}
       height={1440}
       id="LevelMatchingGuide"

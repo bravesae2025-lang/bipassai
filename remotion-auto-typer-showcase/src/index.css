@@ -788,11 +788,23 @@ body {
 /* ── Real app Level Matching film ──────────────────────────── */
 .real-app-film,
 .real-app-stage,
-.real-page,
-.real-docs-page {
+.real-camera {
   position: absolute;
   inset: 0;
   overflow: hidden;
+}
+
+.real-page,
+.real-docs-page,
+.real-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  transform: scale(1.3333333333);
+  transform-origin: top left;
 }
 
 .real-app-film {
@@ -912,30 +924,30 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 30px 28px 28px;
+  gap: 16px;
+  padding: 32px 22px 24px;
   overflow: hidden;
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 18px 55px rgba(0,0,0,0.06);
 }
 
-.real-mode-row { min-height: 55px; display: flex; align-items: center; gap: 15px; }
+.real-mode-row { min-height: 42px; display: flex; align-items: center; gap: 15px; }
 .real-mode-dropdown {
   min-width: 540px;
-  height: 52px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
-  border: 2px solid #0d0d0d;
-  border-radius: 9px;
+  padding: 0 14px;
+  border: 1.5px solid #0d0d0d;
+  border-radius: 8px;
   background: #fff;
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.08em;
 }
 
-.real-mode-dropdown span { font-size: 22px; line-height: 1; }
+.real-mode-dropdown span { font-size: 18px; line-height: 1; }
 .real-wc, .real-cost { margin-left: auto; color: #929292; font-family: "Bipass Mono", monospace; font-size: 11px; }
 .real-cost { margin-left: 0; color: #333; }
 
@@ -962,28 +974,28 @@ body {
 .real-caret { width: 2px; height: 26px; display: inline-block; margin-left: 2px; background: #111; vertical-align: -5px; }
 
 .real-hints { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.real-hints > div { min-height: 94px; display: flex; flex-direction: column; gap: 5px; padding: 13px 16px; border: 1px solid #ddd; border-radius: 8px; background: #f8f8f7; }
-.real-hints b { font-family: "Bipass Mono", monospace; font-size: 18px; font-weight: 400; line-height: 1; }
-.real-hints strong { font-size: 11px; letter-spacing: 0.08em; }
-.real-hints span { color: #686868; font-family: "Bipass Mono", monospace; font-size: 9.5px; }
+.real-hints > div { min-height: 72px; display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; background: #f8f8f7; }
+.real-hints b { margin-bottom: 2px; font-family: "Bipass Mono", monospace; font-size: 14px; font-weight: 400; line-height: 1; }
+.real-hints strong { font-size: 10px; letter-spacing: 0.08em; }
+.real-hints span { color: #686868; font-family: "Bipass Mono", monospace; font-size: 9px; }
 
 .real-match-button {
-  height: 70px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 27px;
-  border: 2px solid #0d0d0d;
-  border-radius: 9px;
+  padding: 0 22px;
+  border: 1.5px solid #0d0d0d;
+  border-radius: 8px;
   background: transparent;
   color: #0d0d0d;
   font-family: "Bipass UI", sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 750;
   letter-spacing: 0.12em;
 }
 
-.real-match-button b { font-size: 25px; font-weight: 400; }
+.real-match-button b { font-size: 20px; font-weight: 400; }
 .real-match-button.pressed { scale: 0.992; background: #0d0d0d; color: #fff; }
 
 .real-style-wrap { position: relative; min-width: 0; padding: 0 7px 8px 24px; }

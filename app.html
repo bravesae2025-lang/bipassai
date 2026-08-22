@@ -187,16 +187,27 @@
 
         <div id="level-match-section">
           <div class="mode-tabs-head">
-            <div class="level-match-heading">
-              <span class="level-match-heading-kicker">Primary workflow</span>
-              <h1>Level Matching</h1>
-              <p>Rewrite a draft at a chosen level or match a Writing Profile built from your past work.</p>
+            <div class="mode-dropdown" id="mode-dd">
+              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="mode-dd-menu">
+                <span class="mode-dd-current" id="mode-dd-current">Level Matching</span>
+                <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose workflow">
+                <li class="mode-dd-option is-selected" role="option" aria-selected="true" tabindex="0" data-mode="level">
+                  <span class="mode-dd-option-title">Level Matching</span>
+                  <span class="mode-dd-option-desc">Rewrite a draft at a chosen level or match your Writing Profile.</span>
+                </li>
+                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="own">
+                  <span class="mode-dd-option-title">Push My Own Text</span>
+                  <span class="mode-dd-option-desc">Send finished text to Auto Typer without rewriting it.</span>
+                </li>
+              </ul>
             </div>
             <span class="box-wc" id="level-match-wc">0 words</span>
             <span class="box-cost hidden" id="est-cost" title="Estimated Level Matching credit cost"></span>
           </div>
 
-          <div class="file-upload-row">
+          <div class="file-upload-row mode-block" data-mode="level">
             <label class="file-upload-btn" for="file-upload-input">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               Upload file
@@ -206,7 +217,7 @@
             <span class="file-upload-name hidden" id="file-upload-name"></span>
           </div>
 
-          <div class="textarea-wrap">
+          <div class="textarea-wrap mode-block" data-mode="level">
             <textarea
               id="input-text"
               aria-label="Text to process"
@@ -220,7 +231,7 @@
           </div>
 
           <!-- Level Matching hints -->
-          <div class="level-match-hints">
+          <div class="level-match-hints mode-block" data-mode="level">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
               <span class="h-hint-title">Word Swap</span>
@@ -239,7 +250,7 @@
           </div>
 
           <!-- Level Matching action -->
-          <div>
+          <div class="mode-block" data-mode="level">
             <button id="level-match-btn" class="btn-generate btn-level-match" aria-label="Match my level">
               <span class="btn-content">
                 <span id="level-match-label">Match My Level</span>
@@ -254,9 +265,8 @@
             </button>
           </div>
 
-          <!-- Secondary utility: send finished text directly to Auto Typer -->
-          <details class="own-text-mode" id="own-text-block">
-            <summary>Already have finished text? Send it to Auto Typer</summary>
+          <!-- Push finished text directly to the Auto Typer extension -->
+          <div class="own-text-mode mode-block mode-hidden" data-mode="own" id="own-text-block">
             <p class="own-text-sub">Paste reviewed text and send it to the browser extension without rewriting it. An active pass is required.</p>
 
             <textarea
@@ -271,28 +281,7 @@
               <span id="own-text-btn-label">Push to Extension</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
-          </details>
-
-          <details class="own-text-mode generate-secondary" id="generate-section">
-            <summary>Need a new draft? Generate one</summary>
-            <p class="own-text-sub">Describe what you need. Generate stays available as a secondary tool, and you can review its draft before Level Matching.</p>
-            <textarea
-              class="own-text-textarea"
-              id="prompt-text"
-              aria-label="Generation prompt"
-              placeholder="Describe the draft you want to generate…"
-              spellcheck="true"
-            ></textarea>
-            <div class="secondary-action-meta">
-              <span id="prompt-wc">0 words</span>
-              <span class="hidden" id="generate-cost"></span>
-            </div>
-            <button class="own-text-push-btn" id="generate-btn" type="button">
-              <span id="generate-label">Generate Draft</span>
-              <span id="generate-loader" class="spinner hidden"></span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </details>
+          </div>
         </div>
 
       </section>
@@ -600,6 +589,86 @@
   <script src="billing-rates.js?v=1"></script>
   <script src="app.js?v=52"></script>
 
+  <script>
+  /* Preserve the original compact workflow switcher with only active workflows. */
+  (function () {
+    const section = document.getElementById('level-match-section');
+    const workspace = document.getElementById('workspace');
+    const dropdown = document.getElementById('mode-dd');
+    const trigger = document.getElementById('mode-dd-trigger');
+    const menu = document.getElementById('mode-dd-menu');
+    const current = document.getElementById('mode-dd-current');
+    if (!section || !dropdown || !trigger || !menu || !current) return;
+
+    const blocks = Array.from(section.querySelectorAll('.mode-block'));
+    const options = Array.from(menu.querySelectorAll('.mode-dd-option'));
+
+    function setMode(mode) {
+      const nextMode = mode === 'own' ? 'own' : 'level';
+      blocks.forEach(block => {
+        const modes = (block.dataset.mode || '').split(' ');
+        block.classList.toggle('mode-hidden', !modes.includes(nextMode));
+      });
+      options.forEach(option => {
+        const selected = option.dataset.mode === nextMode;
+        option.classList.toggle('is-selected', selected);
+        option.setAttribute('aria-selected', selected ? 'true' : 'false');
+        option.tabIndex = selected ? 0 : -1;
+        if (selected) current.textContent = option.querySelector('.mode-dd-option-title')?.textContent.trim() || 'Level Matching';
+      });
+      workspace.classList.toggle('mode-own', nextMode === 'own');
+      document.body.dataset.appMode = nextMode;
+      localStorage.removeItem('bipass_pref_mode');
+    }
+
+    function closeMenu(returnFocus) {
+      dropdown.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+      if (returnFocus) trigger.focus();
+    }
+
+    function selectOption(option) {
+      setMode(option.dataset.mode);
+      closeMenu(true);
+    }
+
+    trigger.addEventListener('click', event => {
+      event.stopPropagation();
+      const open = dropdown.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) requestAnimationFrame(() => options.find(option => option.classList.contains('is-selected'))?.focus());
+    });
+
+    options.forEach((option, index) => {
+      option.addEventListener('click', () => selectOption(option));
+      option.addEventListener('keydown', event => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const direction = event.key === 'ArrowDown' ? 1 : -1;
+          options[(index + direction + options.length) % options.length]?.focus();
+        } else if (event.key === 'Home' || event.key === 'End') {
+          event.preventDefault();
+          options[event.key === 'Home' ? 0 : options.length - 1]?.focus();
+        } else if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectOption(option);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          closeMenu(true);
+        }
+      });
+    });
+
+    document.addEventListener('click', event => {
+      if (!dropdown.contains(event.target)) closeMenu(false);
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && dropdown.classList.contains('open')) closeMenu(true);
+    });
+
+    setMode('level');
+  })();
+  </script>
 
   <script>
   /* Interactive Level Matching background */

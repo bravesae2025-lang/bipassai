@@ -142,12 +142,13 @@ if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
 }
 
-if (!appHtml.includes('<h1>Level Matching</h1>')
-    || !appHtml.includes('id="level-match-btn"')
-    || !appHtml.includes('id="generate-section"')
+const workspaceModes = [...appHtml.matchAll(/class="mode-dd-option[^\"]*"[^>]*data-mode="([^"]+)"/g)]
+  .map((match) => match[1]);
+if (!appHtml.includes('id="level-match-btn"')
     || !appHtml.includes('id="own-text-block"')
-    || appHtml.includes('id="mode-dd"')) {
-  add(appFile, 'workspace must lead with a static Level Matching workflow and keep Generate and Auto Typer secondary');
+    || !appHtml.includes('id="mode-dd"')
+    || workspaceModes.join(',') !== 'level,own') {
+  add(appFile, 'workspace must preserve the compact dropdown with only Level Matching and Push My Own Text');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');

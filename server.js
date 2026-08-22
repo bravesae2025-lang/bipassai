@@ -66,111 +66,6 @@ async function callClaude(prompt, stream = false) {
   });
 }
 
-// RewriteAI — purpose-built humanizer used by the Humanize / Humanize+Level modes.
-const REWRITEAI_ENDPOINT = 'https://rewriteai.com/api/v1/humanize';
-
-// RewriteAI rejects over-long input with a 400. We split anything bigger than
-// this into chunks, humanize each, and stitch the results back together so the
-// user can paste an essay of any length. Conservative (~450–500 words) to stay
-// safely under RewriteAI's per-request cap; tune if their limit is known.
-const REWRITEAI_MAX_CHARS = 3000;
-
-// Split text into humanizer-sized chunks without breaking words, preserving
-// paragraph structure. Returns `[{ text, joiner }]` where `joiner` is the string
-// to place AFTER that chunk when stitching results back: '\n\n' at a real
-// paragraph boundary, ' ' when a single over-long paragraph had to be split
-// mid-way (so its pieces rejoin into one paragraph, not two), '' for the last.
-// Whole paragraphs are packed greedily to keep the API-call count low.
-function splitForHumanize(text, max = REWRITEAI_MAX_CHARS) {
-  if (text.length <= max) return [{ text, joiner: '' }];
-
-  // A single over-long sentence gets hard-split on whitespace (last resort).
-  const hardSplit = (str) => {
-    const out = [];
-    const words = str.split(/(\s+)/); // keep whitespace tokens
-    let current = '';
-    for (const w of words) {
-      if ((current + w).length <= max) {
-        current += w;
-      } else {
-        if (current) out.push(current);
-        if (w.length > max) { // a single word longer than max: slice it outright
-          for (let i = 0; i < w.length; i += max) out.push(w.slice(i, i + max));
-          current = '';
-        } else {
-          current = w;
-        }
-      }
-    }
-    if (current) out.push(current);
-    return out;
-  };
-
-  // Pack sentences (split on end punctuation + space) up to `max`.
-  const packSentences = (str) => {
-    const sentences = str.split(/(?<=[.!?])\s+/).filter((s) => s.length);
-    const out = [];
-    let current = '';
-    for (const s of sentences) {
-      const candidate = current ? current + ' ' + s : s;
-      if (candidate.length <= max) current = candidate;
-      else { if (current) out.push(current); current = s; }
-    }
-    if (current) out.push(current);
-    return out;
-  };
-
-  // 1) Flatten into pieces, each tagged with the joiner that follows it.
-  //    Pieces inside a split paragraph join with ' '; paragraphs join with '\n\n'.
-  const paras = text.split(/\n[ \t]*\n/).map((p) => p.replace(/[ \t]+\n/g, '\n')).filter((p) => p.trim().length);
-  const pieces = [];
-  paras.forEach((para, pi) => {
-    const afterPara = pi < paras.length - 1 ? '\n\n' : '';
-    if (para.length <= max) {
-      pieces.push({ text: para, joiner: afterPara });
-      return;
-    }
-    const subs = [];
-    for (const grp of packSentences(para)) {
-      if (grp.length <= max) subs.push(grp);
-      else subs.push(...hardSplit(grp));
-    }
-    subs.forEach((s, si) => {
-      const last = si === subs.length - 1;
-      pieces.push({ text: s, joiner: last ? afterPara : ' ' });
-    });
-  });
-
-  // 2) Greedily pack consecutive pieces into chunks (merging across their
-  //    joiners), remembering the joiner that follows each finished chunk.
-  const chunks = [];
-  let cur = '', curJoiner = '';
-  for (const pc of pieces) {
-    const candidate = cur ? cur + curJoiner + pc.text : pc.text;
-    if (candidate.length <= max) {
-      cur = candidate;
-      curJoiner = pc.joiner;
-    } else {
-      if (cur) chunks.push({ text: cur, joiner: curJoiner });
-      cur = pc.text;
-      curJoiner = pc.joiner;
-    }
-  }
-  if (cur) chunks.push({ text: cur, joiner: curJoiner });
-  return chunks;
-}
-
-async function callRewriteAI(text) {
-  return fetch(REWRITEAI_ENDPOINT, {
-    method:  'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'Authorization': `Bearer ${process.env.REWRITEAI_API_KEY}`,
-    },
-    body: JSON.stringify({ text }),
-  });
-}
-
 const SUPABASE_URL     = 'https://nvewmugqrpdhpdfyvzpz.supabase.co';
 const SUPABASE_ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52ZXdtdWdxcnBkaHBkZnl2enB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjQ3MzMsImV4cCI6MjA5NDU0MDczM30.euNVW05tZ39McxW9vvgcv527I2Pk8VeeUy1jcu21FSE';
 const GOOGLE_CLIENT_ID     = process.env.GOOGLE_CLIENT_ID;
@@ -261,48 +156,6 @@ function verifyRewardToken(token) {
   return days;
 }
 
-// ─── Humanize → Level Matching continuation receipt ───────────
-// "Humanize + Level Matching" runs as two requests so the UI can show real
-// progress between passes. /api/rw-humanize bills the combined rate
-// up front and hands back a signed receipt; the follow-up /api/adjust-level
-// presents it and skips its own deduction.
-//
-// The receipt is bound to the user and to a character ceiling (the humanized
-// text the server just produced, plus a small allowance because the client
-// re-matches paragraph spacing before sending it back). That stops the obvious
-// abuse: paying to humanize one sentence, then level-matching an entire book
-// for free. It expires quickly and can't be forged without the secret.
-const CONTINUATION_TTL = 600_000; // 10 min — generous for a slow level-match pass
-
-function continuationSig(userId, maxChars, issued) {
-  return crypto.createHmac('sha256', REWARD_SECRET)
-    .update(`cont.${userId}.${maxChars}.${issued}`)
-    .digest('hex');
-}
-
-function signContinuation(userId, producedChars) {
-  const maxChars = Math.ceil(producedChars * 1.05) + 50;  // whitespace re-matching wiggle room
-  const issued   = Date.now();
-  return `${maxChars}.${issued}.${continuationSig(userId, maxChars, issued)}`;
-}
-
-// True only for an authentic, unexpired receipt that covers this much text.
-function verifyContinuation(token, userId, textLength) {
-  if (typeof token !== 'string') return false;
-  const [maxStr, issuedStr, sig] = token.split('.');
-  if (!maxStr || !issuedStr || !sig) return false;
-
-  const maxChars = Number(maxStr);
-  const issued   = Number(issuedStr);
-  if (!Number.isFinite(maxChars) || !Number.isFinite(issued)) return false;
-  if (Date.now() - issued > CONTINUATION_TTL) return false;
-  if (textLength > maxChars) return false;
-
-  const a = Buffer.from(sig);
-  const b = Buffer.from(continuationSig(userId, maxChars, issued));
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
 // Keep non-payment routes available in local/dev environments where Stripe is
 // intentionally not configured. Payment endpoints return a clear 503 instead
 // of crashing the entire server at startup.
@@ -315,10 +168,7 @@ const STRIPE_PRICES = {
   monthly: 'price_1TzObS0rExXCXCyXaH5ixBDT',
 };
 
-// About 17% below twelve $9.99 monthly passes ($119.88), billed once. At the
-// documented combined processing cost (~$1.17 per 1,000 words), 500k credits
-// fund about 32.9k combined-mode words and leave roughly $60 before payment
-// and platform expenses.
+// About 17% below twelve $9.99 monthly passes ($119.88), billed once.
 const ANNUAL_PRICE_CENTS = 9900;
 
 export function checkoutLineItemForPlan(plan) {
@@ -612,14 +462,25 @@ app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
 app.get('/app',      (_req, res) => res.redirect(301, '/home'));
 app.get('/app.html', (_req, res) => res.redirect(301, '/home'));
 
+// Preserve authority from the three retired editorial URLs without serving
+// their old positioning. These are the only intentional legacy URL literals.
+app.get('/blog/best-free-ai-humanizer.html', (_req, res) =>
+  res.redirect(301, '/blog/best-free-ai-level-matching-tools.html'));
+app.get('/blog/does-turnitin-detect-ai-humanizer-tools-in-2026.html', (_req, res) =>
+  res.redirect(301, '/blog/does-turnitin-detect-rewritten-ai-text-in-2026.html'));
+app.get('/blog/best-ai-humanizer-tools-for-students-in-2026-we-tested-them-so-you-dont-have-to.html', (_req, res) =>
+  res.redirect(301, '/blog/best-ai-writing-level-tools-for-students-in-2026.html'));
+
 const PRIVATE_STATIC_DIRECTORIES = new Set([
   'node_modules', 'test', 'scripts', 'screenshots',
   'extension', 'bipass-extension', 'bipass-extension 2',
+  'blog-drafts', 'ad-assets', 'remotion-auto-typer-showcase',
 ]);
 const PRIVATE_STATIC_FILES = new Set([
   'server.js', 'package.json', 'package-lock.json', 'procfile', 'railway.json',
   'blog_bot.md', 'topics.txt', 'add-article.js', 'add-article.cjs',
   'generate-article.js', 'ping-indexnow.js',
+  'bipass ads clip 1.mov', 'bipassai showcase clip 2.mov',
 ]);
 
 function isPrivateStaticPath(pathname) {
@@ -774,9 +635,7 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
   return res.json({ ok: true, credits: amount });
 }));
 
-// Word-based rates keep cheap Gemini-only Level Matching distinct from the
-// paid RewriteAI path. Both mode saves 1 credit/word versus running the tools
-// separately while still covering its combined provider cost.
+// Level Matching uses one transparent word-based rate across every pass.
 export const PLAN_CONFIG = {
   day:     { ms: 86_400_000,             credits: 20_000, creditGrants: 1  },
   monthly: { ms: 30 * 86_400_000,        credits: 50_000, creditGrants: 1  },
@@ -1036,7 +895,7 @@ app.post('/api/results', asyncHandler(async (req, res) => {
       body: JSON.stringify({
         user_id: user.id,
         text,
-        mode: mode === 'generate' ? 'generate' : 'humanize',
+        mode: mode === 'generate' ? 'generate' : 'level',
         level: typeof level === 'string' && level.trim() ? level.trim().slice(0, 40) : 'easy',
       }),
     });
@@ -1098,7 +957,7 @@ app.post('/api/push-to-extension', asyncHandler(async (req, res) => {
           body: JSON.stringify({
             user_id: user.id,
             text,
-            mode:  mode  || 'humanize',
+            mode:  ['generate', 'level', 'own'].includes(mode) ? mode : 'level',
             level: level || 'easy',
             ext_push: true,
           }),
@@ -1738,7 +1597,7 @@ PROFILE_DATA_JSON: ${JSON.stringify(data)}`;
 }
 
 app.post('/api/adjust-level', asyncHandler(async (req, res) => {
-  const { text, level, mistakes, continuation, styleProfile } = req.body || {};
+  const { text, level, mistakes, styleProfile } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -1757,19 +1616,12 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
     }
   }
 
-  // Second pass of "Humanize + Level Matching": /api/rw-humanize already billed
-  // the combined rate, so this pass does not charge again.
-  const prepaid = verifyContinuation(continuation, user.id, text.length);
-  // The first half of a combined run already passed this gate. Do not strand a
-  // paid continuation if another tab fills the last slot between its two steps.
-  if (!prepaid) {
-    const historyCount = await requireHistorySpace(user.id, res);
-    if (historyCount === null) return;
-  }
+  const historyCount = await requireHistorySpace(user.id, res);
+  if (historyCount === null) return;
   const wordCount = billableWordCount(text);
-  const creditsNeeded = prepaid ? 0 : creditsForText(text, 'level');
+  const creditsNeeded = creditsForText(text, 'level');
 
-  // ── Credit check (mirror /api/humanize) ───────────────────────
+  // ── Credit check ───────────────────────────────────────────────
   // Plan expiry — blocks regardless of tier to prevent slip-through after demotion
   const billing = getBillingMeta(user);
   const planExpiresAt = billing.plan_expires_at;
@@ -1790,14 +1642,11 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
     await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
     return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
   }
-  // A prepaid pass skips the balance gate: the essay is already paid for, and
-  // spending down to near-zero on the humanize step must not strand the user
-  // halfway through a combined run they've been charged for.
   const credits = billing.credits ?? INITIAL_CREDITS;
-  if (!prepaid && credits <= 0) {
+  if (credits <= 0) {
     return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
   }
-  if (!prepaid && credits < creditsNeeded) {
+  if (credits < creditsNeeded) {
     return res.status(402).json({
       error: `This text needs ${creditsNeeded.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
       creditsRemaining: credits,
@@ -1852,8 +1701,7 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
       .replace(/\s*–\s*/g, ', ')                  // en dash → comma
       .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
 
-    // ── Deduct word-based credits. A combined-mode continuation was already
-    //    billed at the discounted rate by /api/rw-humanize. ────────────────
+    // ── Deduct word-based credits. ───────────────────────────────
     if (cancelled) return;
     const creditsUsed = creditsNeeded;
     const newCredits  = Math.max(0, credits - creditsUsed);
@@ -1862,230 +1710,6 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
     return res.json({ result: finalResult, creditsUsed, creditsRemaining: newCredits, profileApplied });
   } catch (err) {
     console.error('/api/adjust-level error:', err);
-    return res.status(500).json({ error: 'Server error' });
-  }
-}));
-
-// ─── POST /api/rw-humanize ─────────────────────────────────────
-// RewriteAI humanizer. Used by the "Humanize" mode and as the first step of
-// "Humanize + Level Matching" before the result is level-matched.
-app.post('/api/rw-humanize', asyncHandler(async (req, res) => {
-  const { text, combined } = req.body || {};
-  if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
-
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-  const user = await getUserFromToken(token);
-  if (!user) return res.status(401).json({ error: 'Invalid token' });
-  const historyCount = await requireHistorySpace(user.id, res);
-  if (historyCount === null) return;
-  const billingMode = combined === true ? 'both' : 'humanize';
-  const creditsNeeded = creditsForText(text, billingMode);
-
-  // ── Credit check (mirror /api/adjust-level) ───────────────────
-  const billing = getBillingMeta(user);
-  const planExpiresAt = billing.plan_expires_at;
-  if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = billing.tier || 'free';
-    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
-    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
-  }
-
-  // Require an active pass (paid plan OR the free trial) to run — credits alone
-  // don't grant access. Credits are preserved, so they work again once a pass is active.
-  if (!hasActivePass(user)) {
-    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
-  }
-  const creditsExpireAt = billing.credits_expire_at;
-  if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
-    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
-  }
-  const credits = billing.credits ?? INITIAL_CREDITS;
-  if (credits <= 0) return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
-  if (credits < creditsNeeded) {
-    return res.status(402).json({
-      error: `This text needs ${creditsNeeded.toLocaleString()} credits, but you have ${credits.toLocaleString()}.`,
-      creditsRemaining: credits,
-    });
-  }
-
-  if (!process.env.REWRITEAI_API_KEY) return res.status(500).json({ error: 'Humanizer not configured' });
-
-  let cancelled = false;
-  req.on('close', () => { cancelled = true; });
-
-  try {
-    // Long text exceeds RewriteAI's per-request cap, so humanize it in chunks
-    // and stitch the results back with each chunk's original joiner (so paragraph
-    // structure is preserved). Short text yields a single chunk (unchanged path).
-    const chunks = splitForHumanize(text);
-    let result = '';
-
-    for (const chunk of chunks) {
-      if (cancelled) return;
-      const rwRes = await callRewriteAI(chunk.text);
-
-      if (!rwRes.ok) {
-        const err = await rwRes.json().catch(() => ({}));
-        const msg = err?.error || err?.message;
-        // Map RewriteAI's codes to something the UI can show cleanly.
-        if (rwRes.status === 401) { console.error('[rw-humanize] bad RewriteAI key'); return res.status(500).json({ error: 'Humanizer not configured' }); }
-        if (rwRes.status === 402) return res.status(503).json({ error: 'The humanizer is temporarily out of capacity. Please try again later.' });
-        if (rwRes.status === 400) return res.status(400).json({ error: msg || 'Text too long or invalid.' });
-        return res.status(502).json({ error: msg || 'Humanizer error' });
-      }
-
-      const data = await rwRes.json();
-      const part = data?.results?.[0]?.text?.trim();
-      if (!part) return res.status(502).json({ error: 'No output from humanizer' });
-      result += part + chunk.joiner;
-    }
-
-    result = result.trim();
-
-    // Humanize is 15 credits/word. Combined mode prepays the
-    // (Humanize + Level Matching) rate of 18 credits/word.
-    if (cancelled) return;
-    const creditsUsed = creditsNeeded;
-    const newCredits  = Math.max(0, credits - creditsUsed);
-    await updateUserCredits(user.id, newCredits);
-
-    // Only a request that paid the combined rate receives a continuation.
-    // Humanize-only calls cannot turn their cheaper receipt into a free Level
-    // Matching request.
-    return res.json({
-      result,
-      creditsUsed,
-      creditsRemaining: newCredits,
-      continuation: combined === true ? signContinuation(user.id, result.length) : undefined,
-    });
-  } catch (err) {
-    console.error('/api/rw-humanize error:', err);
-    return res.status(500).json({ error: 'Server error' });
-  }
-}));
-
-// ─── POST /api/humanize ────────────────────────────────────────
-
-app.post('/api/humanize', asyncHandler(async (req, res) => {
-  const { prompt, model = 'gemini' } = req.body || {};
-
-  if (typeof prompt !== 'string' || !prompt.trim()) {
-    return res.status(400).json({ error: 'No prompt provided' });
-  }
-
-  // ── Auth + credit check ────────────────────────────────────────
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-
-  const user = await getUserFromToken(token);
-  if (!user) return res.status(401).json({ error: 'Invalid token' });
-  const historyCount = await requireHistorySpace(user.id, res);
-  if (historyCount === null) return;
-
-  // Plan expiry check — blocks regardless of current tier to prevent slip-through after demotion
-  const billing = getBillingMeta(user);
-  const planExpiresAt = billing.plan_expires_at;
-  if (planExpiresAt && Date.now() > planExpiresAt) {
-    const userTier = billing.tier || 'free';
-    if (userTier !== 'free') await updateUserAppMeta(user.id, { tier: 'free' });
-    return res.status(402).json({ error: 'Your plan has expired. Visit Plans to renew.' });
-  }
-
-  // Require an active pass (paid plan OR the free trial) to run — credits alone
-  // don't grant access. Credits are preserved, so they work again once a pass is active.
-  if (!hasActivePass(user)) {
-    return res.status(402).json({ error: 'Your pass has expired. Get a plan to keep using Bipass AI — your credits are safe and unlock the moment you have an active pass.' });
-  }
-
-  // Expiry check for free starter credits
-  const creditsExpireAt = billing.credits_expire_at;
-  if (creditsExpireAt && Date.now() > creditsExpireAt) {
-    await updateUserAppMeta(user.id, { credits: 0, credits_expire_at: null });
-    return res.status(402).json({ error: 'Your free credits have expired. Visit Plans to get more.' });
-  }
-
-  const credits = billing.credits ?? INITIAL_CREDITS;
-  if (credits <= 0) {
-    return res.status(402).json({ error: 'No credits remaining', creditsRemaining: 0 });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Server not configured' });
-  }
-
-  let cancelled = false;
-  req.on('close', () => { cancelled = true; });
-
-  try {
-    let result;
-
-    if (model === 'claude') {
-      if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'Claude not configured' });
-      const claudeRes = await callClaude(prompt);
-      if (!claudeRes.ok) {
-        const err = await claudeRes.json().catch(() => ({}));
-        return res.status(claudeRes.status).json({ error: err?.error?.message || 'Claude error' });
-      }
-      const data = await claudeRes.json();
-      result = data?.content?.[0]?.text;
-    } else {
-      const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 2.0, topP: 0.95, maxOutputTokens: 8192 },
-        }),
-      });
-      if (!geminiRes.ok) {
-        const err = await geminiRes.json().catch(() => ({}));
-        return res.status(geminiRes.status).json({ error: err?.error?.message || 'Gemini error' });
-      }
-      const data = await geminiRes.json();
-      result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    }
-
-    if (!result) return res.status(500).json({ error: 'No output from model' });
-
-    // ── Self-detection pass: find + rewrite most AI-sounding sentences ───
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        const detectPrompt = `You are reviewing this text to remove generic or robotic phrasing while preserving the writer's meaning and voice.
-
-Find the 8-10 sentences that sound most AI-generated: overly formal phrasing, predictable structure, academic vocabulary, generic statements, or sentences that follow typical AI patterns.
-
-Rewrite ONLY those sentences to sound more natural and human: casual phrasing, specific concrete details, unexpected word choices, natural speech patterns. Keep the meaning the same.
-
-Return the COMPLETE text with those sentences replaced. Do not change anything else. Return only the final text, no explanation.
-
-TEXT:
-${result}`;
-        const detectRes = await callClaude(detectPrompt);
-        if (detectRes.ok) {
-          const detectData = await detectRes.json();
-          const improved = detectData?.content?.[0]?.text?.trim();
-          if (improved) result = improved;
-        }
-      } catch {}
-    }
-
-    // ── Deduct credits (only on success, only if client didn't cancel) ───
-    // Never return more billable output than the account can pay for. The UI
-    // preflights normal requests; this is the authoritative server safeguard.
-    const resultText  = result.trim().slice(0, credits);
-    if (cancelled) return;
-
-    const creditsUsed = resultText.length;
-    const newCredits  = Math.max(0, credits - creditsUsed);
-    await updateUserCredits(user.id, newCredits);
-
-    return res.json({ result: resultText, creditsUsed, creditsRemaining: newCredits });
-
-  } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: 'Server error' });
   }
 }));

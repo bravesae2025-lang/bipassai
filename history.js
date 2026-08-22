@@ -102,11 +102,19 @@ let filterQuery = '';
 let searchTimer = null;
 const HISTORY_LIMIT = 20;
 
+function normalizeResultMode(mode) {
+  return ['level', 'generate', 'own'].includes(mode) ? mode : 'level';
+}
+
+function resultModeLabel(mode) {
+  return mode === 'generate' ? 'Generated' : mode === 'own' ? 'Uploaded' : 'Level Matched';
+}
+
 // ─── Card builder ─────────────────────────────────────────────
 
 function buildCard(item) {
   const text = String(item.text ?? '');
-  const mode = String(item.mode ?? '');
+  const mode = normalizeResultMode(String(item.mode ?? ''));
   const level = String(item.level ?? '');
   const id = String(item.id ?? '');
   const div = document.createElement('div');
@@ -114,7 +122,7 @@ function buildCard(item) {
   div.dataset.id = id;
   div.innerHTML = `
     <div class="history-item-meta">
-      <span class="history-badge">${mode === 'generate' ? 'Generated' : 'Humanized'} · ${escapeHtml(level)}</span>
+      <span class="history-badge">${resultModeLabel(mode)} · ${escapeHtml(level)}</span>
       <span class="history-date">${formatDate(item.created_at)}</span>
     </div>
     <p class="history-preview">${escapeHtml(text.slice(0, 200))}${text.length > 200 ? '…' : ''}</p>
@@ -142,7 +150,7 @@ function bindCardActions(container) {
 
     if (loadBtn) {
       sessionStorage.setItem('bipass_result', loadBtn.dataset.text);
-      sessionStorage.setItem('bipass_mode', loadBtn.dataset.mode);
+      sessionStorage.setItem('bipass_mode', normalizeResultMode(loadBtn.dataset.mode));
       sessionStorage.setItem('bipass_result_id', loadBtn.dataset.id);
       sessionStorage.removeItem('bipass_applied_profile');
       window.location.href = 'editor.html';
@@ -184,7 +192,7 @@ function renderFiltered() {
   emptyEl.classList.toggle('hidden', filtered.length > 0 || allResults.length === 0);
 
   if (allResults.length === 0) {
-    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — humanize some text first.`;
+    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — match a draft to save your first result.`;
   } else if (allResults.length >= HISTORY_LIMIT) {
     subEl.textContent = `${HISTORY_LIMIT} / ${HISTORY_LIMIT} saved results — History full. Delete one to create another.`;
   } else if (filtered.length === allResults.length) {
@@ -207,11 +215,11 @@ async function loadHistory(session) {
 
   if (error) { subEl.textContent = 'Failed to load history.'; return; }
   if (!data || data.length === 0) {
-    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — humanize some text first.`;
+    subEl.textContent = `0 / ${HISTORY_LIMIT} saved results — match a draft to save your first result.`;
     return;
   }
 
-  allResults = data;
+  allResults = data.map(item => ({ ...item, mode: normalizeResultMode(item.mode) }));
   renderFiltered();
 
   // Show controls

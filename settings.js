@@ -162,16 +162,7 @@ function setupCredits(session) {
 function setupDefaults() {
   const LEVEL_KEY   = 'bipass_pref_level';
   const MYSTYLE_KEY = 'bipass_pref_mystyle';
-  const MODE_KEY    = 'bipass_pref_mode';
-
-  const modeSelect = document.getElementById('pref-mode');
-  const validModes = ['both', 'level', 'humanize', 'own'];
-  const storedMode = localStorage.getItem(MODE_KEY);
-  modeSelect.value = validModes.includes(storedMode) ? storedMode : 'both';
-  modeSelect.addEventListener('change', () => {
-    localStorage.setItem(MODE_KEY, modeSelect.value);
-    showToast('Default workflow saved');
-  });
+  localStorage.removeItem('bipass_pref_mode');
 
   const currentLevel = localStorage.getItem(LEVEL_KEY) || 'easy';
   const levelBtns = document.querySelectorAll('.settings-level-opt');

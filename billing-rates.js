@@ -1,14 +1,8 @@
 (function initBipassBilling(root) {
   const LEVEL_CREDITS_PER_WORD = 4;
-  const HUMANIZE_CREDITS_PER_WORD = 15;
-  // Both mode saves 1 credit/word versus running 15 + 4 separately. This keeps
-  // the bundle worthwhile without making the Level Matching pass nearly free.
-  const BOTH_CREDITS_PER_WORD = 18;
 
   const CREDIT_RATES = Object.freeze({
     level: LEVEL_CREDITS_PER_WORD,
-    humanize: HUMANIZE_CREDITS_PER_WORD,
-    both: BOTH_CREDITS_PER_WORD,
   });
 
   function billableWordCount(text) {

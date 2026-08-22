@@ -96,8 +96,6 @@ const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
 const appJsFile = join(root, 'app.js');
 const appJs = readFileSync(appJsFile, 'utf8');
-const howtoFile = join(root, 'howto.html');
-const howtoHtml = readFileSync(howtoFile, 'utf8');
 const editorFile = join(root, 'editor.html');
 const editorHtml = readFileSync(editorFile, 'utf8');
 const editorJsFile = join(root, 'editor.js');
@@ -144,18 +142,12 @@ if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
 }
 
-if (!appHtml.includes('id="mode-dd-current">Humanize + Level Matching</span>')
-    || !/<li class="mode-dd-option is-selected"[^>]*aria-selected="true"[^>]*data-mode="both">/.test(appHtml)
-    || !/setMode\(\[[^\]]*['"]both['"][^\]]*\]\.includes\(preferredMode\) \? preferredMode : ['"]both['"]\);/.test(appHtml)) {
-  add(appFile, 'Humanize + Level Matching must remain the fallback mode when no saved default exists');
-}
-if (!/<ul class="mode-dd-menu"[^>]*>\s*<li class="mode-dd-option is-selected"[^>]*data-mode="both">/.test(appHtml)
-    || !appHtml.includes('class="mode-dd-recommended">Recommended</span>')) {
-  add(appFile, 'the combined recommended mode must remain first and show its Recommended badge');
-}
-if (!appHtml.includes('mode-dd-option-title">Level Matching Only</span>')
-    || !appHtml.includes('mode-dd-option-title">Humanize Only</span>')) {
-  add(appFile, 'single-tool mode labels must clearly say Only');
+if (!appHtml.includes('<h1>Level Matching</h1>')
+    || !appHtml.includes('id="level-match-btn"')
+    || !appHtml.includes('id="generate-section"')
+    || !appHtml.includes('id="own-text-block"')
+    || appHtml.includes('id="mode-dd"')) {
+  add(appFile, 'workspace must lead with a static Level Matching workflow and keep Generate and Auto Typer secondary');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');
@@ -222,17 +214,10 @@ if (!appHtml.includes('id="rec-flow-open"')
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
 }
 if (!appHtml.includes('id="rec-guide-video"')
-    || !appHtml.includes('assets/level-matching-guide.mp4?v=1')
-    || !appHtml.includes('assets/level-matching-guide-poster.png?v=1')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=2')
+    || !appHtml.includes('assets/level-matching-guide-poster.png?v=2')
     || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")) {
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
-}
-if (!howtoHtml.includes('id="howto-guide-video"')
-    || !howtoHtml.includes('assets/level-matching-guide.mp4?v=1')
-    || !howtoHtml.includes('assets/level-matching-guide-poster.png?v=1')
-    || !howtoHtml.includes('<strong>Auto Type</strong>')
-    || /humanize/i.test(howtoHtml)) {
-  add(howtoFile, 'How To must stay a concise Level Matching walkthrough with no Humanize references');
 }
 if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
@@ -294,17 +279,41 @@ if (!/return\s*\{\s*\.\.\.\(user\.app_metadata\s*\|\|\s*\{\}\)\s*\}/.test(authJs
 for (const name of ['index.html', 'howto.html']) {
   const file = join(root, name);
   const html = readFileSync(file, 'utf8');
-  if (!/Level Matching uses? 4 credits per word/i.test(html)
+  if (!/Level Matching uses?(?: exactly)? 4 credits per word/i.test(html)
       && !/Level Matching: 4 credits per word/i.test(html)) {
     add(file, 'must explain word-based billing for Level Matching');
   }
   if (/1 credit\s*=\s*1 character in the output/i.test(html)) {
     add(file, 'contains obsolete output-character billing claim for Level Matching');
   }
-  if (name === 'index.html'
-      && !/Both mode costs 18 credits per word|Humanize \+ Level Matching costs 18 credits per word/i.test(html)) {
-    add(file, 'must explain the 18-credit Both mode rate');
+}
+
+const retiredPattern = new RegExp(['huma', 'ni(?:z|s)(?:e|er|ed|ing|ation)'].join(''), 'i');
+const allowedRedirects = [
+  '/blog/best-free-ai-' + ['huma', 'nizer.html'].join(''),
+  '/blog/does-turnitin-detect-ai-' + ['huma', 'nizer-tools-in-2026.html'].join(''),
+  '/blog/best-ai-' + ['huma', 'nizer-tools-for-students-in-2026-we-tested-them-so-you-dont-have-to.html'].join(''),
+];
+const textExtensions = new Set(['.html', '.js', '.mjs', '.css', '.md', '.txt', '.xml', '.json', '.ts', '.tsx']);
+const skippedDirs = new Set(['.git', 'node_modules', 'blog-drafts', 'public']);
+function trackedSourceFiles(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.isDirectory()) return skippedDirs.has(entry.name) ? [] : trackedSourceFiles(join(dir, entry.name));
+    return textExtensions.has(extname(entry.name)) ? [join(dir, entry.name)] : [];
+  });
+}
+for (const file of trackedSourceFiles(root)) {
+  let source = readFileSync(file, 'utf8');
+  for (const route of allowedRedirects) source = source.split(route).join('');
+  if (retiredPattern.test(source) || retiredPattern.test(label(file))) {
+    add(file, 'contains retired rewrite-mode terminology');
   }
+}
+if (serverJs.includes("app.post('/api/rw-") || serverJs.includes("app.post('/api/" + ['huma', 'nize'].join(''))) {
+  add(serverFile, 'retired rewrite endpoints must stay removed');
+}
+if (!editorJs.includes("return ['level', 'generate', 'own'].includes(mode) ? mode : 'level'")) {
+  add(editorJsFile, 'legacy result modes must normalize to level');
 }
 
 if (errors.length) {

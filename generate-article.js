@@ -97,7 +97,7 @@ const NAV_HTML = `  <nav class="navbar">
     </div>
   </aside>`;
 
-// Verbatim inline style block used by every article (blog/best-free-ai-humanizer.html)
+// Shared inline style block used by every article.
 const ARTICLE_STYLE = `  <style>
     .blog-post-wrap{max-width:760px;margin:0 auto;padding:0 24px 100px}
     .blog-post-header{padding:64px 0 40px}
@@ -164,8 +164,9 @@ const ARTICLE_STYLE = `  <style>
 // Call OpenRouter and get back: {title, metaDescription, keywords, tag, excerpt, readMinutes, bodyHtml}
 function generateArticle(keyword) {
   const systemPrompt =
-    "You are an expert SEO writer for " + CONFIG.brand + ", a tool that humanizes AI text and helps " +
-    "students avoid AI detection. Return ONLY valid JSON, no markdown, no backticks. " +
+    "You are an expert SEO writer for " + CONFIG.brand + ", a writing-level matching and Auto Typer tool. " +
+    "It analyzes a user's vocabulary, grammar, punctuation, and sentence patterns from past samples, then rewrites drafts at that established level. " +
+    "Never promise detector evasion. If detection is relevant, state that closer level and style matching may reduce obvious AI signals or suspicion, but detector scores vary and no result is guaranteed. Return ONLY valid JSON, no markdown, no backticks. " +
     'Shape: {"title": string, "metaDescription": string, "keywords": string, "tag": string, ' +
     '"excerpt": string, "readMinutes": number, "bodyHtml": string}. ' +
     "title: under 60 chars, includes the keyword. " +
@@ -232,7 +233,7 @@ function buildArticlePage({ title, metaDescription, keywords, tag, readMinutes, 
   const ctaBox =
     `      <div class="blog-cta-box">\n` +
     `        <h3>Try ${CONFIG.brand} free — 2,000 credits, no card</h3>\n` +
-    `        <p>Humanize, level-match, and auto-type into Google Docs. New accounts get 2,000 credits and a free 1-, 3-, or 7-day pass.</p>\n` +
+    `        <p>Match a draft to your chosen level or Writing Profile, review it, then Auto Type it into Google Docs. New accounts get 2,000 credits and a free 1-, 3-, or 7-day pass.</p>\n` +
     `        <a class="blog-cta-btn" href="/home">Get Started Free &rarr;</a>\n` +
     `      </div>`;
 

@@ -54,7 +54,7 @@ Create an exactly 8-second, 9:16 cinematic spatial flythrough for a premium soft
 
 4.15–5.55 seconds: bank smoothly left and arc around the four level controls. Beginner, Student, Academic, and Custom are physical inset controls on the same rigid plane. The camera curves toward Student as it rises only a few millimetres and snaps into its selected state on the exact frame of a restrained click. The green guide dot resolves into the small product status indicator.
 
-5.55–6.85 seconds: continue the same momentum past the Student control toward the black Humanize + Level Match button. Drop even closer to the interface surface and let the controls stretch into strong foreground perspective. No hard cut, no fade, no teleport.
+5.55–6.85 seconds: continue the same momentum past the Student control toward the black Match My Level button. Drop even closer to the interface surface and let the controls stretch into strong foreground perspective. No hard cut, no fade, no teleport.
 
 6.85–7.55 seconds: bank gently into the supplied low-altitude destination composition: Student is large in the near foreground, Beginner and Academic recede behind it, and the black action button forms the runway ahead. Match the supplied camera height, angle, crop, scale, and rigid UI geometry exactly. Retain a subtle forward drift instead of stopping dead.
 
@@ -73,9 +73,9 @@ Start frame: `flythrough-keyframe-02-level-flyover.png`
 End frame: `flythrough-keyframe-03-upload-portal.png`
 
 ```text
-Create an exactly 8-second, 9:16 continuous cinematic product flythrough using the supplied start and end compositions. Maintain the same limitless warm-white studio, rigid matte interface planes, crisp black type, pale-grey edges, and restrained green accent. The movement must be fast, spatial, and causally connected. This is not a screen capture and not flat cards sliding around. The camera physically travels through the Humanize + Level Match action and emerges inside the review result. Text stays printed onto rigid surfaces; never warp or invent letters.
+Create an exactly 8-second, 9:16 continuous cinematic product flythrough using the supplied start and end compositions. Maintain the same limitless warm-white studio, rigid matte interface planes, crisp black type, pale-grey edges, and restrained green accent. The movement must be fast, spatial, and causally connected. This is not a screen capture and not flat cards sliding around. The camera physically travels through the Match My Level action and emerges inside the review result. Text stays printed onto rigid surfaces; never warp or invent letters.
 
-0.0–0.45 seconds: begin exactly on the supplied low, grazing level-control perspective. Continue the forward energy inherited from the previous clip, following the rigid UI surface toward the black Humanize + Level Match button.
+0.0–0.45 seconds: begin exactly on the supplied low, grazing level-control perspective. Continue the forward energy inherited from the previous clip, following the rigid UI surface toward the black Match My Level button.
 
 0.45–1.15 seconds: a single precise black cursor strikes the button on pointer-down. The button depresses instantly by a few millimetres. Its black surface extends away from the camera into a long matte-black runway while the surrounding interface remains rigid.
 

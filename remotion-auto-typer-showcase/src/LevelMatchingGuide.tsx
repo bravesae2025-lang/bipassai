@@ -3,9 +3,17 @@ import {
   Easing,
   Interactive,
   interpolate,
+  staticFile,
   useCurrentFrame,
 } from "remotion";
+import {loadFont} from "@remotion/fonts";
 import {Pointer} from "./components/Pointer";
+
+await Promise.all([
+  loadFont({family: "Bipass Display", url: staticFile("bebas-neue-latin.woff2"), weight: "400"}),
+  loadFont({family: "Bipass UI", url: staticFile("syne-latin.woff2"), weight: "400"}),
+  loadFont({family: "Bipass Mono", url: staticFile("dm-mono-400-latin.woff2"), weight: "400"}),
+]);
 
 const sourceText =
   "Physical activity is important for students because it helps them stay focused during class and manage stress. Regular movement can also improve sleep, energy, and confidence over time.";
@@ -269,17 +277,17 @@ export const LevelMatchingGuide = () => {
           points={[
             {frame: 18, x: 700, y: 525},
             {frame: 112, x: 700, y: 525},
-            {frame: 136, x: 1878, y: 490},
-            {frame: 154, x: 1878, y: 490},
-            {frame: 178, x: 1878, y: 490},
-            {frame: 202, x: 1020, y: 1114},
-            {frame: 218, x: 1020, y: 1114},
-            {frame: 252, x: 1020, y: 1114},
-            {frame: 338, x: 1100, y: 685},
-            {frame: 405, x: 1100, y: 685},
-            {frame: 422, x: 1190, y: 1120},
-            {frame: 432, x: 1190, y: 1120},
-            {frame: 456, x: 1190, y: 1120},
+            {frame: 136, x: 1989, y: 463},
+            {frame: 154, x: 1989, y: 463},
+            {frame: 178, x: 1989, y: 463},
+            {frame: 202, x: 913, y: 1188},
+            {frame: 218, x: 913, y: 1188},
+            {frame: 252, x: 913, y: 1188},
+            {frame: 338, x: 870, y: 685},
+            {frame: 405, x: 870, y: 685},
+            {frame: 422, x: 1503, y: 1205},
+            {frame: 432, x: 1503, y: 1205},
+            {frame: 456, x: 1503, y: 1205},
           ]}
           visibleFrom={14}
           visibleUntil={464}

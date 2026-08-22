@@ -19,14 +19,11 @@
 
   function classifyRevisionIntent(comment, currentLevel) {
     const text = String(comment || '').trim();
-    const humanize = /\b(?:re[\s-]*)?humani[sz](?:e|ed|ing|ation)\b|\bsound\s+(?:more\s+)?human\b|\bless\s+(?:robotic|ai[\s-]*(?:like|sounding))\b|\bremove\s+(?:the\s+)?ai[\s-]*(?:tone|sound)\b/i.test(text);
     const namedLevel = LEVEL_ALIASES.some(alias => alias.pattern.test(text));
     const levelMatch = namedLevel
       || /\b(?:re[\s-]*)?level[\s-]+(?:match(?:ing)?|mathing|maching)\b|\bmatch\s+(?:it|this|the\s+(?:result|text))\s+(?:back\s+)?to\s+(?:my|the|a)\s+(?:writing\s+)?level\b/i.test(text);
     const level = requestedLevel(text, currentLevel);
 
-    if (humanize && levelMatch) return { kind: 'both', level };
-    if (humanize) return { kind: 'humanize', level: currentLevel || 'medium' };
     if (levelMatch) return { kind: 'level', level };
     return { kind: 'edit', level: currentLevel || 'medium' };
   }

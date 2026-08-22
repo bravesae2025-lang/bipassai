@@ -12,17 +12,17 @@ type AutoTyperPopupProps = {
 
 const savedTexts = [
   {
-    badge: "Humanized · Student",
+    badge: "Level Matched · Student",
     date: "Today",
     copy: "Clear writing makes ideas easier to follow. Your judgment shapes the final draft.",
   },
   {
-    badge: "Level matched · Academic",
+    badge: "Writing Profile · Academic",
     date: "Yesterday",
     copy: "Thoughtful revision helps a writer explain complex ideas with greater precision.",
   },
   {
-    badge: "Humanized · Beginner",
+    badge: "Level Matched · Beginner",
     date: "Aug 10",
     copy: "Simple wording can make a strong idea easier for everyone to understand.",
   },

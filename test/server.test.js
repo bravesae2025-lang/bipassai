@@ -88,17 +88,12 @@ test('credit add-on checkout prices match the credits fulfilled by each package'
   assert.equal(checkoutLineItemForCreditPackage('invalid'), null);
 });
 
-test('word-based billing rates match the public Level, Humanize and Both prices', () => {
+test('word-based billing charges Level Matching at exactly four credits per word', () => {
   const essay = Array.from({ length: 1_000 }, (_, i) => `word${i}`).join(' ');
   assert.equal(billableWordCount(essay), 1_000);
-  assert.deepEqual(CREDIT_RATES, { level: 4, humanize: 15, both: 18 });
+  assert.deepEqual(CREDIT_RATES, { level: 4 });
   assert.equal(creditsForText(essay, 'level'), 4_000);
-  assert.equal(creditsForText(essay, 'humanize'), 15_000);
-  assert.equal(creditsForText(essay, 'both'), 18_000);
-  assert.equal(creditsForText('one two', 'both'), 36);
-  const reportedEssay = Array.from({ length: 489 }, (_, i) => `sample${i}`).join(' ');
-  assert.equal(creditsForText(reportedEssay, 'humanize'), 7_335);
-  assert.equal(creditsForText(reportedEssay, 'both'), 8_802);
+  assert.equal(creditsForText('one two', 'level'), 8);
 });
 
 test('History capacity blocks the twenty-first saved result', () => {

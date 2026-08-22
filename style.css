@@ -568,21 +568,13 @@ main {
   z-index: 1;
 }
 
-/* ── Mode toggle header (Level Matching / Humanize) ── */
+/* ── Level Matching header ── */
 .mode-tabs-head {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.mode-block.mode-hidden { display: none; }
-
-/* dim the level presets while the Humanize-only tab is active.
-   In "Humanize + Level Matching" (.mode-both) the box stays usable — the user picks a level. */
 .right-panel { transition: opacity 0.25s ease; }
-.workspace.mode-humanize:not(.mode-both) .col-customize { opacity: 0.5; pointer-events: none; }
-.workspace.mode-own .col-customize { opacity: 0.5; pointer-events: none; }
-.workspace.mode-own #humanize-wc,
-.workspace.mode-own #est-cost { display: none !important; }
 /* "Pick a level first" error state — a clean red ring that hugs the whole
    Level Matching card (box-shadow follows the card's 16px radius) + a shake. */
 .col.col-customize.needs-level {
@@ -652,153 +644,6 @@ main {
 
 @media (prefers-reduced-motion: reduce) {
   .tour-spot, .tour-pop { animation: none; transition: none; }
-}
-
-.soon-badge {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--g400);
-  background: var(--g050);
-  border: 1px solid var(--g150);
-  border-radius: 999px;
-  padding: 2px 8px;
-  line-height: 1.4;
-}
-
-.humanizer-note {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  color: var(--g400);
-  letter-spacing: 0.02em;
-  margin: -4px 2px 0;
-  line-height: 1.5;
-}
-
-/* ── Mode dropdown switcher ─────────────────────── */
-.mode-tabs-head .mode-dropdown { flex: 1; }
-.mode-dropdown {
-  position: relative;
-}
-.mode-dd-trigger {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 11px 14px;
-  background: #fff;
-  border: 1.5px solid var(--black);
-  border-radius: var(--r);
-  font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--black);
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-.mode-dd-trigger:hover { background: var(--g050); }
-.mode-dd-chevron {
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-.mode-dropdown.open .mode-dd-chevron { transform: rotate(180deg); }
-
-.mode-dd-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 40;
-  margin: 0;
-  padding: 6px;
-  list-style: none;
-  background: #fff;
-  border: 1.5px solid var(--black);
-  border-radius: var(--r);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
-  display: none;
-}
-.mode-dropdown.open .mode-dd-menu { display: block; }
-.mode-dd-option {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 11px 12px;
-  border-radius: 6px;
-  font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--g400);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.mode-dd-option:hover { background: var(--g050); color: var(--black); }
-.mode-dd-option.is-selected { background: var(--black); color: #fff; }
-.mode-dd-option-title-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.mode-dd-option-title { line-height: 1.35; }
-.mode-dd-option-desc {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 11.5px;
-  font-weight: 400;
-  line-height: 1.42;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--g400);
-}
-.mode-dd-option.is-selected .mode-dd-option-desc { color: rgba(255,255,255,0.72); }
-.mode-dd-badges {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-.mode-dd-default,
-.mode-dd-recommended {
-  flex-shrink: 0;
-  padding: 2px 6px;
-  border: 1px solid var(--g200);
-  border-radius: 999px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 8px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
-  color: var(--g400);
-}
-.mode-dd-default {
-  color: var(--black);
-  background: var(--g100);
-  border-color: var(--g300);
-}
-.mode-dd-option.is-selected .mode-dd-default,
-.mode-dd-option.is-selected .mode-dd-recommended {
-  color: rgba(255,255,255,0.82);
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.3);
-}
-.mode-dd-option.is-selected .soon-badge {
-  color: #fff;
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.25);
-}
-#generate-section.mode-hidden,
-#humanize-section.mode-hidden {
-  display: none;
 }
 
 .textarea-wrap {
@@ -941,18 +786,18 @@ textarea[readonly]:focus { background: var(--g050); border-color: var(--g150); }
 .btn-generate:not(:disabled):hover { color: var(--black); }
 .btn-generate:not(:disabled):hover .btn-arrow { transform: translateX(4px); }
 
-/* Humanize button — outline variant */
-.btn-humanize {
+/* Level Matching primary action */
+.btn-level-match {
   background: transparent;
   color: var(--black);
   border: 1.5px solid var(--black);
 }
 
-.btn-humanize .btn-sweep { background: var(--black); }
-.btn-humanize:not(:disabled):hover { color: #fff; }
-.btn-humanize:not(:disabled):hover .btn-arrow { transform: translateX(4px); }
-.btn-humanize .spinner { border-color: rgba(0,0,0,0.2); border-top-color: var(--black); }
-.btn-humanize:hover .spinner { border-color: rgba(255,255,255,0.3); border-top-color: #fff; }
+.btn-level-match .btn-sweep { background: var(--black); }
+.btn-level-match:not(:disabled):hover { color: #fff; }
+.btn-level-match:not(:disabled):hover .btn-arrow { transform: translateX(4px); }
+.btn-level-match .spinner { border-color: rgba(0,0,0,0.2); border-top-color: var(--black); }
+.btn-level-match:hover .spinner { border-color: rgba(255,255,255,0.3); border-top-color: #fff; }
 
 /* Copy */
 .btn-copy {
@@ -2178,13 +2023,10 @@ body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
 }
 .ld-ext.done .ld-ext-status i { background: #0a0a0a; box-shadow: none; animation: none; }
 
-/* Mode select (top of the setup panel) + its dropdown */
-.ld-modesel {
-  position: relative;
+/* Static workflow label at the top of the setup panel. */
+.ld-workflow-label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
   font-family: var(--ff-ui);
   font-size: 12px;
   font-weight: 600;
@@ -2197,45 +2039,8 @@ body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
   white-space: nowrap;
   user-select: none;
 }
-.ld-modesel > svg { color: var(--g300); flex-shrink: 0; }
-.ld-mode-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: #fff;
-  border: 1px solid var(--g150);
-  border-radius: 10px;
-  box-shadow: 0 14px 36px rgba(0,0,0,0.13);
-  padding: 4px;
-  opacity: 0;
-  transform: translateY(-5px) scale(0.97);
-  transform-origin: top left;
-  pointer-events: none;
-  transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
-  z-index: 7;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.ld-mode-menu.open { opacity: 1; transform: none; }
-.ld-mode-opt {
-  font-family: var(--ff-ui);
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--g500);
-  padding: 6px 10px;
-  border-radius: 7px;
-  white-space: nowrap;
-  transition: background 0.2s, color 0.2s;
-}
-.ld-mode-opt.sel { background: var(--black); color: #fff; }
 
-/* Humanize rephrase marks: neutral slate — distinct from the 6 level-matching
-   examples — global so the editor's humanize results get it too */
+/* Generic rephrase marks use a neutral slate. */
 [data-cat="rephrase"] { --cc: #64748b; }
 
 .ld-count { min-width: 58px; text-align: center; }
@@ -2322,7 +2127,6 @@ body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
   .leveldemo-body .word-change-pair.ld-pop { animation: none; transition: none; }
   .ld-slider-fill { transition: none; }
   .ld-cursor { display: none; }
-  .ld-mode-menu { transition: none; }
   .ld-inputbox-text.ld-pasted { animation: none; }
   .ld-inputbox-foot { transition: none; }
   .ld-scanline { animation: none; display: none; }
@@ -2403,46 +2207,6 @@ body[data-app-mode="own"] .appbg-canvas { opacity: 0; }
   color: var(--g400);
   letter-spacing: 0.04em;
   text-align: center;
-}
-
-/* Mode toggle — Humanize / Generate */
-.hero-mode-toggle {
-  display: flex;
-  gap: 4px;
-  background: var(--g100);
-  border: 1px solid var(--g150);
-  border-radius: 10px;
-  padding: 4px;
-}
-
-.hero-mode-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: 7px;
-  font-family: var(--ff-ui);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--g400);
-  cursor: pointer;
-  transition: background 0.2s var(--ease-snappy), color 0.2s, box-shadow 0.2s;
-  letter-spacing: 0.02em;
-}
-
-.hero-mode-btn:hover:not(.active) {
-  color: var(--black);
-  background: rgba(0,0,0,0.05);
-}
-
-.hero-mode-btn.active {
-  background: var(--black);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 
 .hero-action-textarea {
@@ -4933,11 +4697,10 @@ body.revision-open { overflow: hidden; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ─────────────────────────────────────────────────────────────
-   Section wrappers (generate / humanize)
+   Section wrappers (generate / level matching)
 ───────────────────────────────────────────────────────────── */
 
-#generate-section,
-#humanize-section {
+#level-match-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -4946,8 +4709,7 @@ body.revision-open { overflow: hidden; }
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-#generate-section.faded,
-#humanize-section.faded {
+#level-match-section.faded {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -5084,7 +4846,7 @@ body.revision-open { overflow: hidden; }
   .col { padding: 16px 14px 18px; gap: 14px; }
   textarea { min-height: 140px; }
 
-  /* Generate / Humanize buttons */
+  /* Primary action buttons */
   .btn-generate {
     height: 44px;
     font-size: 11px;
@@ -6994,15 +6756,66 @@ body.drawer-lock { overflow: hidden; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Own Text → Extension dropdown mode
+   Finished text → Auto Typer secondary action
 ──────────────────────────────────────────────────────────── */
 
 .own-text-mode {
-  flex: 1;
-  min-height: 0;
+  margin-top: 4px;
+  border-top: 1px solid var(--g150);
+  padding-top: 12px;
+}
+
+.own-text-mode summary {
+  cursor: pointer;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--g500);
+  list-style-position: outside;
+  margin-left: 14px;
+}
+
+.own-text-mode[open] summary { margin-bottom: 12px; }
+
+.own-text-mode > *:not(summary) { margin-top: 12px; }
+
+.secondary-action-meta {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--g350);
+}
+
+.level-match-heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.level-match-heading-kicker {
+  display: block;
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--g350);
+  margin-bottom: 3px;
+}
+
+.level-match-heading h1 {
+  margin: 0;
+  font-family: var(--ff-ui);
+  font-size: clamp(20px, 2vw, 27px);
+  line-height: 1.1;
+}
+
+.level-match-heading p {
+  margin: 6px 0 0;
+  max-width: 560px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--g400);
 }
 
 .own-text-sub {
@@ -7016,9 +6829,9 @@ body.drawer-lock { overflow: hidden; }
 .own-text-textarea {
   width: 100%;
   box-sizing: border-box;
-  flex: 1;
-  height: auto;
-  min-height: clamp(300px, calc(100vh - 460px), 620px);
+  height: 132px;
+  min-height: 112px;
+  max-height: 260px;
   resize: vertical;
   font-family: var(--ff-mono);
   font-size: 12px;
@@ -8801,138 +8614,6 @@ body.drawer-lock { overflow: hidden; }
 
 .howto-cta-btn:hover { opacity: 0.85; }
 
-/* ── How To film ─────────────────────────────────────────────── */
-.howto-wrap {
-  width: 100%;
-  max-width: 1280px;
-  min-width: 0;
-}
-
-.howto-mobile-break { display: none; }
-
-.howto-head-film {
-  margin-bottom: clamp(30px, 5vw, 54px);
-}
-
-.howto-head-film .howto-title {
-  max-width: 980px;
-  margin-inline: auto;
-  margin-bottom: 0;
-  font-size: clamp(64px, 10vw, 124px);
-  line-height: 0.9;
-}
-
-.howto-film-section {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  margin-bottom: clamp(72px, 10vw, 128px);
-}
-
-.howto-film-frame {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #0b0b0c;
-  border: 1px solid rgba(0,0,0,0.18);
-  border-radius: clamp(14px, 2vw, 24px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1), 0 28px 80px rgba(0,0,0,0.15);
-}
-
-.howto-guide-video {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  height: 100%;
-  object-fit: cover;
-  background: #ecece9;
-}
-
-.howto-film-toggle {
-  position: absolute;
-  right: clamp(12px, 2vw, 22px);
-  bottom: clamp(12px, 2vw, 22px);
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  color: #fff;
-  background: rgba(7,7,8,0.84);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 50%;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.26);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  transition: transform 0.18s ease, background 0.18s ease;
-}
-
-.howto-film-toggle:hover { background: #050505; transform: scale(1.06); }
-.howto-film-toggle:active { transform: scale(0.95); }
-.howto-film-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.howto-film-play-icon { display: none; }
-.howto-film-toggle.is-paused .howto-film-play-icon { display: block; }
-.howto-film-toggle.is-paused .howto-film-pause-icon { display: none; }
-
-.howto-film-steps {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid rgba(0,0,0,0.15);
-}
-
-.howto-film-steps li {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 17px 12px;
-  border-right: 1px solid rgba(0,0,0,0.1);
-}
-
-.howto-film-steps li:last-child { border-right: 0; }
-.howto-film-steps span {
-  color: var(--g300);
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-}
-.howto-film-steps strong {
-  overflow: hidden;
-  color: var(--black);
-  font-family: var(--ff-ui);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.howto-faq-section { margin-top: 0; }
-
-@media (max-width: 680px) {
-  .howto-main { min-width: 0; padding: 44px 14px 72px; }
-  .howto-head-film .howto-title { font-size: clamp(52px, 18vw, 82px); }
-  .howto-mobile-break { display: inline; }
-  .howto-film-frame { border-radius: 12px; }
-  .howto-film-toggle { width: 36px; height: 36px; right: 9px; bottom: 9px; }
-  .howto-film-steps li { justify-content: center; padding: 13px 3px; }
-  .howto-film-steps span { display: none; }
-  .howto-film-steps strong { font-size: 9px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .howto-film-toggle { transition: none; }
-}
-
-/* ═══════════════════════════════════════════════════════════════
    AESTHETIC REFINEMENTS — white-first, more black contrast
    Main bg stays white. Adds bolder blacks, sharper edges,
    cool animations. No full dark mode.
@@ -10193,82 +9874,6 @@ mark.word-changed.change-dismissed { display: none; }
   flex-direction: column;
   gap: 20px;
 }
-/* Master view switch, sitting directly above the Filter Changes panel. It
-   borrows .changes-filter's card and .cf-row's dot / label / pill geometry so
-   it reads as the parent of the category rows rather than a separate control.
-   Neutral grey on purpose: the six filter rows below each own a hue, so a
-   seventh colour here would read as another category instead of the master
-   control over them. The label is fixed — the pill carries the state. */
-.humanize-changes-toggle {
-  --cc: var(--g400);
-  box-sizing: border-box;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 11px 1fr 32px;
-  align-items: center;
-  gap: 9px;
-  padding: 12px 13px;
-  border: 1px solid var(--g150);
-  border-radius: var(--r, 8px);
-  background: var(--bg, #fff);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-  cursor: pointer;
-  text-align: left;
-  user-select: none;
-  transition: background 0.18s ease, border-color 0.18s ease;
-}
-.humanize-changes-toggle.hidden { display: none; }
-.humanize-changes-toggle:hover { border-color: var(--g300); }
-.humanize-changes-toggle:focus-visible {
-  outline: 2px solid var(--cc);
-  outline-offset: 2px;
-}
-
-.humanize-toggle-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--g200);
-  transition: background 0.18s ease;
-}
-.humanize-toggle-label {
-  font-family: var(--ff-ui);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--black);
-  white-space: nowrap;      /* one line in the 264px rail — never stack */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.humanize-toggle-switch {
-  position: relative;
-  width: 32px;
-  height: 18px;
-  border-radius: 10px;
-  background: var(--g200);
-  transition: background 0.18s ease;
-}
-.humanize-toggle-switch::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  transform: translateX(-14px);          /* off: knob parked left */
-  transition: transform 0.18s var(--ease-out);
-}
-
-/* On: showing the humanize draft */
-.humanize-changes-toggle.active {
-  background: color-mix(in srgb, var(--cc) 7%, #fff);
-  border-color: color-mix(in srgb, var(--cc) 40%, transparent);
-}
-.humanize-changes-toggle.active .humanize-toggle-dot   { background: var(--cc); }
-.humanize-changes-toggle.active .humanize-toggle-switch { background: var(--cc); }
-.humanize-changes-toggle.active .humanize-toggle-switch::after { transform: translateX(0); }
 .changes-filter {
   box-sizing: border-box;
   border: 1px solid var(--g150);
@@ -11068,7 +10673,7 @@ mark.word-changed.hz-flash {
   margin: 0;
 }
 
-/* ── Humanize hint cards (Humanize tab) ──────────────────────── */
+/* ── Level Matching hint cards ───────────────────────────────── */
 /* ── File upload ─────────────────────────────── */
 .file-upload-row {
   display: flex;
@@ -11113,7 +10718,7 @@ mark.word-changed.hz-flash {
   max-width: 160px;
 }
 
-.humanize-hints {
+.level-match-hints {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
@@ -11613,6 +11218,14 @@ mark.word-changed.hz-flash {
   background: transparent;
 }
 
+.workflow-film-card {
+  overflow: hidden;
+  border: 1px solid #d6d8da;
+  border-radius: 24px;
+  background: #eceeef;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07), 0 30px 78px rgba(24,27,31,0.14);
+}
+
 .autotyper-film-stage {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -11766,6 +11379,7 @@ mark.word-changed.hz-flash {
   .autotyper-title { font-size: clamp(46px, 16vw, 78px); }
   .autotyper-store-link { min-height: 50px; padding: 0 26px; font-size: 10.5px; }
   .autotyper-features { margin-top: 30px; }
+  .workflow-film-card { border-radius: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,211 +1,6 @@
 const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
 const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student', hard: 'Academic' };
 
-const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like a beginner or non-native English speaker wrote it. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
-
-NO DASHES — #1 AI tell:
-NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
-
-WRITE NORMAL TEXT — not conversational or spoken:
-Write as a normal written piece, not like someone talking out loud. Casual words like "like", "I guess", "honestly" should only slip in once or twice as natural mistakes — not throughout. This is written text, not a speech or chat message.
-
-REPLACE AI WORDS — statistically proven AI signals, swap every one:
-"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
-"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
-"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
-"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
-
-COMMAS — only where clearly needed:
-Use commas in lists and after long openers (5+ words). Skip them when in doubt — missing a comma is fine. Do NOT put commas after short starters like "But", "So", "And" at the beginning of a sentence. Fewer commas is better than too many.
-
-SENTENCE LENGTH — most important:
-Every paragraph must have at least one sentence under 7 words AND at least one sentence over 28 words. Never write 3 sentences in a row of similar length. Example: "That was hard. I think maybe I didn't study enough and also I was tired from work the day before so my brain just wasn't working right. Not good."
-Never open two sentences in a row with the same word. Mix sentence types within each paragraph: a fragment, a run-on, a normal one — not three normal declarative sentences in a row.
-
-WORD CHOICE — PERPLEXITY:
-Pick the simplest first-instinct word even if slightly imprecise: "the whole thing broke" not "the system failed entirely", "it went bad fast" not "it deteriorated rapidly", "it was pretty hard" not "it proved significantly challenging". First instinct beats the correct polished choice.
-
-SPELLING MISTAKES — scale with text length: roughly 1 mistake per 35 words. Short text = 2-3, long text = many more. Spread them evenly, don't cluster:
-- "definately" (definitely), "recieve" (receive), "wierd" (weird), "beleive" (believe), "alot" (a lot), "occured" (occurred), "probly" or "prolly" (probably), "teh" (the) once in a while
-- Phonetic shortcuts count too: "gonna", "wanna", "cuz", "kinda" — use these freely
-
-WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 20 words. Short text = several, long text = many. Use them freely:
-"informations", "advices", "homeworks", "furnitures", "equipments", "knowledges", "feedbacks", "researches", "works" (meaning homework)
-
-TENSE MISTAKES — use regularly:
-"yesterday I go", "she tell me", "I seen it", "we was there", "he don't know", "I have went"
-
-PUNCTUATION ERRORS:
-- Missing comma before "but" and "and" sometimes
-- Comma splice: "it was good, I really liked it"
-- Write "dont" "cant" "its" "wont" without apostrophe a couple times
-- No semicolons. No parentheses. No colons. No em dashes.
-
-OTHER TRAITS:
-- Repeat the same idea twice in different words
-- Simple words only: "good" not "beneficial", "use" not "utilize"
-- "I think" "maybe" "I guess" "like" scattered through
-- Jump between thoughts without connecting them
-- Uneven paragraphs — one might be 1 sentence, another 5
-- Some sentences starting with And or But or So
-
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, in today's world, one must, to summarize, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
-
-No passive voice. No clean topic sentences. No conclusion.
-Return only the rewritten text, nothing else.`,
-
-  medium: `Rewrite the following text so it sounds like a real average student wrote it quickly without editing. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
-
-NO DASHES — #1 AI tell:
-NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
-
-WRITE NORMAL TEXT — not conversational:
-Write as a normal written piece. Casual filler words like "honestly", "like", "I mean" should only slip in once or twice as a natural mistake — not scattered throughout. This is written text, not talking out loud.
-
-REPLACE AI WORDS — statistically proven AI signals, swap every one:
-"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
-"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
-"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
-"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
-
-COMMAS — only where clearly needed:
-Use commas in lists and after long openers (5+ words). Skip them when in doubt. Do NOT place a comma after short starters like "But", "So", "And" at the start of a sentence. Fewer commas is more natural than too many.
-
-SENTENCE LENGTH — biggest detection signal — mandatory:
-Every paragraph must have at least one sentence ONLY 4-8 words (fragment is fine) AND at least one sentence 30+ words that keeps going. Never 3 sentences in a row of similar length. Example: "That was the whole point. I think what happened was the teacher never really explained it properly so everyone just kind of guessed and hoped for the best. Not great."
-Never open two consecutive sentences with the same word or same grammatical structure. Within each paragraph mix at least two sentence types: fragment, run-on, or normal declarative — not all the same type.
-
-WORD CHOICE — PERPLEXITY:
-Use the first natural word you'd actually think of, not the most precise one: "the idea kind of worked" not "the approach proved partially effective", "it got messy" not "it became increasingly complex", "the whole point was" not "the fundamental objective was". Students don't agonise over word choice.
-
-SPELLING MISTAKES — scale with text length: roughly 1 mistake per 80 words. Short text = 1-2, long text = more. Spread evenly:
-"definately" (definitely), "recieve" (receive), "seperate" (separate), "occured" (occurred), "wierd" (weird)
-Casual shortcuts also count: "gonna", "wanna", "kinda", "prolly" — use them where they fit
-
-WRONG PLURAL "S" — scale with length: roughly 1 wrong plural per 35 words. Spread naturally:
-"informations", "advices", "feedbacks", "homeworks", "researches"
-
-COMMAS — use them normally, but imperfectly:
-Students use commas in lists and after openers fine. What they miss:
-- Missing comma before "but" / "and" / "because" a few times: "I wanted to do it but I ran out of time"
-- Comma splice once or twice: "it made sense, everyone got it fast"
-- Chain clauses with commas: "the class ran long, we covered a lot, I didn't follow all of it"
-- Do NOT remove commas from lists or after introductory words
-
-OTHER PUNCTUATION:
-- Write "dont" "cant" "its" "wont" without apostrophe once or twice
-- No semicolons. No parentheses. No colons mid-sentence. No em dashes.
-
-CAPITALIZATION:
-- Miss a capital at the start of one sentence somewhere in the piece
-- Do NOT capitalize random mid-sentence words
-
-WORD CHOICE AND VOICE:
-- Contractions throughout: don't, it's, I'm, wasn't, they're, couldn't, would've
-- Filler: "honestly", "like", "kind of", "I guess", "basically", "I mean", "to be fair"
-- Reuse the same word 2-3 times — students don't proofread
-- Casual opinions: "honestly kind of pointless", "never really made sense to me", "wasn't great"
-- One thought that doesn't connect to the one before — a slight logic jump
-- One uncertainty: "I'm not totally sure but", "could be wrong"
-- Some sentences starting with And, But, or So
-- Uneven paragraphs — one might be just one sentence
-
-STRUCTURE:
-- Do NOT start paragraphs with a topic sentence — jump into the thought
-- No conclusion or summary — just stop
-- Paragraphs different lengths, not symmetrical
-
-BURSTINESS — what GPTZero actually measures, this is critical:
-Every ~150 words you MUST do this: place a dead-simple sentence (under 6 words, just subject+verb) RIGHT NEXT TO a sentence that runs 50+ words piling clause on clause with "and", "because", "so", "but". The contrast must be jarring. Example: "It didn't work. I remember thinking at the time that maybe if we had actually paid attention earlier in the semester and done the readings instead of just skimming them the night before it all would've gone differently, but honestly who knows." Consistent complexity = instant AI detection. Variance is the human signal.
-
-ONE HYPER-SPECIFIC DETAIL:
-Include one detail that sounds genuinely personal: a real-sounding name (not "John"), a specific number, a place, a time. "my teacher Mr. Peterson" not "my teacher". "like 17 of us" not "most of us". "last Tuesday" not "recently". Specific details spike GPTZero's perplexity score because they're rare in AI writing patterns.
-
-WORD REPETITION:
-Pick one content word from the topic and use it 4-5 times throughout — don't replace it with synonyms. Students repeat words they like without noticing.
-
-ONE OFF-TOPIC DRIFT:
-Somewhere in the middle, 1-2 sentences drift away from the main point — a side thought, a memory, something that just came to mind — then return to the topic. Real students' minds wander. AI never drifts.
-
-ONE REGISTER DROP:
-Once, switch from your normal writing level to noticeably more casual for 1-2 sentences, then come back. Example: going from "this presents a challenge" to "honestly I still dont get why anyone thought this was a good idea" then back to normal.
-
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
-
-No passive voice. No perfect punctuation. No equal sentence energy.
-Return only the rewritten text, nothing else.`,
-
-  hard: `Rewrite the following text so it sounds like a confident real person wrote it without over-editing. Aim for natural writing, but do not claim or imply any guaranteed detector result. Humanness is in rhythm and personality.
-
-NO DASHES — #1 AI tell:
-NEVER write em dashes (—) or use a hyphen as an em dash (word - word mid-sentence). These are the clearest signal AI detectors scan for. If you feel like using a dash, use a comma, start a new sentence, or just say it plainly. Zero dashes anywhere in the text.
-
-WRITE NORMAL TEXT — not conversational:
-Write as a normal written piece. A casual word or two can slip in naturally but this is not spoken text. No filler phrases scattered throughout.
-
-REPLACE AI WORDS — statistically proven AI signals, swap every one:
-"utilize" → "use" | "assist" → "help" | "demonstrate" → "show" | "implement" → "use" | "individuals" → "people" | "various" → "different" | "numerous" → "many" | "ensure" → "make sure" | "obtain" → "get" | "regarding" → "about" | "hence/thus/therefore" → "so" | "additionally" → "also" | "nevertheless" → "but" | "whilst" → "while" | "purchase" → "buy" | "commence" → "start" | "sorts" → "type"
-"leverage" → "use" | "facilitate" → "help" | "underscore" → "show" | "constitute" → "make up" | "mitigate" → "reduce" | "foster" → "help" | "harness" → "use" | "empower" → "help" | "encompass" → "include" | "illuminate" → "show" | "bolster" → "strengthen" | "spearhead" → "lead"
-"crucial" → "really important" | "significant/significantly" → "big" or "a lot" | "comprehensive" → "complete" | "robust" → "strong" | "pivotal" → "key" | "meticulous" → "careful" | "intricate" → "complex" | "palpable" → "real" | "paramount" → "most important" | "multifaceted" → "complicated" | "groundbreaking" → "new" | "transformative" → "life-changing" | "seamless" → "smooth"
-"severity" → "how bad it is" | "scarcity/scarcities" → "shortage" | "prevalence" → "how common it is" | "magnitude" → "how big it is" | "methodology" → "method" | "realm" → "area" | "tapestry" → "mix" | "ultimately" → "in the end" | "fundamental" → "basic" | "in terms of" → "about"
-
-COMMAS — only where clearly needed:
-Lists and after long openers only. Skip when in doubt. No comma after short sentence starters. Fewer is better.
-
-SENTENCE LENGTH — mandatory:
-Every paragraph needs at least one sentence under 10 words and one sentence over 30 words. Never 3 sentences of similar length in a row. Rhythm should feel personal and uneven.
-Never open two consecutive sentences with the same word or same grammatical structure (avoid "The X... The Y... The Z..."). Mix sentence types: fragment, run-on, normal — vary the shape, not just the length.
-
-WORD CHOICE — PERPLEXITY:
-Occasionally choose a slightly unexpected but fitting word over the obvious polished one: "the whole thing collapsed" not "the situation deteriorated significantly", "honestly strange" not "notably unusual", "it just didn't work" not "it proved ineffective". Real writers do this naturally — it signals a person chose the words, not a probability engine.
-
-SPELLING — one subtle mistake per ~250 words, placed naturally:
-"recieve", "seperate", or "definately" — even smart people make these
-
-WRONG PLURAL "S" — ~1 per 80 words:
-"informations", "advices", "feedbacks", "researches"
-
-PUNCTUATION — clean but imperfect:
-- Miss a comma before "but" or "and" once or twice — natural
-- No semicolons. No parentheses. No em dashes. No mid-sentence colons.
-- Contractions always: don't, it's, I'm, can't, won't, wouldn't, they've
-
-VOICE:
-- Strong direct opinions, pick a side, sound sure — no hedging
-- One sentence that runs longer because the thought kept going
-- One honest moment: "I don't fully know why" or "maybe I'm wrong"
-- One real specific detail, personal not generic
-- Some sentences starting with And, But, or So
-- One small contradiction: "it worked fine, though honestly it kind of annoyed me"
-
-STRUCTURE:
-- Don't start paragraphs with a topic sentence — start mid-thought
-- No conclusion summary — just end
-- Paragraphs uneven in length
-- Use slightly unexpected word choices over the polished "correct" ones
-
-BANNED: furthermore, moreover, in conclusion, it's worth noting, notably, significantly, crucial, delve, nuanced, it is important, this highlights, this demonstrates, one must consider, it can be seen, to summarize, this suggests, in today's world, cornerstone, game-changing, invaluable, synergy, impactful, plays a crucial role, serves as a testament
-
-No passive voice. No parallel structure. No balanced paragraphs.
-Return only the rewritten text, nothing else.`,
-
-  customize: `Rewrite the following text to sound naturally human-written. Aim for natural writing, but do not claim or imply any guaranteed detector result. Apply only the specific human traits listed below.
-
-Always follow these regardless of the traits listed:
-- NO DASHES: Never write em dashes (—) or use hyphens as em dashes (word - word). Biggest AI tell. Use a comma or new sentence instead.
-- Replace AI words: "utilize"→"use", "leverage"→"use", "crucial"→"really important", "significant"→"big", "robust"→"strong", "individuals"→"people", "comprehensive"→"complete", "furthermore"→"also", "realm"→"area", "severity"→"how bad it is", "methodology"→"method", "facilitate"→"help", "paramount"→"most important", "groundbreaking"→"new", "ultimately"→"in the end"
-- Vary sentence length dramatically: some under 8 words, some over 30. Never 3 sentences in a row of similar length.
-- Never open two consecutive sentences with the same word or same grammatical structure.
-- Choose slightly unexpected but natural words over the safe, obvious polished ones.
-- No semicolons, parentheses, or colons mid-sentence.
-- Use contractions naturally.
-- Do not start paragraphs with a topic sentence.
-- No conclusion summary at the end.
-- No passive voice.
-Return only the rewritten text, nothing else.`,
-};
-
 const GENERATE_PROMPTS = {
   easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
 
@@ -1109,10 +904,8 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_input',        text);
     sessionStorage.setItem('bipass_result',       cleanRes);
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
-    sessionStorage.setItem('bipass_mode',         'humanize');
+    sessionStorage.setItem('bipass_mode',         'level');
     sessionStorage.setItem('bipass_flow',         'level');
-    sessionStorage.removeItem('bipass_humanized');
-    sessionStorage.removeItem('bipass_humanized_html');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
@@ -1121,143 +914,6 @@ async function adjustLevel() {
     window.location.href = 'editor.html';
   } catch (err) {
     showToast(err.message || 'Level matching failed. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-}
-
-// ─── Humanize (RewriteAI) ─────────────────────────────────────
-// Stash the result and open the editor (shared by both humanize paths).
-// flow: 'humanize' | 'both' — tells the editor which result UI to render.
-function _goEditor(input, result, html, changed, flow, profileApplied = false) {
-  sessionStorage.setItem('bipass_input',        input);
-  sessionStorage.setItem('bipass_result',       result);
-  sessionStorage.setItem('bipass_result_html',  html);
-  sessionStorage.setItem('bipass_mode',         'humanize');
-  sessionStorage.setItem('bipass_flow',         flow || 'humanize');
-  if (flow !== 'both') {
-    sessionStorage.removeItem('bipass_humanized');
-    sessionStorage.removeItem('bipass_humanized_html');
-  }
-  sessionStorage.setItem('bipass_change_count', String(changed));
-  sessionStorage.setItem('bipass_wc',           String(countWords(input)));
-  sessionStorage.setItem('bipass_level',        selectedLevel || '');
-  storeAppliedProfile(profileApplied);
-  sessionStorage.removeItem('bipass_result_id');
-  window.location.href = 'editor.html';
-}
-
-// Mode "humanize":  RewriteAI on the raw input.
-// Mode "both":      Humanize first (RewriteAI), THEN level-match the result in the
-//                   background with a locked sentence structure, at the chosen level.
-async function runHumanize() {
-  const text = inputText.value.trim();
-  if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
-
-  const mode = document.body.dataset.appMode === 'both' ? 'both' : 'humanize';
-  // The level-matching pass in "both" mode needs a level chosen first.
-  if (mode === 'both' && !requireLevel()) return;
-  if (!(await preflightGate())) return;
-
-  const token = await window.bipassAuth.getToken();
-  const getMistakes = () => ({
-    grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
-    tense:     parseInt(optionsPanel?.querySelector('[data-mistake="tense"]')?.value     || 0),
-    punct:     parseInt(optionsPanel?.querySelector('[data-mistake="punct"]')?.value     || 0),
-    caps:      parseInt(optionsPanel?.querySelector('[data-mistake="caps"]')?.value      || 0),
-    spelling:  parseInt(optionsPanel?.querySelector('[data-mistake="spelling"]')?.value  || 0),
-    wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
-  });
-  const styleProfile = activeStyleProfilePayload();
-
-  // "both" gets a manual, progress-driven loading sequence; humanize-only keeps the default phases.
-  if (mode === 'both') {
-    setLoading(true, 'Humanizing…', {
-      phases: ['Humanizing', 'Starting level matching', 'Producing final'],
-      manual: true,
-    });
-  } else {
-    setLoading(true, 'Humanizing…');
-  }
-
-  try {
-    // ── Step 1: Humanize via RewriteAI (both + humanize-only) ────
-    const hRes = await fetch('/api/rw-humanize', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ text, combined: mode === 'both' }),
-    });
-    if (hRes.status === 402) {
-      const d = await hRes.json().catch(() => ({}));
-      setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
-    }
-    if (!hRes.ok) {
-      const d = await hRes.json().catch(() => ({}));
-      throw new Error(d.error || 'Humanize failed');
-    }
-    const hData     = await hRes.json();
-    // Mirror the input's paragraph spacing so the result isn't over-spaced.
-    const humanized = _matchParagraphSpacing(hData.result, text);
-    if (!humanized) throw new Error('No output from humanizer');
-    if (hData.creditsUsed != null) updateCreditDisplay(hData.creditsUsed, hData.creditsRemaining);
-
-    // ── Humanize-only: done ─────────────────────────────────────
-    if (mode !== 'both') {
-      // Single green "rephrase" highlight — the humanizer has no real
-      // per-category data, so don't pretend with classified colors.
-      const htmlDiff = _buildDiffHtml(text, humanized, 'rephrase');
-      const changed  = _countChanges(text, humanized);
-      lfxFinish();
-      if (hData.creditsUsed != null) { animateLoadingCredits(hData.creditsUsed); await new Promise(r => setTimeout(r, 1200)); }
-      _goEditor(text, humanized, htmlDiff, changed, 'humanize');
-      return;
-    }
-
-    // ── Step 2 (both): Level-match the humanized text, structure locked ─
-    lfxAdvance(1);   // "Starting level matching"
-    const alRes = await fetch('/api/adjust-level', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({
-        text: humanized,
-        level: selectedLevel,
-        mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
-        styleProfile: styleProfile || undefined,
-        // Receipt from step 1 — the discounted combined rate is already paid,
-        // so the level-matching pass runs without charging a second time.
-        continuation: hData.continuation,
-      }),
-    });
-    if (alRes.status === 402) {
-      const d = await alRes.json().catch(() => ({}));
-      setLoading(false); showCreditWarning(d.error || 'No credits remaining'); return;
-    }
-    if (!alRes.ok) throw new Error('Level matching failed');
-    const alData = await alRes.json();
-    // Mirror the input's paragraph spacing (Gemini can reflow into extra gaps).
-    const alResult = _matchParagraphSpacing(alData.result, text);
-
-    lfxAdvance(2);   // "Producing final"
-    // Prefer AI annotations (accurate multi-category); fall back to a computed diff.
-    const parsed   = _parseAnnotatedResult(alResult);
-    const cleanRes = parsed ? parsed.cleanText : alResult;
-    const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(humanized, alResult);
-    const changed  = parsed ? parsed.total     : _countChanges(humanized, alResult);
-
-    lfxFinish();
-    const totalUsed = (hData.creditsUsed || 0) + (alData.creditsUsed || 0);
-    if (alData.creditsRemaining != null) updateCreditDisplay(totalUsed, alData.creditsRemaining);
-    animateLoadingCredits(totalUsed);
-    await new Promise(r => setTimeout(r, 1200));
-
-    // Keep the humanized draft so the editor can offer a Humanized/Final
-    // switcher (final highlights are level-matching edits vs this draft).
-    sessionStorage.setItem('bipass_humanized', humanized);
-    sessionStorage.setItem('bipass_humanized_html', _buildDiffHtml(text, humanized, 'rephrase'));
-    _goEditor(text, cleanRes, htmlDiff, changed, 'both', alData.profileApplied === true);
-  } catch (err) {
-    setLoading(false);
-    showToast(err.message || 'Something went wrong. Please try again.');
   } finally {
     setLoading(false);
   }
@@ -1281,13 +937,13 @@ let currentAbortController = null;
 const promptText     = document.getElementById('prompt-text');
 const inputText      = document.getElementById('input-text');
 const promptWc       = document.getElementById('prompt-wc');
-const humanizeWc     = document.getElementById('humanize-wc');
+const levelMatchWc   = document.getElementById('level-match-wc');
 const generateBtn    = document.getElementById('generate-btn');
 const generateLabel  = document.getElementById('generate-label');
 const generateLoader = document.getElementById('generate-loader');
-const humanizeBtn    = document.getElementById('humanize-btn');
-const humanizeLabel  = document.getElementById('humanize-label');
-const humanizeLoader = document.getElementById('humanize-loader');
+const levelMatchBtn  = document.getElementById('level-match-btn');
+const levelMatchLabel = document.getElementById('level-match-label');
+const levelMatchLoader = document.getElementById('level-match-loader');
 const charCount      = document.getElementById('char-count');
 const wordCount      = document.getElementById('word-count');
 const estCost        = document.getElementById('est-cost');
@@ -1634,12 +1290,6 @@ function restoreState() {
     ? savedLevel
     : (validLevels.includes(preferredLevel) ? preferredLevel : null));
 
-  // Restore active tab
-  const savedMode = sessionStorage.getItem('bipass_mode');
-  if (savedMode === 'humanize') {
-    document.getElementById('tab-humanize')?.click();
-  }
-
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
   const savedInput  = sessionStorage.getItem('bipass_input');
   if (savedPrompt && promptText) { promptText.value = savedPrompt; }
@@ -1680,9 +1330,12 @@ function restoreState() {
 function bindEvents() {
   inputText.addEventListener('input', updateStats);
   inputText.addEventListener('paste', () => setTimeout(updateStats, 0));
-  // Switching mode changes the estimate (e.g. "both" ≈ 2x) even without retyping.
-  document.addEventListener('bipass-mode-change', updateStats);
-
+  promptText?.addEventListener('input', () => {
+    const words = countWords(promptText.value);
+    if (promptWc) promptWc.textContent = `${words} word${words === 1 ? '' : 's'}`;
+    updateCostPreview('generate-cost', null);
+  });
+  generateBtn?.addEventListener('click', generateNew);
   pills.forEach(pill => {
     pill.addEventListener('click', () => selectLevel(pill.dataset.level));
   });
@@ -1704,8 +1357,7 @@ function bindEvents() {
     });
   });
 
-  humanizeBtn.addEventListener('click', adjustLevel);
-  document.getElementById('humanizer-btn')?.addEventListener('click', runHumanize);
+  levelMatchBtn.addEventListener('click', adjustLevel);
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
@@ -2769,19 +2421,10 @@ async function preflightGate() {
   return true;
 }
 
-// Estimated word-based cost. Both mode pays 18 credits/word up front (1 less
-// than running the 15-credit and 4-credit tools separately); its second request
-// presents a continuation receipt.
-// Mirrors /api/adjust-level and /api/rw-humanize in server.js.
+// Estimated word-based cost mirrors /api/adjust-level in server.js.
 function estimateCost() {
   if (!inputText.value.trim()) return null;
-  const appMode = document.body.dataset.appMode;
-  const billingMode = appMode === 'both'
-    ? 'both'
-    : appMode === 'humanize'
-      ? 'humanize'
-      : 'level';
-  return window.BipassBilling.creditsForText(inputText.value, billingMode);
+  return window.BipassBilling.creditsForText(inputText.value, 'level');
 }
 
 function updateStats() {
@@ -2789,7 +2432,7 @@ function updateStats() {
   const words = countWords(val);
   charCount.textContent  = val.length.toLocaleString();
   wordCount.textContent  = words.toLocaleString();
-  humanizeWc.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  levelMatchWc.textContent = `${words} word${words !== 1 ? 's' : ''}`;
 
   if (estCost) {
     const est = estimateCost();
@@ -2899,23 +2542,6 @@ function buildTraitIntensityLine() {
   return active ? `\nApply these writing traits at the given levels: ${active}.` : '';
 }
 
-function buildHumanizePrompt(text) {
-  if (myStyleActive && savedStyle) {
-    // Combined: full style description + specific mistake levels from sliders
-    const extras = buildMistakeExtras();
-    let prompt = savedStyle.style_prompt;
-    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
-    return prompt + `\n\nText to rewrite:\n${text}`;
-  }
-  let prompt = HUMANIZE_PROMPTS[selectedLevel] || HUMANIZE_PROMPTS.medium;
-  if (selectedLevel === 'customize') {
-    const extras = buildMistakeExtras();
-    if (extras.length > 0) prompt += '\n\n' + extras.join('\n');
-  }
-  prompt += `\n\nText to rewrite:\n${text}`;
-  return prompt;
-}
-
 function buildGeneratePrompt(userPrompt) {
   const typeModifier = selectedWritingType ? WRITING_TYPE_PROMPTS[selectedWritingType] : '';
   if (myStyleActive && savedStyle) {
@@ -2960,38 +2586,13 @@ async function generateNew() {
   }
 }
 
-// ─── Humanize ─────────────────────────────────────────────────
-
-async function humanize() {
-  const text = inputText.value.trim();
-  if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
-
-  updateCostPreview('humanize-cost', null);
-  saveState('humanize');
-  setLoading(true, 'Humanizing your text…');
-
-  try {
-    const result = postProcessOutput(await callAPIStream(buildHumanizePrompt(text)));
-    await new Promise(r => setTimeout(r, 1200));
-    sessionStorage.setItem('bipass_result', result);
-    sessionStorage.setItem('bipass_mode', 'humanize');
-    sessionStorage.removeItem(APPLIED_PROFILE_KEY);
-    window.location.href = 'editor.html';
-  } catch (err) {
-    if (err.name === 'AbortError' || err.name === 'CreditError') return;
-    setLoading(false);
-    showToast(err.message || 'Something went wrong');
-    setStatus('Error');
-  }
-}
-
 // ─── Save state for regenerate ────────────────────────────────
 
 function saveState(mode) {
   sessionStorage.removeItem('bipass_result_id');
   sessionStorage.setItem('bipass_level',    selectedLevel);
   sessionStorage.setItem('bipass_mode',     mode);
-  sessionStorage.setItem('bipass_prompt',   promptText.value);
+  sessionStorage.setItem('bipass_prompt',   promptText?.value || '');
   sessionStorage.setItem('bipass_input',    inputText.value);
   sessionStorage.setItem('bipass_my_style', myStyleActive);
   for (const type of ['grammar', 'tense', 'punct', 'caps', 'spelling']) {
@@ -2999,7 +2600,7 @@ function saveState(mode) {
   }
 }
 
-// ─── Streaming API call (for generate / humanize) ────────────
+// ─── Streaming API call (for generation) ─────────────────────
 
 async function callAPIStream(prompt) {
   currentAbortController = new AbortController();
@@ -3079,38 +2680,6 @@ async function callAPIStream(prompt) {
     animateLoadingCredits(creditsData.creditsUsed);
   }
   return finalResult;
-}
-
-// ─── API call (for style analysis) ───────────────────────────
-
-async function callAPI(prompt) {
-  currentAbortController = new AbortController();
-  const token = await window.bipassAuth.getToken();
-  const res = await fetch('/api/humanize', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body:    JSON.stringify({ prompt }),
-    signal:  currentAbortController.signal,
-  });
-
-  if (res.status === 402) {
-    showToast('No credits remaining — visit Plans to get more');
-    throw new Error('No credits remaining');
-  }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error || `Server error ${res.status}`);
-  }
-
-  const data = await res.json();
-  if (!data?.result) throw new Error('No output from server');
-
-  if (data.creditsUsed !== undefined) {
-    updateCreditDisplay(data.creditsUsed, data.creditsRemaining);
-  }
-
-  return data.result;
 }
 
 // Clean reveal: show the final credits-used value and fade it in.
@@ -3296,7 +2865,7 @@ function lfxFinish() {
 
 function setLoading(on, text, opts) {
   if (generateBtn) generateBtn.disabled = on;
-  humanizeBtn.disabled = on;
+  levelMatchBtn.disabled = on;
 
   if (on) {
     const credEl  = document.getElementById('loading-credits');
@@ -3425,22 +2994,12 @@ function showToast(msg) {
   }
 })();
 
-// ─── First-visit coach-mark tour (dropdown → level → run) ─────
+// ─── First-visit coach-mark tour (paste → level → run) ─────────
 const TOUR_STEPS = [
   {
-    els: ['mode-dd', 'mode-dd-menu'],
-    title: 'Choose your mode',
-    body: 'Level Matching rewrites text to match a grade level, while Humanize makes AI text sound human — or do both together.',
-    onEnter: () => {
-      const dd = document.getElementById('mode-dd');
-      dd?.classList.add('open');
-      document.getElementById('mode-dd-trigger')?.setAttribute('aria-expanded', 'true');
-    },
-    onExit: () => {
-      const dd = document.getElementById('mode-dd');
-      dd?.classList.remove('open');
-      document.getElementById('mode-dd-trigger')?.setAttribute('aria-expanded', 'false');
-    },
+    els: ['level-match-section'],
+    title: 'Add your draft',
+    body: 'Paste AI-assisted or original text. Level Matching keeps the meaning while bringing the vocabulary and rhythm closer to your chosen level.',
   },
   {
     els: ['level-box'],
@@ -3448,9 +3007,9 @@ const TOUR_STEPS = [
     body: 'Beginner, Student, Academic — or Custom to fine-tune. This sets how your text gets rewritten.',
   },
   {
-    els: ['humanizer-btn'],
-    title: 'Then run it',
-    body: 'Paste your text and run both tools — your result opens in the editor, ready to review.',
+    els: ['level-match-btn'],
+    title: 'Match and review',
+    body: 'Run Level Matching, review every change, then copy the result or send it to Auto Typer.',
   },
 ];
 

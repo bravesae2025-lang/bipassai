@@ -12,7 +12,9 @@
     "audit:browser": "node scripts/browser-audit.mjs",
     "check": "npm run audit && npm test",
     "migrate:billing": "node --env-file=.env scripts/migrate-billing-metadata.mjs",
-    "migrate:billing:apply": "node scripts/migrate-billing-metadata.mjs --apply"
+    "migrate:billing:apply": "node scripts/migrate-billing-metadata.mjs --apply",
+    "migrate:result-modes": "node --env-file=.env scripts/migrate-result-modes.mjs",
+    "migrate:result-modes:apply": "node --env-file=.env scripts/migrate-result-modes.mjs --apply"
   },
   "dependencies": {
     "express": "^4.19.2",

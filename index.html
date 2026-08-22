@@ -13,24 +13,24 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Bipass AI rewrites ChatGPT & Gemini text to read like a real student wrote it — natural and human, so it doesn't read like AI. Pick your level and go.">
-  <meta name="keywords" content="humanize AI text, make AI text sound human, AI text humanizer, rewrite AI to sound human, make ChatGPT essay sound human, AI writing levels">
+  <meta name="description" content="Bipass AI analyzes your vocabulary, grammar, punctuation, and sentence patterns, then rewrites AI drafts to match your real writing level. Review and Auto Type into Google Docs.">
+  <meta name="keywords" content="AI writing level matching, match my writing style, Writing Profile analysis, Auto Typer Google Docs, rewrite AI draft">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://bipassai.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Bipass AI — Make Your AI Text Sound Human">
-  <meta property="og:description" content="Bipass AI rewrites ChatGPT & Gemini text to read like a real student wrote it — natural and human, so it doesn't read like AI. Pick your level and go.">
+  <meta property="og:title" content="Bipass AI — Level Matching + Auto Typer">
+  <meta property="og:description" content="Match AI text to your real writing level. Learn your style, review the rewrite, and Auto Type it into Google Docs.">
   <meta property="og:url" content="https://bipassai.com/">
   <meta property="og:site_name" content="Bipass AI">
   <meta property="og:image" content="https://bipassai.com/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Bipass AI — make your AI text sound human">
+  <meta property="og:image:alt" content="Bipass AI — Level Matching and Auto Typer">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://bipassai.com/og-image.png">
-  <meta name="twitter:title" content="Bipass AI — Make Your AI Text Sound Human">
-  <meta name="twitter:description" content="Bipass AI rewrites ChatGPT & Gemini text to read like a real student wrote it — natural and human, so it doesn't read like AI. Pick your level and go.">
-  <title>Bipass AI — Make Your AI Text Sound Human</title>
+  <meta name="twitter:title" content="Bipass AI — Level Matching + Auto Typer">
+  <meta name="twitter:description" content="Match AI text to your real writing level. Learn your style, review the rewrite, and Auto Type it into Google Docs.">
+  <title>Bipass AI — Level Matching + Auto Typer</title>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -39,7 +39,7 @@
     "name": "Bipass AI",
     "url": "https://bipassai.com",
     "applicationCategory": "WritingApplication",
-    "description": "Bipass AI rewrites AI-generated text to read like a real student wrote it — natural and human, at the writing level you choose, so it doesn't read like AI.",
+    "description": "Bipass AI analyzes vocabulary, grammar, punctuation, and sentence patterns from past writing, then rewrites AI drafts to match a chosen level or Writing Profile and offers reviewed Auto Typing into Google Docs.",
     "offers": {
       "@type": "AggregateOffer",
       "lowPrice": "5.99",
@@ -92,7 +92,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=81">
+  <link rel="stylesheet" href="style.css?v=101">
 </head>
 <body class="landing-page">
 
@@ -142,6 +142,7 @@
     <!-- Headline + sub -->
     <div class="hero-head">
       <h2 class="hero-title">Your AI text,<br>at the right level.</h2>
+      <p class="hero-sub">Bipass AI analyzes your vocabulary, grammar, punctuation, and sentence patterns, then rewrites AI drafts to match your real writing level.</p>
     </div>
 
     <!-- Level-matching showcase: watch the app get used, start to finish -->
@@ -153,7 +154,7 @@
 
       <div class="leveldemo-main" id="ld-main">
 
-        <!-- Stage 1: the app input — paste, pick mode + level, go -->
+        <!-- Stage 1: paste, pick a level, and match -->
         <div class="ld-stage" id="ld-stage-input">
           <div class="ld-inputcol">
             <div class="ld-inputbox">
@@ -166,15 +167,7 @@
             </div>
           </div>
           <aside class="ld-setup">
-            <span class="ld-modesel" id="ld-modesel">
-              <span id="ld-mode-label">Level Matching</span>
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
-              <span class="ld-mode-menu" id="ld-mode-menu" aria-hidden="true">
-                <span class="ld-mode-opt">Level Matching</span>
-                <span class="ld-mode-opt" id="ld-opt-humanize">Humanize</span>
-                <span class="ld-mode-opt">Humanize + Level Matching</span>
-              </span>
-            </span>
+            <span class="ld-workflow-label">Level Matching</span>
             <div class="cf-head" id="ld-setup-head">Pick a level</div>
             <div class="ld-levels" id="ld-levels">
               <span class="ld-level" data-level="easy"><i class="ld-radio"></i>Beginner</span>
@@ -316,8 +309,8 @@
     <!-- Stats -->
     <div class="hero-stats" data-anim="slide-up" data-anim-delay="2">
       <div class="hero-stat">
-        <span class="hero-stat-val">3</span>
-        <span class="hero-stat-lbl">rewrite modes</span>
+        <span class="hero-stat-val">1</span>
+        <span class="hero-stat-lbl">focused rewrite workflow</span>
       </div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat">
@@ -338,7 +331,7 @@
 
     <!-- Action -->
     <div class="hero-cta" data-anim="slide-up" data-anim-delay="3">
-      <button id="hero-humanize-btn" class="hero-cta-btn">
+      <button id="hero-level-match-btn" class="hero-cta-btn">
         <span class="hero-cta-label">Try Bipass AI Now</span>
         <span class="hero-cta-arrow" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -387,7 +380,7 @@
         </article>
         <article class="rev-card">
           <div class="rev-stars" aria-label="4 out of 5 stars">★★★★<span class="s-off">★</span></div>
-          <p class="rev-text">tried a few humanizers, this is the only one with actual levels. wish there were more than 4 presets tbh but custom mode kinda covers it</p>
+          <p class="rev-text">the writing profile picked up how I actually use words and punctuation. I still review the result, but it starts much closer to my normal level</p>
         </article>
         <article class="rev-card">
           <div class="rev-head"><span class="rev-avatar">A</span><span class="rev-id"><span class="rev-name">Ahmed T.<svg class="rev-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><polyline points="7.5 12.5 10.5 15.5 16.5 8.5" stroke="#fff"/></svg></span><span class="rev-role">Business major</span></span><span class="rev-date">4d</span></div>
@@ -447,7 +440,7 @@
     <div class="hiw-header">
       <div class="hiw-label" data-anim="slide-up">HOW IT WORKS</div>
       <h2 class="hiw-title" data-anim="slide-up" data-anim-delay="1">Three steps to human-sounding text</h2>
-      <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">From AI-generated to reading like you wrote it — in under a minute.</p>
+      <p class="hiw-sub" data-anim="slide-up" data-anim-delay="2">From an AI draft to your chosen level or established Writing Profile.</p>
     </div>
 
     <div class="hiw-steps">
@@ -461,8 +454,8 @@
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
           </svg>
         </div>
-        <h3 class="step-title">Customize the level</h3>
-        <p class="step-desc">Pick your level — Beginner sounds like a new English speaker, Student like an average student, Academic like a confident writer. Or go Custom and dial in exactly which human touches to add.</p>
+        <h3 class="step-title">Choose a level or profile</h3>
+        <p class="step-desc">Pick Beginner, Student, Academic, or Custom. For a closer personal match, add past samples and let a Writing Profile learn your vocabulary, grammar, punctuation, and sentence patterns.</p>
       </div>
 
       <div class="hiw-connector" aria-hidden="true">→</div>
@@ -474,8 +467,8 @@
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
         </div>
-        <h3 class="step-title">Generate</h3>
-        <p class="step-desc">Bipass AI rewrites your text at the level you picked — simpler vocabulary, varied sentence length, and the small imperfections a real writer makes, so it reads human. Want more? Fully humanize it, or do both at once.</p>
+        <h3 class="step-title">Match and review</h3>
+        <p class="step-desc">Bipass AI rewrites the draft at the level you picked and highlights the changes. Review the wording, meaning, and sources before using it.</p>
       </div>
 
       <div class="hiw-connector" aria-hidden="true">→</div>
@@ -511,13 +504,13 @@
   </section>
 
   <!-- ── PRICING ─────────────────────────────────────────────── -->
-  <!-- ── AUTO TYPER SHOWCASE ── -->
+  <!-- ── BIPASS WORKFLOW SHOWCASE ── -->
   <section id="auto-typer" class="autotyper-section" aria-labelledby="autotyper-title">
     <header class="autotyper-header">
-      <div class="autotyper-label" data-anim="slide-up">AUTO TYPER</div>
+      <div class="autotyper-label" data-anim="slide-up">THE BIPASS WORKFLOW</div>
       <h2 id="autotyper-title" class="autotyper-title" data-anim="slide-up" data-anim-delay="1">
-        <span class="autotyper-title-line">BIPASS</span>
-        <span class="autotyper-title-line">AUTO TYPER</span>
+        <span class="autotyper-title-line">MATCH. REVIEW.</span>
+        <span class="autotyper-title-line">AUTO TYPE.</span>
       </h2>
       <div class="autotyper-cta" data-anim="slide-up" data-anim-delay="2">
         <a class="autotyper-store-link" href="https://chromewebstore.google.com/detail/bipass-ai-%E2%80%94-auto-typer/ncaogcdecfhjepnpmlmalibeloipbjkm" target="_blank" rel="noopener noreferrer">
@@ -527,11 +520,11 @@
       </div>
     </header>
 
-    <div class="autotyper-film-card" data-anim="slide-up" data-anim-delay="2">
+    <div class="autotyper-film-card workflow-film-card" data-anim="slide-up" data-anim-delay="2">
       <div class="autotyper-film-stage">
-        <img class="autotyper-film-poster" src="assets/auto-typer-showcase-poster.png?v=hq22" width="2880" height="1620" alt="Auto Typer choosing a reviewed draft beside an editable document">
-        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/auto-typer-showcase-poster.png?v=hq22" aria-label="A continuous demonstration of choosing a draft, setting its pace, and typing into a document">
-          <source src="assets/auto-typer-showcase.mp4?v=hq22" type="video/mp4">
+        <img class="autotyper-film-poster" src="assets/level-matching-guide-poster.png?v=2" width="3840" height="2160" alt="Bipass Level Matching showing a reviewed Student-level draft">
+        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=2" aria-label="A complete Bipass workflow showing how to paste a draft, choose Student level, match, review changes, and Auto Type into Google Docs">
+          <source src="assets/level-matching-guide.mp4?v=2" type="video/mp4">
         </video>
       </div>
     </div>
@@ -539,18 +532,18 @@
     <div class="autotyper-features" aria-label="Auto Typer controls">
       <article class="autotyper-feature" data-anim="slide-up">
         <span class="autotyper-feature-num" aria-hidden="true">01</span>
-        <h3>SET THE PACE</h3>
-        <p>Choose Slow, Normal, or Fast, with an optional target time.</p>
+        <h3>CHOOSE YOUR LEVEL</h3>
+        <p>Paste a draft, then choose Student, Academic, Custom, or one of your writing profiles.</p>
       </article>
       <article class="autotyper-feature" data-anim="slide-up" data-anim-delay="1">
         <span class="autotyper-feature-num" aria-hidden="true">02</span>
-        <h3>OPTIONAL CORRECTIONS</h3>
-        <p>Add occasional typo-and-backspace corrections, or leave them off.</p>
+        <h3>REVIEW THE CHANGES</h3>
+        <p>See exactly what changed before the result leaves the editor.</p>
       </article>
       <article class="autotyper-feature" data-anim="slide-up" data-anim-delay="2">
         <span class="autotyper-feature-num" aria-hidden="true">03</span>
-        <h3>STAY IN CONTROL</h3>
-        <p>Start, stop, and continue from the floating control in your document.</p>
+        <h3>AUTO TYPE</h3>
+        <p>Send the reviewed draft to the extension and type it into Google Docs.</p>
       </article>
     </div>
   </section>
@@ -575,8 +568,7 @@
         </div>
         <ul class="pricing-features">
           <li>24-hour app access</li>
-          <li>Up to 5,000 Level Match words</li>
-          <li>About 1,300 Humanize words</li>
+          <li>Up to 5,000 Level Matching words</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -595,8 +587,7 @@
         </div>
         <ul class="pricing-features">
           <li>30-day app access</li>
-          <li>Up to 12,500 Level Match words</li>
-          <li>About 3,300 Humanize words</li>
+          <li>Up to 12,500 Level Matching words</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -619,7 +610,7 @@
           <li>365-day app access</li>
           <li>40,000 credits added every month</li>
           <li>20,000-credit annual bonus included</li>
-          <li>About 33,000 Humanize words/year</li>
+          <li>Up to 125,000 Level Matching words/year</li>
           <li>All writing levels</li>
           <li>Grammar &amp; punctuation options</li>
           <li>Cloud storage for texts</li>
@@ -638,7 +629,7 @@
       <div class="about-label" data-anim="slide-up">ABOUT US</div>
       <h2 class="about-title" data-anim="slide-up" data-anim-delay="1">Built by students, for students</h2>
       <p class="about-body" data-anim="slide-up" data-anim-delay="2">
-        Bipass AI was created because AI writing reads too polished — clearly above the level a real student writes at, and easy to clock as AI. We built a tool that rewrites it to sound human: simpler words, natural sentence variation, the small imperfections real people make. Pick a level — beginner, student or academic — and it reads like you actually wrote it.
+        Bipass AI was created because AI drafts often sit far above a student's established writing level. Choose Beginner, Student, Academic, or Custom, or build a Writing Profile from past work so the rewrite follows your real vocabulary, grammar, punctuation, and sentence patterns.
       </p>
       <p class="about-body" data-anim="slide-up" data-anim-delay="3">
         We're a small independent team. No VC funding, no fancy offices. Just a product we use ourselves and keep making better.
@@ -663,7 +654,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>Bipass AI rewrites your text to read like a real student — natural, varied, human — so it doesn't read like obvious AI. No tool can guarantee what an AI detector will say, but text that genuinely reads human is far less likely to stand out to a teacher or reader.</p>
+          <p>Matching your real vocabulary, grammar, punctuation, and sentence patterns may make a draft less likely to raise obvious AI suspicion. Detector scores vary, false positives happen, and no result is guaranteed. Always review the work and follow your institution’s rules.</p>
         </div>
       </div>
 
@@ -687,7 +678,7 @@
           </span>
         </button>
         <div class="faq-a">
-          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. Level Matching uses 4 credits per word and Humanize uses 15. Both mode costs 18 credits per word, saving 1 credit per word compared with running both separately. The Annual Pass adds 40,000 credits every month plus a 20,000-credit annual bonus, for 500,000 across the year. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
+          <p>An active pass unlocks Bipass AI for its window — a day, a month, or a year. Level Matching uses exactly 4 credits per word, while analyzing or refreshing a Writing Profile is free. The Annual Pass adds 40,000 credits every month plus a 20,000-credit annual bonus, for 500,000 across the year. Included and top-up credits never expire, and they unlock again the moment you have an active pass.</p>
         </div>
       </div>
 
@@ -819,23 +810,23 @@
         { w: '.', glue: true },
       ];
 
-      // Each scenario plays the full app flow: paste → pick mode/level → run → result.
+      // Each scenario plays the Level Matching flow: paste → pick level/profile → run → result.
       const SCENARIOS = [
-        { level: 'medium', humanize: false, btn: 'Match My Level', unit: 'edit',
-          panelHead: 'Human edits added', toggle: 'word',
+        { level: 'medium', btn: 'Match My Level', unit: 'edit',
+          panelHead: 'Level-matched edits', toggle: 'word',
           edits: {
             3: { to: 'changed', cat: 'word' }, 5: { to: 'comunicate', cat: 'spelling' },
             8: { to: 'really', cat: 'word' }, 9: { to: 'shaped', cat: 'tense' },
             15: { to: 'hard to deny', cat: 'word' }, 17: { to: 'Honestly', cat: 'punct' } } },
-        { level: null, humanize: true, btn: 'Humanize', unit: 'rephrase',
-          panelHead: 'Humanize changes', toggle: 'rephrase',
+        { level: 'medium', btn: 'Use Writing Profile', unit: 'rephrase',
+          panelHead: 'Writing Profile patterns', toggle: 'rephrase',
           edits: {
             2: { to: 'pretty much', cat: 'rephrase' }, 3: { to: 'flipped', cat: 'rephrase' },
             8: { to: 'kind of', cat: 'rephrase' }, 9: { to: 'steers', cat: 'rephrase' },
             13: { to: 'shift', cat: 'rephrase' }, 15: { to: 'hard to miss', cat: 'rephrase' },
             18: { to: 'most of us', cat: 'rephrase' }, 24: { to: 'clearly', cat: 'rephrase' },
             25: { to: 'not going anywhere', cat: 'rephrase' } } },
-        { level: 'customize', humanize: false, btn: 'Match My Level', unit: 'edit',
+        { level: 'customize', btn: 'Match My Level', unit: 'edit',
           panelHead: 'Your custom mix', toggle: 'spelling',
           sliders: [
             { cat: 'word',     name: 'Vocabulary',  val: 'Academic', pct: 75 },
@@ -848,8 +839,8 @@
           edits: {
             2: { to: 'profoundly', cat: 'word' }, 3: { to: 'transfromed', cat: 'spelling' },
             8: { to: 'increasingly', cat: 'word' }, 24: { to: 'definetly', cat: 'spelling' } } },
-        { level: 'easy', humanize: false, btn: 'Match My Level', unit: 'edit',
-          panelHead: 'Human edits added', toggle: 'punct',
+        { level: 'easy', btn: 'Match My Level', unit: 'edit',
+          panelHead: 'Level-matched edits', toggle: 'punct',
           edits: {
             1: { to: 'have', cat: 'grammar' }, 2: { to: 'totally', cat: 'word' }, 3: { to: 'changed', cat: 'word' },
             5: { to: 'talk', cat: 'word' }, 6: { to: ',', cat: 'punct' }, 7: { to: 'it', cat: 'caps' },
@@ -874,10 +865,6 @@
       const setupHead = $('ld-setup-head');
       const goEl      = $('ld-go');
       const cursorEl  = $('ld-cursor');
-      const modeSel   = $('ld-modesel');
-      const modeLabel = $('ld-mode-label');
-      const modeMenu  = $('ld-mode-menu');
-      const optHuman  = $('ld-opt-humanize');
       const copyEl    = $('ld-act-copy');
       const copyLabel = $('ld-copy-label');
       const typeChip  = $('ld-act-type');
@@ -1020,9 +1007,6 @@
         if (scanChip) scanChip.classList.remove('on');
         mainEl.classList.remove('ld-fade');
         badgeEl.textContent = 'STEP 1 · SET UP';
-        modeLabel.textContent = 'Level Matching';
-        modeMenu.classList.remove('open');
-        optHuman.classList.remove('sel');
         setupHead.textContent = 'Pick a level';
         levelsEl.hidden = false;
         levelsEl.classList.remove('ld-out', 'ld-disabled');
@@ -1051,22 +1035,7 @@
         });
 
         let pressAt;
-        if (S.humanize) {
-          // Open the mode menu and pick Humanize
-          at(1300, () => cursorTo(modeSel, 650));
-          at(2000, () => { cursorClick(); modeMenu.classList.add('open'); });
-          at(2550, () => cursorTo(optHuman, 450));
-          at(3050, () => { cursorClick(); optHuman.classList.add('sel'); });
-          at(3400, () => {
-            modeMenu.classList.remove('open');
-            modeLabel.textContent = 'Humanize';
-            levelsEl.classList.add('ld-disabled');
-            setupHead.textContent = 'Presets off';
-            goEl.textContent = 'Humanize';
-          });
-          at(3700, () => cursorTo(goEl, 600));
-          pressAt = 4350;
-        } else if (S.sliders) {
+        if (S.sliders) {
           // Pick Custom, then dial the sliders
           at(1300, () => cursorTo(levelBtn(S.level), 650));
           at(2000, () => { cursorClick(); selectLevel(S.level); });
@@ -1527,13 +1496,13 @@
     // ── Hero CTA button ────────────────────────────────────────
     // Guests start at the onboarding (survey → gacha reward → signup) so they
     // see what they're getting before signing up; members go straight to the app.
-    document.getElementById('hero-humanize-btn').addEventListener('click', async () => {
+    document.getElementById('hero-level-match-btn').addEventListener('click', async () => {
       const session = await window.bipassAuth.getSession();
       window.location.href = session ? '/home' : 'welcome.html';
     });
 
     // ── FAQ accordion ─────────────────────────────────────────
-    // Auto Typer film — decode once, play only while visible.
+    // Bipass workflow film — decode once, play only while visible.
     (function () {
       const video = document.getElementById('autotyper-film');
       if (!video) return;
@@ -1595,7 +1564,7 @@
     <span class="site-footer-sep">·</span>
     <a href="howto.html">How to Use</a>
     <span class="site-footer-sep">·</span>
-    <a href="turnitin.html">Make AI Text Sound Human</a>
+    <a href="turnitin.html">AI Detector Guide</a>
     <span class="site-footer-sep">·</span>
     <a href="privacy.html">Privacy Policy</a>
     <span class="site-footer-sep">·</span>

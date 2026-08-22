@@ -31,6 +31,10 @@ const aiPromptInput   = document.getElementById('ai-prompt-input');
 const aiPromptApply   = document.getElementById('ai-prompt-apply');
 const revisionPanel   = document.getElementById('ai-prompt-box');
 
+function normalizeResultMode(mode) {
+  return ['level', 'generate', 'own'].includes(mode) ? mode : 'level';
+}
+
 // ─── Drawer ───────────────────────────────────────────────────
 
 function setupDrawer(session) {
@@ -163,7 +167,8 @@ async function init() {
   bipassSetupPlanStatus(session);
 
   const result = sessionStorage.getItem('bipass_result');
-  const mode   = sessionStorage.getItem('bipass_mode');
+  const mode   = normalizeResultMode(sessionStorage.getItem('bipass_mode'));
+  sessionStorage.setItem('bipass_mode', mode);
 
   if (!result) {
     window.location.href = '/home';
@@ -173,8 +178,7 @@ async function init() {
   const flow = sessionStorage.getItem('bipass_flow') || '';
   editorBadge.textContent =
     mode === 'generate'   ? 'Generated' :
-    flow === 'humanize'   ? 'Humanized' :
-    flow === 'both'       ? 'Humanized + Level Matched' :
+    mode === 'own'        ? 'Uploaded' :
     flow === 'edit'       ? 'Revised' :
     'Level Matched';
 
@@ -194,7 +198,7 @@ async function init() {
   };
   const levelKey = sessionStorage.getItem('bipass_level');
   const levelEl  = document.getElementById('editor-level');
-  if (levelEl && levelKey && levelMap[levelKey] && flow !== 'humanize' && flow !== 'edit') {
+  if (levelEl && levelKey && levelMap[levelKey] && mode === 'level' && flow !== 'edit') {
     levelEl.textContent = levelMap[levelKey];
     levelEl.classList.remove('hidden');
   }
@@ -256,20 +260,14 @@ function showPlainResult(text) {
 function setupViewToggle(result, mode) {
   const changesView   = document.getElementById('changes-view');
   const filter        = document.getElementById('changes-filter');
-  const hzPanel       = document.getElementById('hz-panel');
   const finder        = document.getElementById('change-finder');
-  const compareToggle = document.getElementById('humanize-changes-toggle');
   const layout        = document.getElementById('changes-layout');
-  const flow          = sessionStorage.getItem('bipass_flow') || '';
   const resultHtml    = sessionStorage.getItem('bipass_result_html') || '';
-  const humanizedHtml = sessionStorage.getItem('bipass_humanized_html') || '';
   const hasHtml       = !!resultHtml.trim();
-  const slots         = { final: resultHtml, humanized: humanizedHtml };
-  let active          = 'final';
 
   // Only the Changes view remains. Without diff HTML (e.g. generate mode),
   // leave the plain textarea showing as-is and drop the buttons to the bottom.
-  if (mode !== 'humanize' || !hasHtml) { mountActionsBottom(); return; }
+  if (mode !== 'level' || !hasHtml) { mountActionsBottom(); return; }
 
   const CAT_COLORS = {
     word: '#e8a317', caps: '#2f6df6', punct: '#8b5cf6',
@@ -342,7 +340,7 @@ function setupViewToggle(result, mode) {
     });
   });
 
-  // ── Compact change finder (shared by Humanize and Level Matching) ──
+  // ── Compact Level Matching change finder ──
   const finderToggle = document.getElementById('change-finder-toggle');
   const finderBody = document.getElementById('change-finder-body');
   const searchInput = document.getElementById('change-search-input');
@@ -484,20 +482,14 @@ function setupViewToggle(result, mode) {
 
   function persistAcceptedChanges() {
     const html = serializableViewHtml();
-    slots[active] = html;
-    if (flow === 'both' && active === 'humanized') {
-      sessionStorage.setItem('bipass_humanized_html', html);
-      sessionStorage.setItem('bipass_humanized', dismissedResultText());
-    } else {
-      sessionStorage.setItem('bipass_result_html', html);
-      sessionStorage.setItem('bipass_result', dismissedResultText());
-      sessionStorage.setItem('bipass_change_count', String(acceptedChangeEls().length));
-      const changeCount = document.getElementById('editor-change-count');
-      if (changeCount) {
-        const remaining = acceptedChangeEls().length;
-        changeCount.textContent = `${remaining} word${remaining === 1 ? '' : 's'} changed`;
-        changeCount.classList.toggle('hidden', remaining === 0);
-      }
+    sessionStorage.setItem('bipass_result_html', html);
+    sessionStorage.setItem('bipass_result', dismissedResultText());
+    sessionStorage.setItem('bipass_change_count', String(acceptedChangeEls().length));
+    const changeCount = document.getElementById('editor-change-count');
+    if (changeCount) {
+      const remaining = acceptedChangeEls().length;
+      changeCount.textContent = `${remaining} word${remaining === 1 ? '' : 's'} changed`;
+      changeCount.classList.toggle('hidden', remaining === 0);
     }
   }
 
@@ -550,8 +542,7 @@ function setupViewToggle(result, mode) {
     if (filter && !filter.classList.contains('hidden')) {
       applyFilters();
     } else {
-      const humanizeEnabled = document.getElementById('hz-toggle')?.checked !== false;
-      target.classList.toggle('change-reverted', !humanizeEnabled);
+      target.classList.remove('change-reverted');
     }
     persistAcceptedChanges();
     refreshCounts();
@@ -585,44 +576,16 @@ function setupViewToggle(result, mode) {
   window.addEventListener('scroll', () => hideRejectButton(true), { passive: true });
   window.addEventListener('resize', () => hideRejectButton(true));
 
-  // ── Humanize panel: one master "Rephrased" switch ──
-  function loadHzPanel() {
-    if (!hzPanel || !changesView) return;
-    const els = acceptedChangeEls();
-    const countEl = document.getElementById('hz-count');
-    if (countEl) countEl.textContent = els.length;
-    // Master toggle: show the rephrased text vs revert everything to the original
-    const box = document.getElementById('hz-toggle');
-    if (box) {
-      box.checked = true;
-      box.closest('.cf-row').classList.remove('cf-off');
-      hzPanel.classList.remove('hz-off');
-      els.forEach(el => el.classList.remove('change-reverted'));
-      if (!box.dataset.wired) {
-        box.dataset.wired = '1';
-        box.addEventListener('change', () => {
-          box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
-          hzPanel.classList.toggle('hz-off', !box.checked);
-          acceptedChangeEls().forEach(el => el.classList.toggle('change-reverted', !box.checked));
-          refreshFinder();
-        });
-      }
-    }
-    refreshFinder();
-  }
-
-  // Swap the diff HTML + matching side controls.
-  function loadView(html, panel) {
+  function loadView(html) {
     hideRejectButton(true);
     changesView.innerHTML = html;
     changesView.querySelectorAll('.word-original').forEach(el => {
       el.contentEditable = 'false';
     });
-    if (filter)  filter.classList.toggle('hidden', panel !== 'cats');
-    if (hzPanel) hzPanel.classList.toggle('hidden', panel !== 'hz');
+    filter?.classList.remove('hidden');
     finder?.classList.remove('hidden');
-    if (panel === 'cats') { refreshCounts(); applyFilters(); }
-    else loadHzPanel();
+    refreshCounts();
+    applyFilters();
   }
 
   // Show the Changes view only
@@ -632,31 +595,7 @@ function setupViewToggle(result, mode) {
   changesView.contentEditable = 'true';
   changesView.spellcheck = true;
 
-  if (flow === 'humanize') {
-    // Pure Humanize: green marks + change list, no fake categories
-    loadView(resultHtml, 'hz');
-  } else if (flow === 'both' && humanizedHtml.trim()) {
-    // Humanize + Level Matching: switch between the humanized draft (green vs
-    // original) and the final (level-matching edits vs the draft, colored).
-    loadView(slots.final, 'cats');
-    if (compareToggle) {
-      compareToggle.classList.remove('hidden');
-      compareToggle.addEventListener('click', () => {
-        slots[active] = serializableViewHtml();   // keep in-view edits
-        active = active === 'final' ? 'humanized' : 'final';
-        const showingHumanized = active === 'humanized';
-
-        // Label stays "See Humanize Only" — the pill shows which view is on.
-        compareToggle.classList.toggle('active', showingHumanized);
-        compareToggle.setAttribute('aria-checked', String(showingHumanized));
-
-        loadView(slots[active], showingHumanized ? 'hz' : 'cats');
-      });
-    }
-  } else {
-    // Level Matching (or legacy results without a flow tag)
-    loadView(resultHtml, 'cats');
-  }
+  loadView(resultHtml);
 }
 
 async function saveResult(text, mode, session) {
@@ -670,7 +609,7 @@ async function saveResult(text, mode, session) {
     const response = await fetch('/api/results', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, mode: mode || 'humanize', level }),
+      body: JSON.stringify({ text, mode: normalizeResultMode(mode), level }),
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || 'Result could not be saved to History');
@@ -732,7 +671,7 @@ function setupSpeedButtons() {
   const result = sessionStorage.getItem('bipass_result');
   const mode   = sessionStorage.getItem('bipass_mode');
   if (!result) return;
-  editorBadge.textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+  editorBadge.textContent = mode === 'generate' ? 'Generated' : mode === 'own' ? 'Uploaded' : 'Level Matched';
   typewriter(result);
 })();
 
@@ -863,70 +802,6 @@ function cleanPlainResult(text) {
 }
 
 // ─── Feature badges ───────────────────────────────────────────
-
-// ─── Build humanize prompt (mirrors app.js) ───────────────────
-
-const HUMANIZE_PROMPTS = {
-  easy: `Rewrite the following text so it sounds like it was written by a beginner or non-native English speaker. Use MANY of these human writing traits — they make beginner writing feel real:
-
-- Short sentences. Sometimes a run-on that goes too long because they don't stop themselves.
-- Repeat the same idea twice in slightly different words — like they're thinking while writing.
-- Simple, common words only. No fancy vocabulary.
-- Say "I think" or "maybe" often — they're not fully confident.
-- Use specific simple details instead of abstract ideas.
-- Jump between thoughts without a clean connection.
-- Uneven pacing — some parts feel rushed, some too slow.
-- A little redundant — they say things again without realizing.
-
-Use most of these. Beginner writing is visibly human.
-Do NOT make it unreadable — just simple, plain, and rough around the edges.
-Do NOT use em dashes (—) or hyphens as em dashes (word - word) — #1 AI tell. Zero dashes anywhere.
-Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "it's important to note", "in today's world", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", or conclusion summaries.
-Return only the rewritten text, nothing else.`,
-
-  medium: `Rewrite the following text so it sounds like an average student wrote it. Use SOME of these human writing traits — not all, just what fits naturally:
-
-- Mixed sentence lengths — some short, some weirdly long, nothing feels planned.
-- Reuse the same word or phrase a couple times without noticing.
-- Mild confident opinions stated casually: "it was kind of a bad idea honestly."
-- Slight logic jumps — thoughts don't always connect perfectly to the one before.
-- Casual filler: "basically", "kind of", "I guess", "to be fair."
-- Real uncertainty once or twice: "I'm not totally sure but", "this might be wrong."
-- One specific concrete detail that makes it feel lived-in, not generic.
-- Grammar mostly right but not careful — a comma missing here or there.
-
-Pick 3–4 of these and let them show up naturally.
-Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes.
-Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
-Never use: "it's worth noting", "certainly", "in conclusion", "delve", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", conclusion summaries, or equal sentence energy throughout.
-Return only the rewritten text, nothing else.`,
-
-  hard: `Rewrite the following text so it sounds like a confident, capable person wrote it. The humanness should be subtle — texture, not obvious mistakes. Use only 2–3 of these traits, once or twice each:
-
-- Uneven rhythm — most of it flows well, but one part speeds up or lingers slightly.
-- One slight contradiction or emotional inconsistency.
-- One moment of real uncertainty: "I don't fully know why" or "maybe I'm wrong."
-- Strong opinion stated without diplomatic hedging.
-- One unexpected specific detail that leaks in naturally.
-- One sentence longer and a little messier than the rest.
-
-Only use 2–3 of these. Subtlety is the point.
-Never use em dashes (—) or hyphens as em dashes (word - word mid-sentence) — #1 AI tell, zero dashes anywhere.
-Replace AI words immediately: "utilize"→"use" | "leverage"→"use" | "crucial"→"really important" | "significant/significantly"→"big" | "robust"→"strong" | "individuals"→"people" | "comprehensive"→"complete" | "furthermore"→"also" | "realm"→"area" | "severity"→"how bad it is" | "methodology"→"method" | "facilitate"→"help" | "paramount"→"most important" | "groundbreaking"→"new" | "ultimately"→"in the end" | "scarcity/scarcities"→"shortage" | "intricate"→"complex" | "foster"→"help" | "harness"→"use" | "mitigate"→"reduce" | "palpable"→"real" | "seamless"→"smooth" | "demonstrate"→"show" | "assist"→"help" | "numerous"→"many" | "various"→"different" | "ensure"→"make sure" | "obtain"→"get" | "regarding"→"about" | "hence/thus/therefore"→"so" | "additionally"→"also" | "whilst"→"while"
-Absolutely avoid: "it's worth noting", "certainly", "in conclusion", "delve", "cornerstone", "game-changing", "invaluable", "synergy", "impactful", "plays a crucial role", "serves as a testament", fake-deep transitions, conclusion summaries.
-Return only the rewritten text, nothing else.`,
-};
-
-function buildHumanizePrompt(text, level, grammar, punct) {
-  let prompt = HUMANIZE_PROMPTS[level] || HUMANIZE_PROMPTS.medium;
-  const extras = [];
-  if (grammar) extras.push('Also include a few subtle grammar mistakes that a real person might make.');
-  if (punct)   extras.push('Also use inconsistent punctuation — sometimes miss a comma, skip an apostrophe, or run two clauses together. Never use dashes.');
-  if (extras.length > 0) prompt += '\n\n' + extras.join(' ');
-  prompt += `\n\nText to rewrite:\n${text}`;
-  return prompt;
-}
 
 // ─── Regenerate with feedback ─────────────────────────────────
 
@@ -1175,11 +1050,11 @@ function setRevisionBusy(on, label) {
   document.querySelectorAll('[data-revision-comment]').forEach(button => { button.disabled = on; });
 }
 
-function storeRevisionResult({ source, result, resultHtml, flow, level, changed, humanized, humanizedHtml, profileApplied = false }) {
+function storeRevisionResult({ source, result, resultHtml, flow, level, changed, profileApplied = false }) {
   sessionStorage.setItem('bipass_input', source);
   sessionStorage.setItem('bipass_result', result);
   sessionStorage.setItem('bipass_result_html', resultHtml);
-  sessionStorage.setItem('bipass_mode', 'humanize');
+  sessionStorage.setItem('bipass_mode', 'level');
   sessionStorage.setItem('bipass_flow', flow);
   sessionStorage.setItem('bipass_level', level || 'medium');
   sessionStorage.setItem('bipass_change_count', String(changed));
@@ -1188,13 +1063,6 @@ function storeRevisionResult({ source, result, resultHtml, flow, level, changed,
   sessionStorage.removeItem('bipass_result_id');
   if (!profileApplied) sessionStorage.removeItem(APPLIED_PROFILE_KEY);
 
-  if (flow === 'both' && humanized && humanizedHtml) {
-    sessionStorage.setItem('bipass_humanized', humanized);
-    sessionStorage.setItem('bipass_humanized_html', humanizedHtml);
-  } else {
-    sessionStorage.removeItem('bipass_humanized');
-    sessionStorage.removeItem('bipass_humanized_html');
-  }
 }
 
 function levelResultData(annotated, source) {
@@ -1220,11 +1088,9 @@ async function applyRevision() {
   const intent = classifier ? classifier(comment, currentLevel) : { kind: 'edit', level: currentLevel };
   const labels = {
     edit: 'Applying your edits…',
-    humanize: 'Rehumanizing…',
     level: 'Matching your level…',
-    both: 'Humanizing, then matching level…',
   };
-  const buttonLabels = { edit: 'Editing…', humanize: 'Humanizing…', level: 'Matching…', both: 'Running both…' };
+  const buttonLabels = { edit: 'Editing…', level: 'Matching…' };
 
   setRevisionBusy(true, buttonLabels[intent.kind]);
   loadingText.textContent = labels[intent.kind];
@@ -1247,18 +1113,7 @@ async function applyRevision() {
       };
     } else {
       const token = await window.bipassAuth.getToken();
-      if (intent.kind === 'humanize') {
-        const humanizeData = await callEditorJson('/api/rw-humanize', { text: source }, token);
-        const humanized = matchParagraphSpacing(humanizeData.result, source);
-        payload = {
-          source,
-          result: humanized,
-          resultHtml: buildDiffHtml(source, humanized, 'rephrase'),
-          flow: 'humanize',
-          level: intent.level,
-          changed: countChanges(source, humanized),
-        };
-      } else if (intent.kind === 'level') {
+      if (intent.kind === 'level') {
         const levelData = await callEditorJson('/api/adjust-level', {
           text: source,
           level: intent.level,
@@ -1273,31 +1128,6 @@ async function applyRevision() {
           changed: levelResult.changed,
           flow: 'level',
           level: intent.level,
-          profileApplied: levelData.profileApplied === true,
-        };
-      } else {
-        const humanizeData = await callEditorJson('/api/rw-humanize', {
-          text: source,
-          combined: true,
-        }, token);
-        const humanized = matchParagraphSpacing(humanizeData.result, source);
-        const levelData = await callEditorJson('/api/adjust-level', {
-          text: humanized,
-          level: intent.level,
-          mistakes: intent.level === 'customize' ? storedMatchSettings() : undefined,
-          styleProfile: intent.level === 'customize' ? appliedProfile?.styleProfile : undefined,
-          continuation: humanizeData.continuation,
-        }, token);
-        const final = levelResultData(levelData.result, humanized);
-        payload = {
-          source,
-          result: final.result,
-          resultHtml: final.html,
-          flow: 'both',
-          level: intent.level,
-          changed: final.changed,
-          humanized,
-          humanizedHtml: buildDiffHtml(source, humanized, 'rephrase'),
           profileApplied: levelData.profileApplied === true,
         };
       }
@@ -1375,7 +1205,7 @@ async function pushToExtension() {
       return false;
     }
 
-    const mode  = sessionStorage.getItem('bipass_mode')  || 'humanize';
+    const mode  = normalizeResultMode(sessionStorage.getItem('bipass_mode'));
     const level = sessionStorage.getItem('bipass_level') || 'easy';
     const resultId = sessionStorage.getItem('bipass_result_id');
 

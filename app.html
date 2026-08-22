@@ -13,24 +13,24 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
-  <meta name="keywords" content="humanize AI text, make AI text sound human, AI humanizer tool, rewrite ChatGPT to sound human, AI writing levels">
+  <meta name="description" content="Bipass AI analyzes your writing patterns, rewrites AI drafts to match your real level, and sends reviewed text to Auto Typer for Google Docs.">
+  <meta name="keywords" content="AI writing level matcher, match my writing style, rewrite AI text at student level, Auto Typer Google Docs, writing profile analysis">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://bipassai.com/home">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Bipass AI — Make AI Text Sound Human">
-  <meta property="og:description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
+  <meta property="og:title" content="Bipass AI — Level Matching + Auto Typer">
+  <meta property="og:description" content="Analyze your writing, match an AI draft to your real level, then Auto Type the reviewed result into Google Docs.">
   <meta property="og:url" content="https://bipassai.com/home">
   <meta property="og:site_name" content="Bipass AI">
   <meta property="og:image" content="https://bipassai.com/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Bipass AI — make your AI text sound human">
+  <meta property="og:image:alt" content="Bipass AI — Level Matching and Auto Typer">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://bipassai.com/og-image.png">
-  <meta name="twitter:title" content="Bipass AI — Make AI Text Sound Human">
-  <meta name="twitter:description" content="Paste your AI text and Bipass AI rewrites it to sound human — beginner, student, academic or custom level. Reads like a real person wrote it, not AI.">
-  <title>Bipass AI — Make AI Text Sound Human</title>
+  <meta name="twitter:title" content="Bipass AI — Level Matching + Auto Typer">
+  <meta name="twitter:description" content="Analyze your writing, match an AI draft to your real level, then Auto Type the reviewed result into Google Docs.">
+  <title>Bipass AI — Level Matching + Auto Typer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
@@ -180,47 +180,23 @@
   <span id="status-label" style="display:none">Ready</span>
 
   <main class="app-main">
-    <div class="workspace mode-humanize mode-both" id="workspace">
+    <div class="workspace" id="workspace">
 
-      <!-- ── LEFT COLUMN: Humanize / Level Matching (tabbed) ─────── -->
+      <!-- ── LEFT COLUMN: Level Matching ─────────────────────────── -->
       <section class="col col-main" data-reveal>
 
-        <div id="humanize-section">
+        <div id="level-match-section">
           <div class="mode-tabs-head">
-            <div class="mode-dropdown" id="mode-dd">
-              <button type="button" class="mode-dd-trigger" id="mode-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="mode-dd-menu">
-                <span class="mode-dd-current" id="mode-dd-current">Humanize + Level Matching</span>
-                <svg class="mode-dd-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-              </button>
-              <ul class="mode-dd-menu" id="mode-dd-menu" role="listbox" aria-label="Choose mode">
-                <li class="mode-dd-option is-selected" role="option" aria-selected="true" tabindex="0" data-mode="both">
-                  <span class="mode-dd-option-title-row">
-                    <span class="mode-dd-option-title">Humanize + Level Matching</span>
-                    <span class="mode-dd-badges">
-                      <span class="mode-dd-recommended">Recommended</span>
-                    </span>
-                  </span>
-                  <span class="mode-dd-option-desc">Best overall balance when both your teacher and AI-detection software may review the text.</span>
-                </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="level">
-                  <span class="mode-dd-option-title">Level Matching Only</span>
-                  <span class="mode-dd-option-desc">Best when your teacher focuses on writing level rather than AI-detector scores.</span>
-                </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="humanize">
-                  <span class="mode-dd-option-title">Humanize Only</span>
-                  <span class="mode-dd-option-desc">Makes wording and rhythm feel more natural. AI-detector results can vary.</span>
-                </li>
-                <li class="mode-dd-option" role="option" aria-selected="false" tabindex="-1" data-mode="own">
-                  <span class="mode-dd-option-title">Push My Own Text</span>
-                  <span class="mode-dd-option-desc">Send your finished text to Auto Typer without rewriting it.</span>
-                </li>
-              </ul>
+            <div class="level-match-heading">
+              <span class="level-match-heading-kicker">Primary workflow</span>
+              <h1>Level Matching</h1>
+              <p>Rewrite a draft at a chosen level or match a Writing Profile built from your past work.</p>
             </div>
-            <span class="box-wc" id="humanize-wc">0 words</span>
-            <span class="box-cost hidden" id="est-cost" title="Estimated word-based credit cost for the selected mode"></span>
+            <span class="box-wc" id="level-match-wc">0 words</span>
+            <span class="box-cost hidden" id="est-cost" title="Estimated Level Matching credit cost"></span>
           </div>
 
-          <div class="file-upload-row mode-block" data-mode="level humanize both">
+          <div class="file-upload-row">
             <label class="file-upload-btn" for="file-upload-input">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               Upload file
@@ -230,7 +206,7 @@
             <span class="file-upload-name hidden" id="file-upload-name"></span>
           </div>
 
-          <div class="textarea-wrap mode-block" data-mode="level humanize both">
+          <div class="textarea-wrap">
             <textarea
               id="input-text"
               aria-label="Text to process"
@@ -244,7 +220,7 @@
           </div>
 
           <!-- Level Matching hints -->
-          <div class="humanize-hints mode-block mode-hidden" data-mode="level">
+          <div class="level-match-hints">
             <div class="h-hint">
               <span class="h-hint-icon">↓</span>
               <span class="h-hint-title">Word Swap</span>
@@ -262,31 +238,12 @@
             </div>
           </div>
 
-          <!-- Humanize hints -->
-          <div class="humanize-hints mode-block" data-mode="humanize both">
-            <div class="h-hint">
-              <span class="h-hint-icon">~</span>
-              <span class="h-hint-title">Natural Flow</span>
-              <span class="h-hint-sub">Smooths robotic phrasing</span>
-            </div>
-            <div class="h-hint">
-              <span class="h-hint-icon">◴</span>
-              <span class="h-hint-title">Human Tone</span>
-              <span class="h-hint-sub">Sounds like a person</span>
-            </div>
-            <div class="h-hint">
-              <span class="h-hint-icon">✓</span>
-              <span class="h-hint-title">Keeps Meaning</span>
-              <span class="h-hint-sub">Same point, your words</span>
-            </div>
-          </div>
-
           <!-- Level Matching action -->
-          <div class="mode-block mode-hidden" data-mode="level">
-            <button id="humanize-btn" class="btn-generate btn-humanize" aria-label="Match my level">
+          <div>
+            <button id="level-match-btn" class="btn-generate btn-level-match" aria-label="Match my level">
               <span class="btn-content">
-                <span id="humanize-label">Match My Level</span>
-                <span id="humanize-loader" class="spinner hidden"></span>
+                <span id="level-match-label">Match My Level</span>
+                <span id="level-match-loader" class="spinner hidden"></span>
               </span>
               <span class="btn-arrow" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -297,24 +254,10 @@
             </button>
           </div>
 
-          <!-- Humanize action (UI base — wiring comes later) -->
-          <div class="mode-block" data-mode="humanize both">
-            <button id="humanizer-btn" class="btn-generate btn-humanize" aria-label="Humanize and level match">
-              <span class="btn-content">
-                <span id="humanizer-label">Humanize + Level Match</span>
-                <span id="humanizer-loader" class="spinner hidden"></span>
-              </span>
-              <span class="btn-arrow" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </span>
-              <span class="btn-sweep" aria-hidden="true"></span>
-            </button>
-          </div>
-          <!-- Push custom text directly to the Auto Typer extension -->
-          <div class="own-text-mode mode-block mode-hidden" data-mode="own" id="own-text-block">
-            <p class="own-text-sub">Already have humanized text? Paste it below and push it to our Auto Typer. An active pass is required.</p>
+          <!-- Secondary utility: send finished text directly to Auto Typer -->
+          <details class="own-text-mode" id="own-text-block">
+            <summary>Already have finished text? Send it to Auto Typer</summary>
+            <p class="own-text-sub">Paste reviewed text and send it to the browser extension without rewriting it. An active pass is required.</p>
 
             <textarea
               class="own-text-textarea"
@@ -328,7 +271,28 @@
               <span id="own-text-btn-label">Push to Extension</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
-          </div>
+          </details>
+
+          <details class="own-text-mode generate-secondary" id="generate-section">
+            <summary>Need a new draft? Generate one</summary>
+            <p class="own-text-sub">Describe what you need. Generate stays available as a secondary tool, and you can review its draft before Level Matching.</p>
+            <textarea
+              class="own-text-textarea"
+              id="prompt-text"
+              aria-label="Generation prompt"
+              placeholder="Describe the draft you want to generate…"
+              spellcheck="true"
+            ></textarea>
+            <div class="secondary-action-meta">
+              <span id="prompt-wc">0 words</span>
+              <span class="hidden" id="generate-cost"></span>
+            </div>
+            <button class="own-text-push-btn" id="generate-btn" type="button">
+              <span id="generate-label">Generate Draft</span>
+              <span id="generate-loader" class="spinner hidden"></span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </details>
         </div>
 
       </section>
@@ -385,7 +349,7 @@
             </section>
 
             <section class="custom-control-group custom-mistakes-group" aria-labelledby="custom-mistakes-heading">
-            <div class="control-head" id="custom-mistakes-heading">Human Mistakes</div>
+            <div class="control-head" id="custom-mistakes-heading">Writing Patterns</div>
 
             <div class="mistake-row">
               <span class="mistake-label">Grammar</span>
@@ -484,8 +448,8 @@
           </div>
 
           <div class="rec-flow-viewport">
-            <video class="rec-guide-video" id="rec-guide-video" muted loop autoplay playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=1" aria-label="Level Matching walkthrough showing paste, choose, match, review, and Auto Type">
-              <source src="assets/level-matching-guide.mp4?v=1" type="video/mp4">
+            <video class="rec-guide-video" id="rec-guide-video" muted loop autoplay playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=2" aria-label="Level Matching walkthrough showing paste, choose, match, review, and Auto Type">
+              <source src="assets/level-matching-guide.mp4?v=2" type="video/mp4">
             </video>
             <button class="rec-guide-play" id="rec-guide-play" type="button" aria-label="Pause walkthrough" title="Pause walkthrough">
               <svg class="rec-guide-pause-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
@@ -636,96 +600,12 @@
   <script src="billing-rates.js?v=1"></script>
   <script src="app.js?v=52"></script>
 
-  <script>
-  /* Mode dropdown — switch the editor card between rewriting and extension modes */
-  (function () {
-    const section = document.getElementById('humanize-section');
-    const ws      = document.getElementById('workspace');
-    if (!section) return;
-    const blocks  = section.querySelectorAll('.mode-block');
-    const dd       = document.getElementById('mode-dd');
-    const trigger  = document.getElementById('mode-dd-trigger');
-    const menu     = document.getElementById('mode-dd-menu');
-    const current  = document.getElementById('mode-dd-current');
-    const options  = menu ? Array.from(menu.querySelectorAll('.mode-dd-option')) : [];
-    const humanizerBtn = document.getElementById('humanizer-btn');
-    const humanizerLabel = document.getElementById('humanizer-label');
-
-    function setMode(mode) {
-      blocks.forEach(b => {
-        const modes = (b.dataset.mode || '').split(' ');
-        b.classList.toggle('mode-hidden', !modes.includes(mode));
-      });
-      options.forEach(o => {
-        const on = o.dataset.mode === mode;
-        o.classList.toggle('is-selected', on);
-        o.setAttribute('aria-selected', on ? 'true' : 'false');
-        o.tabIndex = on ? 0 : -1;
-        if (on && current) current.textContent = o.querySelector('.mode-dd-option-title')?.textContent.trim() || '';
-      });
-      if (ws) {
-        ws.classList.toggle('mode-humanize', mode === 'humanize' || mode === 'both');
-        ws.classList.toggle('mode-both', mode === 'both');       // keeps the level box usable in both
-        ws.classList.toggle('mode-own', mode === 'own');
-      }
-      if (humanizerLabel) humanizerLabel.textContent = mode === 'both' ? 'Humanize + Level Match' : 'Humanize';
-      if (humanizerBtn) humanizerBtn.setAttribute('aria-label', mode === 'both' ? 'Humanize and level match' : 'Humanize');
-      // Expose the current mode so app.js knows which action to run.
-      document.body.dataset.appMode = mode;
-      // Let app.js refresh the cost estimate (it changes with mode, not just text).
-      document.dispatchEvent(new CustomEvent('bipass-mode-change'));
-    }
-    const preferredMode = localStorage.getItem('bipass_pref_mode');
-    setMode(['both', 'level', 'humanize', 'own'].includes(preferredMode) ? preferredMode : 'both');
-
-    function closeMenu(returnFocus = false) {
-      dd?.classList.remove('open');
-      trigger?.setAttribute('aria-expanded', 'false');
-      if (returnFocus) trigger?.focus();
-    }
-    function toggleMenu() {
-      const open = dd?.classList.toggle('open');
-      trigger?.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) requestAnimationFrame(() => options.find(o => o.classList.contains('is-selected'))?.focus());
-    }
-
-    trigger?.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-    options.forEach((o, index) => {
-      o.addEventListener('click', () => { setMode(o.dataset.mode); closeMenu(true); });
-      o.addEventListener('keydown', e => {
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          const direction = e.key === 'ArrowDown' ? 1 : -1;
-          options[(index + direction + options.length) % options.length]?.focus();
-        } else if (e.key === 'Home' || e.key === 'End') {
-          e.preventDefault();
-          options[e.key === 'Home' ? 0 : options.length - 1]?.focus();
-        } else if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setMode(o.dataset.mode);
-          closeMenu(true);
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          closeMenu(true);
-        }
-      });
-    });
-    document.addEventListener('click', (e) => { if (dd && !dd.contains(e.target)) closeMenu(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && dd?.classList.contains('open')) closeMenu(true);
-    });
-
-    // Humanize button is wired in app.js (runHumanize) — it reads
-    // document.body.dataset.appMode to pick humanize vs. humanize+level.
-  })();
-  </script>
 
   <script>
-  /* Interactive background — two modes: dot-cloud (level) + geodesic globe (humanize) */
+  /* Interactive Level Matching background */
   (function () {
     const bg     = document.getElementById('appbg');
     const canvas = document.getElementById('appbg-canvas');
-    const ws     = document.getElementById('workspace');
     if (!bg || !canvas) return;
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -733,15 +613,11 @@
     const MR  = 150, MR2 = MR * MR;     // cursor radius (screen space)
     const TAU = 6.2831853;
 
-    let mode = ws?.classList.contains('mode-both')
-      ? 'both'
-      : ws?.classList.contains('mode-humanize') ? 'humanize' : 'level';
-    let pts = [], hpts = [], hstars = [];
+    let pts = [];
     let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
     let R = 0, F = 0, D3D = 0, D2 = 0;
     let mx = -9999, my = -9999, active = false, raf = null;
     let angY = 0;
-    let gt = 0;               // galaxy time (humanize mode)
     const tiltX = 0.32;
 
     // ── build ────────────────────────────────────────────────
@@ -759,15 +635,13 @@
       R = 0.5 * Math.hypot(W, H);
       F = R * 2.2;
 
-      if (mode === 'humanize') buildHumanize();
-      else if (mode === 'both') { buildLevel(); buildHumanize(); }
-      else buildLevel();
+      buildLevel();
 
       if (reduced) step(true);
     }
 
     function buildLevel() {
-      const n = Math.round((mode === 'both' ? 0.6 : 1) * Math.max(360, Math.min(520, Math.round(R * 0.6))));
+      const n = Math.round(Math.max(360, Math.min(520, Math.round(R * 0.6))));
       const spacing = Math.cbrt((4 / 3 * Math.PI * R * R * R) / n);
       D3D = spacing * 1.05;
       D2  = D3D * D3D;
@@ -786,60 +660,13 @@
       }
     }
 
-    function buildHumanize() {
-      // Rotating 3D nebula / spiral galaxy of fine dots (no lines)
-      const diskR = 0.62 * Math.hypot(W, H);
-      const thickness = diskR * 0.16;
-      const n = Math.round((mode === 'both' ? 0.72 : 1) * Math.max(600, Math.min(1600, Math.round(W * H / 1500))));
-      const ARMS = 3;
-      hpts = [];
-      for (let i = 0; i < n; i++) {
-        const rn = Math.pow(Math.random(), 1.3);          // 0..1, denser core
-        const arm = i % ARMS;
-        const ang0 = arm * (TAU / ARMS) + rn * 5.0 + (Math.random() - 0.5) * 0.7;
-        hpts.push({
-          rn: rn,
-          r: rn * diskR,
-          ang0: ang0,
-          // real vertical thickness — fat bulge at the core, thin in the arms
-          zh: (Math.random() - 0.5) * thickness * (0.35 + 0.65 * (1 - rn)),
-          w: 0.0009 + 0.0022 * (1 - rn),                  // inner orbits faster
-          size: 0.7 + Math.random() * 1.1,
-          ph: Math.random() * TAU,                         // twinkle phase
-          tws: 0.8 + Math.random() * 0.8,                  // twinkle speed
-          ox: 0, oy: 0,                                    // eased cursor warp
-          sx: 0, sy: 0, sc: 1,
-        });
-      }
-      // faint deep-space starfield behind the galaxy (parallax depth)
-      const sn = Math.round((mode === 'both' ? 0.62 : 1) * W * H / 9000);
-      hstars = [];
-      for (let i = 0; i < sn; i++) {
-        hstars.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          dz: 0.2 + Math.random() * 0.8,                   // parallax depth factor
-          size: 0.5 + Math.random() * 0.6,
-          ph: Math.random() * TAU,
-        });
-      }
-    }
-
     // ── step / render ────────────────────────────────────────
     function step(still) {
       ctx.clearRect(0, 0, W, H);
       if (!still) angY += 0.0011;
       const cosY = Math.cos(angY), sinY = Math.sin(angY);
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
-      if (mode === 'humanize') stepHumanize(still);
-      else if (mode === 'both') {
-        // Mix of both backgrounds: galaxy as an atmospheric base, the
-        // dot-cloud network layered on top — each dimmed so it reads clean.
-        ctx.globalAlpha = 0.62; stepHumanize(still);
-        ctx.globalAlpha = 0.7;  stepLevel(still, cosY, sinY, cosX, sinX);
-        ctx.globalAlpha = 1;
-      }
-      else stepLevel(still, cosY, sinY, cosX, sinX);
+      stepLevel(still, cosY, sinY, cosX, sinX);
     }
 
     function stepLevel(still, cosY, sinY, cosX, sinX) {
@@ -918,80 +745,7 @@
       }
     }
 
-    function stepHumanize(still) {
-      if (!still) gt += 1;
-      // galaxy orientation: slowly nodding tilt (nutation) + slow spin
-      const AX = 1.02 + 0.16 * Math.sin(gt * 0.0008);
-      const ay = gt * 0.0006;
-      const cosY = Math.cos(ay), sinY = Math.sin(ay);
-      const cosX = Math.cos(AX), sinX = Math.sin(AX);
-      const tw = gt * 0.05;
-      const pgx = active ? (mx - cx) : 0;
-      const pgy = active ? (my - cy) : 0;
-
-      // ── faint deep-space starfield (behind, parallax) ──
-      for (let i = 0; i < hstars.length; i++) {
-        const s = hstars[i];
-        const sx = s.x + pgx * 0.015 * s.dz;
-        const sy = s.y + pgy * 0.015 * s.dz;
-        const twk = still ? 1 : (0.6 + 0.4 * Math.sin(tw * 0.7 + s.ph));
-        ctx.beginPath();
-        ctx.arc(sx, sy, s.size, 0, TAU);
-        ctx.fillStyle = 'rgba(60,60,60,' + (0.07 + 0.13 * s.dz * twk).toFixed(3) + ')';
-        ctx.fill();
-      }
-
-      // ── galaxy dots (true 3D volume) ──
-      for (let i = 0; i < hpts.length; i++) {
-        const p = hpts[i];
-        const a = p.ang0 + gt * p.w;          // differential rotation → spiral arms
-        const px = Math.cos(a) * p.r, py = Math.sin(a) * p.r, pz = p.zh;
-        // rotate X (tilt) then Y (spin) — full 3D, pz gives real depth
-        const y1 = py * cosX - pz * sinX;
-        const z1 = py * sinX + pz * cosX;
-        const x2 = px * cosY + z1 * sinY;
-        const z2 = -px * sinY + z1 * cosY;
-        const sc = F / (F + z2);
-        p.sx = cx + x2 * sc;
-        p.sy = cy + y1 * sc;
-        p.sc = sc;
-
-        // cursor gravity-lens — push nearby dots outward, ease back
-        let tox = 0, toy = 0;
-        if (active && !still) {
-          const dx = p.sx - mx, dy = p.sy - my;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < MR2) {
-            const d = Math.sqrt(d2) || 1;
-            const push = (1 - d / MR) * 26;
-            tox = (dx / d) * push; toy = (dy / d) * push;
-          }
-        }
-        if (!still) { p.ox += (tox - p.ox) * 0.10; p.oy += (toy - p.oy) * 0.10; }
-
-        const twk = still ? 1 : (0.7 + 0.3 * Math.sin(tw * p.tws + p.ph));
-        const rad = Math.max(0.5, p.size * p.sc * (0.85 + 0.15 * twk));
-        const depth = 0.34 + (p.sc - 0.6) * 0.7;        // near brighter
-        const core = 0.2 * (1 - p.rn);                   // core a touch brighter
-        const alpha = Math.max(0.12, Math.min(0.85, (depth + core) * twk));
-        ctx.beginPath();
-        ctx.arc(p.sx + p.ox, p.sy + p.oy, rad, 0, TAU);
-        ctx.fillStyle = 'rgba(48,48,48,' + alpha.toFixed(3) + ')';
-        ctx.fill();
-      }
-    }
-
     function tick() { raf = requestAnimationFrame(tick); step(false); }
-
-    function setMode(m) {
-      if (m === mode) return;
-      mode = m;
-      build();
-      // soft cross-fade
-      canvas.style.opacity = '0';
-      requestAnimationFrame(() => { canvas.style.opacity = '1'; });
-      if (reduced) step(true);
-    }
 
     // ── input / lifecycle ────────────────────────────────────
     window.addEventListener('pointermove', e => {
@@ -1006,14 +760,6 @@
     const onResize = () => { clearTimeout(rz); rz = setTimeout(build, 150); };
     if (window.ResizeObserver) new ResizeObserver(onResize).observe(bg);
     window.addEventListener('resize', onResize, { passive: true });
-
-    // watch the editor mode toggle (workspace gets .mode-humanize)
-    if (ws && window.MutationObserver) {
-      new MutationObserver(() => {
-        setMode(ws.classList.contains('mode-both') ? 'both'
-              : ws.classList.contains('mode-humanize') ? 'humanize' : 'level');
-      }).observe(ws, { attributes: true, attributeFilter: ['class'] });
-    }
 
     build();
     if (!reduced) raf = requestAnimationFrame(tick);

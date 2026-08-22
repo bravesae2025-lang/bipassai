@@ -13,7 +13,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Your text is ready — rewritten to read human at your chosen level. Copy it and submit.">
+  <meta name="description" content="Review a Level Matched result, inspect changes, request a focused revision, and upload approved text to the Bipass AI Auto Typer.">
   <meta name="robots" content="noindex, follow">
   <link rel="canonical" href="https://bipassai.com/editor.html">
   <title>Bipass AI — Your Result</title>
@@ -114,12 +114,6 @@
       <div class="changes-layout hidden" id="changes-layout">
         <div class="changes-view" id="changes-view"></div>
         <div class="changes-side" id="changes-side">
-          <button class="humanize-changes-toggle hidden" id="humanize-changes-toggle" type="button" role="switch" aria-checked="false">
-            <span class="humanize-toggle-dot" aria-hidden="true"></span>
-            <span class="humanize-toggle-label">See Humanize Only</span>
-            <span class="humanize-toggle-switch" aria-hidden="true"></span>
-          </button>
-
           <aside class="changes-filter" id="changes-filter">
             <div class="cf-head">Filter changes</div>
             <div class="cf-rows">
@@ -148,14 +142,6 @@
                 <strong id="change-search-term">Partial words work</strong>
                 <span id="change-search-occurrences">Search the current text</span>
               </div>
-            </div>
-          </aside>
-
-          <!-- Humanize results: one master rephrase switch. -->
-          <aside class="changes-filter hz-panel hidden" id="hz-panel">
-            <div class="cf-head">Humanize changes</div>
-            <div class="cf-rows">
-              <label class="cf-row" data-cat="rephrase"><span class="cf-dot"></span><span class="cf-name">Rephrased</span><span class="cf-count" id="hz-count">0</span><input type="checkbox" id="hz-toggle" checked><span class="cf-switch"></span></label>
             </div>
           </aside>
 
@@ -192,26 +178,25 @@
       </button>
       <div class="revision-eyebrow">Regenerate with feedback</div>
       <h2 class="revision-title" id="revision-title">What should we change?</h2>
-      <p class="revision-intro">Leave a comment about the result. We’ll automatically use Humanize, Level Matching, both tools, or the editor depending on what you ask for.</p>
+      <p class="revision-intro">Leave a focused editing comment, or ask Bipass AI to rerun Level Matching with a preset or your Writing Profile.</p>
 
       <label class="revision-label" for="ai-prompt-input">Your comment</label>
       <textarea
         class="revision-input"
         id="ai-prompt-input"
-        placeholder="For example: Fix the wording in paragraph two, rehumanize this, or match it to Student level again…"
+        placeholder="For example: Fix the wording in paragraph two, or match this to my Writing Profile again…"
         spellcheck="true"
         rows="5"
       ></textarea>
 
       <div class="revision-quick-actions" aria-label="Quick revision requests">
-        <button type="button" data-revision-comment="Rehumanize this result">Rehumanize</button>
         <button type="button" data-revision-comment="Run level matching again">Level match again</button>
-        <button type="button" data-revision-comment="Rehumanize this result, then run level matching again">Run both again</button>
+        <button type="button" data-revision-comment="Match this to my own writing style">Use Writing Profile</button>
       </div>
 
       <div class="revision-routing-note">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span>Tool requests go through the real Humanize and Level Matching engines. Text edits only change what your comment asks for.</span>
+        <span>Level or profile requests rerun Level Matching. Other comments only edit what you asked to change.</span>
       </div>
 
       <div class="revision-actions">

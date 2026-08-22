@@ -124,7 +124,7 @@ async function fetchResults(accessToken, userId, tier) {
     item.tabIndex     = 0;
     item.setAttribute('role', 'button');
     const text        = String(row.text || '');
-    const modeLabel   = row.mode === 'generate' ? 'Generated' : 'Humanized';
+    const modeLabel   = row.mode === 'generate' ? 'Generated' : row.mode === 'own' ? 'Uploaded' : 'Level Matched';
     const levelLabel  = row.level ? ` · ${row.level}` : '';
     item.innerHTML = `
       <div class="result-meta">
@@ -152,7 +152,7 @@ function selectResult(text, mode) {
   const words = countWords(text);
   document.getElementById('preview-text').textContent = text;
   document.getElementById('preview-wc').textContent   = `${words} word${words !== 1 ? 's' : ''}`;
-  document.getElementById('preview-mode').textContent = mode === 'generate' ? 'Generated' : 'Humanized';
+  document.getElementById('preview-mode').textContent = mode === 'generate' ? 'Generated' : mode === 'own' ? 'Uploaded' : 'Level Matched';
   showState('ready');
 }
 

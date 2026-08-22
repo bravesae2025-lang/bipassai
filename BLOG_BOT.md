@@ -49,6 +49,6 @@ node ping-indexnow.js https://bipassai.com/blog/<slug>.html
 - Only create/modify files under `blog/` (plus `topics.txt`). Never touch
   `style.css`, `server.js`, `app.html`, or other app pages.
 - Tone: casual, student-to-student, honest, beginner-friendly. Target student
-  keywords around AI detection, Turnitin, GPTZero, humanizing AI text, AI writing tools.
+  keywords around writing-level matching, Writing Profiles, AI detection limitations, Turnitin, GPTZero, and responsible AI writing tools.
 - Mention "Bipass AI" naturally once or twice — never spammy. Don't claim
   "100% undetectable."

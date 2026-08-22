@@ -69,17 +69,14 @@ value proposition line could.
 
 ## 03 · What it actually does
 
-Three moves in one product. Competitors only do the first one — that gap is the campaign.
+Three connected strengths in one product.
 
-1. **Humanize** — rewrites robotic phrasing into natural rhythm: varied sentence length, plain
-   words, real transitions instead of stock ones.
-2. **Level Matching** — drops the writing to a believable level: Beginner, Student, Academic, or
-   Custom. This is the part nobody else has.
+1. **Level Matching** — rewrites a draft at Beginner, Student, Academic, Custom, or a saved Writing Profile.
+2. **Writing Profiles** — analyzes past samples for vocabulary, grammar, punctuation, and sentence patterns, then matches the rewrite to that established style.
 3. **Auto Typer** — a Chrome extension types the reviewed text into Google Docs character by
    character: variable speed, thinking pauses, the occasional typo it catches and fixes.
 
-**Sequence matters in creative.** Humanize → Level → Type is the product's actual order and its
-most film-able idea. Most ads in this category stop at "paste, click, done." Ours has a third act.
+**Sequence matters in creative.** Analyze → Match → Review → Type is the product's actual order and its most film-able idea.
 
 ---
 
@@ -91,10 +88,8 @@ exists in the live product.
 | Feature | What it does | Why creatives care |
 | --- | --- | --- |
 | **Level Matching** | Rewrites text to Beginner, Student, Academic or Custom level. 4 credits per word. | The hero feature. One paragraph, four levels — a whole ad format in itself. |
-| **Humanize** | Natural rhythm and vocabulary pass. 15 credits per word. | Category table stakes. Never lead with it alone. |
-| **Humanize + Level Matching** | Both in one run, 18 credits per word — one credit cheaper than running them separately. The recommended default. | This is what "the full thing" means in demos. Show this mode. |
 | **Custom dials** | Vocabulary simple↔hard, plus grammar, tense, punctuation, capitals and spelling mistakes set to none / a little / a lot. | Visually irresistible. Sliders that add mistakes on purpose is a genuinely novel image. |
-| **My Writing Style** | Paste 1–5 of your own samples (50+ words each); it profiles your spelling, grammar and punctuation habits, shows each trait as an adjustable bar, and saves multiple profiles. Free — costs no credits. | "It sounds like me, not like a human." Emotional high point of the product. |
+| **Writing Profiles** | Paste 1–5 samples (50+ words each); Bipass AI analyzes vocabulary, spelling, grammar, punctuation, tone, and sentence patterns, shows adjustable traits, and saves multiple profiles. Analysis is free. | “It matches the level and patterns already present in my work.” Emotional high point of the product. |
 | **Auto Typer extension** | Official Chrome extension. Types reviewed text into Google Docs and other editable fields at slow / normal / fast speed, with an optional 5–20 minute target time, thinking pauses, and mistyping that backspaces and corrects itself ("teh" → "the"). Floating start/stop control. | The signature. No competitor has anything like it. "Typed. Not pasted." |
 | **Generate** | Writes a fresh draft from a topic or prompt, formatted as an essay, email, story, casual message, business text or discussion post. | Widens the audience past "I already have AI text." |
 | **Edit with AI** | Change one part of the result in plain language without regenerating the whole thing. | Control. Answers "but what if I hate one sentence." |
@@ -200,7 +195,7 @@ specific, no exclamation marks. Ad copy that sounds more polished than that soun
 | --- | --- |
 | Your AI text, at the right level | Homepage headline |
 | Typed. Not pasted. | Auto Typer |
-| The AI humanizer that types for you | Product descriptor |
+| Writing-level matching that types for you | Product descriptor |
 | Sound human. Don't read like AI. | Marquee |
 | Built by students, for students | Brand origin |
 | No subscription traps | Pricing |
@@ -338,8 +333,7 @@ what gets accounts in this category shadow-banned and rejected.
 | Annual Pass | $99 / yr | 500,000 | 365 days | $8.25/mo equivalent · 40,000 credits added monthly plus a 20,000 bonus |
 | Top-ups | $2.99 / $6.99 / $9.99 | 10k / 30k / 50k | Added instantly | Credits never expire |
 
-Credit rates: Level Matching **4 credits per word**, Humanize **15**, both together **18** — a
-saving of one credit per word. Analysing your writing style is always free.
+Credit rate: Level Matching is **4 credits per word**. Analyzing your writing samples is always free.
 
 **Details**
 

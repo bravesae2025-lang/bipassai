@@ -7385,6 +7385,136 @@ body.drawer-lock { overflow: hidden; }
   .rec-flow-track { transition: none; }
 }
 
+/* ── Rendered Level Matching guide ──────────────────────────── */
+.rec-flow-box {
+  padding: 10px;
+  background: #0b0b0c;
+  border-color: rgba(255,255,255,0.09);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.rec-flow-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 52px rgba(0,0,0,0.19), 0 3px 10px rgba(0,0,0,0.13);
+}
+
+.rec-flow-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+  padding: 0 2px 9px 8px;
+}
+
+.rec-flow-kicker {
+  color: rgba(255,255,255,0.72);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.rec-flow-toggle {
+  width: 26px;
+  height: 26px;
+  color: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.rec-flow-toggle:hover {
+  color: #0b0b0c;
+  background: #fff;
+  border-color: #fff;
+}
+
+.rec-flow-viewport {
+  position: relative;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #ecece9;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 11px;
+  transition: height 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.22s ease, border-width 0.22s ease;
+}
+
+.rec-guide-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #ecece9;
+}
+
+.rec-guide-play {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #fff;
+  background: rgba(8,8,9,0.82);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.24);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.rec-guide-play:hover { background: #050505; transform: scale(1.06); }
+.rec-guide-play:active { transform: scale(0.95); }
+.rec-guide-play:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.rec-guide-play-icon { display: none; }
+.rec-guide-play.is-paused .rec-guide-play-icon { display: block; }
+.rec-guide-play.is-paused .rec-guide-pause-icon { display: none; }
+
+.rec-flow-controls {
+  display: block;
+  min-height: 0;
+  margin: 0;
+}
+
+.rec-flow-open {
+  color: rgba(255,255,255,0.82);
+  padding: 4px 8px;
+}
+
+.rec-flow-open:hover { color: #fff; }
+.rec-flow-open:focus-visible { outline-color: #fff; }
+
+.rec-flow-box.is-collapsed { padding: 8px 10px; }
+.rec-flow-box.is-collapsed .rec-flow-head { display: none; }
+.rec-flow-box.is-collapsed .rec-flow-viewport {
+  height: 0 !important;
+  aspect-ratio: auto;
+  opacity: 0;
+  border-width: 0;
+}
+.rec-flow-box.is-collapsed .rec-flow-controls { min-height: 28px; }
+
+@media (max-width: 720px) {
+  .rec-flow-box { border-radius: 14px; padding: 8px; }
+  .rec-flow-head { padding: 0 0 7px 6px; }
+  .rec-flow-kicker { font-size: 8px; letter-spacing: 0.11em; }
+  .rec-guide-play { right: 7px; bottom: 7px; width: 28px; height: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-flow-box,
+  .rec-flow-viewport,
+  .rec-guide-play { transition: none; }
+}
+
 /* ─────────────────────────────────────────────────────────────
    Custom cursor (desktop only)
 ───────────────────────────────────────────────────────────── */
@@ -8670,6 +8800,137 @@ body.drawer-lock { overflow: hidden; }
 }
 
 .howto-cta-btn:hover { opacity: 0.85; }
+
+/* ── How To film ─────────────────────────────────────────────── */
+.howto-wrap {
+  width: 100%;
+  max-width: 1280px;
+  min-width: 0;
+}
+
+.howto-mobile-break { display: none; }
+
+.howto-head-film {
+  margin-bottom: clamp(30px, 5vw, 54px);
+}
+
+.howto-head-film .howto-title {
+  max-width: 980px;
+  margin-inline: auto;
+  margin-bottom: 0;
+  font-size: clamp(64px, 10vw, 124px);
+  line-height: 0.9;
+}
+
+.howto-film-section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: clamp(72px, 10vw, 128px);
+}
+
+.howto-film-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0b0b0c;
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: clamp(14px, 2vw, 24px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1), 0 28px 80px rgba(0,0,0,0.15);
+}
+
+.howto-guide-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  object-fit: cover;
+  background: #ecece9;
+}
+
+.howto-film-toggle {
+  position: absolute;
+  right: clamp(12px, 2vw, 22px);
+  bottom: clamp(12px, 2vw, 22px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #fff;
+  background: rgba(7,7,8,0.84);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.26);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.howto-film-toggle:hover { background: #050505; transform: scale(1.06); }
+.howto-film-toggle:active { transform: scale(0.95); }
+.howto-film-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.howto-film-play-icon { display: none; }
+.howto-film-toggle.is-paused .howto-film-play-icon { display: block; }
+.howto-film-toggle.is-paused .howto-film-pause-icon { display: none; }
+
+.howto-film-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+}
+
+.howto-film-steps li {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 12px;
+  border-right: 1px solid rgba(0,0,0,0.1);
+}
+
+.howto-film-steps li:last-child { border-right: 0; }
+.howto-film-steps span {
+  color: var(--g300);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.howto-film-steps strong {
+  overflow: hidden;
+  color: var(--black);
+  font-family: var(--ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.howto-faq-section { margin-top: 0; }
+
+@media (max-width: 680px) {
+  .howto-main { min-width: 0; padding: 44px 14px 72px; }
+  .howto-head-film .howto-title { font-size: clamp(52px, 18vw, 82px); }
+  .howto-mobile-break { display: inline; }
+  .howto-film-frame { border-radius: 12px; }
+  .howto-film-toggle { width: 36px; height: 36px; right: 9px; bottom: 9px; }
+  .howto-film-steps li { justify-content: center; padding: 13px 3px; }
+  .howto-film-steps span { display: none; }
+  .howto-film-steps strong { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .howto-film-toggle { transition: none; }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    AESTHETIC REFINEMENTS — white-first, more black contrast

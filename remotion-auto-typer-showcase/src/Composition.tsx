@@ -1,6 +1,7 @@
 import {Composition, Folder} from "remotion";
 import {AutoTyperFilm} from "./AutoTyperFilm";
 import {ProductFlowScene} from "./scenes/ProductFlowScene";
+import {LevelMatchingGuide} from "./LevelMatchingGuide";
 
 export const MyComposition = () => (
   <>
@@ -11,6 +12,14 @@ export const MyComposition = () => (
       height={1080}
       id="AutoTyperShowcase"
       width={1920}
+    />
+    <Composition
+      component={LevelMatchingGuide}
+      durationInFrames={600}
+      fps={30}
+      height={1440}
+      id="LevelMatchingGuide"
+      width={2560}
     />
     <Folder name="AutoTyperScenes">
       <Composition

@@ -6,6 +6,54 @@ function escapeHtml(value) {
   })[char]);
 }
 
+function setupGuideFilm() {
+  const video = document.getElementById('howto-guide-video');
+  const button = document.getElementById('howto-film-toggle');
+  if (!video || !button) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let userPaused = reduceMotion;
+  let inView = true;
+
+  function syncButton() {
+    const paused = video.paused;
+    button.classList.toggle('is-paused', paused);
+    button.setAttribute('aria-label', paused ? 'Play walkthrough' : 'Pause walkthrough');
+    button.title = paused ? 'Play walkthrough' : 'Pause walkthrough';
+  }
+
+  function syncPlayback() {
+    if (userPaused || !inView) {
+      video.pause();
+      syncButton();
+      return;
+    }
+    video.play().catch(() => {
+      userPaused = true;
+      syncButton();
+    });
+  }
+
+  button.addEventListener('click', () => {
+    userPaused = !video.paused;
+    if (userPaused) video.pause();
+    else syncPlayback();
+    syncButton();
+  });
+  video.addEventListener('play', syncButton);
+  video.addEventListener('pause', syncButton);
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      syncPlayback();
+    }, { threshold: 0.18 }).observe(video);
+  }
+
+  syncPlayback();
+  syncButton();
+}
+
 async function init() {
   const session = await window.bipassAuth.getSession();
 
@@ -60,4 +108,5 @@ async function init() {
   document.querySelectorAll('[data-anim]').forEach(el => obs.observe(el));
 }
 
+setupGuideFilm();
 init();

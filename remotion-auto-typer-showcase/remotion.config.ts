@@ -16,5 +16,6 @@ Config.setOverwriteOutput(true);
 Config.setCodec("h264");
 Config.setCrf(17);
 Config.setX264Preset("slow");
-// Rendered at 1.5x (2880x1620) so the ~1300px-wide card stays sharp on 2x displays.
+// Render at 1.5x so product UI stays sharp on high-density displays. The
+// 2560×1440 Level Matching guide therefore exports as a 3840×2160 master.
 Config.setScale(1.5);

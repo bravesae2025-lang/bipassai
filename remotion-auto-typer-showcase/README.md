@@ -1,4 +1,4 @@
-# Bipass AI Auto Typer product film
+# Bipass AI product films
 
 A 21-second silent homepage showcase built as one continuous Chrome-extension flow:
 
@@ -7,8 +7,10 @@ A 21-second silent homepage showcase built as one continuous Chrome-extension fl
 3. Focus the document and start from the floating control.
 4. Finish with an editable draft and restrained end card.
 
-The composition is `AutoTyperShowcase` at 1920×1080, 60fps. Each scene is also
-registered separately in Remotion Studio for easy timing and visual review.
+`AutoTyperShowcase` is 1920×1080 at 60fps. `LevelMatchingGuide` is a 20-second,
+five-step product walkthrough authored at 2560×1440 and rendered at 1.5× for a
+3840×2160 website master. Each scene is registered in Remotion Studio for easy
+timing and visual review.
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -38,7 +40,7 @@ npm run dev
 **Render video**
 
 ```console
-npx remotion render
+npx remotion render LevelMatchingGuide out/level-matching-guide.mp4
 ```
 
 **Upgrade Remotion**

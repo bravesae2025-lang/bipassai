@@ -96,6 +96,8 @@ const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
 const appJsFile = join(root, 'app.js');
 const appJs = readFileSync(appJsFile, 'utf8');
+const howtoFile = join(root, 'howto.html');
+const howtoHtml = readFileSync(howtoFile, 'utf8');
 const editorFile = join(root, 'editor.html');
 const editorHtml = readFileSync(editorFile, 'utf8');
 const editorJsFile = join(root, 'editor.js');
@@ -215,9 +217,22 @@ if (!appJs.includes("document.addEventListener('bipass-level-change'")
   add(appJsFile, 'Custom mode must compact the workflow guide through its animated collapse state');
 }
 if (!appHtml.includes('id="rec-flow-open"')
-    || !appHtml.includes('<span>Open tutorial</span>')
+    || !appHtml.includes('<span>Open Level Matching guide</span>')
     || !appJs.includes("openButton?.addEventListener('click', toggleCollapsedByUser)")) {
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
+}
+if (!appHtml.includes('id="rec-guide-video"')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=1')
+    || !appHtml.includes('assets/level-matching-guide-poster.png?v=1')
+    || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")) {
+  add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
+}
+if (!howtoHtml.includes('id="howto-guide-video"')
+    || !howtoHtml.includes('assets/level-matching-guide.mp4?v=1')
+    || !howtoHtml.includes('assets/level-matching-guide-poster.png?v=1')
+    || !howtoHtml.includes('<strong>Auto Type</strong>')
+    || /humanize/i.test(howtoHtml)) {
+  add(howtoFile, 'How To must stay a concise Level Matching walkthrough with no Humanize references');
 }
 if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')
@@ -286,7 +301,8 @@ for (const name of ['index.html', 'howto.html']) {
   if (/1 credit\s*=\s*1 character in the output/i.test(html)) {
     add(file, 'contains obsolete output-character billing claim for Level Matching');
   }
-  if (!/Both mode costs 18 credits per word|Humanize \+ Level Matching costs 18 credits per word/i.test(html)) {
+  if (name === 'index.html'
+      && !/Both mode costs 18 credits per word|Humanize \+ Level Matching costs 18 credits per word/i.test(html)) {
     add(file, 'must explain the 18-credit Both mode rate');
   }
 }

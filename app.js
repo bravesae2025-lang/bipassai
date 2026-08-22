@@ -3634,109 +3634,69 @@ function startTour() {
   });
 })();
 
-// ─── Workflow carousel ────────────────────────────────────────
+// ─── Level Matching walkthrough ───────────────────────────────
 (function () {
-  const box   = document.getElementById('rec-flow-box');
-  const track = document.getElementById('rec-flow-track');
-  const dotsEl = document.getElementById('rec-flow-dots');
-  if (!box || !track || !dotsEl) return;
+  const box = document.getElementById('rec-flow-box');
+  const video = document.getElementById('rec-guide-video');
+  if (!box || !video) return;
   if (localStorage.getItem('bipass_pref_show_howto') === 'false') {
     box.hidden = true;
     return;
   }
 
-  const slides = Array.from(track.children);
-  if (slides.length === 0) return;
-
-  const fill = document.getElementById('rec-flow-progress-fill');
-  const viewport = box.querySelector('.rec-flow-viewport');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let idx = 0;
-  let timer = null;
-  const DELAY = 4200;
-  if (fill) fill.style.setProperty('--rec-delay', DELAY + 'ms');
-
-  // Build dots
-  slides.forEach((_, i) => {
-    const d = document.createElement('button');
-    d.className = 'rec-flow-dot' + (i === 0 ? ' active' : '');
-    d.type = 'button';
-    d.setAttribute('aria-label', `Step ${i + 1}`);
-    d.addEventListener('click', () => { go(i); restart(); });
-    dotsEl.appendChild(d);
-  });
-  const dots = Array.from(dotsEl.children);
-
-  function runProgress() {
-    if (!fill || reduce) return;
-    fill.classList.remove('run');
-    void fill.offsetWidth; // reflow to restart the animation
-    fill.classList.add('run');
-  }
-
-  // Animate the viewport to the active slide's natural height (no stretching)
-  function setHeight() {
-    if (!viewport || box.classList.contains('is-collapsed')) return;
-    const h = slides[idx].offsetHeight;
-    if (h) viewport.style.height = h + 'px';
-  }
-
-  function go(i) {
-    idx = (i + slides.length) % slides.length;
-    track.style.transform = `translateX(-${idx * 100}%)`;
-    dots.forEach((d, n) => d.classList.toggle('active', n === idx));
-    slides.forEach((s, n) => s.classList.toggle('rec-flow-slide--active', n === idx));
-    setHeight();
-    runProgress();
-  }
-
-  window.addEventListener('resize', setHeight);
-
-  function start() {
-    if (reduce || timer) return;
-    timer = setInterval(() => go(idx + 1), DELAY);
-    runProgress();
-  }
-  function stop() {
-    if (timer) { clearInterval(timer); timer = null; }
-    if (fill) fill.classList.remove('run');
-  }
-  function restart() { stop(); start(); }
-
-  box.addEventListener('pointerenter', stop);
-  box.addEventListener('pointerleave', start);
-  box.addEventListener('focusin', stop);
-  box.addEventListener('focusout', start);
-
-  // Minimize / expand toggle (persisted)
   const toggle = document.getElementById('rec-flow-toggle');
   const openButton = document.getElementById('rec-flow-open');
+  const playButton = document.getElementById('rec-guide-play');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let userCollapsed = localStorage.getItem('rec-flow-collapsed') === '1';
   let collapsed = userCollapsed;
   let autoCollapsedForProfileDetails = false;
   let autoCollapsedForCustomMode = false;
+  let inView = true;
+  let userPaused = reduceMotion;
+
+  function syncPlayButton() {
+    const paused = video.paused;
+    playButton?.classList.toggle('is-paused', paused);
+    playButton?.setAttribute('aria-label', paused ? 'Play walkthrough' : 'Pause walkthrough');
+    if (playButton) playButton.title = paused ? 'Play walkthrough' : 'Pause walkthrough';
+  }
+
+  function syncPlayback() {
+    if (collapsed || !inView || userPaused) {
+      video.pause();
+      syncPlayButton();
+      return;
+    }
+
+    video.play().catch(() => {
+      userPaused = true;
+      syncPlayButton();
+    });
+  }
+
   function applyCollapsed() {
     box.classList.toggle('is-collapsed', collapsed);
     if (toggle) {
       toggle.setAttribute('aria-expanded', String(!collapsed));
-      toggle.setAttribute('aria-label', collapsed ? 'Expand' : 'Minimize');
-      toggle.title = collapsed ? 'Expand' : 'Minimize';
+      toggle.setAttribute('aria-label', collapsed ? 'Expand guide' : 'Minimize guide');
+      toggle.title = collapsed ? 'Expand guide' : 'Minimize guide';
     }
     if (openButton) {
       openButton.setAttribute('aria-hidden', String(!collapsed));
       openButton.tabIndex = collapsed ? 0 : -1;
     }
-    if (collapsed) stop(); else { setHeight(); start(); }
+    syncPlayback();
   }
+
   function syncCollapsed() {
     collapsed = userCollapsed
       || autoCollapsedForProfileDetails
       || autoCollapsedForCustomMode;
     applyCollapsed();
   }
+
   function toggleCollapsedByUser(event) {
-    // A direct click is the user's preference and takes ownership away from
-    // any temporary space-saving collapse.
     const openedFromLabel = collapsed && event?.currentTarget === openButton;
     const nextCollapsed = !collapsed;
     autoCollapsedForProfileDetails = false;
@@ -3746,33 +3706,37 @@ function startTour() {
     syncCollapsed();
     if (openedFromLabel) toggle?.focus({ preventScroll: true });
   }
+
   toggle?.addEventListener('click', toggleCollapsedByUser);
   openButton?.addEventListener('click', toggleCollapsedByUser);
+  playButton?.addEventListener('click', () => {
+    userPaused = !video.paused;
+    if (userPaused) video.pause();
+    else syncPlayback();
+    syncPlayButton();
+  });
+  video.addEventListener('play', syncPlayButton);
+  video.addEventListener('pause', syncPlayButton);
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      syncPlayback();
+    }, { threshold: 0.18 }).observe(box);
+  }
 
   document.addEventListener('bipass-profile-details-toggle', (event) => {
-    const detailsOpen = event.detail?.open === true;
-
-    if (detailsOpen) {
-      // Make room for the expanded profile without overwriting the
-      // user's persisted minimize/expand preference.
-      autoCollapsedForProfileDetails = true;
-      syncCollapsed();
-      return;
-    }
-
-    autoCollapsedForProfileDetails = false;
+    autoCollapsedForProfileDetails = event.detail?.open === true;
     syncCollapsed();
   });
 
   document.addEventListener('bipass-level-change', (event) => {
-    // The manual controls need the extra vertical room. This uses the same
-    // animated guide transition and reverses when another mode is selected.
     autoCollapsedForCustomMode = event.detail?.mode === 'customize';
     syncCollapsed();
   });
 
-  go(0);
   syncCollapsed();
+  syncPlayButton();
 })();
 
 // ─── Start ────────────────────────────────────────────────────

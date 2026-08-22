@@ -57,7 +57,7 @@ const AppNav = ({editor = false}: {readonly editor?: boolean}) => (
 );
 
 const StylePanel = ({frame}: {readonly frame: number}) => {
-  const selected = frame >= 76;
+  const selected = frame >= 138;
   return (
     <div className="real-style-wrap">
       <div className="real-style-glow" />
@@ -77,15 +77,15 @@ const StylePanel = ({frame}: {readonly frame: number}) => {
           <i
             className="real-level-glider"
             style={{
-              opacity: interpolate(frame, [66, 76], [0, 1], {
+              opacity: interpolate(frame, [118, 138], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
-                easing: Easing.bezier(0.16, 1, 0.3, 1),
+                easing: Easing.bezier(0.4, 0, 0.2, 1),
               }),
-              translate: interpolate(frame, [66, 76], ["0px 0px", "168px 0px"], {
+              translate: interpolate(frame, [118, 138], ["0px 0px", "168px 0px"], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
-                easing: Easing.bezier(0.16, 1, 0.3, 1),
+                easing: Easing.bezier(0.4, 0, 0.2, 1),
               }),
             }}
           />
@@ -104,7 +104,7 @@ const StylePanel = ({frame}: {readonly frame: number}) => {
 };
 
 const HomeWorkspace = ({frame}: {readonly frame: number}) => {
-  const typedCount = Math.floor(interpolate(frame, [10, 58], [0, sourceText.length], {
+  const typedCount = Math.floor(interpolate(frame, [15, 90], [0, sourceText.length], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   }));
@@ -114,16 +114,16 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
       name="Home workspace camera"
       className="real-camera"
       style={{
-        scale: interpolate(frame, [0, 12, 62, 76, 92, 108], [1, 1.025, 1.025, 1.04, 1.04, 1.02], {
+        scale: interpolate(frame, [0, 22, 98, 122, 142, 158, 178, 188], [1, 1.04, 1.04, 1.22, 1.26, 1.26, 1.18, 1.18], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [0, 62, 76, 92, 108], ["0px 0px", "0px 0px", "-18px -4px", "-18px -4px", "0px -10px"], {
+        translate: interpolate(frame, [0, 98, 122, 142, 158, 178, 188], ["0px 0px", "0px 0px", "-520px -100px", "-600px -130px", "-600px -130px", "210px -170px", "210px -170px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
         }),
       }}
     >
@@ -140,14 +140,14 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
             <div className="real-upload"><b>⇧ &nbsp;UPLOAD FILE</b><span>PDF, DOCX or TXT</span></div>
             <div className="real-input">
               {typed || <span className="real-placeholder">Paste your text here — AI-generated or your own…</span>}
-              {frame < 62 ? <i className="real-caret" /> : null}
+              {frame < 98 ? <i className="real-caret" /> : null}
             </div>
             <div className="real-hints">
               <div><b>↓</b><strong>WORD SWAP</strong><span>Replaces AI vocabulary</span></div>
               <div><b>≈</b><strong>YOUR MEANING</strong><span>Keeps original intent</span></div>
               <div><b>✓</b><strong>LEVEL MATCH</strong><span>Sounds like your level</span></div>
             </div>
-            <button className={frame >= 100 && frame < 108 ? "real-match-button pressed" : "real-match-button"}>
+            <button className={frame >= 180 && frame < 188 ? "real-match-button pressed" : "real-match-button"}>
               <span>MATCH MY LEVEL</span><b>→</b>
             </button>
           </div>
@@ -159,7 +159,7 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
 };
 
 const LoadingScreen = ({frame}: {readonly frame: number}) => {
-  const progress = interpolate(frame, [110, 155], [8, 100], {
+  const progress = interpolate(frame, [192, 250], [8, 100], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -167,13 +167,22 @@ const LoadingScreen = ({frame}: {readonly frame: number}) => {
   const phase = progress < 38 ? "ANALYZING" : progress < 74 ? "MATCHING LEVEL" : "PREPARING RESULT";
   const step = progress < 38 ? "01 / 03" : progress < 74 ? "02 / 03" : "03 / 03";
   return (
-    <div className="real-loading">
+    <div
+      className="real-loading"
+      style={{
+        opacity: interpolate(frame, [188, 198, 240, 250], [0, 1, 1, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
+        }),
+      }}
+    >
       <div className="real-loading-grain" />
       <div className="real-loading-inner">
         <span>{step}</span>
         <strong>{phase}</strong>
         <div className="real-loading-bar"><i style={{width: `${progress}%`}} /></div>
-        <div className="real-credits-used"><b>{Math.round(interpolate(frame, [110, 155], [0, 116], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}))}</b><span>CREDITS USED</span></div>
+        <div className="real-credits-used"><b>{Math.round(interpolate(frame, [192, 250], [0, 116], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}))}</b><span>CREDITS USED</span></div>
         <button>CANCEL <b>×</b></button>
       </div>
     </div>
@@ -185,10 +194,10 @@ const ChangePair = ({before, after, tone}: {readonly before: string; readonly af
 );
 
 const EditorWorkspace = ({frame}: {readonly frame: number}) => {
-  const reveal = interpolate(frame, [155, 164], [0, 1], {
+  const reveal = interpolate(frame, [250, 264, 360, 372], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
   });
   return (
     <Interactive.Div
@@ -196,16 +205,16 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
       className="real-camera"
       style={{
         opacity: reveal,
-        scale: interpolate(frame, [155, 166, 230, 248], [1, 1.035, 1.035, 1.015], {
+        scale: interpolate(frame, [250, 280, 318, 344, 360, 372], [1, 1.18, 1.18, 1.22, 1.22, 1.12], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [155, 166, 230, 248], ["0px 0px", "0px -6px", "-14px -8px", "0px 0px"], {
+        translate: interpolate(frame, [250, 280, 318, 344, 360, 372], ["0px 0px", "300px 260px", "300px 260px", "-700px -280px", "-700px -280px", "0px 0px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
         }),
       }}
     >
@@ -230,7 +239,7 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
                 <div><i className="spelling" /><span>Spelling</span><b>1</b><em /></div>
               </div>
               <div className="real-find-change">⌕ &nbsp; FIND A CHANGE <span>⌄</span></div>
-              <button className={frame >= 236 && frame < 245 ? "real-editor-upload pressed" : "real-editor-upload"}>UPLOAD TO EXTENSION <b>✣</b></button>
+              <button className={frame >= 348 && frame < 357 ? "real-editor-upload pressed" : "real-editor-upload"}>UPLOAD TO EXTENSION <b>✣</b></button>
               <button className="real-editor-secondary">↻ &nbsp; REGENERATE</button>
               <button className="real-editor-secondary">← &nbsp; BACK</button>
             </aside>
@@ -243,21 +252,31 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
 };
 
 const DocsWorkspace = ({frame}: {readonly frame: number}) => {
-  const typedCount = Math.floor(interpolate(frame, [264, 340], [0, finalText.length], {
+  const typedCount = Math.floor(interpolate(frame, [375, 450], [0, finalText.length], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   }));
-  const complete = frame >= 340;
+  const complete = frame >= 450;
   return (
     <Interactive.Div
       name="Auto Typer camera"
       className="real-camera"
       style={{
-        scale: interpolate(frame, [250, 262, 348, 359], [1, 1.025, 1.025, 1], {
+        opacity: interpolate(frame, [360, 372, 470, 479], [0, 1, 1, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
+        }),
+        scale: interpolate(frame, [360, 386, 428, 458, 470, 479], [1, 1.16, 1.16, 1.24, 1.24, 1.18], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
+        }),
+        translate: interpolate(frame, [360, 386, 428, 458, 470, 479], ["0px 0px", "0px 150px", "0px 150px", "-620px -380px", "-620px -380px", "-500px -300px"], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
         }),
       }}
     >
@@ -274,9 +293,9 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
 
 export const LevelMatchingGuide = () => {
   const frame = useCurrentFrame();
-  const showLoading = frame >= 108 && frame < 155;
-  const showEditor = frame >= 155 && frame < 250;
-  const showDocs = frame >= 250;
+  const showLoading = frame >= 188 && frame < 250;
+  const showEditor = frame >= 250 && frame < 372;
+  const showDocs = frame >= 360;
 
   return (
     <AbsoluteFill className="real-app-film">
@@ -284,7 +303,7 @@ export const LevelMatchingGuide = () => {
         name="Real Bipass workflow"
         className="real-app-stage"
         style={{
-          opacity: interpolate(frame, [0, 7, 351, 359], [0, 1, 1, 0], {
+          opacity: interpolate(frame, [0, 12, 470, 479], [0, 1, 1, 0], {
             extrapolateLeft: "clamp",
             extrapolateRight: "clamp",
             easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.4, 0, 1, 1)],
@@ -298,24 +317,24 @@ export const LevelMatchingGuide = () => {
       </Interactive.Div>
       {!showLoading && !showDocs ? (
         <Pointer
-          clickFrames={[76, 104, 240]}
+          clickFrames={[138, 182, 352]}
           points={[
-            {frame: 6, x: 660, y: 540},
-            {frame: 58, x: 660, y: 540},
-            {frame: 66, x: 1920, y: 500},
-            {frame: 76, x: 1920, y: 500},
-            {frame: 88, x: 1920, y: 500},
-            {frame: 96, x: 840, y: 1330},
-            {frame: 104, x: 840, y: 1330},
-            {frame: 108, x: 840, y: 1330},
-            {frame: 165, x: 980, y: 690},
-            {frame: 224, x: 980, y: 690},
-            {frame: 232, x: 2300, y: 1100},
-            {frame: 240, x: 2300, y: 1100},
-            {frame: 249, x: 2300, y: 1100},
+            {frame: 10, x: 660, y: 540},
+            {frame: 98, x: 660, y: 540},
+            {frame: 122, x: 1490, y: 315},
+            {frame: 138, x: 1490, y: 315},
+            {frame: 158, x: 1490, y: 315},
+            {frame: 178, x: 970, y: 1270},
+            {frame: 182, x: 970, y: 1270},
+            {frame: 188, x: 970, y: 1270},
+            {frame: 266, x: 950, y: 640},
+            {frame: 318, x: 950, y: 640},
+            {frame: 344, x: 1825, y: 905},
+            {frame: 352, x: 1825, y: 905},
+            {frame: 360, x: 1825, y: 905},
           ]}
-          visibleFrom={5}
-          visibleUntil={250}
+          visibleFrom={8}
+          visibleUntil={360}
         />
       ) : null}
     </AbsoluteFill>

@@ -18,282 +18,256 @@ await Promise.all([
 const sourceText =
   "Physical activity is important for students because it helps them stay focused during class and manage stress. Regular movement can also improve sleep, energy, and confidence over time.";
 
-const resultParts = [
-  ["Physical activity is ", ""],
-  ["really useful", "guide-change guide-change-word"],
-  [" for students because it helps them ", ""],
-  ["focus better", "guide-change guide-change-structure"],
-  [" in class and deal with stress. Moving regularly can also improve sleep, energy, and confidence ", ""],
-  ["over time", "guide-change guide-change-tone"],
-  [".", ""],
-] as const;
+const finalText =
+  "Physical activity is really useful for students because it helps them focus better in class and deal with stress. Moving regularly can also improve sleep, energy, and confidence over time.";
 
-const stepFrames = [0, 125, 205, 320, 458, 600];
-const stepNames = ["Paste", "Choose", "Match", "Review", "Auto Type"];
+const countWords = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 
-const wordLines = (text: string) => text.split(" ");
-
-const BrandMark = () => (
-  <div className="guide-brand-mark" aria-hidden="true">
-    <i />
-    <i />
-    <i />
-    <i />
-    <i />
-  </div>
+const Fingerprint = () => (
+  <span className="real-fingerprint" aria-hidden="true">
+    <i /><i /><i /><i /><i /><i />
+  </span>
 );
 
-const BrowserChrome = () => (
+const AppNav = ({editor = false}: {readonly editor?: boolean}) => (
   <>
-    <div className="guide-browser-bar">
-      <div className="guide-browser-dots"><i /><i /><i /></div>
-      <div className="guide-browser-address">
-        <span className="guide-browser-lock">⌁</span>
-        bipassai.com/home
+    <div className="real-nav">
+      <div className="real-logo">BIPASS AI</div>
+      {!editor ? (
+        <div className="real-nav-links">
+          <span>History</span><span>Plans</span><span>How to Use</span><span>Settings</span>
+        </div>
+      ) : <div className="real-nav-links" />}
+      {!editor ? (
+        <div className="real-nav-right">
+          <div className="real-credit"><b>B</b><strong>1,840</strong><span>credits</span></div>
+          <div className="real-extension-icon">✣</div>
+          <div className="real-user">S</div>
+        </div>
+      ) : <div className="real-user">S</div>}
+    </div>
+    {!editor ? (
+      <div className="real-ticker">
+        <span>YOUR LEVEL, DIALED IN</span><i>✦</i><span>BEGINNER TO ACADEMIC</span><i>✦</i>
+        <span>WRITING PROFILE MATCHING</span><i>✦</i><span>BUILT-IN AUTO TYPER</span><i>✦</i>
+        <span>YOUR LEVEL, DIALED IN</span>
       </div>
-      <div className="guide-browser-actions">•••</div>
-    </div>
-    <div className="guide-site-nav">
-      <div className="guide-logo"><BrandMark /> BIPASS AI</div>
-      <div className="guide-nav-links"><span>History</span><span>Plans</span><span>Settings</span></div>
-      <div className="guide-credits"><b>1,840</b> credits</div>
-      <div className="guide-avatar">S</div>
-    </div>
+    ) : null}
   </>
 );
 
 const StylePanel = ({frame}: {readonly frame: number}) => {
-  const selected = frame >= 154;
+  const selected = frame >= 148;
   return (
-    <div className="guide-style-panel">
-      <div className="guide-panel-label">STYLES</div>
-      <div className="guide-profile-option">
-        <BrandMark />
-        <div><strong>School essays</strong><small>3 saved profiles</small></div>
-        <span>SELECT</span>
+    <div className="real-style-wrap">
+      <div className="real-style-glow" />
+      <div className="real-style-panel">
+        <div className="real-control-head">STYLES</div>
+        <div className="real-profile-choice">
+          <Fingerprint />
+          <div><strong>My school writing</strong><span>Writing Profile · Student</span></div>
+          <b>Default</b>
+        </div>
+        <div className="real-or"><i /><span>OR</span><i /></div>
+        <div className="real-level-track">
+          <span>Beginner</span>
+          <span className={selected ? "selected" : ""}>Student</span>
+          <span>Academic</span>
+          <span>Custom</span>
+          <i
+            className="real-level-glider"
+            style={{
+              opacity: interpolate(frame, [132, 148], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.bezier(0.16, 1, 0.3, 1),
+              }),
+              translate: interpolate(frame, [132, 148], ["0px 0px", "168px 0px"], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.bezier(0.16, 1, 0.3, 1),
+              }),
+            }}
+          />
+        </div>
+        <div className="real-profile-heading">MY PROFILES</div>
+        <div className="real-saved-profile active"><Fingerprint /><div><strong>My school writing</strong><span>Vocabulary · Grammar · Sentence patterns</span></div><b>Using</b></div>
+        <div className="real-saved-profile"><Fingerprint /><div><strong>Lab reports</strong><span>Academic · Direct · Structured</span></div><b>Use</b></div>
+        <div className="real-profile-note">
+          <strong>Profile analysis</strong>
+          <span>Built from your past writing samples</span>
+          <div><i style={{width: "72%"}} /><i style={{width: "48%"}} /><i style={{width: "61%"}} /></div>
+        </div>
       </div>
-      <div className="guide-or"><i />OR<i /></div>
-      <div className="guide-level-track">
-        <div
-          className="guide-level-glider"
-          style={{
-            opacity: interpolate(frame, [136, 154], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              easing: Easing.bezier(0.16, 1, 0.3, 1),
-            }),
-            translate: interpolate(frame, [136, 154], ["0px 0px", "160px 0px"], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              easing: Easing.bezier(0.16, 1, 0.3, 1),
-            }),
-          }}
-        />
-        <span>Beginner</span><span className={selected ? "is-selected" : ""}>Student</span><span>Academic</span><span>Custom</span>
-      </div>
-      <div className="guide-level-detail">
-        <div className="guide-detail-head"><span>Student level</span><b>{selected ? "SELECTED" : "READY"}</b></div>
-        <div className="guide-detail-row"><span>Vocabulary</span><i><b style={{width: `${interpolate(frame, [148, 170], [0, 56], {extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1)})}%`}} /></i><em>Natural</em></div>
-        <div className="guide-detail-row"><span>Sentence flow</span><i><b style={{width: `${interpolate(frame, [151, 173], [0, 62], {extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1)})}%`}} /></i><em>Varied</em></div>
-        <div className="guide-detail-row"><span>Grammar</span><i><b style={{width: `${interpolate(frame, [154, 176], [0, 18], {extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1)})}%`}} /></i><em>Clean</em></div>
-      </div>
-      <div className="guide-profile-list-label">MY PROFILES</div>
-      <div className="guide-mini-profile"><BrandMark /><strong>School essays</strong><span>Use</span></div>
-      <div className="guide-mini-profile"><BrandMark /><strong>Lab reports</strong><span>Use</span></div>
     </div>
   );
 };
 
-const InputWorkspace = ({frame}: {readonly frame: number}) => {
-  const typedCount = Math.floor(interpolate(frame, [28, 112], [0, sourceText.length], {
+const HomeWorkspace = ({frame}: {readonly frame: number}) => {
+  const typedCount = Math.floor(interpolate(frame, [24, 108], [0, sourceText.length], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   }));
   const typed = sourceText.slice(0, typedCount);
-  const processing = frame >= 222 && frame < 320;
-  const processingProgress = interpolate(frame, [222, 314], [0, 100], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.bezier(0.4, 0, 0.2, 1),
-  });
-  const phase = processingProgress < 34 ? "Reading your draft" : processingProgress < 72 ? "Matching Student level" : "Preparing changes";
-
   return (
-    <div className="guide-workspace-pane">
-      <div className="guide-mode-row">
-        <div><span>WORKFLOW</span><strong>Level Matching Only</strong></div>
-        <span className="guide-word-count">{typed ? wordLines(typed).length : 0} words</span>
-      </div>
-      <div className="guide-upload-row"><span>＋ Upload document</span><small>PDF · DOCX · TXT</small></div>
-      <div className="guide-textarea">
-        {typed || <span className="guide-placeholder">Paste text to match its writing level…</span>}
-        {frame < 120 ? <i className="guide-caret" /> : null}
-      </div>
-      <div className="guide-quality-row"><span><i /> Meaning protected</span><span><i /> Sentence structure locked</span></div>
-      <button className={frame >= 214 && frame < 226 ? "guide-match-button is-pressed" : "guide-match-button"}>
-        <span>MATCH LEVEL</span><b>→</b>
-      </button>
-      {processing ? (
-        <div className="guide-processing">
-          <div className="guide-processing-card">
-            <div className="guide-processing-top"><BrandMark /><span>{phase}</span><b>{Math.round(processingProgress)}%</b></div>
-            <div className="guide-processing-track"><i style={{width: `${processingProgress}%`}} /></div>
-            <div className="guide-processing-stages"><span className="done">READ</span><span className={processingProgress > 34 ? "done" : ""}>MATCH</span><span className={processingProgress > 72 ? "done" : ""}>FINAL</span></div>
+    <div className="real-page real-home-page">
+      <AppNav />
+      <div className="real-dot-field" />
+      <div className="real-workspace">
+        <div className="real-main-card">
+          <div className="real-mode-row">
+            <div className="real-mode-dropdown"><strong>LEVEL MATCHING</strong><span>⌄</span></div>
+            <span className="real-wc">{countWords(typed)} words</span>
+            <span className="real-cost">{countWords(typed) * 4} credits</span>
           </div>
+          <div className="real-upload"><b>⇧ &nbsp;UPLOAD FILE</b><span>PDF, DOCX or TXT</span></div>
+          <div className="real-input">
+            {typed || <span className="real-placeholder">Paste your text here — AI-generated or your own…</span>}
+            {frame < 116 ? <i className="real-caret" /> : null}
+          </div>
+          <div className="real-hints">
+            <div><b>↓</b><strong>WORD SWAP</strong><span>Replaces AI vocabulary</span></div>
+            <div><b>≈</b><strong>YOUR MEANING</strong><span>Keeps original intent</span></div>
+            <div><b>✓</b><strong>LEVEL MATCH</strong><span>Sounds like your level</span></div>
+          </div>
+          <button className={frame >= 198 && frame < 212 ? "real-match-button pressed" : "real-match-button"}>
+            <span>MATCH MY LEVEL</span><b>→</b>
+          </button>
         </div>
-      ) : null}
+        <StylePanel frame={frame} />
+      </div>
     </div>
   );
 };
 
-const ResultWorkspace = ({frame}: {readonly frame: number}) => {
-  const reveal = interpolate(frame, [320, 342], [0, 1], {
+const LoadingScreen = ({frame}: {readonly frame: number}) => {
+  const progress = interpolate(frame, [218, 296], [8, 100], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.bezier(0.4, 0, 0.2, 1),
+  });
+  const phase = progress < 38 ? "ANALYZING" : progress < 74 ? "MATCHING LEVEL" : "PREPARING RESULT";
+  const step = progress < 38 ? "01 / 03" : progress < 74 ? "02 / 03" : "03 / 03";
+  return (
+    <div className="real-loading">
+      <div className="real-loading-grain" />
+      <div className="real-loading-inner">
+        <span>{step}</span>
+        <strong>{phase}</strong>
+        <div className="real-loading-bar"><i style={{width: `${progress}%`}} /></div>
+        <div className="real-credits-used"><b>{Math.round(interpolate(frame, [218, 296], [0, 116], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}))}</b><span>CREDITS USED</span></div>
+        <button>CANCEL <b>×</b></button>
+      </div>
+    </div>
+  );
+};
+
+const ChangePair = ({before, after, tone}: {readonly before: string; readonly after: string; readonly tone: "word" | "grammar" | "punct"}) => (
+  <span className={`real-change-pair ${tone}`}><span>{before}</span><b>{after}</b></span>
+);
+
+const EditorWorkspace = ({frame}: {readonly frame: number}) => {
+  const reveal = interpolate(frame, [296, 318], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.bezier(0.16, 1, 0.3, 1),
   });
   return (
-    <div className="guide-result-pane" style={{opacity: reveal, translate: `${(1 - reveal) * 22}px 0px`}}>
-      <div className="guide-result-header">
-        <div><span>RESULT</span><strong>Level-matched draft</strong></div>
-        <div className="guide-result-meta"><span>Student</span><span>29 words</span><button>Copy</button></div>
-      </div>
-      <div className="guide-result-body">
-        <p>{resultParts.map(([text, className], index) => <span className={className} key={index}>{text}</span>)}</p>
-        <div className="guide-change-legend"><span><i className="word" />Vocabulary</span><span><i className="structure" />Structure</span><span><i className="tone" />Tone</span></div>
-      </div>
-      <div className="guide-result-footer">
-        <button className="guide-secondary-button">← Adjust level</button>
-        <button className={frame >= 426 && frame < 438 ? "guide-upload-button is-pressed" : "guide-upload-button"}>
-          <span>Upload to Auto Typer</span><b>↗</b>
-        </button>
-      </div>
+    <div className="real-page real-editor-page" style={{opacity: reveal}}>
+      <AppNav editor />
+      <main className="real-editor-main">
+        <div className="real-editor-wrap">
+          <div className="real-editor-topbar">
+            <div><span>LEVEL MATCHED</span><span>29 words</span><span>6 changes</span><span>Student</span></div>
+            <button>COPY</button>
+          </div>
+          <div className="real-editor-layout">
+            <div className="real-changes-view">
+              Physical activity is <ChangePair before="important" after="really useful" tone="word" /> for students because it helps them <ChangePair before="stay focused" after="focus better" tone="grammar" /> during class and <ChangePair before="manage" after="deal with" tone="word" /> stress. <ChangePair before="Regular movement" after="Moving regularly" tone="punct" /> can also improve sleep, energy, and confidence over time.
+            </div>
+            <aside className="real-changes-side">
+              <div className="real-filter-card">
+                <strong>FILTER CHANGES</strong>
+                <div><i className="word" /><span>Vocabulary</span><b>3</b><em /></div>
+                <div><i className="grammar" /><span>Grammar</span><b>1</b><em /></div>
+                <div><i className="punct" /><span>Punctuation</span><b>1</b><em /></div>
+                <div><i className="spelling" /><span>Spelling</span><b>1</b><em /></div>
+              </div>
+              <div className="real-find-change">⌕ &nbsp; FIND A CHANGE <span>⌄</span></div>
+              <button className={frame >= 438 && frame < 452 ? "real-editor-upload pressed" : "real-editor-upload"}>UPLOAD TO EXTENSION <b>✣</b></button>
+              <button className="real-editor-secondary">↻ &nbsp; REGENERATE</button>
+              <button className="real-editor-secondary">← &nbsp; BACK</button>
+            </aside>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
 
 const DocsWorkspace = ({frame}: {readonly frame: number}) => {
-  const docText = "Physical activity is really useful for students because it helps them focus better in class and deal with stress. Moving regularly can also improve sleep, energy, and confidence over time.";
-  const typedCount = Math.floor(interpolate(frame, [492, 576], [0, docText.length], {
+  const typedCount = Math.floor(interpolate(frame, [486, 580], [0, finalText.length], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   }));
-  const complete = frame >= 576;
+  const complete = frame >= 580;
   return (
-    <div className="guide-docs-pane">
-      <div className="guide-docs-topbar">
-        <div className="guide-doc-icon">▤</div>
-        <div><strong>Physical activity draft</strong><span>Saved to Drive</span></div>
-        <div className="guide-docs-actions"><span>Share</span><div>S</div></div>
-      </div>
-      <div className="guide-docs-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Help</span></div>
-      <div className="guide-docs-toolbar"><span>↶</span><span>↷</span><i /><b>100%</b><i /><b>Normal text</b><i /><b>Arial</b><i /><b>11</b></div>
-      <div className="guide-docs-canvas">
-        <div className="guide-doc-page">
-          <div className="guide-doc-title">Why movement matters for students</div>
-          <p>{docText.slice(0, typedCount)}{!complete ? <i className="guide-doc-caret" /> : null}</p>
-        </div>
-      </div>
-      <div className={complete ? "guide-autotyper-pill is-complete" : "guide-autotyper-pill"}>
-        <BrandMark />
-        <div><strong>{complete ? "Typing complete" : "Auto Typing"}</strong><span>{complete ? "173 characters" : "Natural pace · Student draft"}</span></div>
-        <b>{complete ? "✓" : "Ⅱ"}</b>
-      </div>
-    </div>
-  );
-};
-
-const StepRail = ({frame}: {readonly frame: number}) => {
-  const active = Math.min(stepNames.length - 1, stepFrames.findIndex((end, index) => index > 0 && frame < end) - 1);
-  const safeActive = active < 0 ? stepNames.length - 1 : active;
-  return (
-    <div className="guide-step-rail">
-      {stepNames.map((name, index) => {
-        const start = stepFrames[index];
-        const end = stepFrames[index + 1];
-        const progress = interpolate(frame, [start, end], [0, 100], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        });
-        return (
-          <div className={index === safeActive ? "guide-step is-active" : index < safeActive ? "guide-step is-done" : "guide-step"} key={name}>
-            <div><b>{String(index + 1).padStart(2, "0")}</b><span>{name}</span></div>
-            <i><b style={{width: `${index < safeActive ? 100 : index === safeActive ? progress : 0}%`}} /></i>
-          </div>
-        );
-      })}
+    <div className="real-docs-page">
+      <div className="real-docs-head"><div className="real-doc-icon">▤</div><div><strong>Physical activity draft</strong><span>Saved to Drive</span></div><button>Share</button><div className="real-doc-user">S</div></div>
+      <div className="real-doc-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Help</span></div>
+      <div className="real-doc-toolbar"><span>↶</span><span>↷</span><i /><b>100%</b><i /><b>Normal text</b><i /><b>Arial</b><i /><b>11</b></div>
+      <div className="real-doc-canvas"><div className="real-doc-sheet"><strong>Why movement matters for students</strong><p>{finalText.slice(0, typedCount)}{!complete ? <i /> : null}</p></div></div>
+      <div className={complete ? "real-autotyper complete" : "real-autotyper"}><Fingerprint /><div><strong>{complete ? "Typing complete" : "Auto Typing"}</strong><span>{complete ? "Saved in Google Docs" : "Natural pace · Student result"}</span></div><b>{complete ? "✓" : "Ⅱ"}</b></div>
     </div>
   );
 };
 
 export const LevelMatchingGuide = () => {
   const frame = useCurrentFrame();
-  const showResult = frame >= 320;
-  const showDocs = frame >= 458;
-  const windowOpacity = interpolate(frame, [0, 18, 590, 599], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.4, 0, 1, 1)],
-  });
-  const appOpacity = interpolate(frame, [458, 488], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const docsOpacity = interpolate(frame, [464, 494], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
+  const showLoading = frame >= 212 && frame < 296;
+  const showEditor = frame >= 296 && frame < 462;
+  const showDocs = frame >= 462;
 
   return (
-    <AbsoluteFill className="level-guide-film">
-      <div className="level-guide-grid" />
-      <Interactive.Div name="Workflow label" className="guide-film-label">
-        <BrandMark /><span>LEVEL MATCHING</span><i />WORKFLOW
-      </Interactive.Div>
+    <AbsoluteFill className="real-app-film">
       <Interactive.Div
-        name="Product window"
-        className="guide-browser"
+        name="Real Bipass workflow"
+        className="real-app-stage"
         style={{
-          opacity: windowOpacity,
-          scale: interpolate(frame, [0, 24], [0.975, 1], {
+          opacity: interpolate(frame, [0, 14, 590, 599], [0, 1, 1, 0], {
             extrapolateLeft: "clamp",
             extrapolateRight: "clamp",
-            easing: Easing.spring({damping: 200}),
-            output: "perceptual-scale",
+            easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.4, 0, 1, 1)],
           }),
         }}
       >
-        <BrowserChrome />
-        <div className="guide-app-area" style={{opacity: appOpacity}}>
-          {showResult ? <ResultWorkspace frame={frame} /> : <InputWorkspace frame={frame} />}
-          <StylePanel frame={frame} />
-        </div>
-        {showDocs ? <div style={{opacity: docsOpacity}}><DocsWorkspace frame={frame} /></div> : null}
+        {!showEditor && !showDocs ? <HomeWorkspace frame={frame} /> : null}
+        {showLoading ? <LoadingScreen frame={frame} /> : null}
+        {showEditor ? <EditorWorkspace frame={frame} /> : null}
+        {showDocs ? <DocsWorkspace frame={frame} /> : null}
       </Interactive.Div>
-      {!showDocs ? (
+      {!showLoading && !showDocs ? (
         <Pointer
-          clickFrames={[154, 218, 432]}
+          clickFrames={[148, 204, 446]}
           points={[
-            {frame: 18, x: 700, y: 525},
-            {frame: 112, x: 700, y: 525},
-            {frame: 136, x: 1989, y: 463},
-            {frame: 154, x: 1989, y: 463},
-            {frame: 178, x: 1989, y: 463},
-            {frame: 202, x: 913, y: 1188},
-            {frame: 218, x: 913, y: 1188},
-            {frame: 252, x: 913, y: 1188},
-            {frame: 338, x: 870, y: 685},
-            {frame: 405, x: 870, y: 685},
-            {frame: 422, x: 1503, y: 1205},
-            {frame: 432, x: 1503, y: 1205},
-            {frame: 456, x: 1503, y: 1205},
+            {frame: 12, x: 690, y: 560},
+            {frame: 108, x: 690, y: 560},
+            {frame: 126, x: 2132, y: 420},
+            {frame: 148, x: 2132, y: 420},
+            {frame: 176, x: 2132, y: 420},
+            {frame: 190, x: 875, y: 1250},
+            {frame: 204, x: 875, y: 1250},
+            {frame: 212, x: 875, y: 1250},
+            {frame: 318, x: 980, y: 690},
+            {frame: 418, x: 980, y: 690},
+            {frame: 432, x: 2230, y: 1075},
+            {frame: 446, x: 2230, y: 1075},
+            {frame: 461, x: 2230, y: 1075},
           ]}
-          visibleFrom={14}
-          visibleUntil={464}
+          visibleFrom={10}
+          visibleUntil={462}
         />
       ) : null}
-      <StepRail frame={frame} />
     </AbsoluteFill>
   );
 };

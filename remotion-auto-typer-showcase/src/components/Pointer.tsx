@@ -1,4 +1,4 @@
-import {useCurrentFrame} from "remotion";
+import {interpolate, useCurrentFrame} from "remotion";
 import {eased, linear} from "../lib/motion";
 
 type Point = {readonly frame: number; readonly x: number; readonly y: number};
@@ -6,6 +6,9 @@ type Point = {readonly frame: number; readonly x: number; readonly y: number};
 type PointerProps = {
   readonly points: readonly Point[];
   readonly clickFrames?: readonly number[];
+  readonly clickColor?: string;
+  readonly clickFill?: string;
+  readonly clickRadius?: number;
   readonly visibleFrom?: number;
   readonly visibleUntil?: number;
 };
@@ -13,6 +16,9 @@ type PointerProps = {
 export const Pointer = ({
   points,
   clickFrames = [],
+  clickColor = "rgba(13, 13, 13, 0.5)",
+  clickFill = "rgba(13, 13, 13, 0.08)",
+  clickRadius = 22,
   visibleFrom = 0,
   visibleUntil = 100000,
 }: PointerProps) => {
@@ -29,7 +35,7 @@ export const Pointer = ({
   );
 
   const closestClick = clickFrames.reduce<number | null>((closest, click) => {
-    if (Math.abs(frame - click) > 9) return closest;
+    if (frame < click - 3 || frame > click + 10) return closest;
     if (closest === null || Math.abs(frame - click) < Math.abs(frame - closest)) return click;
     return closest;
   }, null);
@@ -37,14 +43,14 @@ export const Pointer = ({
   const clickProgress =
     closestClick === null
       ? 0
-      : linear(frame, [closestClick - 2, closestClick + 9], [0, 1]);
+      : linear(frame, [closestClick, closestClick + 10], [0, 1]);
   const pointerScale =
     closestClick === null
       ? 1
       : eased(
           frame,
-          [closestClick - 3, closestClick, closestClick + 5],
-          [1, 0.86, 1],
+          [closestClick - 2, closestClick + 1, closestClick + 6],
+          [1, 0.78, 1],
         );
 
   return (
@@ -53,10 +59,17 @@ export const Pointer = ({
         <div
           className="pointer-click"
           style={{
-            left: x - 22,
-            top: y - 22,
-            opacity: 1 - clickProgress,
-            scale: 0.45 + clickProgress * 1.25,
+            left: x - clickRadius,
+            top: y - clickRadius,
+            width: clickRadius * 2,
+            height: clickRadius * 2,
+            backgroundColor: clickFill,
+            borderColor: clickColor,
+            opacity: interpolate(frame, [closestClick, closestClick + 2, closestClick + 10], [0, 1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+            scale: 0.35 + clickProgress * 1.25,
           }}
         />
       )}

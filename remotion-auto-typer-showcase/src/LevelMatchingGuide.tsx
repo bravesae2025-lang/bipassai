@@ -29,6 +29,37 @@ const Fingerprint = () => (
   </span>
 );
 
+const ActionCue = ({
+  frame,
+  step,
+  label,
+  range,
+}: {
+  readonly frame: number;
+  readonly step: string;
+  readonly label: string;
+  readonly range: readonly [number, number, number, number];
+}) => (
+  <div
+    className="real-action-cue"
+    style={{
+      opacity: interpolate(frame, range, [0, 1, 1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+        easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.4, 0, 1, 1)],
+      }),
+      translate: interpolate(frame, [range[0], range[1]], ["-50% -10px", "-50% 0px"], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+        easing: Easing.bezier(0.16, 1, 0.3, 1),
+      }),
+    }}
+  >
+    <b>STEP {step}</b>
+    <span>{label}</span>
+  </div>
+);
+
 const AppNav = ({editor = false}: {readonly editor?: boolean}) => (
   <>
     <div className="real-nav">
@@ -57,7 +88,7 @@ const AppNav = ({editor = false}: {readonly editor?: boolean}) => (
 );
 
 const StylePanel = ({frame}: {readonly frame: number}) => {
-  const selected = frame >= 138;
+  const selected = frame >= 146;
   return (
     <div className="real-style-wrap">
       <div className="real-style-glow" />
@@ -69,7 +100,7 @@ const StylePanel = ({frame}: {readonly frame: number}) => {
           <b>Default</b>
         </div>
         <div className="real-or"><i /><span>OR</span><i /></div>
-        <div className="real-level-track">
+        <div className={selected ? "real-level-track confirmed" : "real-level-track"}>
           <span>Beginner</span>
           <span className={selected ? "selected" : ""}>Student</span>
           <span>Academic</span>
@@ -77,16 +108,12 @@ const StylePanel = ({frame}: {readonly frame: number}) => {
           <i
             className="real-level-glider"
             style={{
-              opacity: interpolate(frame, [118, 138], [0, 1], {
+              opacity: interpolate(frame, [140, 146], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
                 easing: Easing.bezier(0.4, 0, 0.2, 1),
               }),
-              translate: interpolate(frame, [118, 138], ["0px 0px", "128px 0px"], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-                easing: Easing.bezier(0.4, 0, 0.2, 1),
-              }),
+              translate: "128px 0px",
             }}
           />
         </div>
@@ -114,13 +141,13 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
       name="Home workspace camera"
       className="real-camera"
       style={{
-        scale: interpolate(frame, [0, 98, 140, 188], [1, 1, 1.14, 1.04], {
+        scale: interpolate(frame, [0, 96, 126, 154, 176, 188], [1, 1, 1.09, 1.09, 1.02, 1.02], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [0, 98, 140, 188], ["0px 0px", "0px 0px", "-300px -40px", "-50px -50px"], {
+        translate: interpolate(frame, [0, 96, 126, 154, 176, 188], ["0px 0px", "0px 0px", "-225px -35px", "-225px -35px", "-30px -45px", "-30px -45px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -147,7 +174,7 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
               <div><b>≈</b><strong>YOUR MEANING</strong><span>Keeps original intent</span></div>
               <div><b>✓</b><strong>LEVEL MATCH</strong><span>Sounds like your level</span></div>
             </div>
-            <button className={frame >= 180 && frame < 188 ? "real-match-button pressed" : "real-match-button"}>
+            <button className={frame >= 182 && frame < 188 ? "real-match-button pressed" : "real-match-button"}>
               <span>MATCH MY LEVEL</span><b>→</b>
             </button>
           </div>
@@ -205,13 +232,13 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
       className="real-camera"
       style={{
         opacity: reveal,
-        scale: interpolate(frame, [250, 360, 372], [1, 1.08, 1.03], {
+        scale: interpolate(frame, [250, 270, 295, 315, 345, 360, 372], [1, 1, 1.06, 1.06, 1.04, 1.04, 1.02], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [250, 300, 352, 372], ["0px 0px", "170px 90px", "-30px -35px", "0px 0px"], {
+        translate: interpolate(frame, [250, 270, 295, 315, 345, 360, 372], ["0px 0px", "0px 0px", "120px 65px", "120px 65px", "-30px -30px", "-30px -30px", "0px 0px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -239,7 +266,7 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
                 <div><i className="spelling" /><span>Spelling</span><b>1</b><em /></div>
               </div>
               <div className="real-find-change">⌕ &nbsp; FIND A CHANGE <span>⌄</span></div>
-              <button className={frame >= 348 && frame < 357 ? "real-editor-upload pressed" : "real-editor-upload"}>UPLOAD TO EXTENSION <b>✣</b></button>
+              <button className={frame >= 352 && frame < 360 ? "real-editor-upload pressed" : "real-editor-upload"}>UPLOAD TO EXTENSION <b>✣</b></button>
               <button className="real-editor-secondary">↻ &nbsp; REGENERATE</button>
               <button className="real-editor-secondary">← &nbsp; BACK</button>
             </aside>
@@ -266,17 +293,6 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
-        }),
-        scale: interpolate(frame, [360, 435, 466, 479], [1, 1, 1.085, 1.035], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-          easing: Easing.bezier(0.4, 0, 0.2, 1),
-          output: "perceptual-scale",
-        }),
-        translate: interpolate(frame, [360, 435, 466, 479], ["0px 0px", "0px 0px", "-230px -195px", "-180px -145px"], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-          easing: Easing.bezier(0.4, 0, 0.2, 1),
         }),
       }}
     >
@@ -315,20 +331,32 @@ export const LevelMatchingGuide = () => {
         {showEditor ? <EditorWorkspace frame={frame} /> : null}
         {showDocs ? <DocsWorkspace frame={frame} /> : null}
       </Interactive.Div>
+      {!showLoading ? (
+        <>
+          <ActionCue frame={frame} range={[96, 106, 150, 160]} step="01" label="Choose Student" />
+          <ActionCue frame={frame} range={[160, 168, 184, 192]} step="02" label="Match my level" />
+          <ActionCue frame={frame} range={[252, 264, 310, 320]} step="03" label="Review the changes" />
+          <ActionCue frame={frame} range={[320, 330, 354, 364]} step="04" label="Upload to extension" />
+          <ActionCue frame={frame} range={[372, 382, 450, 462]} step="05" label="Auto Type in Google Docs" />
+        </>
+      ) : null}
       {!showLoading && !showDocs ? (
         <Pointer
-          clickFrames={[138, 182, 352]}
+          clickFrames={[140, 182, 352]}
+          clickColor="#22c55e"
+          clickFill="rgba(34, 197, 94, 0.18)"
+          clickRadius={32}
           points={[
             {frame: 10, x: 660, y: 540},
-            {frame: 98, x: 660, y: 540},
-            {frame: 118, x: 1825, y: 570},
-            {frame: 138, x: 1825, y: 570},
-            {frame: 158, x: 1825, y: 570},
-            {frame: 180, x: 820, y: 1310},
+            {frame: 96, x: 660, y: 540},
+            {frame: 124, x: 1900, y: 580},
+            {frame: 140, x: 1900, y: 580},
+            {frame: 154, x: 1900, y: 580},
+            {frame: 176, x: 820, y: 1310},
             {frame: 182, x: 820, y: 1310},
             {frame: 188, x: 820, y: 1310},
             {frame: 270, x: 865, y: 500},
-            {frame: 320, x: 865, y: 500},
+            {frame: 315, x: 865, y: 500},
             {frame: 345, x: 2340, y: 1090},
             {frame: 352, x: 2340, y: 1090},
             {frame: 360, x: 2340, y: 1090},

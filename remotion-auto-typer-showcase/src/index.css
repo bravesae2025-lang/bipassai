@@ -1125,32 +1125,32 @@ body {
 .real-action-cue {
   position: absolute;
   z-index: 60;
-  top: 38px;
+  top: 42px;
   left: 50%;
-  min-height: 48px;
+  min-height: 68px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px 8px 9px;
+  gap: 16px;
+  padding: 11px 22px 11px 12px;
   border: 1px solid rgba(255,255,255,0.18);
   border-radius: 999px;
   background: rgba(15,16,19,0.90);
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   color: #fff;
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
 .real-action-cue b {
   width: auto;
-  height: 31px;
+  height: 42px;
   display: grid;
   place-items: center;
-  padding: 0 10px;
+  padding: 0 14px;
   border-radius: 999px;
   background: #22c55e;
   color: #102016;
   font-family: "Bipass Mono", monospace;
-  font-size: 11px;
+  font-size: 14px;
 }

@@ -82,7 +82,7 @@ const StylePanel = ({frame}: {readonly frame: number}) => {
                 extrapolateRight: "clamp",
                 easing: Easing.bezier(0.4, 0, 0.2, 1),
               }),
-              translate: interpolate(frame, [118, 138], ["0px 0px", "168px 0px"], {
+              translate: interpolate(frame, [118, 138], ["0px 0px", "128px 0px"], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
                 easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -114,13 +114,13 @@ const HomeWorkspace = ({frame}: {readonly frame: number}) => {
       name="Home workspace camera"
       className="real-camera"
       style={{
-        scale: interpolate(frame, [0, 22, 98, 124, 142, 158, 180, 188], [1, 1.025, 1.025, 1.12, 1.15, 1.15, 1.05, 1.05], {
+        scale: interpolate(frame, [0, 98, 140, 188], [1, 1, 1.14, 1.04], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [0, 98, 124, 142, 158, 180, 188], ["0px 0px", "0px 0px", "-190px -30px", "-240px -40px", "-240px -40px", "0px -50px", "0px -50px"], {
+        translate: interpolate(frame, [0, 98, 140, 188], ["0px 0px", "0px 0px", "-300px -40px", "-50px -50px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -205,13 +205,13 @@ const EditorWorkspace = ({frame}: {readonly frame: number}) => {
       className="real-camera"
       style={{
         opacity: reveal,
-        scale: interpolate(frame, [250, 270, 300, 320, 345, 360, 372], [1, 1.02, 1.12, 1.12, 1.08, 1.08, 1.03], {
+        scale: interpolate(frame, [250, 360, 372], [1, 1.08, 1.03], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [250, 270, 300, 320, 345, 360, 372], ["0px 0px", "0px 0px", "180px 100px", "180px 100px", "-40px -40px", "-40px -40px", "0px 0px"], {
+        translate: interpolate(frame, [250, 300, 352, 372], ["0px 0px", "170px 90px", "-30px -35px", "0px 0px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -267,13 +267,13 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
           extrapolateRight: "clamp",
           easing: [Easing.bezier(0.4, 0, 0.2, 1), Easing.linear, Easing.bezier(0.4, 0, 0.2, 1)],
         }),
-        scale: interpolate(frame, [360, 440, 462, 470, 479], [1, 1, 1.1, 1.1, 1.06], {
+        scale: interpolate(frame, [360, 435, 466, 479], [1, 1, 1.085, 1.035], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           output: "perceptual-scale",
         }),
-        translate: interpolate(frame, [360, 440, 462, 470, 479], ["0px 0px", "0px 0px", "-260px -220px", "-260px -220px", "-200px -160px"], {
+        translate: interpolate(frame, [360, 435, 466, 479], ["0px 0px", "0px 0px", "-230px -195px", "-180px -145px"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -321,9 +321,9 @@ export const LevelMatchingGuide = () => {
           points={[
             {frame: 10, x: 660, y: 540},
             {frame: 98, x: 660, y: 540},
-            {frame: 124, x: 1775, y: 430},
-            {frame: 138, x: 1775, y: 430},
-            {frame: 158, x: 1775, y: 430},
+            {frame: 118, x: 1825, y: 570},
+            {frame: 138, x: 1825, y: 570},
+            {frame: 158, x: 1825, y: 570},
             {frame: 180, x: 820, y: 1310},
             {frame: 182, x: 820, y: 1310},
             {frame: 188, x: 820, y: 1310},

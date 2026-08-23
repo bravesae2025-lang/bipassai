@@ -915,7 +915,7 @@ body {
   z-index: 2;
   height: calc(100% - 126px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 730px;
+  grid-template-columns: minmax(0, 1fr) 600px;
   gap: 32px;
   padding: 34px 48px 46px;
 }
@@ -998,7 +998,13 @@ body {
 .real-match-button b { font-size: 20px; font-weight: 400; }
 .real-match-button.pressed { scale: 0.992; background: #0d0d0d; color: #fff; }
 
-.real-style-wrap { position: relative; min-width: 0; padding: 0 7px 8px 24px; }
+.real-style-wrap {
+  position: relative;
+  height: 700px;
+  min-width: 0;
+  align-self: center;
+  padding: 0 7px 8px 24px;
+}
 .real-style-glow {
   position: absolute;
   inset: -26px -12px 8px 8px;

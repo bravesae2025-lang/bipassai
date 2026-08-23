@@ -2122,6 +2122,25 @@ function renderStyleList(activatingStyleId = null, deactivatingStyleId = null) {
   });
   announceProfileDetailsState();
 
+  function activateStyleCard(id) {
+    if (myStyleActive && String(activeStyleId) === String(id)) return;
+
+    const previousActiveStyleId = myStyleActive ? activeStyleId : null;
+    activeStyleId = id;
+    savedStyle = savedStyles.find(style => String(style.id) === String(id)) || null;
+    saveStoredStyles();
+    activateMyStyle();
+    renderStyleList(id, previousActiveStyleId && String(previousActiveStyleId) !== String(id) ? previousActiveStyleId : null);
+  }
+
+  styleCardsList.querySelectorAll('.style-card').forEach(card => {
+    card.addEventListener('click', event => {
+      // Keep the card's editing, details, and action controls independent.
+      if (event.target.closest('button, input, summary, .writing-profile-details-body')) return;
+      activateStyleCard(card.dataset.id);
+    });
+  });
+
   styleCardsList.querySelectorAll('.style-use-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
@@ -2136,13 +2155,7 @@ function renderStyleList(activatingStyleId = null, deactivatingStyleId = null) {
         renderStyleList(null, id);
         announceLevelChange();
       } else {
-        // Activate — load style into sliders
-        const previousActiveStyleId = myStyleActive ? activeStyleId : null;
-        activeStyleId = id;
-        savedStyle = savedStyles.find(s => s.id === id) || null;
-        saveStoredStyles();
-        activateMyStyle();
-        renderStyleList(id, previousActiveStyleId && previousActiveStyleId !== id ? previousActiveStyleId : null);
+        activateStyleCard(id);
       }
     });
   });

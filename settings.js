@@ -197,6 +197,7 @@ function setupWorkspace() {
   const tickerToggle = document.getElementById('pref-show-ticker');
   const extensionTipsToggle = document.getElementById('pref-extension-tips');
   const replayTourBtn = document.getElementById('replay-tour-btn');
+  const resetOnboardingBtn = document.getElementById('reset-onboarding-btn');
 
   howtoToggle.checked = localStorage.getItem('bipass_pref_show_howto') !== 'false';
   howtoToggle.addEventListener('change', () => {
@@ -222,6 +223,36 @@ function setupWorkspace() {
     replayTourBtn.textContent = 'Ready for next visit';
     replayTourBtn.disabled = true;
     showToast('Guided tour will open next visit');
+  });
+
+  resetOnboardingBtn?.addEventListener('click', () => {
+    const temporaryPreferenceKeys = [
+      'bipass_pref_show_howto',
+      'bipass_pref_extension_tips',
+      'ticker-dismissed',
+      'rec-flow-collapsed',
+    ];
+    const savedPreferences = Object.fromEntries(
+      temporaryPreferenceKeys.map(key => [key, localStorage.getItem(key)]),
+    );
+
+    // Keep the account and its saved work untouched. Only reset browser-side
+    // first-run state; welcome.html runs the reward in non-claiming test mode.
+    sessionStorage.setItem('bipass_onboarding_test', '1');
+    sessionStorage.setItem('bipass_onboarding_test_restore', JSON.stringify(savedPreferences));
+    [
+      'bipass_onb',
+      'bipass_onb_preview',
+      'bipass_tour_seen',
+      'ext_popup_seen',
+      ...temporaryPreferenceKeys,
+    ].forEach(key => localStorage.removeItem(key));
+    sessionStorage.removeItem('bipass_autostart');
+
+    resetOnboardingBtn.disabled = true;
+    resetOnboardingBtn.classList.add('is-launching');
+    resetOnboardingBtn.querySelector('span:first-child').textContent = 'Starting test…';
+    window.location.assign('welcome.html?preview=1&test=1');
   });
 }
 

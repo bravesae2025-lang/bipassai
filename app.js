@@ -3044,6 +3044,7 @@ function startTour() {
   try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const onboardingTest = sessionStorage.getItem('bipass_onboarding_test') === '1';
   const returnFocus = document.activeElement;
   const planBanner = document.getElementById('no-plan-banner');
   const restorePlanBanner = !!planBanner && !planBanner.classList.contains('hidden');
@@ -3234,6 +3235,20 @@ function startTour() {
     spot.remove();
     pop.remove();
     if (restorePlanBanner) planBanner.classList.remove('hidden');
+    if (onboardingTest) {
+      try {
+        const savedPreferences = JSON.parse(
+          sessionStorage.getItem('bipass_onboarding_test_restore') || '{}',
+        );
+        Object.entries(savedPreferences).forEach(([key, value]) => {
+          if (value === null) localStorage.removeItem(key);
+          else localStorage.setItem(key, value);
+        });
+      } catch (_) {}
+      sessionStorage.removeItem('bipass_onboarding_test');
+      sessionStorage.removeItem('bipass_onboarding_test_restore');
+      setTimeout(() => window.__bipassShowExtPopup?.(), reduce ? 0 : 480);
+    }
     if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
       returnFocus.focus({ preventScroll: true });
     }

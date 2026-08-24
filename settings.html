@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=99">
+  <link rel="stylesheet" href="style.css?v=102">
 </head>
 <body class="editor-page">
 
@@ -216,6 +216,24 @@
         <a class="settings-outline-btn settings-add-profile-btn" id="settings-add-profile-btn" href="/home?createProfile=1">+ Add writing profile</a>
       </section>
 
+      <!-- Temporary QA control: replay the complete new-user journey without signing out. -->
+      <section class="settings-section settings-test-section" aria-labelledby="onboarding-test-title">
+        <div class="settings-test-head">
+          <div class="settings-section-label">Testing</div>
+          <span class="settings-test-badge">Temporary</span>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title" id="onboarding-test-title">Replay the new-user experience</div>
+            <div class="settings-row-sub">Runs the survey, name step, Gacha, workspace tour, and Auto Typer tip. Your reward is simulated and you stay signed in.</div>
+          </div>
+          <button class="settings-test-btn" id="reset-onboarding-btn" type="button">
+            <span>Reset &amp; test</span>
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
+      </section>
+
       <!-- ── Danger Zone ─────────────────────────────────────── -->
       <section class="settings-section settings-danger-section">
         <div class="settings-section-label">Danger Zone</div>
@@ -260,7 +278,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=8"></script>
-  <script src="settings.js?v=5"></script>
+  <script src="settings.js?v=6"></script>
 
   <footer class="site-footer">
     <span>© 2026 Bipass AI</span>

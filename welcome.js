@@ -10,6 +10,7 @@
 
 const QS = new URLSearchParams(location.search);
 const PREVIEW = QS.has('preview');
+const TEST_RUN = PREVIEW && QS.has('test');
 const PREVIEW_DAYS = [1, 3, 7].includes(Number(QS.get('days'))) ? Number(QS.get('days')) : null;
 
 const STEPS = ['step-survey', 'step-name', 'step-gacha', 'step-claimed'];
@@ -392,7 +393,7 @@ function showResult(days, opts = {}) {
   animateCount(document.getElementById('gacha-credits'), 0, CREDITS, 1100);
 
   const btn = document.getElementById('gacha-claim-btn');
-  btn.innerHTML = (authed ? 'Claim my reward' : 'Sign up to unlock my reward') +
+  btn.innerHTML = (TEST_RUN ? 'Continue test' : authed ? 'Claim my reward' : 'Sign up to unlock my reward') +
     ' <span class="onb-btn-arrow">→</span>';
   btn.addEventListener('click', () => {
     if (PREVIEW) { showClaimed(Date.now() + days * 86400000); return; }
@@ -457,9 +458,10 @@ function showClaimed(expiresAt) {
     countdownTimer = setInterval(tick, 1000);
   }
 
-  const go = () => window.location.replace(PREVIEW ? 'welcome.html?preview' : '/home');
+  const destination = TEST_RUN ? '/home?onboardingTest=1' : PREVIEW ? 'welcome.html?preview' : '/home';
+  const go = () => window.location.replace(destination);
   document.getElementById('claimed-continue').addEventListener('click', go, { once: true });
-  if (!PREVIEW) setTimeout(go, 3200);
+  if (!PREVIEW || TEST_RUN) setTimeout(go, 3200);
 }
 
 // ── Count-up (cubic ease-out, same feel as the app's counter) ──

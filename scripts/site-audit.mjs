@@ -96,6 +96,11 @@ const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
 const appJsFile = join(root, 'app.js');
 const appJs = readFileSync(appJsFile, 'utf8');
+const settingsFile = join(root, 'settings.html');
+const settingsHtml = readFileSync(settingsFile, 'utf8');
+const settingsJsFile = join(root, 'settings.js');
+const settingsJs = readFileSync(settingsJsFile, 'utf8');
+const welcomeJs = readFileSync(join(root, 'welcome.js'), 'utf8');
 const editorFile = join(root, 'editor.html');
 const editorHtml = readFileSync(editorFile, 'utf8');
 const editorJsFile = join(root, 'editor.js');
@@ -162,6 +167,13 @@ const tourSource = appJs.slice(
 const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match => match[1]);
 if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-detector-note,level-match-btn') {
   add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
+}
+if (!settingsHtml.includes('id="reset-onboarding-btn"')
+    || !settingsJs.includes("window.location.assign('welcome.html?preview=1&test=1')")
+    || !welcomeJs.includes("const TEST_RUN = PREVIEW && QS.has('test')")
+    || !welcomeJs.includes("'/home?onboardingTest=1'")
+    || !appJs.includes('window.__bipassShowExtPopup?.()')) {
+  add(settingsFile, 'temporary onboarding test must replay the complete flow without signing out or claiming a reward');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');

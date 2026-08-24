@@ -3084,6 +3084,99 @@ body.revision-open { overflow: hidden; }
   }
 }
 
+/* ── Temporary onboarding test control (Settings) ──────────── */
+.settings-section.settings-test-section {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(37, 87, 255, 0.34);
+  border-style: dashed;
+  background:
+    linear-gradient(rgba(37,87,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,87,255,0.035) 1px, transparent 1px),
+    linear-gradient(135deg, #fff 0%, #f7f9ff 100%);
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.settings-section.settings-test-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: #2557ff;
+}
+
+.settings-test-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-test-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(37,87,255,0.1);
+  color: #1944d1;
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.settings-test-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #2557ff;
+  border-radius: 9px;
+  background: #2557ff;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(37,87,255,0.16);
+  transition: transform .2s var(--ease-out), background-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.settings-test-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #1944d1;
+  box-shadow: 0 12px 26px rgba(37,87,255,0.23);
+}
+
+.settings-test-btn:focus-visible {
+  outline: 2px solid #2557ff;
+  outline-offset: 3px;
+}
+
+.settings-test-btn:disabled { cursor: wait; opacity: 0.68; }
+.settings-test-btn.is-launching span:last-child { animation: settings-test-spin .7s linear infinite; }
+
+@keyframes settings-test-spin { to { transform: rotate(-360deg); } }
+
+@media (max-width: 600px) {
+  .settings-test-section .settings-row { align-items: stretch; }
+  .settings-test-btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-test-btn,
+  .settings-test-btn.is-launching span:last-child {
+    animation: none;
+    transition: none;
+  }
+}
+
 @media (prefers-contrast: more) {
   .col.col-customize {
     background: rgba(28,28,30,0.96);

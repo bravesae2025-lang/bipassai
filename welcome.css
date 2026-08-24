@@ -309,8 +309,18 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   transition: background .2s, color .2s;
 }
 .gacha-info-close:hover { background: var(--onb-ink); color: var(--onb-bg); }
-.gacha-spin-actions { margin-top: 26px; }
+.gacha-spin-actions { margin-top: 18px; gap: 10px; }
 .gacha-open-btn { padding: 16px 42px; font-size: 15px; }
+.gacha-decline-btn {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--onb-faint); font-family: var(--ff-ui); font-size: 12px; font-weight: 600;
+  padding: 7px 12px; border-radius: 99px;
+  transition: color .2s var(--ease-out), transform .2s var(--ease-out), background .2s var(--ease-out), opacity .2s;
+}
+.gacha-decline-btn:hover { color: var(--onb-ink); background: rgba(0,0,0,0.045); transform: translateY(1px); }
+.gacha-decline-btn:active { transform: translateY(2px) scale(0.97); }
+.gacha-decline-btn:focus-visible { outline: 2px solid var(--onb-ink); outline-offset: 2px; }
+.gacha-decline-btn:disabled { cursor: progress; opacity: 0.55; }
 
 .gacha-reel-wrap {
   position: relative; margin-top: 24px;

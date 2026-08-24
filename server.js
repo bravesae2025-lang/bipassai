@@ -851,6 +851,36 @@ app.post('/api/init-credits', asyncHandler(async (req, res) => {
   return res.json({ credits: INITIAL_CREDITS, passExpiresAt, days });
 }));
 
+// ─── POST /api/skip-welcome-reward ────────────────────────────
+// Completes the welcome flow for someone who explicitly declines the free
+// pass and credits. Keeping this server-side prevents the client from being
+// routed back into onboarding on its next authenticated page load.
+
+app.post('/api/skip-welcome-reward', asyncHandler(async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const user = await getUserFromToken(token);
+  if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  const billing = getBillingMeta(user);
+  if (billing.signup_welcome_shown) return res.json({ alreadyComplete: true });
+
+  // Explicitly record a zero balance for new users. This avoids the legacy
+  // default-credit fallback while preserving any balance an existing user has.
+  const credits = typeof billing.credits === 'number' ? billing.credits : 0;
+  await updateUserAppMeta(user.id, { signup_welcome_shown: true, credits });
+
+  const firstName = typeof req.body?.firstName === 'string' ? req.body.firstName.trim().slice(0, 40) : '';
+  const source    = typeof req.body?.source === 'string' ? req.body.source.trim().slice(0, 40) : '';
+  const profileMeta = {};
+  if (firstName) profileMeta.first_name = firstName;
+  if (source) { profileMeta.signup_source = source; profileMeta.signup_source_at = Date.now(); }
+  if (Object.keys(profileMeta).length) await updateUserMeta(user.id, profileMeta);
+
+  return res.json({ skipped: true, credits });
+}));
+
 // ─── Active-pass check ────────────────────────────────────────
 // A user can push text to the Auto Typer extension only with an active pass:
 // a paid plan that hasn't expired, OR the free signup pass.

@@ -237,6 +237,53 @@ function initGacha() {
     await wait(760);
     showResult(days);
   }, { once: true });
+
+  document.getElementById('gacha-decline').addEventListener('click', declineReward);
+}
+
+// Let people decline the welcome offer without being trapped in onboarding.
+// For guests, the choice is kept through sign-up; once authenticated, the
+// server marks onboarding complete without adding a pass or starter credits.
+async function declineReward() {
+  const btn = document.getElementById('gacha-decline');
+  if (!btn) return;
+
+  if (PREVIEW) {
+    toast('Reward skipped — preview unchanged.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  btn.textContent = 'Leaving the reward behind…';
+  saveOnb({ rewardDeclined: true });
+
+  if (!authed) {
+    window.location.href = 'login.html?mode=signup';
+    return;
+  }
+
+  try {
+    const token = await window.bipassAuth.getToken();
+    const res = await fetch('/api/skip-welcome-reward', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: loadOnb().name || null,
+        source: loadOnb().source || null,
+      }),
+    });
+    if (!res.ok) throw new Error('skip failed');
+
+    try { await window.bipassAuth.refreshSession(); } catch (_) {}
+    clearOnb();
+    window.location.replace('/home');
+  } catch (_) {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    btn.textContent = 'I’m not interested';
+    toast('Could not skip the reward — try again.');
+  }
 }
 
 // ── Reel engine ────────────────────────────────────────────────
@@ -555,8 +602,14 @@ function fireBurst(colors) {
         window.location.replace('/home');
         return;
       }
-      // Back from signup with a rolled reward waiting → claim it now.
       const s = loadOnb();
+      // A guest who declined the reward has just returned from sign-up. Mark
+      // onboarding complete before the app can route them through this step again.
+      if (s.rewardDeclined) {
+        declineReward();
+        return;
+      }
+      // Back from signup with a rolled reward waiting → claim it now.
       if (s.days && s.token) {
         showStepImmediate(3);
         claimReward();

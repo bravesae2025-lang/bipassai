@@ -155,17 +155,19 @@ if (!appHtml.includes('id="level-match-btn"')
     || workspaceModes.join(',') !== 'level,own') {
   add(appFile, 'workspace must preserve the compact dropdown with only Level Matching and Push My Own Text');
 }
-if (!appHtml.includes('id="level-detector-note"')
-    || !appHtml.includes('Level Matching changes writing level, not detector scores.')
-    || !appHtml.includes('No tool can guarantee a detector result.')) {
-  add(appFile, 'Level Matching must clearly explain its detector limitation and next-step guidance');
+if (appHtml.includes('id="level-detector-note"')) {
+  add(appFile, 'detector guidance must not occupy permanent workspace space above Match My Level');
 }
 const tourSource = appJs.slice(
   appJs.indexOf('const TOUR_STEPS = ['),
   appJs.indexOf('// ─── Own Text → Extension'),
 );
 const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match => match[1]);
-if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-detector-note,level-match-btn') {
+if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-match-btn'
+    || !tourSource.includes("kind: 'required-notice'")
+    || !tourSource.includes('use a Humanizer before Level Matching')
+    || !tourSource.includes('const unlockAt = performance.now() + 3000')
+    || !tourSource.includes("addEventListener('click', skipToNotice)")) {
   add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
 }
 if (!settingsHtml.includes('id="reset-onboarding-btn"')
@@ -315,10 +317,13 @@ for (const name of ['index.html', 'howto.html']) {
 }
 
 const retiredPattern = new RegExp(['huma', 'ni(?:z|s)(?:e|er|ed|ing|ation)'].join(''), 'i');
-const allowedRedirects = [
+const allowedRetiredCopy = [
   '/blog/best-free-ai-' + ['huma', 'nizer.html'].join(''),
   '/blog/does-turnitin-detect-ai-' + ['huma', 'nizer-tools-in-2026.html'].join(''),
   '/blog/best-ai-' + ['huma', 'nizer-tools-for-students-in-2026-we-tested-them-so-you-dont-have-to.html'].join(''),
+  'Humanizer first for AI text',
+  'use a Humanizer before Level Matching',
+  'fully humanize AI text',
 ];
 const textExtensions = new Set(['.html', '.js', '.mjs', '.css', '.md', '.txt', '.xml', '.json', '.ts', '.tsx']);
 const skippedDirs = new Set(['.git', 'node_modules', 'blog-drafts', 'public']);
@@ -330,7 +335,7 @@ function trackedSourceFiles(dir) {
 }
 for (const file of trackedSourceFiles(root)) {
   let source = readFileSync(file, 'utf8');
-  for (const route of allowedRedirects) source = source.split(route).join('');
+  for (const allowedCopy of allowedRetiredCopy) source = source.split(allowedCopy).join('');
   if (retiredPattern.test(source) || retiredPattern.test(label(file))) {
     add(file, 'contains retired rewrite-mode terminology');
   }

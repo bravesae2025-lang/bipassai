@@ -150,6 +150,19 @@ if (!appHtml.includes('id="level-match-btn"')
     || workspaceModes.join(',') !== 'level,own') {
   add(appFile, 'workspace must preserve the compact dropdown with only Level Matching and Push My Own Text');
 }
+if (!appHtml.includes('id="level-detector-note"')
+    || !appHtml.includes('Level Matching changes writing level, not detector scores.')
+    || !appHtml.includes('No tool can guarantee a detector result.')) {
+  add(appFile, 'Level Matching must clearly explain its detector limitation and next-step guidance');
+}
+const tourSource = appJs.slice(
+  appJs.indexOf('const TOUR_STEPS = ['),
+  appJs.indexOf('// ─── Own Text → Extension'),
+);
+const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match => match[1]);
+if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-detector-note,level-match-btn') {
+  add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
+}
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');
 }

@@ -3007,142 +3007,260 @@ function showToast(msg) {
   }
 })();
 
-// ─── First-visit coach-mark tour (paste → level → run) ─────────
+// ─── First-visit coach-mark tour ───────────────────────────────
 const TOUR_STEPS = [
   {
-    els: ['level-match-section'],
+    els: ['mode-dd'],
+    title: 'Choose your workflow',
+    body: 'Use Level Matching to rewrite a draft. Use Push My Own Text when your words are already final and you only want Auto Typer.',
+  },
+  {
+    els: ['input-text'],
     title: 'Add your draft',
-    body: 'Paste AI-assisted or original text. Level Matching keeps the meaning while bringing the vocabulary and rhythm closer to your chosen level.',
+    body: 'Paste text here or upload a PDF, DOCX, or TXT file. Your word count and estimated credit cost update before you run it.',
   },
   {
     els: ['level-box'],
-    title: 'Pick a writing level',
-    body: 'Beginner, Student, Academic — or Custom to fine-tune. This sets how your text gets rewritten.',
+    title: 'Choose how it should sound',
+    body: 'Select your Writing Profile or tap anywhere on a preset card: Beginner, Student, Academic, or Custom. The whole card is clickable.',
+  },
+  {
+    els: ['level-detector-note'],
+    title: 'Know what this step does',
+    body: 'Level Matching changes writing level, not detector scores. For detector-focused rewriting, use a separate rewriting tool afterward and review the final draft yourself. No tool guarantees a detector result.',
   },
   {
     els: ['level-match-btn'],
     title: 'Match and review',
-    body: 'Run Level Matching, review every change, then copy the result or send it to Auto Typer.',
+    body: 'Run Level Matching, check every change in the editor, then copy the approved result or send it to Auto Typer.',
   },
 ];
 
 function startTour() {
-  if (document.getElementById('tour-catch')) return;         // already running
+  if (document.getElementById('tour-catch')) return;
   // Showing the tour once is enough. Persist this immediately so it does not
   // reappear on the next visit when the user closes, skips, or leaves without
   // running the tool.
   try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const returnFocus = document.activeElement;
+  const planBanner = document.getElementById('no-plan-banner');
+  const restorePlanBanner = !!planBanner && !planBanner.classList.contains('hidden');
   let i = 0;
-  let rafId = 0;
+  let placeRaf = 0;
+  let transitioning = false;
+  let observedEls = [];
 
   const catcher = document.createElement('div');
   catcher.id = 'tour-catch';
   catcher.className = 'tour-catch';
+  catcher.setAttribute('aria-hidden', 'true');
 
   const spot = document.createElement('div');
   spot.className = 'tour-spot';
+  spot.setAttribute('aria-hidden', 'true');
 
   const pop = document.createElement('div');
   pop.className = 'tour-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-modal', 'true');
+  pop.setAttribute('aria-labelledby', 'tour-pop-title');
+  pop.setAttribute('aria-describedby', 'tour-pop-body');
+
+  // On narrow screens this banner sits over the workflow selector. Keep the
+  // first coach mark unobstructed, then put the banner back when the tour ends.
+  if (restorePlanBanner) planBanner.classList.add('hidden');
 
   // Eat clicks so the page stays inert and the dropdown's outside-close can't fire.
-  catcher.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+  catcher.addEventListener('click', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  });
 
   document.body.appendChild(catcher);
   document.body.appendChild(spot);
   document.body.appendChild(pop);
 
   function unionRect(ids) {
-    let r = null;
+    let rect = null;
     ids.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
-      const b = el.getBoundingClientRect();
-      if (b.width === 0 && b.height === 0) return;
-      r = r ? {
-        top: Math.min(r.top, b.top), left: Math.min(r.left, b.left),
-        right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom),
-      } : { top: b.top, left: b.left, right: b.right, bottom: b.bottom };
+      const bounds = el.getBoundingClientRect();
+      if (bounds.width === 0 && bounds.height === 0) return;
+      rect = rect ? {
+        top: Math.min(rect.top, bounds.top), left: Math.min(rect.left, bounds.left),
+        right: Math.max(rect.right, bounds.right), bottom: Math.max(rect.bottom, bounds.bottom),
+      } : { top: bounds.top, left: bounds.left, right: bounds.right, bottom: bounds.bottom };
     });
-    return r;
+    return rect;
   }
 
   function place() {
-    const step = TOUR_STEPS[i];
-    const r = unionRect(step.els);
-    if (!r) return;
-    const pad = 8;
-    const top = r.top - pad, left = r.left - pad;
-    const w = (r.right - r.left) + pad * 2, h = (r.bottom - r.top) + pad * 2;
+    placeRaf = 0;
+    const rect = unionRect(TOUR_STEPS[i].els);
+    if (!rect) return;
+    const pad = 10;
+    const top = rect.top - pad;
+    const left = rect.left - pad;
+    const width = (rect.right - rect.left) + pad * 2;
+    const height = (rect.bottom - rect.top) + pad * 2;
     spot.style.top = top + 'px';
     spot.style.left = left + 'px';
-    spot.style.width = w + 'px';
-    spot.style.height = h + 'px';
+    spot.style.width = width + 'px';
+    spot.style.height = height + 'px';
 
-    // Position the tooltip below the target, flip above if not enough room, clamp to viewport.
+    // Position the card below the target, flip it above when needed, and keep it on-screen.
     const popRect = pop.getBoundingClientRect();
-    const vw = window.innerWidth, vh = window.innerHeight;
-    const below = top + h + 14;
-    const above = top - popRect.height - 14;
-    let pTop = (below + popRect.height < vh - 12) ? below : (above > 12 ? above : below);
-    let pLeft = left + w / 2 - popRect.width / 2;
-    pLeft = Math.max(12, Math.min(pLeft, vw - popRect.width - 12));
-    pop.style.top = pTop + 'px';
-    pop.style.left = pLeft + 'px';
-    pop.classList.toggle('tour-pop-above', pTop < top);
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const gap = 16;
+    const below = top + height + gap;
+    const above = top - popRect.height - gap;
+    const popTop = (below + popRect.height < viewportHeight - 12)
+      ? below
+      : (above > 12 ? above : below);
+    let popLeft = left + width / 2 - popRect.width / 2;
+    popLeft = Math.max(12, Math.min(popLeft, viewportWidth - popRect.width - 12));
+    pop.style.top = popTop + 'px';
+    pop.style.left = popLeft + 'px';
+    pop.classList.toggle('tour-pop-above', popTop < top);
   }
 
-  // Keep the spotlight + tooltip glued to the target every frame, so they follow the
-  // MATCH LEVEL button when the right-panel workflow box collapses/expands and reflows
-  // the layout (which fires no scroll/resize event).
-  function track() { place(); rafId = requestAnimationFrame(track); }
+  function queuePlace() {
+    if (!placeRaf) placeRaf = requestAnimationFrame(place);
+  }
 
-  function render() {
+  const resizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(queuePlace)
+    : null;
+
+  function observeStep() {
+    observedEls.forEach(el => resizeObserver?.unobserve(el));
+    observedEls = TOUR_STEPS[i].els.map(id => document.getElementById(id)).filter(Boolean);
+    observedEls.forEach(el => resizeObserver?.observe(el));
+  }
+
+  function animateCopy() {
+    if (reduce) return;
+    pop.querySelector('.tour-pop-copy')?.animate(
+      [
+        { opacity: 0, transform: 'translateY(12px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      { duration: 460, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' },
+    );
+    pop.querySelector('.tour-pop-actions')?.animate(
+      [
+        { opacity: 0, transform: 'translateY(7px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      { duration: 420, delay: 80, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' },
+    );
+  }
+
+  function render(initial = false) {
     const step = TOUR_STEPS[i];
     const last = i === TOUR_STEPS.length - 1;
     pop.innerHTML = `
-      <div class="tour-pop-count">${i + 1} / ${TOUR_STEPS.length}</div>
-      <div class="tour-pop-title"></div>
-      <div class="tour-pop-body"></div>
+      <div class="tour-pop-progress" aria-label="Step ${i + 1} of ${TOUR_STEPS.length}">
+        <span class="tour-pop-count">Step ${i + 1} of ${TOUR_STEPS.length}</span>
+        <span class="tour-pop-dots" aria-hidden="true">
+          ${TOUR_STEPS.map((_, index) => `<i class="${index < i ? 'is-done' : index === i ? 'is-current' : ''}"></i>`).join('')}
+        </span>
+      </div>
+      <div class="tour-pop-copy" aria-live="polite">
+        <div class="tour-pop-title" id="tour-pop-title"></div>
+        <div class="tour-pop-body" id="tour-pop-body"></div>
+      </div>
       <div class="tour-pop-actions">
-        <button type="button" class="tour-pop-skip">Skip</button>
-        <button type="button" class="tour-pop-next">${last ? 'Got it' : 'Next →'}</button>
+        <button type="button" class="tour-pop-skip">Skip tour</button>
+        <span class="tour-pop-nav">
+          ${i > 0 ? '<button type="button" class="tour-pop-back" aria-label="Previous step">Back</button>' : ''}
+          <button type="button" class="tour-pop-next">${last ? 'Finish' : 'Next'}<span aria-hidden="true">${last ? '✓' : '→'}</span></button>
+        </span>
       </div>
       <span class="tour-pop-arrow" aria-hidden="true"></span>`;
     pop.querySelector('.tour-pop-title').textContent = step.title;
     pop.querySelector('.tour-pop-body').textContent = step.body;
     pop.querySelector('.tour-pop-next').addEventListener('click', next);
+    pop.querySelector('.tour-pop-back')?.addEventListener('click', previous);
     pop.querySelector('.tour-pop-skip').addEventListener('click', finish);
 
     const first = document.getElementById(step.els[0]);
     step.onEnter?.();
-    place();                                   // position immediately (no corner flash)
+    observeStep();
+    place();
+    if (initial) requestAnimationFrame(() => pop.classList.add('is-ready'));
     first?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    setTimeout(place, reduce ? 0 : 300);       // re-settle after the smooth scroll
-
+    setTimeout(queuePlace, reduce ? 0 : 440);
+    animateCopy();
+    pop.querySelector('.tour-pop-next')?.focus({ preventScroll: true });
   }
 
-  function next() {
+  async function move(direction) {
+    if (transitioning) return;
+    const nextIndex = i + direction;
+    if (nextIndex < 0) return;
+    if (nextIndex >= TOUR_STEPS.length) { finish(); return; }
+    transitioning = true;
     TOUR_STEPS[i].onExit?.();
-    if (i >= TOUR_STEPS.length - 1) { finish(); return; }
-    i++;
+    if (!reduce) {
+      const animation = pop.querySelector('.tour-pop-copy')?.animate(
+        [
+          { opacity: 1, transform: 'translateY(0)' },
+          { opacity: 0, transform: `translateY(${direction > 0 ? '-7px' : '7px'})` },
+        ],
+        { duration: 150, easing: 'ease-in', fill: 'both' },
+      );
+      try { await animation?.finished; } catch (_) {}
+    }
+    i = nextIndex;
     render();
+    transitioning = false;
+  }
+
+  function next() { move(1); }
+  function previous() { move(-1); }
+
+  function cleanup() {
+    cancelAnimationFrame(placeRaf);
+    resizeObserver?.disconnect();
+    window.removeEventListener('scroll', queuePlace, true);
+    window.removeEventListener('resize', queuePlace);
+    document.removeEventListener('keydown', onKeydown);
+    catcher.remove();
+    spot.remove();
+    pop.remove();
+    if (restorePlanBanner) planBanner.classList.remove('hidden');
+    if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+      returnFocus.focus({ preventScroll: true });
+    }
   }
 
   function finish() {
+    if (transitioning) return;
+    transitioning = true;
     TOUR_STEPS[i]?.onExit?.();
-    cancelAnimationFrame(rafId);
-    window.removeEventListener('scroll', place, true);
-    window.removeEventListener('resize', place);
-    catcher.remove(); spot.remove(); pop.remove();
+    if (reduce) { cleanup(); return; }
+    const fades = [catcher, spot, pop].map(el => el.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 220, easing: 'ease-out', fill: 'forwards' },
+    ).finished.catch(() => {}));
+    Promise.all(fades).then(cleanup);
   }
 
-  window.addEventListener('scroll', place, true);
-  window.addEventListener('resize', place);
-  render();
-  rafId = requestAnimationFrame(track);
+  function onKeydown(event) {
+    if (event.key === 'Escape') { event.preventDefault(); finish(); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); next(); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); previous(); }
+  }
+
+  window.addEventListener('scroll', queuePlace, true);
+  window.addEventListener('resize', queuePlace);
+  document.addEventListener('keydown', onKeydown);
+  render(true);
 }
 
 // ─── Own Text → Extension ────────────────────────────────────

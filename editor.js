@@ -219,7 +219,11 @@ async function init() {
   setupResultProfile();
   typewriter(result);
 
-  editorTextarea.addEventListener('input', updateWc);
+  editorTextarea.addEventListener('input', () => {
+    updateWc();
+    markExtensionUploadStale();
+  });
+  document.getElementById('changes-view')?.addEventListener('input', markExtensionUploadStale);
   copyBtn.addEventListener('click', copyText);
   aiPromptApply?.addEventListener('click', applyRevision);
   aiPromptInput?.addEventListener('keydown', e => {
@@ -491,6 +495,7 @@ function setupViewToggle(result, mode) {
       changeCount.textContent = `${remaining} word${remaining === 1 ? '' : 's'} changed`;
       changeCount.classList.toggle('hidden', remaining === 0);
     }
+    markExtensionUploadStale();
   }
 
   function positionRejectButton(target) {
@@ -709,6 +714,22 @@ function currentResultText() {
     return extractResultText(changesView);
   }
   return editorTextarea.value.trim() || (sessionStorage.getItem('bipass_result') || '').trim();
+}
+
+let uploadedResultText = null;
+
+function isCurrentResultUploaded() {
+  return uploadedResultText !== null && currentResultText() === uploadedResultText;
+}
+
+function markExtensionUploadStale() {
+  if (uploadedResultText === null || isCurrentResultUploaded()) return;
+  uploadedResultText = null;
+  const btn = document.getElementById('push-ext-btn');
+  if (!btn?.classList.contains('editor-btn-pushed')) return;
+  btn.classList.remove('editor-btn-pushed');
+  btn.disabled = false;
+  btn.textContent = 'Upload to Extension';
 }
 
 async function copyText() {
@@ -1185,7 +1206,13 @@ function showToast(msg) {
 async function pushToExtension() {
   const btn = document.getElementById('push-ext-btn');
   if (!btn) return false;
-  if (btn.classList.contains('editor-btn-pushed')) return true;
+
+  const text = currentResultText();
+  if (!text) {
+    showToast('No text to upload');
+    return false;
+  }
+  if (isCurrentResultUploaded()) return true;
 
   btn.disabled = true;
   btn.textContent = 'Uploading…';
@@ -1193,9 +1220,6 @@ async function pushToExtension() {
   try {
     const session = await window.bipassAuth.getSession();
     if (!session) throw new Error('Not signed in');
-
-    const text = currentResultText();
-    if (!text) throw new Error('No text');
 
     // Active pass required to upload new text to the extension.
     if (!bipassHasActivePass(session)) {
@@ -1229,6 +1253,7 @@ async function pushToExtension() {
 
     btn.textContent = '✓ Uploaded';
     btn.classList.add('editor-btn-pushed');
+    uploadedResultText = text;
     return true;
   } catch (err) {
     btn.disabled = false;
@@ -1276,6 +1301,14 @@ function setupLeaveConfirm() {
   const goToPendingDestination = () => {
     window.location.href = pendingDestination;
   };
+  const requestLeave = destination => {
+    pendingDestination = destination || '/home';
+    if (isCurrentResultUploaded()) {
+      goToPendingDestination();
+      return;
+    }
+    open(pendingDestination);
+  };
 
   function internalDestination(link) {
     if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return '';
@@ -1288,14 +1321,14 @@ function setupLeaveConfirm() {
     }
   }
 
-  backBtn.addEventListener('click', e => { e.preventDefault(); open('/home'); });
+  backBtn.addEventListener('click', e => { e.preventDefault(); requestLeave('/home'); });
   document.addEventListener('click', e => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const link = e.target.closest?.('a[href]');
     const destination = internalDestination(link);
     if (!destination) return;
     e.preventDefault();
-    open(destination);
+    requestLeave(destination);
   });
   anywayBtn?.addEventListener('click', goToPendingDestination);
   xBtn?.addEventListener('click', close);

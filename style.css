@@ -12810,6 +12810,25 @@ body.creation-page {
     0 28px 52px rgba(8,10,16,0.14);
 }
 
+/* The profile creator shares the saved-card graphite material so opening it
+   changes the content, not the visual language of the Styles panel. */
+.col-customize #my-style-inputs {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(214,216,226,0.18);
+  background:
+    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.18), transparent 54%),
+    linear-gradient(145deg, rgba(75,75,84,0.97), rgba(45,45,53,0.97));
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+  box-shadow:
+    inset 0 10px 18px -18px rgba(255,255,255,0.48),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 0 0 1px rgba(var(--glass-signal),0.035),
+    0 16px 36px rgba(0,0,0,0.25),
+    0 28px 52px rgba(8,10,16,0.14);
+}
+
 .col-customize .writing-profile-card::after {
   --profile-rim-angle: 0deg;
   content: '';
@@ -13186,9 +13205,12 @@ body.creation-page {
   }
   .col-customize .writing-profile-create,
   .col-customize #my-style-inputs {
-    background: linear-gradient(145deg, rgba(54,57,55,0.94), rgba(30,33,31,0.96) 72%);
+    background:
+      radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.16), transparent 54%),
+      linear-gradient(145deg, rgb(75,75,84), rgb(45,45,53));
   }
   .col-customize .writing-profile-card,
+  .col-customize .writing-profile-card.style-card-active,
   .col-customize .style-card {
     background:
       radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.16), transparent 54%),

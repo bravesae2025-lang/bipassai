@@ -230,9 +230,9 @@
     if (!style) {
       return {
         kind: 'empty',
-        title: 'Create Writing Profile',
-        meta: '',
-        status: '+',
+        title: 'No profile created',
+        meta: 'Add writing samples to create one',
+        status: 'Create',
         legacy: false,
         values: SCORE_KEYS.map(() => 0),
       };

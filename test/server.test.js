@@ -474,9 +474,9 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
 
   const empty = profileOptionState(null);
   assert.equal(empty.kind, 'empty');
-  assert.equal(empty.title, 'Create Writing Profile');
-  assert.equal(empty.meta, '');
-  assert.equal(empty.status, '+');
+  assert.equal(empty.title, 'No profile created');
+  assert.equal(empty.meta, 'Add writing samples to create one');
+  assert.equal(empty.status, 'Create');
   assert.deepEqual(empty.values, [0, 0, 0, 0, 0, 0]);
 
   const richStyle = {

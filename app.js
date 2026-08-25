@@ -1573,6 +1573,7 @@ function selectLevel(level) {
       activeStyleId = savedStyle?.id || null;
     }
     if (!savedStyle) {
+      showToast('Please create a style before using this mode.');
       showProfileCreator();
       syncLevelSelectionUi();
       return;

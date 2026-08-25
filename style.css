@@ -11948,6 +11948,249 @@ body.creation-page {
 #my-style-inputs[hidden] { display: none !important; }
 #my-style-inputs .reanalyze-link { align-self: flex-start; color: rgba(255,255,255,0.44); }
 #my-style-inputs .reanalyze-link:hover { color: #fff; }
+
+/* Profile creator fields: nested graphite controls with a quieter visual
+   hierarchy than the outer profile material. */
+.col-customize #my-style-inputs .style-name-field {
+  position: relative;
+  margin: 0 0 3px;
+}
+
+.col-customize #my-style-inputs .style-name-field::before,
+.col-customize #my-style-inputs .sample-row::before {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  left: 13px;
+  color: rgba(237,238,243,0.44);
+  font-family: var(--ff-mono);
+  font-size: 7px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.col-customize #my-style-inputs .style-name-field::before { content: 'Profile name'; }
+.col-customize #my-style-inputs .sample-row::before { content: 'Writing sample'; }
+
+.col-customize #my-style-inputs .style-name-input {
+  min-height: 48px;
+  padding: 20px 13px 7px;
+  border: 1px solid rgba(229,231,238,0.15);
+  border-radius: 11px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)),
+    rgba(19,20,25,0.35);
+  color: rgba(249,249,251,0.94);
+  font-family: var(--ff-ui);
+  font-size: 11.5px;
+  font-weight: 610;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.055),
+    inset 0 -1px 0 rgba(0,0,0,0.22);
+  transition:
+    background-color 180ms ease,
+    border-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+.col-customize #my-style-inputs .style-name-input::placeholder {
+  color: rgba(238,239,244,0.38);
+  font-weight: 520;
+}
+
+.col-customize #my-style-inputs .style-name-input:hover {
+  border-color: rgba(235,237,243,0.22);
+}
+
+.col-customize #my-style-inputs .style-name-input:focus {
+  border-color: rgba(var(--profile-accent-rgb),0.34);
+  background: rgba(19,20,25,0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.075),
+    0 0 0 3px rgba(var(--profile-accent-rgb),0.07),
+    0 8px 18px rgba(0,0,0,0.12);
+}
+
+.col-customize #my-style-inputs .sample-scroll-shell {
+  margin: 0;
+}
+
+.col-customize #my-style-inputs .sample-scroll-shell::before {
+  background: linear-gradient(to bottom, rgb(70,70,79) 8%, rgba(70,70,79,0));
+}
+
+.col-customize #my-style-inputs .sample-scroll-shell::after {
+  background: linear-gradient(to top, rgb(41,41,49) 8%, rgba(41,41,49,0));
+}
+
+.col-customize #my-style-inputs #sample-container {
+  display: flex;
+  max-height: clamp(146px, 22vh, 188px);
+  flex-direction: column;
+  gap: 9px;
+  padding-right: 6px;
+}
+
+.col-customize #my-style-inputs .sample-row {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.col-customize #my-style-inputs .sample-row .style-sample-textarea {
+  height: clamp(82px, 11vh, 96px);
+  padding: 27px 13px 28px;
+  border: 1px solid rgba(229,231,238,0.13);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012)),
+    rgba(16,17,22,0.31);
+  color: rgba(244,245,248,0.90);
+  font-family: var(--ff-ui);
+  font-size: 10.5px;
+  font-weight: 450;
+  line-height: 1.48;
+  letter-spacing: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    inset 0 -1px 0 rgba(0,0,0,0.20);
+  transition:
+    background-color 180ms ease,
+    border-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+.col-customize #my-style-inputs .sample-row .style-sample-textarea::placeholder {
+  color: rgba(232,233,239,0.34);
+  font-family: var(--ff-ui);
+  font-style: normal;
+  font-weight: 440;
+  letter-spacing: 0;
+}
+
+.col-customize #my-style-inputs .sample-row .style-sample-textarea:hover {
+  border-color: rgba(235,237,243,0.20);
+}
+
+.col-customize #my-style-inputs .sample-row .style-sample-textarea:focus {
+  border-color: rgba(var(--profile-accent-rgb),0.32);
+  background: rgba(17,18,23,0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.065),
+    0 0 0 3px rgba(var(--profile-accent-rgb),0.065),
+    0 9px 20px rgba(0,0,0,0.13);
+}
+
+.col-customize #my-style-inputs .sample-wc {
+  right: 9px;
+  bottom: 8px;
+  padding: 4px 7px;
+  border-color: rgba(230,232,238,0.11);
+  background: rgba(9,10,13,0.42);
+  color: rgba(235,236,241,0.48);
+  font-family: var(--ff-mono);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.045em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+}
+
+.col-customize #my-style-inputs .sample-wc.wc-ok {
+  border-color: rgba(var(--profile-accent-rgb),0.25);
+  background: rgba(var(--profile-accent-rgb),0.08);
+  color: rgba(111,237,157,0.88);
+}
+
+.col-customize #my-style-inputs .sample-delete-btn {
+  top: 8px;
+  right: 8px;
+  width: 19px;
+  height: 19px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.055);
+  color: rgba(255,255,255,0.46);
+  font-size: 12px;
+  transition: color 160ms ease, background-color 180ms ease, border-color 180ms ease, transform 100ms ease;
+}
+
+.col-customize #my-style-inputs .sample-delete-btn:hover {
+  border-color: rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.11);
+  color: #fff;
+}
+
+.col-customize #my-style-inputs .sample-delete-btn:active { transform: scale(0.90); }
+
+.col-customize #my-style-inputs .add-sample-btn {
+  min-height: 32px;
+  margin: 1px 0 3px;
+  padding: 5px 11px 5px 6px;
+  gap: 7px;
+  border: 1px solid rgba(231,233,239,0.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.035);
+  color: rgba(239,240,244,0.62);
+  font-family: var(--ff-ui);
+  font-size: 9.5px;
+  font-weight: 580;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
+  transition:
+    color 180ms ease,
+    background-color 200ms ease,
+    border-color 220ms ease,
+    box-shadow 240ms ease,
+    transform 220ms var(--ease-out);
+}
+
+.col-customize #my-style-inputs .add-sample-glyph {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 7px;
+  background: rgba(255,255,255,0.055);
+  color: rgba(255,255,255,0.66);
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 450;
+  transition: color 180ms ease, background-color 200ms ease, border-color 200ms ease, transform 260ms var(--ease-out);
+}
+
+.col-customize #my-style-inputs .add-sample-btn:hover {
+  border-color: rgba(238,240,245,0.20);
+  background: rgba(255,255,255,0.065);
+  color: rgba(255,255,255,0.92);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.065), 0 8px 17px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+
+.col-customize #my-style-inputs .add-sample-btn:hover .add-sample-glyph {
+  border-color: rgba(var(--profile-accent-rgb),0.24);
+  background: rgba(var(--profile-accent-rgb),0.09);
+  color: rgba(116,238,161,0.92);
+  transform: rotate(90deg);
+}
+
+.col-customize #my-style-inputs .add-sample-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.col-customize #my-style-inputs .style-name-input:focus-visible,
+.col-customize #my-style-inputs .style-sample-textarea:focus-visible,
+.col-customize #my-style-inputs .add-sample-btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.92);
+  outline-offset: 3px;
+}
+
 .col-customize #my-style-inputs .analyze-btn {
   height: 44px;
   isolation: isolate;
@@ -12496,6 +12739,12 @@ body.creation-page {
   .result-profile-popover { animation: none; }
   .writing-profile-details > summary::before,
   .writing-profile-create svg,
+  #my-style-inputs .style-name-input,
+  #my-style-inputs .style-sample-textarea,
+  #my-style-inputs .sample-wc,
+  #my-style-inputs .sample-delete-btn,
+  #my-style-inputs .add-sample-btn,
+  #my-style-inputs .add-sample-glyph,
   #my-style-inputs .analyze-btn,
   #my-style-inputs .analyze-btn::after,
   #my-style-inputs .analyze-btn .btn-sweep,
@@ -12503,6 +12752,8 @@ body.creation-page {
   .profile-score-slider::-webkit-slider-thumb,
   .profile-refine-btn,
   .profile-reanalyze-btn { transition: none; }
+  #my-style-inputs .add-sample-btn:hover { transform: none; }
+  #my-style-inputs .add-sample-btn:hover .add-sample-glyph { transform: none; }
   #my-style-inputs .analyze-btn:disabled .btn-sweep { animation: none; }
 }
 

@@ -3461,8 +3461,12 @@ function startTour() {
   }
 
   const toggle = document.getElementById('rec-flow-toggle');
+  const expandButton = document.getElementById('rec-flow-expand');
   const openButton = document.getElementById('rec-flow-open');
   const playButton = document.getElementById('rec-guide-play');
+  const dialog = document.getElementById('rec-guide-dialog');
+  const dialogVideo = document.getElementById('rec-guide-dialog-video');
+  const dialogClose = document.getElementById('rec-guide-dialog-close');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let userCollapsed = localStorage.getItem('rec-flow-collapsed') === '1';
   let collapsed = userCollapsed;
@@ -3470,6 +3474,8 @@ function startTour() {
   let autoCollapsedForCustomMode = false;
   let inView = true;
   let userPaused = reduceMotion;
+  let dialogOpen = false;
+  let dialogTrigger = null;
 
   function syncPlayButton() {
     const paused = video.paused;
@@ -3479,7 +3485,7 @@ function startTour() {
   }
 
   function syncPlayback() {
-    if (collapsed || !inView || userPaused) {
+    if (collapsed || !inView || userPaused || dialogOpen) {
       video.pause();
       syncPlayButton();
       return;
@@ -3533,6 +3539,47 @@ function startTour() {
   });
   video.addEventListener('play', syncPlayButton);
   video.addEventListener('pause', syncPlayButton);
+
+  function openDialog() {
+    if (!dialog || !dialogVideo || dialogOpen) return;
+    dialogOpen = true;
+    dialogTrigger = expandButton;
+    dialogVideo.currentTime = video.currentTime;
+    dialog.classList.add('is-open');
+    dialog.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('rec-guide-dialog-open');
+    syncPlayback();
+    if (!reduceMotion) dialogVideo.play().catch(() => {});
+    requestAnimationFrame(() => dialogClose?.focus({ preventScroll: true }));
+  }
+
+  function closeDialog() {
+    if (!dialog || !dialogVideo || !dialogOpen) return;
+    dialogOpen = false;
+    dialogVideo.pause();
+    video.currentTime = dialogVideo.currentTime;
+    dialog.classList.remove('is-open');
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('rec-guide-dialog-open');
+    syncPlayback();
+    dialogTrigger?.focus({ preventScroll: true });
+  }
+
+  expandButton?.addEventListener('click', openDialog);
+  dialogClose?.addEventListener('click', closeDialog);
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) closeDialog();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (!dialogOpen) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeDialog();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      dialogClose?.focus({ preventScroll: true });
+    }
+  });
 
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(([entry]) => {

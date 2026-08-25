@@ -7351,6 +7351,13 @@ body.drawer-lock { overflow: hidden; }
   text-transform: uppercase;
 }
 
+.rec-flow-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rec-flow-expand,
 .rec-flow-toggle {
   width: 26px;
   height: 26px;
@@ -7359,11 +7366,16 @@ body.drawer-lock { overflow: hidden; }
   border-color: rgba(255,255,255,0.1);
 }
 
+.rec-flow-expand:hover,
 .rec-flow-toggle:hover {
   color: #0b0b0c;
   background: #fff;
   border-color: #fff;
 }
+
+.rec-flow-expand svg { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.rec-flow-expand:hover svg { transform: scale(1.12); }
+.rec-flow-expand:active svg { transform: scale(0.92); }
 
 .rec-flow-viewport {
   position: relative;
@@ -7435,17 +7447,95 @@ body.drawer-lock { overflow: hidden; }
 }
 .rec-flow-box.is-collapsed .rec-flow-controls { min-height: 28px; }
 
+body.rec-guide-dialog-open { overflow: hidden; }
+
+.rec-guide-dialog {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 5vw, 68px);
+  background: rgba(4,4,5,0.76);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.26s ease, visibility 0s linear 0.26s;
+}
+
+.rec-guide-dialog.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.rec-guide-dialog-panel {
+  position: relative;
+  width: min(1120px, 100%);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #09090a;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: clamp(14px, 1.8vw, 22px);
+  box-shadow: 0 32px 100px rgba(0,0,0,0.52), 0 2px 0 rgba(255,255,255,0.06) inset;
+  transform: translateY(16px) scale(0.976);
+  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rec-guide-dialog.is-open .rec-guide-dialog-panel { transform: translateY(0) scale(1); }
+
+.rec-guide-dialog-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #ecece9;
+  object-fit: cover;
+}
+
+.rec-guide-dialog-close {
+  position: absolute;
+  top: clamp(8px, 1.2vw, 14px);
+  right: clamp(8px, 1.2vw, 14px);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #fff;
+  background: rgba(7,7,8,0.72);
+  border-color: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.26);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.rec-guide-dialog-close:hover { background: #fff; color: #0b0b0c; transform: scale(1.06); }
+.rec-guide-dialog-close:active { transform: scale(0.94); }
+.rec-guide-dialog-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
 @media (max-width: 720px) {
   .rec-flow-box { border-radius: 14px; padding: 8px; }
   .rec-flow-head { padding: 0 0 7px 6px; }
   .rec-flow-kicker { font-size: 8px; letter-spacing: 0.11em; }
   .rec-guide-play { right: 7px; bottom: 7px; width: 28px; height: 28px; }
+  .rec-guide-dialog { padding: 14px; }
+  .rec-guide-dialog-panel { border-radius: 12px; }
+  .rec-guide-dialog-close { width: 30px; height: 30px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rec-flow-box,
   .rec-flow-viewport,
-  .rec-guide-play { transition: none; }
+  .rec-guide-play,
+  .rec-flow-expand svg,
+  .rec-guide-dialog,
+  .rec-guide-dialog-panel,
+  .rec-guide-dialog-close { transition: none; }
 }
 
 /* ─────────────────────────────────────────────────────────────

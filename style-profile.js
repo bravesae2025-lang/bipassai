@@ -230,8 +230,8 @@
     if (!style) {
       return {
         kind: 'empty',
-        title: 'No profile created',
-        meta: '',
+        title: 'My Level',
+        meta: 'Create a profile that sounds like you',
         status: 'Create',
         legacy: false,
         values: SCORE_KEYS.map(() => 0),
@@ -242,7 +242,7 @@
     const legacy = !analysis?.profile;
     return {
       kind: active ? 'active' : 'ready',
-      title: 'Writing Profile',
+      title: 'My Level',
       meta: '',
       status: active ? 'Active' : 'Select',
       legacy,

@@ -474,8 +474,8 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
 
   const empty = profileOptionState(null);
   assert.equal(empty.kind, 'empty');
-  assert.equal(empty.title, 'No profile created');
-  assert.equal(empty.meta, '');
+  assert.equal(empty.title, 'My Level');
+  assert.equal(empty.meta, 'Create a profile that sounds like you');
   assert.equal(empty.status, 'Create');
   assert.deepEqual(empty.values, [0, 0, 0, 0, 0, 0]);
 
@@ -500,7 +500,7 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   };
   assert.deepEqual(profileOptionState(richStyle, true), {
     kind: 'active',
-    title: 'Writing Profile',
+    title: 'My Level',
     meta: '',
     status: 'Active',
     legacy: false,

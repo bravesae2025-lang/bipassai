@@ -921,7 +921,7 @@ async function adjustLevel() {
 
 // ─── State ────────────────────────────────────────────────────
 
-let selectedLevel          = null;   // nothing selected by default — user must pick
+let selectedLevel          = 'medium'; // Student is the fallback whenever My Level is not active.
 let selectedModel          = localStorage.getItem('bipass_model') || 'gemini';
 let selectedWritingType    = null;
 let myStyleActive          = false;
@@ -1288,7 +1288,7 @@ function restoreState() {
   const savedMyStyle = sessionStorage.getItem('bipass_my_style');
   selectLevel(validLevels.includes(savedLevel)
     ? savedLevel
-    : (validLevels.includes(preferredLevel) ? preferredLevel : null));
+    : (validLevels.includes(preferredLevel) ? preferredLevel : 'medium'));
 
   const savedPrompt = sessionStorage.getItem('bipass_prompt');
   const savedInput  = sessionStorage.getItem('bipass_input');
@@ -1498,7 +1498,7 @@ function setProfileAnalysisState(analyzing) {
   profileBlock?.setAttribute('aria-busy', String(analyzing));
   if (profileOption) profileOption.disabled = analyzing;
   if (analyzing) {
-    if (profileOptionTitle) profileOptionTitle.textContent = 'Building Writing Profile';
+    if (profileOptionTitle) profileOptionTitle.textContent = 'Building My Level';
     if (profileOptionMeta) profileOptionMeta.textContent = 'Measuring six traits from your samples';
     if (profileOptionStatus) profileOptionStatus.textContent = 'Analyzing';
   } else {
@@ -1526,13 +1526,11 @@ function syncLevelSelectionUi() {
   if (optionsPanel) optionsPanel.style.display = mode === 'customize' ? 'flex' : 'none';
 
   if (profileOptionTitle) {
-    profileOptionTitle.textContent = savedStyle
-      ? (savedStyle.name || 'Writing Profile')
-      : optionState.title;
+    profileOptionTitle.textContent = optionState.title;
   }
   if (profileOptionMeta) {
     profileOptionMeta.textContent = savedStyle
-      ? `${savedStyles.length} saved profile${savedStyles.length === 1 ? '' : 's'}`
+      ? `${savedStyle.name || 'Personal style'} · ${savedStyles.length} saved profile${savedStyles.length === 1 ? '' : 's'}`
       : optionState.meta;
   }
   if (profileOptionStatus) profileOptionStatus.textContent = optionState.status;
@@ -1553,7 +1551,7 @@ function syncLevelSelectionUi() {
   if (!mode) {
     if (levelLabel) levelLabel.textContent = '';
   } else if (mode === 'profile') {
-    if (levelLabel) levelLabel.textContent = 'Writing Profile';
+    if (levelLabel) levelLabel.textContent = 'My Level';
   } else {
     if (levelLabel) levelLabel.textContent = mode === 'customize'
       ? 'Customized'
@@ -1573,7 +1571,7 @@ function selectLevel(level) {
       activeStyleId = savedStyle?.id || null;
     }
     if (!savedStyle) {
-      showToast('Please create a style before using this mode.');
+      showToast('Create My Level from a writing sample first.');
       showProfileCreator();
       syncLevelSelectionUi();
       return;

@@ -164,7 +164,7 @@ function setupDefaults() {
   const MYSTYLE_KEY = 'bipass_pref_mystyle';
   localStorage.removeItem('bipass_pref_mode');
 
-  const currentLevel = localStorage.getItem(LEVEL_KEY) || 'easy';
+  const currentLevel = localStorage.getItem(LEVEL_KEY) || 'medium';
   const levelBtns = document.querySelectorAll('.settings-level-opt');
   levelBtns.forEach(btn => {
     if (btn.dataset.level === currentLevel) btn.classList.add('active');

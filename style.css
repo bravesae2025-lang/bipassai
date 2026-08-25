@@ -11953,21 +11953,20 @@ body.creation-page {
    hierarchy than the outer profile material. */
 .col-customize #my-style-inputs .style-name-field {
   position: relative;
-  margin: 0 0 3px;
+  margin: 0;
 }
 
 .col-customize #my-style-inputs .style-name-field::before,
 .col-customize #my-style-inputs .sample-row::before {
-  position: absolute;
-  z-index: 2;
-  top: 9px;
-  left: 13px;
-  color: rgba(237,238,243,0.44);
+  position: static;
+  display: block;
+  margin: 0 0 6px 2px;
+  color: rgba(237,238,243,0.50);
   font-family: var(--ff-mono);
-  font-size: 7px;
-  font-weight: 650;
+  font-size: 7.5px;
+  font-weight: 620;
   line-height: 1;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   pointer-events: none;
 }
@@ -11976,22 +11975,19 @@ body.creation-page {
 .col-customize #my-style-inputs .sample-row::before { content: 'Writing sample'; }
 
 .col-customize #my-style-inputs .style-name-input {
-  min-height: 48px;
-  padding: 20px 13px 7px;
-  border: 1px solid rgba(229,231,238,0.15);
-  border-radius: 11px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)),
-    rgba(19,20,25,0.35);
-  color: rgba(249,249,251,0.94);
+  height: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(229,231,238,0.12);
+  border-radius: 9px;
+  background: rgba(16,17,22,0.32);
+  color: rgba(249,249,251,0.92);
   font-family: var(--ff-ui);
-  font-size: 11.5px;
-  font-weight: 610;
+  font-size: 10.5px;
+  font-weight: 540;
   line-height: 1.2;
-  letter-spacing: -0.005em;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.055),
-    inset 0 -1px 0 rgba(0,0,0,0.22);
+  letter-spacing: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
   transition:
     background-color 180ms ease,
     border-color 220ms ease,
@@ -11999,21 +11995,20 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .style-name-input::placeholder {
-  color: rgba(238,239,244,0.38);
-  font-weight: 520;
+  color: rgba(238,239,244,0.34);
+  font-weight: 470;
 }
 
 .col-customize #my-style-inputs .style-name-input:hover {
-  border-color: rgba(235,237,243,0.22);
+  border-color: rgba(235,237,243,0.18);
 }
 
 .col-customize #my-style-inputs .style-name-input:focus {
-  border-color: rgba(var(--profile-accent-rgb),0.34);
-  background: rgba(19,20,25,0.48);
+  border-color: rgba(var(--profile-accent-rgb),0.40);
+  background: rgba(14,15,20,0.42);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.075),
-    0 0 0 3px rgba(var(--profile-accent-rgb),0.07),
-    0 8px 18px rgba(0,0,0,0.12);
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 0 0 2px rgba(var(--profile-accent-rgb),0.085);
 }
 
 .col-customize #my-style-inputs .sample-scroll-shell {
@@ -12021,19 +12016,22 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .sample-scroll-shell::before {
-  background: linear-gradient(to bottom, rgb(70,70,79) 8%, rgba(70,70,79,0));
+  background: linear-gradient(to bottom, rgb(53,53,62) 8%, rgba(53,53,62,0));
 }
 
 .col-customize #my-style-inputs .sample-scroll-shell::after {
-  background: linear-gradient(to top, rgb(41,41,49) 8%, rgba(41,41,49,0));
+  background: linear-gradient(to top, rgb(46,46,54) 8%, rgba(46,46,54,0));
 }
 
 .col-customize #my-style-inputs #sample-container {
   display: flex;
-  max-height: clamp(146px, 22vh, 188px);
+  width: 100%;
+  max-height: clamp(136px, 22vh, 184px);
   flex-direction: column;
-  gap: 9px;
-  padding-right: 6px;
+  gap: 12px;
+  padding: 0;
+  scrollbar-gutter: auto;
+  box-sizing: border-box;
 }
 
 .col-customize #my-style-inputs .sample-row {
@@ -12042,22 +12040,18 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .sample-row .style-sample-textarea {
-  height: clamp(82px, 11vh, 96px);
-  padding: 27px 13px 28px;
-  border: 1px solid rgba(229,231,238,0.13);
-  border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012)),
-    rgba(16,17,22,0.31);
-  color: rgba(244,245,248,0.90);
+  height: clamp(78px, 11vh, 88px);
+  padding: 11px 12px 25px;
+  border: 1px solid rgba(229,231,238,0.11);
+  border-radius: 10px;
+  background: rgba(14,15,20,0.29);
+  color: rgba(244,245,248,0.88);
   font-family: var(--ff-ui);
-  font-size: 10.5px;
-  font-weight: 450;
-  line-height: 1.48;
+  font-size: 10px;
+  font-weight: 430;
+  line-height: 1.5;
   letter-spacing: 0;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.045),
-    inset 0 -1px 0 rgba(0,0,0,0.20);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   transition:
     background-color 180ms ease,
     border-color 220ms ease,
@@ -12065,7 +12059,7 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .sample-row .style-sample-textarea::placeholder {
-  color: rgba(232,233,239,0.34);
+  color: rgba(232,233,239,0.32);
   font-family: var(--ff-ui);
   font-style: normal;
   font-weight: 440;
@@ -12073,36 +12067,35 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .sample-row .style-sample-textarea:hover {
-  border-color: rgba(235,237,243,0.20);
+  border-color: rgba(235,237,243,0.17);
 }
 
 .col-customize #my-style-inputs .sample-row .style-sample-textarea:focus {
-  border-color: rgba(var(--profile-accent-rgb),0.32);
-  background: rgba(17,18,23,0.46);
+  border-color: rgba(var(--profile-accent-rgb),0.38);
+  background: rgba(13,14,19,0.40);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.065),
-    0 0 0 3px rgba(var(--profile-accent-rgb),0.065),
-    0 9px 20px rgba(0,0,0,0.13);
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 2px rgba(var(--profile-accent-rgb),0.08);
 }
 
 .col-customize #my-style-inputs .sample-wc {
-  right: 9px;
-  bottom: 8px;
-  padding: 4px 7px;
-  border-color: rgba(230,232,238,0.11);
-  background: rgba(9,10,13,0.42);
-  color: rgba(235,236,241,0.48);
+  right: 11px;
+  bottom: 9px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(235,236,241,0.42);
   font-family: var(--ff-mono);
   font-size: 7px;
-  font-weight: 600;
-  letter-spacing: 0.045em;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+  font-weight: 560;
+  letter-spacing: 0.035em;
+  box-shadow: none;
 }
 
 .col-customize #my-style-inputs .sample-wc.wc-ok {
-  border-color: rgba(var(--profile-accent-rgb),0.25);
-  background: rgba(var(--profile-accent-rgb),0.08);
-  color: rgba(111,237,157,0.88);
+  border: 0;
+  background: transparent;
+  color: rgba(111,237,157,0.82);
 }
 
 .col-customize #my-style-inputs .sample-delete-btn {
@@ -12126,20 +12119,20 @@ body.creation-page {
 .col-customize #my-style-inputs .sample-delete-btn:active { transform: scale(0.90); }
 
 .col-customize #my-style-inputs .add-sample-btn {
-  min-height: 32px;
-  margin: 1px 0 3px;
-  padding: 5px 11px 5px 6px;
-  gap: 7px;
-  border: 1px solid rgba(231,233,239,0.12);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.035);
-  color: rgba(239,240,244,0.62);
+  min-height: 28px;
+  margin: -1px 0 1px;
+  padding: 3px 7px 3px 1px;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(239,240,244,0.56);
   font-family: var(--ff-ui);
-  font-size: 9.5px;
-  font-weight: 580;
+  font-size: 9px;
+  font-weight: 550;
   line-height: 1;
-  letter-spacing: 0.01em;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
+  letter-spacing: 0;
+  box-shadow: none;
   transition:
     color 180ms ease,
     background-color 200ms ease,
@@ -12149,15 +12142,15 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .add-sample-glyph {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
   border: 1px solid rgba(255,255,255,0.11);
-  border-radius: 7px;
-  background: rgba(255,255,255,0.055);
-  color: rgba(255,255,255,0.66);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.62);
   font-family: var(--ff-ui);
   font-size: 13px;
   font-weight: 450;
@@ -12165,18 +12158,18 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .add-sample-btn:hover {
-  border-color: rgba(238,240,245,0.20);
-  background: rgba(255,255,255,0.065);
-  color: rgba(255,255,255,0.92);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.065), 0 8px 17px rgba(0,0,0,0.12);
-  transform: translateY(-1px);
+  border-color: transparent;
+  background: transparent;
+  color: rgba(255,255,255,0.88);
+  box-shadow: none;
+  transform: none;
 }
 
 .col-customize #my-style-inputs .add-sample-btn:hover .add-sample-glyph {
   border-color: rgba(var(--profile-accent-rgb),0.24);
   background: rgba(var(--profile-accent-rgb),0.09);
   color: rgba(116,238,161,0.92);
-  transform: rotate(90deg);
+  transform: scale(1.06);
 }
 
 .col-customize #my-style-inputs .add-sample-btn:active {
@@ -12187,15 +12180,18 @@ body.creation-page {
 .col-customize #my-style-inputs .style-name-input:focus-visible,
 .col-customize #my-style-inputs .style-sample-textarea:focus-visible,
 .col-customize #my-style-inputs .add-sample-btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.92);
-  outline-offset: 3px;
+  outline: none;
+}
+
+.col-customize #my-style-inputs .add-sample-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--profile-accent-rgb),0.10);
 }
 
 .col-customize #my-style-inputs .analyze-btn {
-  height: 44px;
+  height: 42px;
   isolation: isolate;
   border: 1px solid rgba(235,236,242,0.18);
-  border-radius: 10px;
+  border-radius: 9px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.095), rgba(255,255,255,0.025)),
     rgba(23,24,29,0.94);
@@ -12203,7 +12199,10 @@ body.creation-page {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.10),
     inset 0 -1px 0 rgba(0,0,0,0.30),
-    0 10px 20px rgba(0,0,0,0.20);
+    0 8px 18px rgba(0,0,0,0.18);
+  padding: 0 8px 0 14px;
+  font-size: 10.5px;
+  letter-spacing: 0.075em;
   transition:
     color 180ms ease,
     border-color 240ms ease,
@@ -12245,11 +12244,11 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .analyze-btn .btn-arrow {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
-  margin-right: -10px;
+  margin-right: 0;
   border: 1px solid rgba(255,255,255,0.13);
   border-radius: 50%;
   background: rgba(255,255,255,0.07);
@@ -12304,9 +12303,30 @@ body.creation-page {
 }
 
 .col-customize #my-style-inputs .analyze-btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.94);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 5px rgba(var(--profile-accent-rgb),0.20), 0 13px 25px rgba(0,0,0,0.24);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--profile-accent-rgb),0.14), 0 10px 22px rgba(0,0,0,0.22);
+}
+
+.col-customize #my-style-inputs #cancel-profile-btn {
+  align-self: flex-start;
+  margin-top: -3px;
+  padding: 3px 2px;
+  border-radius: 5px;
+  color: rgba(242,243,247,0.42);
+  font-family: var(--ff-ui);
+  font-size: 8.5px;
+  font-weight: 520;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+.col-customize #my-style-inputs #cancel-profile-btn:hover {
+  color: rgba(255,255,255,0.82);
+}
+
+.col-customize #my-style-inputs #cancel-profile-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
 }
 
 .col-customize #my-style-inputs .analyze-btn:disabled {
@@ -12800,7 +12820,7 @@ body.creation-page {
   --glass-control-hover: 72, 74, 84;
   --glass-control-selected: 84, 87, 98;
   --glass-signal: 74, 222, 128;
-  --glass-edge: rgba(var(--glass-white), 0.24);
+  --glass-edge: rgba(var(--glass-white), 0.16);
   isolation: isolate;
   overflow: hidden;
   border: 1px solid var(--glass-edge);
@@ -12813,10 +12833,8 @@ body.creation-page {
   backdrop-filter: blur(38px) saturate(175%) contrast(104%);
   color: rgba(var(--glass-white), 0.92);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.26),
-    inset 1px 0 0 rgba(255,255,255,0.07),
-    inset 0 -1px 0 rgba(0,0,0,0.22),
-    0 1px 1px rgba(255,255,255,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.13),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
     0 12px 30px rgba(20,20,28,0.18),
     0 34px 80px rgba(20,20,28,0.22);
   transform: translateZ(0);
@@ -12836,16 +12854,16 @@ body.creation-page {
 .col.col-customize::before {
   z-index: 0;
   background:
-    linear-gradient(115deg, rgba(255,255,255,0.16), transparent 18%, transparent 72%, rgba(181,196,225,0.055)),
-    radial-gradient(75% 18% at 48% -4%, rgba(255,255,255,0.19), transparent 72%);
-  opacity: 0.78;
+    radial-gradient(90% 55% at 12% -12%, rgba(255,255,255,0.12), transparent 65%),
+    radial-gradient(75% 18% at 48% -4%, rgba(255,255,255,0.12), transparent 72%);
+  opacity: 0.62;
 }
 
 .col.col-customize::after {
   z-index: 2;
   inset: 1px;
-  border: 1px solid rgba(255,255,255,0.055);
-  box-shadow: inset 0 0 34px rgba(255,255,255,0.018);
+  border: 1px solid rgba(255,255,255,0.035);
+  box-shadow: none;
 }
 
 .col.col-customize > * {
@@ -12857,10 +12875,8 @@ body.creation-page {
 .col.col-customize.col-active:hover {
   transform: translateY(-4px) scale(1.006);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.29),
-    inset 1px 0 0 rgba(255,255,255,0.08),
-    inset 0 -1px 0 rgba(0,0,0,0.24),
-    0 1px 1px rgba(255,255,255,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.22),
     0 18px 42px rgba(20,20,28,0.21),
     0 44px 96px rgba(20,20,28,0.25);
 }
@@ -13233,23 +13249,21 @@ body.creation-page {
     0 28px 52px rgba(8,10,16,0.14);
 }
 
-/* The profile creator shares the saved-card graphite material so opening it
-   changes the content, not the visual language of the Styles panel. */
+/* The creator is a single, quiet graphite layer. Keep its edge uniform so it
+   reads as a form surface, not a second glass card nested inside the panel. */
 .col-customize #my-style-inputs {
   position: relative;
   isolation: isolate;
-  border-color: rgba(214,216,226,0.18);
-  background:
-    radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.15), transparent 54%),
-    linear-gradient(145deg, rgba(70,70,79,0.97), rgba(41,41,49,0.97));
-  -webkit-backdrop-filter: blur(18px) saturate(145%);
-  backdrop-filter: blur(18px) saturate(145%);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(226,228,235,0.12);
+  border-radius: 13px;
+  background: linear-gradient(180deg, rgba(55,55,64,0.98), rgba(45,45,53,0.98));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow:
-    inset 0 10px 18px -18px rgba(255,255,255,0.48),
-    inset 0 -1px 0 rgba(0,0,0,0.20),
-    0 0 0 1px rgba(var(--glass-signal),0.035),
-    0 16px 36px rgba(0,0,0,0.25),
-    0 28px 52px rgba(8,10,16,0.14);
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 12px 28px rgba(0,0,0,0.20);
 }
 
 /* Keep the empty "Create Writing Profile" card neutral like saved profiles.
@@ -13650,11 +13664,13 @@ body.creation-page {
       radial-gradient(90% 80% at 100% 100%, rgba(72,85,108,0.34) 0%, transparent 62%),
       linear-gradient(145deg, rgba(49,49,56,0.92) 0%, rgba(37,37,43,0.93) 50%, rgba(29,29,34,0.94) 100%);
   }
-  .col-customize .writing-profile-create,
-  .col-customize #my-style-inputs {
+  .col-customize .writing-profile-create {
     background:
       radial-gradient(100% 140% at 0% 0%, rgba(255,255,255,0.14), transparent 54%),
       linear-gradient(145deg, rgb(70,70,79), rgb(41,41,49));
+  }
+  .col-customize #my-style-inputs {
+    background: linear-gradient(180deg, rgb(55,55,64), rgb(45,45,53));
   }
   .col-customize .writing-profile-card,
   .col-customize .writing-profile-card.style-card-active,

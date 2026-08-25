@@ -1617,10 +1617,10 @@ function showProfileCreator(style = null) {
   const nameInput = document.getElementById('style-name-input');
   if (nameInput) {
     nameInput.value = style?.name || '';
-    nameInput.placeholder = style ? 'Updated profile name' : 'Profile name';
+    nameInput.placeholder = style ? 'Rename this profile' : 'Name your profile';
     requestAnimationFrame(() => nameInput.focus());
   }
-  if (analyzeLabel) analyzeLabel.textContent = style ? 'Update Writing Profile' : 'Create Writing Profile';
+  if (analyzeLabel) analyzeLabel.textContent = style ? 'Reanalyze Writing Style' : 'Analyze My Writing Style';
 }
 
 function closeProfileCreator() {

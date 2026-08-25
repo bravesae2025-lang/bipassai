@@ -683,6 +683,9 @@
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const MR  = 150, MR2 = MR * MR;     // cursor radius (screen space)
+    // Keep the cursor influence light so nodes continue their ambient drift
+    // instead of settling underneath a stationary pointer.
+    const CURSOR_PULL = 0.028;
     const TAU = 6.2831853;
 
     let pts = [];
@@ -750,7 +753,7 @@
             const d2 = ddx * ddx + ddy * ddy;
             if (d2 < MR2) {
               const d = Math.sqrt(d2) || 1;
-              const f = (1 - d / MR) * 0.10;
+              const f = (1 - d / MR) * CURSOR_PULL;
               const fx = (ddx / d) * f, fy = (ddy / d) * f;
               const ryf = cosX * fy, z1f = -sinX * fy;
               p.vx += cosY * fx - sinY * z1f;

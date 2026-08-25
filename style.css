@@ -11950,11 +11950,149 @@ body.creation-page {
 #my-style-inputs .reanalyze-link:hover { color: #fff; }
 .col-customize #my-style-inputs .analyze-btn {
   height: 44px;
-  border-radius: 9px;
-  background: #f4f4f2;
-  color: #151515;
+  isolation: isolate;
+  border: 1px solid rgba(235,236,242,0.18);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.095), rgba(255,255,255,0.025)),
+    rgba(23,24,29,0.94);
+  color: rgba(249,249,251,0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 10px 20px rgba(0,0,0,0.20);
+  transition:
+    color 180ms ease,
+    border-color 240ms ease,
+    box-shadow 280ms ease,
+    transform 220ms var(--ease-out);
 }
-.col-customize #my-style-inputs .analyze-btn .btn-sweep { background: var(--profile-accent); }
+
+.col-customize #my-style-inputs .analyze-btn::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  right: 52px;
+  bottom: 0;
+  left: 20px;
+  height: 1px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--profile-accent-rgb),0.74), transparent);
+  opacity: 0.18;
+  transform: scaleX(0.22);
+  transition: opacity 260ms ease, transform 440ms var(--ease-out);
+}
+
+.col-customize #my-style-inputs .analyze-btn .btn-sweep {
+  inset: -30% auto -30% -24%;
+  width: 30%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--profile-accent-rgb),0.035) 24%,
+    rgba(var(--profile-accent-rgb),0.20) 52%,
+    rgba(255,255,255,0.08) 66%,
+    transparent
+  );
+  opacity: 0;
+  transform: translate3d(0,0,0) skewX(-14deg);
+  transform-origin: center;
+  transition: opacity 140ms ease, transform 680ms cubic-bezier(0.22,1,0.36,1);
+  will-change: transform, opacity;
+}
+
+.col-customize #my-style-inputs .analyze-btn .btn-arrow {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-right: -10px;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.88);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  transition:
+    color 180ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 260ms ease,
+    transform 280ms var(--ease-out);
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):hover {
+  color: #fff;
+  border-color: rgba(var(--profile-accent-rgb),0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.13),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 0 0 1px rgba(var(--profile-accent-rgb),0.045),
+    0 13px 25px rgba(0,0,0,0.24);
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):hover::after {
+  opacity: 0.72;
+  transform: scaleX(1);
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):hover .btn-sweep {
+  opacity: 1;
+  transform: translate3d(430%,0,0) skewX(-14deg);
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):hover .btn-arrow {
+  color: #101612;
+  border-color: rgba(var(--profile-accent-rgb),0.92);
+  background: var(--profile-accent);
+  box-shadow:
+    0 0 0 4px rgba(var(--profile-accent-rgb),0.09),
+    0 7px 15px rgba(0,0,0,0.26);
+  transform: translateX(2px) scale(1.035);
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):active {
+  transform: scale(0.985);
+  transition-duration: 80ms;
+}
+
+.col-customize #my-style-inputs .analyze-btn:not(:disabled):active .btn-arrow {
+  transform: translateX(1px) scale(0.94);
+  transition-duration: 80ms;
+}
+
+.col-customize #my-style-inputs .analyze-btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.94);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(var(--profile-accent-rgb),0.20), 0 13px 25px rgba(0,0,0,0.24);
+}
+
+.col-customize #my-style-inputs .analyze-btn:disabled {
+  opacity: 1;
+  cursor: wait;
+  color: rgba(245,246,249,0.70);
+  border-color: rgba(var(--profile-accent-rgb),0.22);
+}
+
+.col-customize #my-style-inputs .analyze-btn:disabled::after {
+  opacity: 0.46;
+  transform: scaleX(0.72);
+}
+
+.col-customize #my-style-inputs .analyze-btn:disabled .btn-sweep {
+  opacity: 0.72;
+  animation: profile-analyze-signal 1.35s ease-in-out infinite;
+}
+
+.col-customize #my-style-inputs .analyze-btn:disabled .btn-arrow {
+  color: var(--profile-accent);
+  border-color: rgba(var(--profile-accent-rgb),0.30);
+  background: rgba(var(--profile-accent-rgb),0.10);
+}
+
+@keyframes profile-analyze-signal {
+  0% { transform: translate3d(0,0,0) skewX(-14deg); }
+  100% { transform: translate3d(430%,0,0) skewX(-14deg); }
+}
 
 @keyframes profile-creator-enter {
   from { opacity: 0; transform: translateY(-5px) scale(0.99); }
@@ -12358,9 +12496,14 @@ body.creation-page {
   .result-profile-popover { animation: none; }
   .writing-profile-details > summary::before,
   .writing-profile-create svg,
+  #my-style-inputs .analyze-btn,
+  #my-style-inputs .analyze-btn::after,
+  #my-style-inputs .analyze-btn .btn-sweep,
+  #my-style-inputs .analyze-btn .btn-arrow,
   .profile-score-slider::-webkit-slider-thumb,
   .profile-refine-btn,
   .profile-reanalyze-btn { transition: none; }
+  #my-style-inputs .analyze-btn:disabled .btn-sweep { animation: none; }
 }
 
 @media (prefers-contrast: more) {

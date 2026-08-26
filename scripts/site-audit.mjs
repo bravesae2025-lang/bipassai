@@ -40,6 +40,9 @@ for (const file of htmlFiles) {
   if (file !== join(root, 'app.html') && /\bclass=["'][^"']*\bappbg(?:\s|["'])/i.test(html)) {
     add(file, 'interactive app background is only allowed on app.html; use bg-dots on regular pages');
   }
+  if (/\bSyne\b/.test(html)) {
+    add(file, 'customer-facing pages must use the native system UI font instead of Syne');
+  }
 
   const ids = [...html.matchAll(/\sid=["']([^"']+)["']/gi)].map((match) => match[1]);
   for (const id of new Set(ids)) {
@@ -101,6 +104,9 @@ const settingsHtml = readFileSync(settingsFile, 'utf8');
 const settingsJsFile = join(root, 'settings.js');
 const settingsJs = readFileSync(settingsJsFile, 'utf8');
 const welcomeJs = readFileSync(join(root, 'welcome.js'), 'utf8');
+const welcomeHtml = readFileSync(join(root, 'welcome.html'), 'utf8');
+const articleGeneratorJs = readFileSync(join(root, 'generate-article.js'), 'utf8');
+const articleAdderJs = readFileSync(join(root, 'add-article.cjs'), 'utf8');
 const editorFile = join(root, 'editor.html');
 const editorHtml = readFileSync(editorFile, 'utf8');
 const editorJsFile = join(root, 'editor.js');
@@ -166,7 +172,8 @@ const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match =>
 if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-match-btn'
     || !tourSource.includes("kind: 'required-notice'")
     || !tourSource.includes('use a Humanizer before Level Matching')
-    || !tourSource.includes('const unlockAt = performance.now() + 3000')
+    || !tourSource.includes('const REQUIRED_NOTICE_MS = 5000')
+    || !tourSource.includes('const unlockAt = performance.now() + REQUIRED_NOTICE_MS')
     || !tourSource.includes("addEventListener('click', skipToNotice)")) {
   add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
 }
@@ -198,7 +205,7 @@ if (!appHtml.includes('id="writing-profile-option"')
     || !appHtml.includes('data-level="customize"')
     || appHtml.indexOf('data-level="customize"') < appHtml.indexOf('data-level="hard"')
     || appHtml.includes('class="level-manual-btn"')) {
-  add(appFile, 'Styles must keep Writing Profile primary and place Custom fourth in the preset selector');
+  add(appFile, 'Levels must keep My Level primary and place Custom fourth in the preset selector');
 }
 if (!appHtml.includes('id="level-heading">Levels</div>')
     || appHtml.indexOf('id="writing-profile-option"') > appHtml.indexOf('class="level-track"')
@@ -212,6 +219,34 @@ if (!appHtml.includes('id="level-heading">Levels</div>')
     || appJs.includes('class="profile-score-evidence"')
     || appJs.includes('class="profile-card-level-row"')) {
   add(appFile, 'Levels must keep My Level first, vocabulary scoring inside Details, and concise profile cards');
+}
+const myLevelTourSource = appJs.slice(
+  appJs.indexOf("const MY_LEVEL_TOUR_KEY = 'bipass_my_level_tour_seen'"),
+  appJs.indexOf('function showProfileCreator('),
+);
+if (!myLevelTourSource.includes("els: ['writing-profile-option']")
+    || !myLevelTourSource.includes("els: ['style-name-input', 'sample-scroll-shell']")
+    || !myLevelTourSource.includes("els: ['analyze-style-btn']")
+    || !myLevelTourSource.includes("title: 'This is My Level'")
+    || !myLevelTourSource.includes("title: 'Add your writing'")
+    || !myLevelTourSource.includes("title: 'Analyze and use it'")
+    || !myLevelTourSource.includes("localStorage.setItem(MY_LEVEL_TOUR_KEY, '1')")
+    || !myLevelTourSource.includes("event.key === 'Escape'")
+    || !myLevelTourSource.includes('focusProfileName()')) {
+  add(appJsFile, 'first-time My Level setup must use the anchored three-step coach-mark guide');
+}
+if (/\bSyne\b/.test(styleCss)
+    || /\bSyne\b/.test(articleGeneratorJs)
+    || /\bSyne\b/.test(articleAdderJs)) {
+  add(styleFile, 'shared website styles and blog generators must not reference Syne');
+}
+if (!welcomeJs.includes('if (TEST_RUN) {')
+    || welcomeJs.indexOf('if (TEST_RUN) {', welcomeJs.indexOf('async function declineReward()'))
+      > welcomeJs.indexOf('if (PREVIEW) {', welcomeJs.indexOf('async function declineReward()'))
+    || !welcomeJs.includes("window.location.replace('/home?onboardingTest=1')")
+    || !welcomeHtml.includes('stroke-dasharray="0.8 1.15"')
+    || welcomeHtml.includes('<polygon points="24,34 24,66 46,50"')) {
+  add(join(root, 'welcome.html'), 'reward replay decline and the claimed token mark must preserve production state and current branding');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')

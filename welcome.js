@@ -248,6 +248,13 @@ async function declineReward() {
   const btn = document.getElementById('gacha-decline');
   if (!btn) return;
 
+  // Settings replays are disposable: leave real reward state and APIs alone.
+  if (TEST_RUN) {
+    clearOnb();
+    window.location.replace('/home?onboardingTest=1');
+    return;
+  }
+
   if (PREVIEW) {
     toast('Reward skipped — preview unchanged.');
     return;

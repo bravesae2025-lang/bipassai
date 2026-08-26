@@ -161,11 +161,11 @@ const articleHtml = `<!DOCTYPE html>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/style.css?v=43">
+  <link rel="stylesheet" href="/style.css?v=115">
   <style>
     .blog-post-wrap{max-width:760px;margin:0 auto;padding:0 24px 100px}
     .blog-post-header{padding:64px 0 40px}
@@ -175,8 +175,8 @@ const articleHtml = `<!DOCTYPE html>
     .blog-post-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--g300)}
     .blog-post-divider{border:none;border-top:1px solid var(--g150);margin:0 0 40px}
     .blog-post-body{font-size:1.02rem;line-height:1.75;color:#1a1a1a}
-    .blog-post-body h2{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:700;color:#0d0d0d;margin:48px 0 16px;line-height:1.3}
-    .blog-post-body h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#0d0d0d;margin:32px 0 12px}
+    .blog-post-body h2{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1.45rem;font-weight:700;color:#0d0d0d;margin:48px 0 16px;line-height:1.3}
+    .blog-post-body h3{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1.1rem;font-weight:700;color:#0d0d0d;margin:32px 0 12px}
     .blog-post-body p{margin:0 0 20px}
     .blog-post-body ul,.blog-post-body ol{margin:0 0 20px;padding-left:24px}
     .blog-post-body li{margin-bottom:8px}
@@ -193,7 +193,7 @@ const articleHtml = `<!DOCTYPE html>
     .blog-tip-box p{margin:0;font-size:.9rem;color:var(--g600)}
     .blog-tip-box strong{color:#0d0d0d}
     .blog-related{margin:60px 0 0;padding-top:40px;border-top:1px solid var(--g150)}
-    .blog-related h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin:0 0 20px}
+    .blog-related h3{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin:0 0 20px}
     .blog-related-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:560px){.blog-related-grid{grid-template-columns:1fr}}
     .blog-related-card{border:1px solid var(--g150);border-radius:10px;padding:18px;text-decoration:none;display:block;transition:box-shadow .2s}

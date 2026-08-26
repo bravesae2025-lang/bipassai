@@ -1,18 +1,41 @@
 import {
   AbsoluteFill,
+  cancelRender,
+  continueRender,
+  delayRender,
   Easing,
   Interactive,
   interpolate,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
-import {loadFont} from "@remotion/fonts";
 import {Pointer} from "./components/Pointer";
 
+const loadLocalFont = async (family: string, fileName: string) => {
+  const handle = delayRender(`Loading local font ${family}`, {
+    retries: 3,
+    timeoutInMilliseconds: 60000,
+  });
+
+  try {
+    const font = new FontFace(
+      family,
+      `url('${staticFile(fileName)}') format('woff2')`,
+      {weight: "400"},
+    );
+    await font.load();
+    document.fonts.add(font);
+    continueRender(handle);
+  } catch (error) {
+    cancelRender(error instanceof Error ? error : new Error(String(error)));
+  }
+};
+
 await Promise.all([
-  loadFont({family: "Bipass Display", url: staticFile("bebas-neue-latin.woff2"), weight: "400"}),
-  loadFont({family: "Bipass UI", url: staticFile("syne-latin.woff2"), weight: "400"}),
-  loadFont({family: "Bipass Mono", url: staticFile("dm-mono-400-latin.woff2"), weight: "400"}),
+  loadLocalFont("Bipass Display", "bebas-neue-latin.woff2"),
+  loadLocalFont("Bipass UI", "syne-latin.woff2"),
+  loadLocalFont("Bipass Mono", "dm-mono-400-latin.woff2"),
 ]);
 
 const sourceText =
@@ -308,7 +331,11 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
 };
 
 export const LevelMatchingGuide = () => {
-  const frame = useCurrentFrame();
+  const renderFrame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  // Keep the approved 25fps edit points as a time-based authoring timeline
+  // while rendering five times as many unique animation samples at 120fps.
+  const frame = renderFrame * (25 / fps);
   const showLoading = frame >= 188 && frame < 250;
   const showEditor = frame >= 250 && frame < 372;
   const showDocs = frame >= 360;
@@ -342,6 +369,7 @@ export const LevelMatchingGuide = () => {
       ) : null}
       {!showLoading && !showDocs ? (
         <Pointer
+          frameOverride={frame}
           clickFrames={[140, 182, 352]}
           clickColor="#22c55e"
           clickFill="rgba(34, 197, 94, 0.18)"

@@ -5,6 +5,7 @@ type Point = {readonly frame: number; readonly x: number; readonly y: number};
 
 type PointerProps = {
   readonly points: readonly Point[];
+  readonly frameOverride?: number;
   readonly clickFrames?: readonly number[];
   readonly clickColor?: string;
   readonly clickFill?: string;
@@ -15,6 +16,7 @@ type PointerProps = {
 
 export const Pointer = ({
   points,
+  frameOverride,
   clickFrames = [],
   clickColor = "rgba(13, 13, 13, 0.5)",
   clickFill = "rgba(13, 13, 13, 0.08)",
@@ -22,7 +24,8 @@ export const Pointer = ({
   visibleFrom = 0,
   visibleUntil = 100000,
 }: PointerProps) => {
-  const frame = useCurrentFrame();
+  const currentFrame = useCurrentFrame();
+  const frame = frameOverride ?? currentFrame;
   const input = points.map((point) => point.frame);
   const xOutput = points.map((point) => point.x);
   const yOutput = points.map((point) => point.y);

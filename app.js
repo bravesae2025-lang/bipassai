@@ -979,13 +979,6 @@ const profileOptionTitle = document.getElementById('writing-profile-option-title
 const profileOptionMeta = document.getElementById('writing-profile-option-meta');
 const profileOptionStatus = document.getElementById('writing-profile-option-status');
 const manualCustomizeBtn = document.getElementById('manual-customize-btn');
-let myLevelTour = null;
-let myLevelTourClose = null;
-let myLevelTourSkip = null;
-let myLevelTourBack = null;
-let myLevelTourNext = null;
-let myLevelTourNextLabel = null;
-let myLevelTourCount = null;
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1375,7 +1368,6 @@ function bindEvents() {
   // Writing Profile events
   createProfileBtn?.addEventListener('click', () => requestProfileCreator());
   cancelProfileBtn?.addEventListener('click', closeProfileCreator);
-  bindMyLevelTour();
   function updateSampleScrollState() {
     if (!sampleContainer || !sampleScrollShell) return;
     const overflowing = sampleContainer.scrollHeight > sampleContainer.clientHeight + 1;
@@ -1603,138 +1595,232 @@ function selectLevel(level) {
 // ─── Writing Profile ──────────────────────────────────────────
 
 const MY_LEVEL_TOUR_KEY = 'bipass_my_level_tour_seen';
-let myLevelTourStep = 0;
-let myLevelTourContinuation = null;
-let myLevelTourReturnFocus = null;
-let myLevelTourBound = false;
-let myLevelTourBindScheduled = false;
+const MY_LEVEL_TOUR_STEPS = [
+  {
+    els: ['writing-profile-option'],
+    title: 'This is My Level',
+    body: 'Your personal writing level lives here.',
+    onEnter: () => closeProfileCreator(),
+  },
+  {
+    els: ['style-name-input', 'sample-scroll-shell'],
+    title: 'Add your writing',
+    body: 'Name it and paste 50+ words you wrote.',
+    onEnter: () => showProfileCreator(null, { focus: false }),
+  },
+  {
+    els: ['analyze-style-btn'],
+    title: 'Analyze and use it',
+    body: 'Tap Analyze to save and select your level.',
+    onEnter: () => {
+      if (myStyleInputs?.hidden) showProfileCreator(null, { focus: false });
+    },
+  },
+];
+let myLevelTourActive = false;
 
-function updateMyLevelTour() {
-  if (!myLevelTour) return;
-  const slides = Array.from(myLevelTour.querySelectorAll('[data-my-level-step]'));
-  const dots = Array.from(myLevelTour.querySelectorAll('.my-level-tour-dots i'));
-  slides.forEach((slide, index) => { slide.hidden = index !== myLevelTourStep; });
-  dots.forEach((dot, index) => {
-    dot.classList.toggle('is-current', index === myLevelTourStep);
-    dot.classList.toggle('is-done', index < myLevelTourStep);
-  });
-  if (myLevelTourCount) myLevelTourCount.textContent = `Step ${myLevelTourStep + 1} of ${slides.length}`;
-  if (myLevelTourBack) myLevelTourBack.hidden = myLevelTourStep === 0;
-  const lastStep = myLevelTourStep === slides.length - 1;
-  if (myLevelTourNextLabel) myLevelTourNextLabel.textContent = lastStep ? 'Create My Level' : 'Next';
-  const nextIcon = myLevelTourNext?.querySelector('.my-level-tour-next-icon');
-  if (nextIcon) nextIcon.textContent = lastStep ? '✓' : '→';
+function focusProfileName() {
+  if (myStyleInputs?.hidden) showProfileCreator(null, { focus: false });
+  const nameInput = document.getElementById('style-name-input');
+  requestAnimationFrame(() => nameInput?.focus({ preventScroll: true }));
 }
 
-function closeMyLevelTour({ continueToCreator = false, remember = false } = {}) {
-  if (!myLevelTour || myLevelTour.hidden) return;
-  if (remember) {
-    try { localStorage.setItem(MY_LEVEL_TOUR_KEY, '1'); } catch (_) {}
+function startMyLevelTour() {
+  if (myLevelTourActive || document.getElementById('my-level-tour-catch')) return;
+  myLevelTourActive = true;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let stepIndex = 0;
+  let placeRaf = 0;
+  let transitioning = false;
+  let observedEls = [];
+
+  const catcher = document.createElement('div');
+  catcher.id = 'my-level-tour-catch';
+  catcher.className = 'tour-catch my-level-coach-catch';
+  catcher.setAttribute('aria-hidden', 'true');
+
+  const spot = document.createElement('div');
+  spot.className = 'tour-spot my-level-coach-spot';
+  spot.setAttribute('aria-hidden', 'true');
+
+  const pop = document.createElement('div');
+  pop.className = 'tour-pop my-level-coach-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-modal', 'true');
+  pop.setAttribute('aria-labelledby', 'my-level-coach-title');
+  pop.setAttribute('aria-describedby', 'my-level-coach-body');
+  pop.tabIndex = -1;
+
+  catcher.addEventListener('click', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  });
+  document.body.append(catcher, spot, pop);
+
+  function unionRect(ids) {
+    let rect = null;
+    ids.forEach(id => {
+      const element = document.getElementById(id);
+      if (!element) return;
+      const bounds = element.getBoundingClientRect();
+      if (!bounds.width && !bounds.height) return;
+      rect = rect ? {
+        top: Math.min(rect.top, bounds.top),
+        left: Math.min(rect.left, bounds.left),
+        right: Math.max(rect.right, bounds.right),
+        bottom: Math.max(rect.bottom, bounds.bottom),
+      } : { top: bounds.top, left: bounds.left, right: bounds.right, bottom: bounds.bottom };
+    });
+    return rect;
   }
-  const continuation = continueToCreator ? myLevelTourContinuation : null;
-  const returnFocus = myLevelTourReturnFocus;
-  myLevelTourContinuation = null;
-  myLevelTourReturnFocus = null;
-  myLevelTour.classList.remove('is-open');
-  myLevelTour.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('my-level-tour-open');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(() => {
-    myLevelTour.hidden = true;
-    if (continuation) continuation();
-    else if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
-      returnFocus.focus({ preventScroll: true });
+
+  function place() {
+    placeRaf = 0;
+    const target = unionRect(MY_LEVEL_TOUR_STEPS[stepIndex].els);
+    if (!target) return;
+    const pad = 9;
+    const top = target.top - pad;
+    const left = target.left - pad;
+    const width = target.right - target.left + pad * 2;
+    const height = target.bottom - target.top + pad * 2;
+    spot.style.top = `${top}px`;
+    spot.style.left = `${left}px`;
+    spot.style.width = `${width}px`;
+    spot.style.height = `${height}px`;
+
+    const popRect = pop.getBoundingClientRect();
+    const gap = 14;
+    const below = top + height + gap;
+    const above = top - popRect.height - gap;
+    const popTop = below + popRect.height <= window.innerHeight - 12
+      ? below
+      : (above >= 12 ? above : Math.max(12, window.innerHeight - popRect.height - 12));
+    let popLeft = left + width / 2 - popRect.width / 2;
+    popLeft = Math.max(12, Math.min(popLeft, window.innerWidth - popRect.width - 12));
+    pop.style.top = `${popTop}px`;
+    pop.style.left = `${popLeft}px`;
+    pop.style.setProperty('--my-level-arrow-x', `${Math.max(20, Math.min(popRect.width - 20, left + width / 2 - popLeft))}px`);
+    pop.classList.toggle('tour-pop-above', popTop < top);
+  }
+
+  function queuePlace() {
+    if (!placeRaf) placeRaf = requestAnimationFrame(place);
+  }
+
+  const resizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(queuePlace)
+    : null;
+
+  function observeStep() {
+    observedEls.forEach(element => resizeObserver?.unobserve(element));
+    observedEls = MY_LEVEL_TOUR_STEPS[stepIndex].els
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+    observedEls.forEach(element => resizeObserver?.observe(element));
+  }
+
+  function finish({ remember = false } = {}) {
+    if (remember) {
+      try { localStorage.setItem(MY_LEVEL_TOUR_KEY, '1'); } catch (_) {}
     }
-  }, reduceMotion ? 0 : 220);
-}
+    cancelAnimationFrame(placeRaf);
+    resizeObserver?.disconnect();
+    window.removeEventListener('scroll', queuePlace, true);
+    window.removeEventListener('resize', queuePlace);
+    document.removeEventListener('keydown', onKeydown);
+    myLevelTourActive = false;
 
-function openMyLevelTour(continuation) {
-  if (!myLevelTour) {
-    continuation?.();
-    return;
-  }
-  myLevelTourStep = 0;
-  myLevelTourContinuation = continuation;
-  myLevelTourReturnFocus = document.activeElement;
-  updateMyLevelTour();
-  myLevelTour.hidden = false;
-  myLevelTour.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('my-level-tour-open');
-  requestAnimationFrame(() => {
-    myLevelTour.classList.add('is-open');
-    myLevelTourNext?.focus({ preventScroll: true });
-  });
-}
-
-function requestProfileCreator(style = null) {
-  bindMyLevelTour();
-  if (!myLevelTour && document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => requestProfileCreator(style), { once: true });
-    return;
-  }
-  const shouldShowTour = !style && window.BipassStyleProfile.shouldShowMyLevelTour(
-    savedStyles,
-    localStorage.getItem(MY_LEVEL_TOUR_KEY),
-  );
-  if (shouldShowTour) {
-    openMyLevelTour(() => showProfileCreator());
-    return;
-  }
-  showProfileCreator(style);
-}
-
-function bindMyLevelTour() {
-  if (myLevelTourBound) return;
-  if (document.readyState === 'loading') {
-    if (!myLevelTourBindScheduled) {
-      myLevelTourBindScheduled = true;
-      document.addEventListener('DOMContentLoaded', () => {
-        myLevelTourBindScheduled = false;
-        bindMyLevelTour();
-      }, { once: true });
+    const cleanup = () => {
+      catcher.remove();
+      spot.remove();
+      pop.remove();
+      focusProfileName();
+    };
+    if (reduce) cleanup();
+    else {
+      [catcher, spot, pop].forEach(element => element.classList.add('is-leaving'));
+      setTimeout(cleanup, 220);
     }
-    return;
   }
 
-  myLevelTour = document.getElementById('my-level-tour');
-  myLevelTourClose = document.getElementById('my-level-tour-close');
-  myLevelTourSkip = document.getElementById('my-level-tour-skip');
-  myLevelTourBack = document.getElementById('my-level-tour-back');
-  myLevelTourNext = document.getElementById('my-level-tour-next');
-  myLevelTourNextLabel = document.getElementById('my-level-tour-next-label');
-  myLevelTourCount = document.getElementById('my-level-tour-count');
-  if (!myLevelTour) return;
-  myLevelTourBound = true;
+  function render(initial = false) {
+    const step = MY_LEVEL_TOUR_STEPS[stepIndex];
+    const last = stepIndex === MY_LEVEL_TOUR_STEPS.length - 1;
+    step.onEnter?.();
+    pop.innerHTML = `
+      <div class="tour-pop-progress" aria-label="Step ${stepIndex + 1} of ${MY_LEVEL_TOUR_STEPS.length}">
+        <span class="tour-pop-count">Step ${stepIndex + 1} of ${MY_LEVEL_TOUR_STEPS.length}</span>
+        <span class="tour-pop-dots" aria-hidden="true">
+          ${MY_LEVEL_TOUR_STEPS.map((_, index) => `<i class="${index < stepIndex ? 'is-done' : index === stepIndex ? 'is-current' : ''}"></i>`).join('')}
+        </span>
+      </div>
+      <div class="tour-pop-copy" aria-live="polite">
+        <div class="tour-pop-title" id="my-level-coach-title"></div>
+        <div class="tour-pop-body" id="my-level-coach-body"></div>
+      </div>
+      <div class="tour-pop-actions">
+        <button type="button" class="tour-pop-skip">Skip guide</button>
+        <span class="tour-pop-nav">
+          ${stepIndex > 0 ? '<button type="button" class="tour-pop-back">Back</button>' : ''}
+          <button type="button" class="tour-pop-next">
+            <span class="tour-pop-next-label">${last ? 'Got it' : 'Next'}</span>
+            <span class="tour-pop-next-icon" aria-hidden="true">${last ? '✓' : '→'}</span>
+          </button>
+        </span>
+      </div>
+      <span class="tour-pop-arrow" aria-hidden="true"></span>`;
+    pop.querySelector('.tour-pop-title').textContent = step.title;
+    pop.querySelector('.tour-pop-body').textContent = step.body;
+    pop.querySelector('.tour-pop-skip').addEventListener('click', () => finish({ remember: true }));
+    pop.querySelector('.tour-pop-back')?.addEventListener('click', () => moveTo(stepIndex - 1));
+    pop.querySelector('.tour-pop-next').addEventListener('click', () => {
+      if (last) finish({ remember: true });
+      else moveTo(stepIndex + 1);
+    });
 
-  myLevelTourNext?.addEventListener('click', () => {
-    const lastStep = myLevelTourStep >= myLevelTour.querySelectorAll('[data-my-level-step]').length - 1;
-    if (lastStep) {
-      closeMyLevelTour({ continueToCreator: true, remember: true });
-      return;
+    observeStep();
+    place();
+    if (initial) requestAnimationFrame(() => pop.classList.add('is-ready'));
+    observedEls[0]?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    setTimeout(queuePlace, reduce ? 0 : 440);
+    pop.querySelector('.tour-pop-next')?.focus({ preventScroll: true });
+  }
+
+  async function moveTo(nextIndex) {
+    if (transitioning || nextIndex < 0 || nextIndex >= MY_LEVEL_TOUR_STEPS.length) return;
+    transitioning = true;
+    if (!reduce) {
+      const animation = pop.querySelector('.tour-pop-copy')?.animate(
+        [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-6px)' }],
+        { duration: 140, easing: 'ease-in', fill: 'both' },
+      );
+      try { await animation?.finished; } catch (_) {}
     }
-    myLevelTourStep += 1;
-    updateMyLevelTour();
-  });
-  myLevelTourBack?.addEventListener('click', () => {
-    myLevelTourStep = Math.max(0, myLevelTourStep - 1);
-    updateMyLevelTour();
-  });
-  myLevelTourSkip?.addEventListener('click', () => {
-    closeMyLevelTour({ continueToCreator: true, remember: true });
-  });
-  myLevelTourClose?.addEventListener('click', () => closeMyLevelTour());
-  myLevelTour.addEventListener('click', (event) => {
-    if (event.target === myLevelTour) closeMyLevelTour();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (myLevelTour.hidden) return;
+    stepIndex = nextIndex;
+    render();
+    transitioning = false;
+  }
+
+  function onKeydown(event) {
     if (event.key === 'Escape') {
       event.preventDefault();
-      closeMyLevelTour();
+      finish();
+      return;
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      if (stepIndex === MY_LEVEL_TOUR_STEPS.length - 1) finish({ remember: true });
+      else moveTo(stepIndex + 1);
+      return;
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      moveTo(stepIndex - 1);
       return;
     }
     if (event.key !== 'Tab') return;
-    const controls = Array.from(myLevelTour.querySelectorAll('button:not([hidden]):not(:disabled)'));
+    const controls = Array.from(pop.querySelectorAll('button:not(:disabled)'));
     if (!controls.length) return;
     const first = controls[0];
     const last = controls[controls.length - 1];
@@ -1743,10 +1829,31 @@ function bindMyLevelTour() {
       event.preventDefault();
       (event.shiftKey ? last : first).focus({ preventScroll: true });
     }
-  });
+  }
+
+  window.addEventListener('scroll', queuePlace, true);
+  window.addEventListener('resize', queuePlace);
+  document.addEventListener('keydown', onKeydown);
+  render(true);
 }
 
-function showProfileCreator(style = null) {
+function requestProfileCreator(style = null) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => requestProfileCreator(style), { once: true });
+    return;
+  }
+  const shouldShowTour = !style && window.BipassStyleProfile.shouldShowMyLevelTour(
+    savedStyles,
+    localStorage.getItem(MY_LEVEL_TOUR_KEY),
+  );
+  if (shouldShowTour) {
+    startMyLevelTour();
+    return;
+  }
+  showProfileCreator(style);
+}
+
+function showProfileCreator(style = null, { focus = true } = {}) {
   profileUpgradeId = style?.id || null;
   resetProfileCreatorForm();
   const originalSamples = Array.isArray(style?.writing_samples)
@@ -1767,7 +1874,7 @@ function showProfileCreator(style = null) {
   if (nameInput) {
     nameInput.value = style?.name || '';
     nameInput.placeholder = style ? 'Rename this profile' : 'Name your profile';
-    requestAnimationFrame(() => nameInput.focus());
+    if (focus) requestAnimationFrame(() => nameInput.focus());
   }
   if (analyzeLabel) analyzeLabel.textContent = style ? 'Reanalyze Writing Style' : 'Analyze My Writing Style';
 }
@@ -3187,6 +3294,7 @@ const TOUR_STEPS = [
     body: 'For AI-generated text, use a Humanizer before Level Matching to reduce the chance of a high AI-detection score.',
   },
 ];
+const REQUIRED_NOTICE_MS = 5000;
 
 function startTour() {
   if (document.getElementById('tour-catch')) return;
@@ -3219,6 +3327,7 @@ function startTour() {
   pop.setAttribute('aria-labelledby', 'tour-pop-title');
   pop.setAttribute('aria-describedby', 'tour-pop-body');
   pop.tabIndex = -1;
+  pop.style.setProperty('--tour-read-duration', `${REQUIRED_NOTICE_MS}ms`);
 
   // On narrow screens this banner sits over the workflow selector. Keep the
   // first coach mark unobstructed, then put the banner back when the tour ends.
@@ -3317,7 +3426,7 @@ function startTour() {
     const icon = pop.querySelector('.tour-pop-next-icon');
     if (!button) return;
 
-    const unlockAt = performance.now() + 3000;
+    const unlockAt = performance.now() + REQUIRED_NOTICE_MS;
     button.disabled = true;
     button.setAttribute('aria-disabled', 'true');
 
@@ -3397,7 +3506,7 @@ function startTour() {
           ${!requiredNotice && i > 0 ? '<button type="button" class="tour-pop-back" aria-label="Previous step">Back</button>' : ''}
           <button type="button" class="tour-pop-next" ${requiredNotice ? 'disabled aria-disabled="true"' : ''}>
             <span class="tour-pop-next-label">${requiredNotice ? 'Continue in' : last ? 'Finish' : 'Next'}</span>
-            <span class="tour-pop-next-icon" aria-hidden="true">${requiredNotice ? '3s' : last ? '✓' : '→'}</span>
+            <span class="tour-pop-next-icon" aria-hidden="true">${requiredNotice ? `${Math.ceil(REQUIRED_NOTICE_MS / 1000)}s` : last ? '✓' : '→'}</span>
           </button>
         </span>
       </div>

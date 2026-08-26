@@ -25,7 +25,7 @@ const CONFIG = {
   model: "deepseek/deepseek-chat",                 // DeepSeek V3 on OpenRouter
   blogDir: path.join(__dirname, "blog"),
   baseUrl: "https://bipassai.com",
-  cssHref: "/style.css?v=43",                      // real versioned stylesheet
+  cssHref: "/style.css?v=115",                      // real versioned stylesheet
   brand: "Bipass AI",
 };
 
@@ -107,8 +107,8 @@ const ARTICLE_STYLE = `  <style>
     .blog-post-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--g300)}
     .blog-post-divider{border:none;border-top:1px solid var(--g150);margin:0 0 40px}
     .blog-post-body{font-size:1.02rem;line-height:1.75;color:#1a1a1a}
-    .blog-post-body h2{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:700;color:#0d0d0d;margin:48px 0 16px;line-height:1.3}
-    .blog-post-body h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#0d0d0d;margin:32px 0 12px}
+    .blog-post-body h2{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1.45rem;font-weight:700;color:#0d0d0d;margin:48px 0 16px;line-height:1.3}
+    .blog-post-body h3{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1.1rem;font-weight:700;color:#0d0d0d;margin:32px 0 12px}
     .blog-post-body p{margin:0 0 20px}
     .blog-post-body ul,
     .blog-post-body ol{margin:0 0 20px;padding-left:24px}
@@ -149,7 +149,7 @@ const ARTICLE_STYLE = `  <style>
     .tbl-no{color:#dc2626;font-weight:600}
     .tbl-partial{color:#d97706;font-weight:600}
     .blog-related{margin:60px 0 0;padding-top:40px;border-top:1px solid var(--g150)}
-    .blog-related h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin:0 0 20px}
+    .blog-related h3{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1rem;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin:0 0 20px}
     .blog-related-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:560px){.blog-related-grid{grid-template-columns:1fr}}
     .blog-related-card{border:1px solid var(--g150);border-radius:10px;padding:18px;text-decoration:none;display:block;transition:box-shadow .2s}
@@ -280,7 +280,7 @@ function buildArticlePage({ title, metaDescription, keywords, tag, readMinutes, 
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">

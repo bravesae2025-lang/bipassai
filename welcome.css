@@ -179,7 +179,7 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
 }
 @keyframes onb-card-rise { from { opacity: 0; transform: translateY(26px) scale(0.98); } to { opacity: 1; transform: none; } }
 
-/* Branded Bipass token (B + ▶) — flat black coin with a shine sweep */
+/* Current Bipass token mark — outlined B coin with a shine sweep */
 .onb-token {
   width: 88px; height: 88px; margin-bottom: 22px; position: relative;
   animation: onb-pop 0.7s var(--ease-out) both;

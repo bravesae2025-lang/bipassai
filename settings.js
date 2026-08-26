@@ -231,6 +231,7 @@ function setupWorkspace() {
       'bipass_pref_extension_tips',
       'ticker-dismissed',
       'rec-flow-collapsed',
+      'bipass_my_level_tour_seen',
     ];
     const savedPreferences = Object.fromEntries(
       temporaryPreferenceKeys.map(key => [key, localStorage.getItem(key)]),
@@ -239,6 +240,7 @@ function setupWorkspace() {
     // Keep the account and its saved work untouched. Only reset browser-side
     // first-run state; welcome.html runs the reward in non-claiming test mode.
     sessionStorage.setItem('bipass_onboarding_test', '1');
+    sessionStorage.setItem('bipass_onboarding_test_my_level', '1');
     sessionStorage.setItem('bipass_onboarding_test_restore', JSON.stringify(savedPreferences));
     [
       'bipass_onb',

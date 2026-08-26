@@ -1625,8 +1625,8 @@ function focusProfileName() {
   requestAnimationFrame(() => nameInput?.focus({ preventScroll: true }));
 }
 
-function startMyLevelTour() {
-  if (myLevelTourActive || document.getElementById('my-level-tour-catch')) return;
+function startMyLevelTour({ onClose = null } = {}) {
+  if (myLevelTourActive || document.getElementById('my-level-tour-catch')) return false;
   myLevelTourActive = true;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1736,6 +1736,7 @@ function startMyLevelTour() {
       spot.remove();
       pop.remove();
       focusProfileName();
+      onClose?.();
     };
     if (reduce) cleanup();
     else {
@@ -1835,6 +1836,7 @@ function startMyLevelTour() {
   window.addEventListener('resize', queuePlace);
   document.addEventListener('keydown', onKeydown);
   render(true);
+  return true;
 }
 
 function requestProfileCreator(style = null) {
@@ -3295,6 +3297,23 @@ const TOUR_STEPS = [
   },
 ];
 const REQUIRED_NOTICE_MS = 5000;
+const ONBOARDING_TEST_LEVEL_TOUR_KEY = 'bipass_onboarding_test_my_level';
+
+function finishOnboardingTestReplay(reduce = false) {
+  try {
+    const savedPreferences = JSON.parse(
+      sessionStorage.getItem('bipass_onboarding_test_restore') || '{}',
+    );
+    Object.entries(savedPreferences).forEach(([key, value]) => {
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
+    });
+  } catch (_) {}
+  sessionStorage.removeItem('bipass_onboarding_test');
+  sessionStorage.removeItem(ONBOARDING_TEST_LEVEL_TOUR_KEY);
+  sessionStorage.removeItem('bipass_onboarding_test_restore');
+  setTimeout(() => window.__bipassShowExtPopup?.(), reduce ? 0 : 480);
+}
 
 function startTour() {
   if (document.getElementById('tour-catch')) return;
@@ -3585,18 +3604,17 @@ function startTour() {
     try { localStorage.setItem('bipass_tour_seen', '1'); } catch (_) {}
     if (restorePlanBanner) planBanner.classList.remove('hidden');
     if (onboardingTest) {
-      try {
-        const savedPreferences = JSON.parse(
-          sessionStorage.getItem('bipass_onboarding_test_restore') || '{}',
-        );
-        Object.entries(savedPreferences).forEach(([key, value]) => {
-          if (value === null) localStorage.removeItem(key);
-          else localStorage.setItem(key, value);
-        });
-      } catch (_) {}
-      sessionStorage.removeItem('bipass_onboarding_test');
-      sessionStorage.removeItem('bipass_onboarding_test_restore');
-      setTimeout(() => window.__bipassShowExtPopup?.(), reduce ? 0 : 480);
+      const shouldReplayMyLevel = sessionStorage.getItem(ONBOARDING_TEST_LEVEL_TOUR_KEY) === '1';
+      if (shouldReplayMyLevel) {
+        setTimeout(() => {
+          const launched = startMyLevelTour({
+            onClose: () => finishOnboardingTestReplay(reduce),
+          });
+          if (!launched) finishOnboardingTestReplay(reduce);
+        }, reduce ? 0 : 480);
+      } else {
+        finishOnboardingTestReplay(reduce);
+      }
     }
     if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
       returnFocus.focus({ preventScroll: true });

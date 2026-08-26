@@ -179,10 +179,15 @@ if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-match-btn'
 }
 if (!settingsHtml.includes('id="reset-onboarding-btn"')
     || !settingsJs.includes("window.location.assign('welcome.html?preview=1&test=1')")
+    || !settingsJs.includes("sessionStorage.setItem('bipass_onboarding_test_my_level', '1')")
+    || !settingsJs.includes("'bipass_my_level_tour_seen'")
     || !welcomeJs.includes("const TEST_RUN = PREVIEW && QS.has('test')")
     || !welcomeJs.includes("'/home?onboardingTest=1'")
+    || !appJs.includes("const ONBOARDING_TEST_LEVEL_TOUR_KEY = 'bipass_onboarding_test_my_level'")
+    || !appJs.includes('startMyLevelTour({')
+    || !appJs.includes('onClose: () => finishOnboardingTestReplay(reduce)')
     || !appJs.includes('window.__bipassShowExtPopup?.()')) {
-  add(settingsFile, 'temporary onboarding test must replay the complete flow without signing out or claiming a reward');
+  add(settingsFile, 'temporary onboarding test must replay the app and My Level tours without changing account state');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');

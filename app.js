@@ -979,6 +979,13 @@ const profileOptionTitle = document.getElementById('writing-profile-option-title
 const profileOptionMeta = document.getElementById('writing-profile-option-meta');
 const profileOptionStatus = document.getElementById('writing-profile-option-status');
 const manualCustomizeBtn = document.getElementById('manual-customize-btn');
+let myLevelTour = null;
+let myLevelTourClose = null;
+let myLevelTourSkip = null;
+let myLevelTourBack = null;
+let myLevelTourNext = null;
+let myLevelTourNextLabel = null;
+let myLevelTourCount = null;
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1228,7 +1235,7 @@ async function init() {
   const styleLoad = loadSavedStyle(session);
   if (wantsProfileCreator) {
     await styleLoad;
-    if (window.BipassStyleProfile.canCreateStyle(savedStyles)) showProfileCreator();
+    if (window.BipassStyleProfile.canCreateStyle(savedStyles)) requestProfileCreator();
     else showToast(`You can save up to ${window.BipassStyleProfile.MAX_SAVED_STYLES} profiles`);
     pageParams.delete('createProfile');
     const nextQuery = pageParams.toString();
@@ -1366,8 +1373,9 @@ function bindEvents() {
   });
 
   // Writing Profile events
-  createProfileBtn?.addEventListener('click', () => showProfileCreator());
+  createProfileBtn?.addEventListener('click', () => requestProfileCreator());
   cancelProfileBtn?.addEventListener('click', closeProfileCreator);
+  bindMyLevelTour();
   function updateSampleScrollState() {
     if (!sampleContainer || !sampleScrollShell) return;
     const overflowing = sampleContainer.scrollHeight > sampleContainer.clientHeight + 1;
@@ -1571,8 +1579,7 @@ function selectLevel(level) {
       activeStyleId = savedStyle?.id || null;
     }
     if (!savedStyle) {
-      showToast('Create My Level from a writing sample first.');
-      showProfileCreator();
+      requestProfileCreator();
       syncLevelSelectionUi();
       return;
     }
@@ -1594,6 +1601,150 @@ function selectLevel(level) {
 }
 
 // ─── Writing Profile ──────────────────────────────────────────
+
+const MY_LEVEL_TOUR_KEY = 'bipass_my_level_tour_seen';
+let myLevelTourStep = 0;
+let myLevelTourContinuation = null;
+let myLevelTourReturnFocus = null;
+let myLevelTourBound = false;
+let myLevelTourBindScheduled = false;
+
+function updateMyLevelTour() {
+  if (!myLevelTour) return;
+  const slides = Array.from(myLevelTour.querySelectorAll('[data-my-level-step]'));
+  const dots = Array.from(myLevelTour.querySelectorAll('.my-level-tour-dots i'));
+  slides.forEach((slide, index) => { slide.hidden = index !== myLevelTourStep; });
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('is-current', index === myLevelTourStep);
+    dot.classList.toggle('is-done', index < myLevelTourStep);
+  });
+  if (myLevelTourCount) myLevelTourCount.textContent = `Step ${myLevelTourStep + 1} of ${slides.length}`;
+  if (myLevelTourBack) myLevelTourBack.hidden = myLevelTourStep === 0;
+  const lastStep = myLevelTourStep === slides.length - 1;
+  if (myLevelTourNextLabel) myLevelTourNextLabel.textContent = lastStep ? 'Create My Level' : 'Next';
+  const nextIcon = myLevelTourNext?.querySelector('.my-level-tour-next-icon');
+  if (nextIcon) nextIcon.textContent = lastStep ? '✓' : '→';
+}
+
+function closeMyLevelTour({ continueToCreator = false, remember = false } = {}) {
+  if (!myLevelTour || myLevelTour.hidden) return;
+  if (remember) {
+    try { localStorage.setItem(MY_LEVEL_TOUR_KEY, '1'); } catch (_) {}
+  }
+  const continuation = continueToCreator ? myLevelTourContinuation : null;
+  const returnFocus = myLevelTourReturnFocus;
+  myLevelTourContinuation = null;
+  myLevelTourReturnFocus = null;
+  myLevelTour.classList.remove('is-open');
+  myLevelTour.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('my-level-tour-open');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(() => {
+    myLevelTour.hidden = true;
+    if (continuation) continuation();
+    else if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+      returnFocus.focus({ preventScroll: true });
+    }
+  }, reduceMotion ? 0 : 220);
+}
+
+function openMyLevelTour(continuation) {
+  if (!myLevelTour) {
+    continuation?.();
+    return;
+  }
+  myLevelTourStep = 0;
+  myLevelTourContinuation = continuation;
+  myLevelTourReturnFocus = document.activeElement;
+  updateMyLevelTour();
+  myLevelTour.hidden = false;
+  myLevelTour.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('my-level-tour-open');
+  requestAnimationFrame(() => {
+    myLevelTour.classList.add('is-open');
+    myLevelTourNext?.focus({ preventScroll: true });
+  });
+}
+
+function requestProfileCreator(style = null) {
+  bindMyLevelTour();
+  if (!myLevelTour && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => requestProfileCreator(style), { once: true });
+    return;
+  }
+  const shouldShowTour = !style && window.BipassStyleProfile.shouldShowMyLevelTour(
+    savedStyles,
+    localStorage.getItem(MY_LEVEL_TOUR_KEY),
+  );
+  if (shouldShowTour) {
+    openMyLevelTour(() => showProfileCreator());
+    return;
+  }
+  showProfileCreator(style);
+}
+
+function bindMyLevelTour() {
+  if (myLevelTourBound) return;
+  if (document.readyState === 'loading') {
+    if (!myLevelTourBindScheduled) {
+      myLevelTourBindScheduled = true;
+      document.addEventListener('DOMContentLoaded', () => {
+        myLevelTourBindScheduled = false;
+        bindMyLevelTour();
+      }, { once: true });
+    }
+    return;
+  }
+
+  myLevelTour = document.getElementById('my-level-tour');
+  myLevelTourClose = document.getElementById('my-level-tour-close');
+  myLevelTourSkip = document.getElementById('my-level-tour-skip');
+  myLevelTourBack = document.getElementById('my-level-tour-back');
+  myLevelTourNext = document.getElementById('my-level-tour-next');
+  myLevelTourNextLabel = document.getElementById('my-level-tour-next-label');
+  myLevelTourCount = document.getElementById('my-level-tour-count');
+  if (!myLevelTour) return;
+  myLevelTourBound = true;
+
+  myLevelTourNext?.addEventListener('click', () => {
+    const lastStep = myLevelTourStep >= myLevelTour.querySelectorAll('[data-my-level-step]').length - 1;
+    if (lastStep) {
+      closeMyLevelTour({ continueToCreator: true, remember: true });
+      return;
+    }
+    myLevelTourStep += 1;
+    updateMyLevelTour();
+  });
+  myLevelTourBack?.addEventListener('click', () => {
+    myLevelTourStep = Math.max(0, myLevelTourStep - 1);
+    updateMyLevelTour();
+  });
+  myLevelTourSkip?.addEventListener('click', () => {
+    closeMyLevelTour({ continueToCreator: true, remember: true });
+  });
+  myLevelTourClose?.addEventListener('click', () => closeMyLevelTour());
+  myLevelTour.addEventListener('click', (event) => {
+    if (event.target === myLevelTour) closeMyLevelTour();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (myLevelTour.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeMyLevelTour();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const controls = Array.from(myLevelTour.querySelectorAll('button:not([hidden]):not(:disabled)'));
+    if (!controls.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if ((event.shiftKey && document.activeElement === first)
+        || (!event.shiftKey && document.activeElement === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
+    }
+  });
+}
 
 function showProfileCreator(style = null) {
   profileUpgradeId = style?.id || null;
@@ -3033,7 +3184,7 @@ const TOUR_STEPS = [
     kind: 'required-notice',
     kicker: 'Important notice',
     title: 'Humanizer first for AI text',
-    body: 'If your starting text was generated by AI and avoiding AI detection is your goal, use a Humanizer before Level Matching. Level Matching changes the writing level only—it does not fully humanize AI text or guarantee a detector result.',
+    body: 'For AI-generated text, use a Humanizer before Level Matching to reduce the chance of a high AI-detection score.',
   },
 ];
 
@@ -3462,9 +3613,10 @@ function startTour() {
   const expandButton = document.getElementById('rec-flow-expand');
   const openButton = document.getElementById('rec-flow-open');
   const playButton = document.getElementById('rec-guide-play');
-  const dialog = document.getElementById('rec-guide-dialog');
-  const dialogVideo = document.getElementById('rec-guide-dialog-video');
-  const dialogClose = document.getElementById('rec-guide-dialog-close');
+  let dialog = null;
+  let dialogPanel = null;
+  let dialogVideo = null;
+  let dialogClose = null;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let userCollapsed = localStorage.getItem('rec-flow-collapsed') === '1';
   let collapsed = userCollapsed;
@@ -3474,6 +3626,39 @@ function startTour() {
   let userPaused = reduceMotion;
   let dialogOpen = false;
   let dialogTrigger = null;
+  let dialogBound = false;
+  let dialogCloseTimer = 0;
+
+  function bindDialog() {
+    if (dialogBound) return true;
+    dialog = document.getElementById('rec-guide-dialog');
+    dialogPanel = dialog?.querySelector('.rec-guide-dialog-panel') || null;
+    dialogVideo = document.getElementById('rec-guide-dialog-video');
+    dialogClose = document.getElementById('rec-guide-dialog-close');
+    if (!dialog || !dialogPanel || !dialogVideo || !dialogClose) return false;
+
+    dialogClose.addEventListener('click', closeDialog);
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+    dialogBound = true;
+    return true;
+  }
+
+  function setDialogOrigin() {
+    if (!dialogPanel) return;
+    const sourceRect = video.getBoundingClientRect();
+    const panelRect = dialogPanel.getBoundingClientRect();
+    if (!sourceRect.width || !sourceRect.height || !panelRect.width || !panelRect.height) return;
+    const shiftX = sourceRect.left + sourceRect.width / 2 - (panelRect.left + panelRect.width / 2);
+    const shiftY = sourceRect.top + sourceRect.height / 2 - (panelRect.top + panelRect.height / 2);
+    const scaleX = Math.max(0.18, Math.min(1, sourceRect.width / panelRect.width));
+    const scaleY = Math.max(0.18, Math.min(1, sourceRect.height / panelRect.height));
+    dialogPanel.style.setProperty('--rec-dialog-shift-x', `${shiftX}px`);
+    dialogPanel.style.setProperty('--rec-dialog-shift-y', `${shiftY}px`);
+    dialogPanel.style.setProperty('--rec-dialog-scale-x', scaleX.toFixed(4));
+    dialogPanel.style.setProperty('--rec-dialog-scale-y', scaleY.toFixed(4));
+  }
 
   function syncPlayButton() {
     const paused = video.paused;
@@ -3539,16 +3724,22 @@ function startTour() {
   video.addEventListener('pause', syncPlayButton);
 
   function openDialog() {
-    if (!dialog || !dialogVideo || dialogOpen) return;
+    if (!bindDialog() || dialogOpen) return;
+    clearTimeout(dialogCloseTimer);
     dialogOpen = true;
-    dialogTrigger = expandButton;
+    dialogTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : expandButton;
     dialogVideo.currentTime = video.currentTime;
-    dialog.classList.add('is-open');
+    dialog.classList.add('is-preparing');
     dialog.setAttribute('aria-hidden', 'false');
     document.body.classList.add('rec-guide-dialog-open');
+    setDialogOrigin();
+    void dialog.offsetWidth;
     syncPlayback();
     if (!reduceMotion) dialogVideo.play().catch(() => {});
-    requestAnimationFrame(() => dialogClose?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      dialog.classList.add('is-open');
+      dialogClose?.focus({ preventScroll: true });
+    });
   }
 
   function closeDialog() {
@@ -3557,17 +3748,24 @@ function startTour() {
     dialogVideo.pause();
     video.currentTime = dialogVideo.currentTime;
     dialog.classList.remove('is-open');
-    dialog.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('rec-guide-dialog-open');
-    syncPlayback();
-    dialogTrigger?.focus({ preventScroll: true });
+    const finishClose = () => {
+      if (dialogOpen) return;
+      dialog.classList.remove('is-preparing');
+      dialog.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('rec-guide-dialog-open');
+      syncPlayback();
+      dialogTrigger?.focus({ preventScroll: true });
+    };
+    if (reduceMotion) finishClose();
+    else dialogCloseTimer = window.setTimeout(finishClose, 430);
   }
 
   expandButton?.addEventListener('click', openDialog);
-  dialogClose?.addEventListener('click', closeDialog);
-  dialog?.addEventListener('click', (event) => {
-    if (event.target === dialog) closeDialog();
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindDialog, { once: true });
+  } else {
+    bindDialog();
+  }
   document.addEventListener('keydown', (event) => {
     if (!dialogOpen) return;
     if (event.key === 'Escape') {

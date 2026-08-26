@@ -254,6 +254,10 @@
     return Array.isArray(styles) && styles.length < MAX_SAVED_STYLES;
   }
 
+  function shouldShowMyLevelTour(styles, storedValue) {
+    return Array.isArray(styles) && styles.length === 0 && storedValue !== '1';
+  }
+
   function normalizeStoredStyle(style, fallbackId = '') {
     if (!style || typeof style !== 'object' || Array.isArray(style)) return null;
     const id = cleanText(style.id, 80) || cleanText(fallbackId, 80);
@@ -378,6 +382,7 @@
     serializeSummary,
     serializeProfileStore,
     selectorMode,
+    shouldShowMyLevelTour,
     sliderValuesFromStyle,
     stylePromptFromAnalysis,
     upsertStyle,

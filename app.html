@@ -37,7 +37,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=112">
+  <link rel="stylesheet" href="style.css?v=114">
 </head>
 <body class="creation-page">
 
@@ -445,7 +445,7 @@
 
           <div class="rec-flow-viewport">
             <video class="rec-guide-video" id="rec-guide-video" muted loop autoplay playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=9" aria-label="The real Bipass Level Matching workflow showing paste, choose, match, review, and Auto Type">
-              <source src="assets/level-matching-guide.mp4?v=9" type="video/mp4">
+              <source src="assets/level-matching-guide.mp4?v=10" type="video/mp4">
             </video>
             <button class="rec-guide-play" id="rec-guide-play" type="button" aria-label="Pause walkthrough" title="Pause walkthrough">
               <svg class="rec-guide-pause-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
@@ -592,9 +592,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=10"></script>
+  <script src="style-profile.js?v=11"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=57"></script>
+  <script src="app.js?v=59"></script>
 
   <script>
   /* Preserve the original compact workflow switcher with only active workflows. */
@@ -857,12 +857,77 @@
   <div class="rec-guide-dialog" id="rec-guide-dialog" role="dialog" aria-modal="true" aria-label="Level Matching walkthrough" aria-hidden="true">
     <div class="rec-guide-dialog-panel">
       <video class="rec-guide-dialog-video" id="rec-guide-dialog-video" muted loop playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=9" aria-label="Expanded Level Matching walkthrough">
-        <source src="assets/level-matching-guide.mp4?v=9" type="video/mp4">
+        <source src="assets/level-matching-guide.mp4?v=10" type="video/mp4">
       </video>
       <button class="rec-guide-dialog-close" id="rec-guide-dialog-close" type="button" aria-label="Close expanded walkthrough" title="Close expanded walkthrough">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
+  </div>
+
+  <!-- First-time My Level walkthrough -->
+  <div class="my-level-tour" id="my-level-tour" aria-hidden="true" hidden>
+    <section class="my-level-tour-panel" role="dialog" aria-modal="true" aria-labelledby="my-level-tour-heading">
+      <header class="my-level-tour-head">
+        <div>
+          <span class="my-level-tour-kicker">My Level setup</span>
+          <h2 id="my-level-tour-heading">Teach Bipass how you write</h2>
+        </div>
+        <button class="my-level-tour-close" id="my-level-tour-close" type="button" aria-label="Close My Level guide">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+
+      <div class="my-level-tour-progress" aria-label="My Level guide progress">
+        <span class="my-level-tour-count" id="my-level-tour-count">Step 1 of 3</span>
+        <span class="my-level-tour-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="my-level-tour-slides" aria-live="polite">
+        <article class="my-level-tour-slide" data-my-level-step="0">
+          <div class="my-level-tour-preview my-level-tour-preview-name" aria-hidden="true">
+            <span class="my-level-preview-label">Profile name</span>
+            <span class="my-level-preview-input">School essays<span class="my-level-preview-caret"></span></span>
+          </div>
+          <span class="my-level-tour-step-label">Name it</span>
+          <h3>Pick a name you’ll recognize.</h3>
+          <p>Name this profile for the kind of writing it represents, such as “School essays” or “My casual writing.”</p>
+        </article>
+
+        <article class="my-level-tour-slide" data-my-level-step="1" hidden>
+          <div class="my-level-tour-preview my-level-tour-preview-sample" aria-hidden="true">
+            <span class="my-level-preview-label">Your writing sample</span>
+            <span class="my-level-preview-lines"><i></i><i></i><i></i><i></i></span>
+            <span class="my-level-preview-wordcount">72 words <strong>✓</strong></span>
+          </div>
+          <span class="my-level-tour-step-label">Add your writing</span>
+          <h3>Paste something you actually wrote.</h3>
+          <p>Each sample needs at least 50 words. You can add up to five samples so the analysis has more of your writing to learn from.</p>
+        </article>
+
+        <article class="my-level-tour-slide" data-my-level-step="2" hidden>
+          <div class="my-level-tour-preview my-level-tour-preview-result" aria-hidden="true">
+            <span class="my-level-preview-fingerprint"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="my-level-preview-result-copy"><strong>My Level ready</strong><small>Vocabulary · tone · writing patterns</small></span>
+            <span class="my-level-preview-ready">Using</span>
+          </div>
+          <span class="my-level-tour-step-label">Analyze and use</span>
+          <h3>Let Analyze My Writing Style do the rest.</h3>
+          <p>Bipass measures your vocabulary, grammar, tense, punctuation, capitals, spelling, tone, and sentence style. Your new My Level is then saved and selected automatically.</p>
+        </article>
+      </div>
+
+      <footer class="my-level-tour-actions">
+        <button class="my-level-tour-skip" id="my-level-tour-skip" type="button">Skip guide</button>
+        <span class="my-level-tour-nav">
+          <button class="my-level-tour-back" id="my-level-tour-back" type="button" hidden>Back</button>
+          <button class="my-level-tour-next" id="my-level-tour-next" type="button">
+            <span id="my-level-tour-next-label">Next</span>
+            <span class="my-level-tour-next-icon" aria-hidden="true">→</span>
+          </button>
+        </span>
+      </footer>
+    </section>
   </div>
 
   <!-- No-plan modal -->

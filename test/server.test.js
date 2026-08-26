@@ -43,6 +43,7 @@ const {
   removeStyle,
   resultSnapshot,
   profileOptionState,
+  shouldShowMyLevelTour,
   readProfileStore,
   selectorMode,
   serializeProfileStore,
@@ -514,6 +515,13 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   assert.equal(legacy.kind, 'ready');
   assert.equal(legacy.meta, '');
   assert.equal(legacy.legacy, true);
+});
+
+test('My Level walkthrough appears only before the first profile is created', () => {
+  assert.equal(shouldShowMyLevelTour([], null), true);
+  assert.equal(shouldShowMyLevelTour([], '1'), false);
+  assert.equal(shouldShowMyLevelTour([{ id: 'profile-1' }], null), false);
+  assert.equal(shouldShowMyLevelTour(null, null), false);
 });
 
 test('browser rejects incomplete AI profiles instead of silently using stale sliders', () => {

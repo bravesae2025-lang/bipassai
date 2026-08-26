@@ -200,10 +200,10 @@ if (!appHtml.includes('id="writing-profile-option"')
     || appHtml.includes('class="level-manual-btn"')) {
   add(appFile, 'Styles must keep Writing Profile primary and place Custom fourth in the preset selector');
 }
-if (!appHtml.includes('id="level-heading">Styles</div>')
+if (!appHtml.includes('id="level-heading">Levels</div>')
     || appHtml.indexOf('id="writing-profile-option"') > appHtml.indexOf('class="level-track"')
     || !appHtml.includes('class="style-presets-head" aria-hidden="true"><span>OR</span>')
-    || !appHtml.includes('class="level-profile-default">Default</span>')
+    || !appHtml.includes('id="writing-profile-option-title">My Level</strong>')
     || !appHtml.includes('class="create-profile-fingerprint"')
     || appHtml.includes('class="writing-profile-sub"')
     || appHtml.includes('class="profile-card-summary"')
@@ -211,7 +211,7 @@ if (!appHtml.includes('id="level-heading">Styles</div>')
     || appJs.includes('profile.sentenceStyle.evidence')
     || appJs.includes('class="profile-score-evidence"')
     || appJs.includes('class="profile-card-level-row"')) {
-  add(appFile, 'Styles must keep vocabulary scoring inside Details and use concise, evidence-free collapsed profile cards');
+  add(appFile, 'Levels must keep My Level first, vocabulary scoring inside Details, and concise profile cards');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')
@@ -242,7 +242,7 @@ if (!appHtml.includes('id="rec-flow-open"')
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
 }
 if (!appHtml.includes('id="rec-guide-video"')
-    || !appHtml.includes('assets/level-matching-guide.mp4?v=9')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=10')
     || !appHtml.includes('assets/level-matching-guide-poster.png?v=9')
     || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")) {
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');

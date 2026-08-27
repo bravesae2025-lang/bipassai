@@ -14304,50 +14304,67 @@ body.creation-page {
   transition: left 420ms var(--ease-out);
 }
 
-.my-level-invite-pop { width: min(300px, calc(100vw - 24px)); }
-
-.my-level-invite-kicker {
-  margin-bottom: 8px;
-  color: #16833d;
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.my-level-invite-pointer {
+  position: fixed;
+  z-index: 15004;
+  width: 54px;
+  height: 60px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(8px, 9px, 0) scale(0.88);
+  transform-origin: 5px 3px;
+  transition: opacity 220ms ease, transform 380ms var(--ease-out);
+  will-change: transform, opacity;
 }
 
-.my-level-invite-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-top: 15px;
+.my-level-invite-pointer.is-ready {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
-.my-level-invite-cue {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #111713;
-  font-size: 11.5px;
-  font-weight: 720;
+.my-level-invite-pointer svg {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 52px;
+  overflow: visible;
+  fill: #fff;
+  stroke: #101312;
+  stroke-linejoin: round;
+  stroke-width: 3px;
+  filter: drop-shadow(0 5px 7px rgba(0,0,0,0.3));
+  animation: my-level-pointer-tap 1.45s var(--ease-out) infinite;
 }
 
-.my-level-invite-cue span {
-  display: grid;
-  width: 25px;
-  height: 25px;
-  place-items: center;
+.my-level-invite-pulse {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #22c55e;
   border-radius: 999px;
-  background: #1ea34f;
-  color: #fff;
-  font-size: 13px;
+  opacity: 0;
+  animation: my-level-pointer-pulse 1.45s var(--ease-out) infinite;
+}
+
+@keyframes my-level-pointer-tap {
+  0%, 22%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  34% { transform: translate3d(-2px, -2px, 0) scale(0.94); }
+  48% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes my-level-pointer-pulse {
+  0%, 22% { opacity: 0; transform: scale(0.55); }
+  34% { opacity: 0.9; transform: scale(0.72); }
+  68%, 100% { opacity: 0; transform: scale(1.55); }
 }
 
 .my-level-coach-catch.is-leaving,
 .my-level-coach-spot.is-leaving,
 .my-level-coach-pop.is-leaving,
 .my-level-invite-scrim.is-leaving,
+.my-level-invite-pointer.is-leaving,
 .my-level-invite-hit.is-leaving {
   opacity: 0;
   pointer-events: none;
@@ -14372,12 +14389,14 @@ body.creation-page {
   .my-level-coach-pop .tour-pop-title { font-size: 17px; }
   .my-level-coach-pop .tour-pop-body { font-size: 12px; }
   .my-level-coach-pop .tour-pop-actions { margin-top: 13px; }
-  .my-level-invite-pop { padding: 16px 17px 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .my-level-coach-catch,
   .my-level-invite-scrim,
+  .my-level-invite-pointer,
+  .my-level-invite-pointer svg,
+  .my-level-invite-pulse,
   .my-level-invite-hit,
   .my-level-coach-spot,
   .my-level-coach-pop,
@@ -14385,6 +14404,9 @@ body.creation-page {
     animation: none;
     transition: none;
   }
+
+  .my-level-invite-pointer svg { transform: none; }
+  .my-level-invite-pulse { opacity: 0.8; transform: scale(0.8); }
 }
 
 @media (prefers-contrast: more) {

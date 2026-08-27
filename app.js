@@ -1649,23 +1649,14 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   spot.className = 'tour-spot my-level-coach-spot my-level-invite-spot';
   spot.setAttribute('aria-hidden', 'true');
 
-  const pop = document.createElement('div');
-  pop.className = 'tour-pop my-level-coach-pop my-level-invite-pop';
-  pop.setAttribute('role', 'dialog');
-  pop.setAttribute('aria-modal', 'true');
-  pop.setAttribute('aria-labelledby', 'my-level-invite-title');
-  pop.setAttribute('aria-describedby', 'my-level-invite-body');
-  pop.innerHTML = `
-    <div class="my-level-invite-kicker">Next up</div>
-    <div class="tour-pop-copy">
-      <div class="tour-pop-title" id="my-level-invite-title">Open My Level</div>
-      <div class="tour-pop-body" id="my-level-invite-body">Click the highlighted My Level box to start the quick setup guide.</div>
-    </div>
-    <div class="my-level-invite-actions">
-      <button type="button" class="tour-pop-skip">Not now</button>
-      <span class="my-level-invite-cue" aria-hidden="true">Click the box <span>↗</span></span>
-    </div>
-    <span class="tour-pop-arrow" aria-hidden="true"></span>`;
+  const pointer = document.createElement('div');
+  pointer.className = 'my-level-invite-pointer';
+  pointer.setAttribute('aria-hidden', 'true');
+  pointer.innerHTML = `
+    <span class="my-level-invite-pulse"></span>
+    <svg viewBox="0 0 44 52" focusable="false" aria-hidden="true">
+      <path d="M5 3v35l9-8 8 18 8-4-8-17h13L5 3Z" />
+    </svg>`;
 
   const hit = document.createElement('button');
   hit.type = 'button';
@@ -1675,8 +1666,9 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   scrim.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
+    finish();
   });
-  document.body.append(scrim, spot, pop, hit);
+  document.body.append(scrim, spot, pointer, hit);
 
   function place() {
     placeRaf = 0;
@@ -1700,19 +1692,8 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
       height: `${bounds.height}px`,
     });
 
-    const popRect = pop.getBoundingClientRect();
-    const gap = 14;
-    const below = top + height + gap;
-    const above = top - popRect.height - gap;
-    const popTop = below + popRect.height <= window.innerHeight - 12
-      ? below
-      : (above >= 12 ? above : Math.max(12, window.innerHeight - popRect.height - 12));
-    let popLeft = left + width / 2 - popRect.width / 2;
-    popLeft = Math.max(12, Math.min(popLeft, window.innerWidth - popRect.width - 12));
-    pop.style.top = `${popTop}px`;
-    pop.style.left = `${popLeft}px`;
-    pop.style.setProperty('--my-level-arrow-x', `${Math.max(20, Math.min(popRect.width - 20, left + width / 2 - popLeft))}px`);
-    pop.classList.toggle('tour-pop-above', popTop < top);
+    pointer.style.top = `${bounds.top + bounds.height * 0.48}px`;
+    pointer.style.left = `${Math.min(bounds.right - 38, bounds.left + bounds.width * 0.62)}px`;
   }
 
   function queuePlace() {
@@ -1733,7 +1714,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     const cleanup = () => {
       scrim.remove();
       spot.remove();
-      pop.remove();
+      pointer.remove();
       hit.remove();
       if (startGuide) {
         const launched = startMyLevelTour({ onClose });
@@ -1744,7 +1725,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     };
     if (reduce) cleanup();
     else {
-      [scrim, spot, pop, hit].forEach(element => element.classList.add('is-leaving'));
+      [scrim, spot, pointer, hit].forEach(element => element.classList.add('is-leaving'));
       setTimeout(cleanup, 220);
     }
   }
@@ -1755,14 +1736,9 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
       finish();
       return;
     }
-    if (event.key !== 'Tab') return;
-    const controls = [hit, pop.querySelector('.tour-pop-skip')].filter(Boolean);
-    const first = controls[0];
-    const last = controls[controls.length - 1];
-    if ((event.shiftKey && document.activeElement === first)
-        || (!event.shiftKey && document.activeElement === last)) {
+    if (event.key === 'Tab') {
       event.preventDefault();
-      (event.shiftKey ? last : first).focus({ preventScroll: true });
+      hit.focus({ preventScroll: true });
     }
   }
 
@@ -1770,7 +1746,6 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     ? new ResizeObserver(queuePlace)
     : null;
   resizeObserver?.observe(target);
-  pop.querySelector('.tour-pop-skip')?.addEventListener('click', () => finish());
   hit.addEventListener('click', () => finish({ startGuide: true }));
   window.addEventListener('scroll', queuePlace, true);
   window.addEventListener('resize', queuePlace);
@@ -1779,7 +1754,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
   place();
   requestAnimationFrame(() => {
-    pop.classList.add('is-ready');
+    pointer.classList.add('is-ready');
     hit.focus({ preventScroll: true });
   });
   setTimeout(queuePlace, reduce ? 0 : 440);

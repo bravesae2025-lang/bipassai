@@ -184,6 +184,10 @@ if (!settingsHtml.includes('id="reset-onboarding-btn"')
     || !welcomeJs.includes("const TEST_RUN = PREVIEW && QS.has('test')")
     || !welcomeJs.includes("'/home?onboardingTest=1'")
     || !appJs.includes("const ONBOARDING_TEST_LEVEL_TOUR_KEY = 'bipass_onboarding_test_my_level'")
+    || !appJs.includes('showMyLevelTourInvite({')
+    || !appJs.includes('setTimeout(() => showMyLevelTourInvite(), reduce ? 0 : 480)')
+    || !appJs.includes('Open My Level')
+    || !appJs.includes('Click the highlighted My Level box to start the quick setup guide.')
     || !appJs.includes('startMyLevelTour({')
     || !appJs.includes('onClose: () => finishOnboardingTestReplay(reduce)')
     || !appJs.includes('window.__bipassShowExtPopup?.()')) {
@@ -232,13 +236,15 @@ const myLevelTourSource = appJs.slice(
 if (!myLevelTourSource.includes("els: ['writing-profile-option']")
     || !myLevelTourSource.includes("els: ['style-name-input', 'sample-scroll-shell']")
     || !myLevelTourSource.includes("els: ['analyze-style-btn']")
+    || !myLevelTourSource.includes("els: ['level-match-btn']")
     || !myLevelTourSource.includes("title: 'This is My Level'")
     || !myLevelTourSource.includes("title: 'Add your writing'")
     || !myLevelTourSource.includes("title: 'Analyze and use it'")
+    || !myLevelTourSource.includes("title: 'Match text to your level'")
     || !myLevelTourSource.includes("localStorage.setItem(MY_LEVEL_TOUR_KEY, '1')")
     || !myLevelTourSource.includes("event.key === 'Escape'")
     || !myLevelTourSource.includes('focusProfileName()')) {
-  add(appJsFile, 'first-time My Level setup must use the anchored three-step coach-mark guide');
+  add(appJsFile, 'first-time My Level setup must use the anchored four-step coach-mark guide');
 }
 if (/\bSyne\b/.test(styleCss)
     || /\bSyne\b/.test(articleGeneratorJs)

@@ -1616,13 +1616,174 @@ const MY_LEVEL_TOUR_STEPS = [
       if (myStyleInputs?.hidden) showProfileCreator(null, { focus: false });
     },
   },
+  {
+    els: ['level-match-btn'],
+    title: 'Match text to your level',
+    body: 'Now paste any draft and tap Match My Level to make it sound like you.',
+  },
 ];
 let myLevelTourActive = false;
+let myLevelTourInviteActive = false;
 
 function focusProfileName() {
   if (myStyleInputs?.hidden) showProfileCreator(null, { focus: false });
   const nameInput = document.getElementById('style-name-input');
   requestAnimationFrame(() => nameInput?.focus({ preventScroll: true }));
+}
+
+function showMyLevelTourInvite({ onClose = null } = {}) {
+  const target = document.getElementById('writing-profile-option');
+  if (myLevelTourInviteActive || myLevelTourActive || !target) return false;
+  myLevelTourInviteActive = true;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let placeRaf = 0;
+  let closing = false;
+
+  const scrim = document.createElement('div');
+  scrim.id = 'my-level-tour-invite';
+  scrim.className = 'my-level-invite-scrim';
+  scrim.setAttribute('aria-hidden', 'true');
+
+  const spot = document.createElement('div');
+  spot.className = 'tour-spot my-level-coach-spot my-level-invite-spot';
+  spot.setAttribute('aria-hidden', 'true');
+
+  const pop = document.createElement('div');
+  pop.className = 'tour-pop my-level-coach-pop my-level-invite-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-modal', 'true');
+  pop.setAttribute('aria-labelledby', 'my-level-invite-title');
+  pop.setAttribute('aria-describedby', 'my-level-invite-body');
+  pop.innerHTML = `
+    <div class="my-level-invite-kicker">Next up</div>
+    <div class="tour-pop-copy">
+      <div class="tour-pop-title" id="my-level-invite-title">Open My Level</div>
+      <div class="tour-pop-body" id="my-level-invite-body">Click the highlighted My Level box to start the quick setup guide.</div>
+    </div>
+    <div class="my-level-invite-actions">
+      <button type="button" class="tour-pop-skip">Not now</button>
+      <span class="my-level-invite-cue" aria-hidden="true">Click the box <span>↗</span></span>
+    </div>
+    <span class="tour-pop-arrow" aria-hidden="true"></span>`;
+
+  const hit = document.createElement('button');
+  hit.type = 'button';
+  hit.className = 'my-level-invite-hit';
+  hit.setAttribute('aria-label', 'Open My Level and start the setup guide');
+
+  scrim.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  document.body.append(scrim, spot, pop, hit);
+
+  function place() {
+    placeRaf = 0;
+    const bounds = target.getBoundingClientRect();
+    if (!bounds.width && !bounds.height) return;
+    const pad = 9;
+    const top = bounds.top - pad;
+    const left = bounds.left - pad;
+    const width = bounds.width + pad * 2;
+    const height = bounds.height + pad * 2;
+    Object.assign(spot.style, {
+      top: `${top}px`,
+      left: `${left}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+    Object.assign(hit.style, {
+      top: `${bounds.top}px`,
+      left: `${bounds.left}px`,
+      width: `${bounds.width}px`,
+      height: `${bounds.height}px`,
+    });
+
+    const popRect = pop.getBoundingClientRect();
+    const gap = 14;
+    const below = top + height + gap;
+    const above = top - popRect.height - gap;
+    const popTop = below + popRect.height <= window.innerHeight - 12
+      ? below
+      : (above >= 12 ? above : Math.max(12, window.innerHeight - popRect.height - 12));
+    let popLeft = left + width / 2 - popRect.width / 2;
+    popLeft = Math.max(12, Math.min(popLeft, window.innerWidth - popRect.width - 12));
+    pop.style.top = `${popTop}px`;
+    pop.style.left = `${popLeft}px`;
+    pop.style.setProperty('--my-level-arrow-x', `${Math.max(20, Math.min(popRect.width - 20, left + width / 2 - popLeft))}px`);
+    pop.classList.toggle('tour-pop-above', popTop < top);
+  }
+
+  function queuePlace() {
+    if (!placeRaf) placeRaf = requestAnimationFrame(place);
+  }
+
+  function finish({ startGuide = false } = {}) {
+    if (closing) return;
+    closing = true;
+    cancelAnimationFrame(placeRaf);
+    resizeObserver?.disconnect();
+    window.removeEventListener('scroll', queuePlace, true);
+    window.removeEventListener('resize', queuePlace);
+    document.removeEventListener('keydown', onKeydown);
+    target.classList.remove('my-level-invite-target');
+    myLevelTourInviteActive = false;
+
+    const cleanup = () => {
+      scrim.remove();
+      spot.remove();
+      pop.remove();
+      hit.remove();
+      if (startGuide) {
+        const launched = startMyLevelTour({ onClose });
+        if (!launched) onClose?.();
+      } else {
+        onClose?.();
+      }
+    };
+    if (reduce) cleanup();
+    else {
+      [scrim, spot, pop, hit].forEach(element => element.classList.add('is-leaving'));
+      setTimeout(cleanup, 220);
+    }
+  }
+
+  function onKeydown(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      finish();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const controls = [hit, pop.querySelector('.tour-pop-skip')].filter(Boolean);
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if ((event.shiftKey && document.activeElement === first)
+        || (!event.shiftKey && document.activeElement === last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
+    }
+  }
+
+  const resizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(queuePlace)
+    : null;
+  resizeObserver?.observe(target);
+  pop.querySelector('.tour-pop-skip')?.addEventListener('click', () => finish());
+  hit.addEventListener('click', () => finish({ startGuide: true }));
+  window.addEventListener('scroll', queuePlace, true);
+  window.addEventListener('resize', queuePlace);
+  document.addEventListener('keydown', onKeydown);
+  target.classList.add('my-level-invite-target');
+  target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  place();
+  requestAnimationFrame(() => {
+    pop.classList.add('is-ready');
+    hit.focus({ preventScroll: true });
+  });
+  setTimeout(queuePlace, reduce ? 0 : 440);
+  return true;
 }
 
 function startMyLevelTour({ onClose = null } = {}) {
@@ -1698,6 +1859,9 @@ function startMyLevelTour({ onClose = null } = {}) {
       : (above >= 12 ? above : Math.max(12, window.innerHeight - popRect.height - 12));
     let popLeft = left + width / 2 - popRect.width / 2;
     popLeft = Math.max(12, Math.min(popLeft, window.innerWidth - popRect.width - 12));
+    const mobileTargetCollision = window.innerWidth <= 600
+      && target.bottom + 16 > window.innerHeight - popRect.height - 12;
+    pop.classList.toggle('my-level-coach-pop-top', mobileTargetCollision);
     pop.style.top = `${popTop}px`;
     pop.style.left = `${popLeft}px`;
     pop.style.setProperty('--my-level-arrow-x', `${Math.max(20, Math.min(popRect.width - 20, left + width / 2 - popLeft))}px`);
@@ -3607,7 +3771,7 @@ function startTour() {
       const shouldReplayMyLevel = sessionStorage.getItem(ONBOARDING_TEST_LEVEL_TOUR_KEY) === '1';
       if (shouldReplayMyLevel) {
         setTimeout(() => {
-          const launched = startMyLevelTour({
+          const launched = showMyLevelTourInvite({
             onClose: () => finishOnboardingTestReplay(reduce),
           });
           if (!launched) finishOnboardingTestReplay(reduce);
@@ -3615,6 +3779,11 @@ function startTour() {
       } else {
         finishOnboardingTestReplay(reduce);
       }
+    } else if (window.BipassStyleProfile.shouldShowMyLevelTour(
+      savedStyles,
+      localStorage.getItem(MY_LEVEL_TOUR_KEY),
+    )) {
+      setTimeout(() => showMyLevelTourInvite(), reduce ? 0 : 480);
     }
     if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
       returnFocus.focus({ preventScroll: true });

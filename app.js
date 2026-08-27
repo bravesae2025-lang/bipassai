@@ -843,6 +843,11 @@ function storeAppliedProfile(confirmed) {
 }
 
 async function adjustLevel() {
+  if (myLevelSelectionPending
+      || (myStyleActive && selectedLevel === 'customize' && !hasCompleteSelectedMyLevel())) {
+    flashIncompleteMyLevel();
+    return;
+  }
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
   if (!requireLevel()) return;
@@ -925,6 +930,7 @@ let selectedLevel          = 'medium'; // Student is the fallback whenever My Le
 let selectedModel          = localStorage.getItem('bipass_model') || 'gemini';
 let selectedWritingType    = null;
 let myStyleActive          = false;
+let myLevelSelectionPending = false;
 let savedStyle             = null; // points to the active style in savedStyles
 let savedStyles            = [];   // array of {id, name, style_summary, style_prompt}
 let activeStyleId          = null;
@@ -979,6 +985,64 @@ const profileOptionTitle = document.getElementById('writing-profile-option-title
 const profileOptionMeta = document.getElementById('writing-profile-option-meta');
 const profileOptionStatus = document.getElementById('writing-profile-option-status');
 const manualCustomizeBtn = document.getElementById('manual-customize-btn');
+let profileErrorTimer = 0;
+let profileErrorTargets = [];
+
+function hasCompleteSelectedMyLevel() {
+  return !!(myStyleActive
+    && savedStyle
+    && window.BipassStyleProfile.readAnalysis(savedStyle)?.profile);
+}
+
+function visibleProfileFeedbackSurfaces() {
+  let lowerSurface = null;
+  if (myStyleInputs && !myStyleInputs.hidden) {
+    lowerSurface = myStyleInputs;
+  } else if (savedStyles.length && styleCardsList?.style.display !== 'none') {
+    lowerSurface = styleCardsList.querySelector('.style-card-active')
+      || styleCardsList.querySelector('.writing-profile-card');
+  } else {
+    lowerSurface = createProfileBtn;
+  }
+  return [profileOption, lowerSurface].filter(Boolean);
+}
+
+function restartProfileBorderFeedback() {
+  const targets = visibleProfileFeedbackSurfaces();
+  targets.forEach(target => target.classList.remove('profile-rim-feedback'));
+  targets.forEach(target => void target.offsetWidth);
+  targets.forEach(target => target.classList.add('profile-rim-feedback'));
+  setTimeout(() => {
+    targets.forEach(target => target.classList.remove('profile-rim-feedback'));
+  }, 1200);
+}
+
+function flashIncompleteMyLevel() {
+  const targets = visibleProfileFeedbackSurfaces();
+  clearTimeout(profileErrorTimer);
+  profileErrorTargets.forEach(target => {
+    target.classList.remove('profile-needs-complete');
+    target.removeAttribute('aria-invalid');
+  });
+  targets.forEach(target => void target.offsetWidth);
+  targets.forEach(target => {
+    target.classList.add('profile-needs-complete');
+    target.setAttribute('aria-invalid', 'true');
+  });
+  profileErrorTargets = targets;
+  profileBlock?.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'center',
+  });
+  showToast('Finish and select My Level first');
+  profileErrorTimer = setTimeout(() => {
+    targets.forEach(target => {
+      target.classList.remove('profile-needs-complete');
+      target.removeAttribute('aria-invalid');
+    });
+    profileErrorTargets = [];
+  }, 1000);
+}
 
 // ─── Model toggle ─────────────────────────────────────────────
 
@@ -1566,6 +1630,7 @@ function announceLevelChange() {
 
 function selectLevel(level) {
   if (level === 'profile') {
+    myLevelSelectionPending = true;
     if (!savedStyle && savedStyles.length) {
       savedStyle = savedStyles.find(style => style.id === activeStyleId) || savedStyles[0];
       activeStyleId = savedStyle?.id || null;
@@ -1573,11 +1638,13 @@ function selectLevel(level) {
     if (!savedStyle) {
       requestProfileCreator();
       syncLevelSelectionUi();
+      requestAnimationFrame(restartProfileBorderFeedback);
       return;
     }
     activateMyStyle();
     renderStyleList(activeStyleId);
     restartProfileFingerprintMotion();
+    requestAnimationFrame(restartProfileBorderFeedback);
     document.querySelector('.col-customize')?.classList.remove('needs-level');
     return;
   }
@@ -1585,6 +1652,7 @@ function selectLevel(level) {
   const hadActiveProfile = myStyleActive;
   const deactivatingStyleId = hadActiveProfile ? activeStyleId : null;
   deactivateMyStyle();
+  myLevelSelectionPending = false;
   selectedLevel = level || null;
   syncLevelSelectionUi();
   if (hadActiveProfile && savedStyles.length) renderStyleList(null, deactivatingStyleId);
@@ -1712,7 +1780,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     target.classList.remove('my-level-invite-pressing');
 
     const cleanup = () => {
-      target.classList.remove('my-level-invite-target', 'my-level-invite-confirmed');
+      target.classList.remove('my-level-invite-target');
       myLevelTourInviteActive = false;
       scrim.remove();
       spot.remove();
@@ -1727,8 +1795,9 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     };
     if (startGuide) {
       hit.disabled = true;
-      target.classList.add('my-level-invite-confirmed');
-      pointer.classList.add('is-clicked');
+      myLevelSelectionPending = true;
+      restartProfileBorderFeedback();
+      [spot, pointer, hit].forEach(element => element.classList.add('is-cleared'));
       setTimeout(cleanup, MY_LEVEL_GUIDE_HANDOFF_MS);
       return;
     }
@@ -2008,6 +2077,7 @@ function requestProfileCreator(style = null) {
 }
 
 function showProfileCreator(style = null, { focus = true } = {}) {
+  myLevelSelectionPending = true;
   profileUpgradeId = style?.id || null;
   resetProfileCreatorForm();
   const originalSamples = Array.isArray(style?.writing_samples)
@@ -2038,6 +2108,7 @@ function closeProfileCreator() {
   if (myStyleInputs) myStyleInputs.hidden = true;
   if (savedStyles.length) renderStyleList();
   else if (profileEmpty) profileEmpty.style.display = '';
+  if (hasCompleteSelectedMyLevel()) myLevelSelectionPending = false;
   syncLevelSelectionUi();
 }
 
@@ -2059,6 +2130,7 @@ function activateMyStyle() {
   if (!savedStyle) return false;
   selectedLevel = 'customize';
   myStyleActive = !!savedStyle;
+  myLevelSelectionPending = !window.BipassStyleProfile.readAnalysis(savedStyle)?.profile;
   sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
   setSlidersFromStyle(savedStyle);
@@ -2069,6 +2141,7 @@ function activateMyStyle() {
 
 function deactivateMyStyle() {
   myStyleActive = false;
+  myLevelSelectionPending = false;
   sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', 'false');
 }
@@ -2588,6 +2661,7 @@ function renderStyleList(activatingStyleId = null, deactivatingStyleId = null) {
         saveStoredStyles();
         if (savedStyles.length === 0) {
           deactivateMyStyle();
+          myLevelSelectionPending = true;
           styleCardsList.style.display = 'none';
           if (profileEmpty) profileEmpty.style.display = '';
           syncLevelSelectionUi();

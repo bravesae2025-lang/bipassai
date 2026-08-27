@@ -188,12 +188,23 @@ if (!settingsHtml.includes('id="reset-onboarding-btn"')
     || !appJs.includes('setTimeout(() => showMyLevelTourInvite(), reduce ? 0 : 480)')
     || !appJs.includes('const MY_LEVEL_GUIDE_HANDOFF_MS = 1000')
     || !appJs.includes('setTimeout(cleanup, MY_LEVEL_GUIDE_HANDOFF_MS)')
+    || !appJs.includes('restartProfileBorderFeedback()')
+    || !appJs.includes('flashIncompleteMyLevel()')
+    || !appJs.includes("[spot, pointer, hit].forEach(element => element.classList.add('is-cleared'))")
+    || !appJs.includes("showToast('Finish and select My Level first')")
     || !appJs.includes("pointer.className = 'my-level-invite-pointer'")
     || !appJs.includes("hit.setAttribute('aria-label', 'Open My Level and start the setup guide')")
     || !appJs.includes('startMyLevelTour({')
     || !appJs.includes('onClose: () => finishOnboardingTestReplay(reduce)')
     || !appJs.includes('window.__bipassShowExtPopup?.()')) {
   add(settingsFile, 'temporary onboarding test must replay the app and My Level tours without changing account state');
+}
+if (!styleCss.includes('.col-customize .profile-rim-feedback::after')
+    || !styleCss.includes('.col-customize .profile-needs-complete::after')
+    || !styleCss.includes('animation: profile-red-rim 1000ms ease-out both')
+    || !styleCss.includes('.col-customize .writing-profile-create::after')
+    || !styleCss.includes('.col-customize #my-style-inputs::after')) {
+  add(styleFile, 'My Level surfaces must keep green rim feedback and show a one-second red rim when incomplete');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');

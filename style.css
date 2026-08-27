@@ -13082,7 +13082,7 @@ body.creation-page {
 }
 
 .col-customize .level-btn-profile::after {
-  --profile-rim-angle: 0deg;
+  --profile-rim-angle: 360deg;
   content: '';
   position: absolute;
   z-index: 3;
@@ -13103,6 +13103,7 @@ body.creation-page {
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.16));
   transition: --profile-rim-angle var(--profile-rim-enter) var(--profile-motion-ease);
+  animation: profile-green-rim-in var(--profile-rim-enter) var(--profile-motion-ease) both;
 }
 
 .col-customize .level-btn-profile > * {
@@ -13426,8 +13427,10 @@ body.creation-page {
     0 28px 52px rgba(8,10,16,0.14);
 }
 
+.col-customize .writing-profile-create::after,
+.col-customize #my-style-inputs::after,
 .col-customize .writing-profile-card::after {
-  --profile-rim-angle: 0deg;
+  --profile-rim-angle: 360deg;
   content: '';
   position: absolute;
   z-index: 3;
@@ -13447,6 +13450,7 @@ body.creation-page {
   mask-composite: exclude;
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.14));
+  animation: profile-green-rim-in var(--profile-rim-enter) var(--profile-motion-ease) both;
 }
 
 .col-customize .writing-profile-card.style-card-active::after {
@@ -13491,6 +13495,35 @@ body.creation-page {
 @keyframes profile-green-rim-out {
   from { --profile-rim-angle: 360deg; }
   to { --profile-rim-angle: 0deg; }
+}
+
+.col-customize .profile-rim-feedback::after {
+  animation: profile-green-rim-feedback 920ms var(--profile-motion-ease) both;
+}
+
+@keyframes profile-green-rim-feedback {
+  0% { --profile-rim-angle: 0deg; opacity: 0.5; }
+  58% { opacity: 1; }
+  100% { --profile-rim-angle: 360deg; opacity: 1; }
+}
+
+.col-customize .profile-needs-complete::after {
+  --profile-rim-angle: 360deg;
+  background: conic-gradient(
+    from 0deg,
+    rgba(248, 81, 73, 0.98) 0deg,
+    rgba(248, 81, 73, 0.98) var(--profile-rim-angle),
+    rgba(248, 81, 73, 0) var(--profile-rim-angle),
+    rgba(248, 81, 73, 0) 360deg
+  );
+  filter: drop-shadow(0 0 8px rgba(248, 81, 73, 0.34));
+  animation: profile-red-rim 1000ms ease-out both;
+}
+
+@keyframes profile-red-rim {
+  0% { opacity: 0.28; }
+  16%, 72% { opacity: 1; }
+  100% { opacity: 0.45; }
 }
 
 @keyframes profile-green-segment-in {
@@ -13770,6 +13803,14 @@ body.creation-page {
 
   .col-customize .level-glider,
   .col-customize .level-glider::after { transition: none; }
+  .col-customize .level-btn-profile::after,
+  .col-customize .writing-profile-create::after,
+  .col-customize #my-style-inputs::after,
+  .col-customize .writing-profile-card::after {
+    --profile-rim-angle: 360deg;
+    animation: none;
+    opacity: 1;
+  }
   .col-customize #options-panel { animation: none; }
   .col-customize .writing-profile-card.profile-activating::after,
   .col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i,
@@ -14231,16 +14272,6 @@ body.creation-page {
   transition-duration: 90ms;
 }
 
-.my-level-invite-target.my-level-invite-confirmed {
-  animation: my-level-target-confirm 540ms var(--ease-out) both;
-}
-
-@keyframes my-level-target-confirm {
-  0% { transform: translateY(-1px) scale(0.988); }
-  42% { transform: translateY(-2px) scale(1.008); }
-  100% { transform: translateY(-2px) scale(1); }
-}
-
 .my-level-coach-spot {
   z-index: 15001;
   border-radius: 15px;
@@ -14337,11 +14368,15 @@ body.creation-page {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
-.my-level-invite-pointer.is-clicked {
+.my-level-invite-spot.is-cleared,
+.my-level-invite-pointer.is-cleared,
+.my-level-invite-hit.is-cleared {
   opacity: 0;
-  transform: translate3d(-3px, -3px, 0) scale(0.82);
-  transition-duration: 220ms;
+  pointer-events: none;
+  transition-duration: 160ms;
 }
+
+.my-level-invite-pointer.is-cleared { transform: translate3d(-2px, -2px, 0) scale(0.88); }
 
 .my-level-invite-pointer svg {
   position: relative;

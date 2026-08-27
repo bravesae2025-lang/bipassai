@@ -1595,6 +1595,7 @@ function selectLevel(level) {
 // ─── Writing Profile ──────────────────────────────────────────
 
 const MY_LEVEL_TOUR_KEY = 'bipass_my_level_tour_seen';
+const MY_LEVEL_GUIDE_HANDOFF_MS = 1000;
 const MY_LEVEL_TOUR_STEPS = [
   {
     els: ['writing-profile-option'],
@@ -1708,10 +1709,11 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     window.removeEventListener('scroll', queuePlace, true);
     window.removeEventListener('resize', queuePlace);
     document.removeEventListener('keydown', onKeydown);
-    target.classList.remove('my-level-invite-target');
-    myLevelTourInviteActive = false;
+    target.classList.remove('my-level-invite-pressing');
 
     const cleanup = () => {
+      target.classList.remove('my-level-invite-target', 'my-level-invite-confirmed');
+      myLevelTourInviteActive = false;
       scrim.remove();
       spot.remove();
       pointer.remove();
@@ -1723,6 +1725,13 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
         onClose?.();
       }
     };
+    if (startGuide) {
+      hit.disabled = true;
+      target.classList.add('my-level-invite-confirmed');
+      pointer.classList.add('is-clicked');
+      setTimeout(cleanup, MY_LEVEL_GUIDE_HANDOFF_MS);
+      return;
+    }
     if (reduce) cleanup();
     else {
       [scrim, spot, pointer, hit].forEach(element => element.classList.add('is-leaving'));
@@ -1746,6 +1755,10 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     ? new ResizeObserver(queuePlace)
     : null;
   resizeObserver?.observe(target);
+  hit.addEventListener('pointerdown', () => target.classList.add('my-level-invite-pressing'));
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(eventName => {
+    hit.addEventListener(eventName, () => target.classList.remove('my-level-invite-pressing'));
+  });
   hit.addEventListener('click', () => finish({ startGuide: true }));
   window.addEventListener('scroll', queuePlace, true);
   window.addEventListener('resize', queuePlace);

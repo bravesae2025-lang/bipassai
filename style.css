@@ -14226,6 +14226,21 @@ body.creation-page {
   transition: transform 240ms var(--ease-out);
 }
 
+.my-level-invite-target.my-level-invite-pressing {
+  transform: translateY(-1px) scale(0.988);
+  transition-duration: 90ms;
+}
+
+.my-level-invite-target.my-level-invite-confirmed {
+  animation: my-level-target-confirm 540ms var(--ease-out) both;
+}
+
+@keyframes my-level-target-confirm {
+  0% { transform: translateY(-1px) scale(0.988); }
+  42% { transform: translateY(-2px) scale(1.008); }
+  100% { transform: translateY(-2px) scale(1); }
+}
+
 .my-level-coach-spot {
   z-index: 15001;
   border-radius: 15px;
@@ -14322,6 +14337,12 @@ body.creation-page {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+.my-level-invite-pointer.is-clicked {
+  opacity: 0;
+  transform: translate3d(-3px, -3px, 0) scale(0.82);
+  transition-duration: 220ms;
+}
+
 .my-level-invite-pointer svg {
   position: relative;
   z-index: 1;
@@ -14397,6 +14418,7 @@ body.creation-page {
   .my-level-invite-pointer,
   .my-level-invite-pointer svg,
   .my-level-invite-pulse,
+  .my-level-invite-target,
   .my-level-invite-hit,
   .my-level-coach-spot,
   .my-level-coach-pop,

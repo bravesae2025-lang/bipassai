@@ -1667,7 +1667,7 @@ function selectLevel(level) {
 // ─── Writing Profile ──────────────────────────────────────────
 
 const MY_LEVEL_TOUR_KEY = 'bipass_my_level_tour_seen';
-const MY_LEVEL_GUIDE_HANDOFF_MS = 1000;
+const MY_LEVEL_GUIDE_HANDOFF_MS = 1500;
 const MY_LEVEL_TOUR_STEPS = [
   {
     els: ['writing-profile-option'],
@@ -1788,25 +1788,24 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     target.classList.remove('my-level-invite-pressing');
 
     const cleanup = () => {
+      const launched = startGuide
+        ? startMyLevelTour({ onClose, seamless: true })
+        : false;
       target.classList.remove('my-level-invite-target');
-      document.body.classList.remove('my-level-invite-locked');
+      if (!launched) document.body.classList.remove('my-level-invite-locked');
       myLevelTourInviteActive = false;
       scrim.remove();
       spot.remove();
       pointer.remove();
       hit.remove();
-      if (startGuide) {
-        const launched = startMyLevelTour({ onClose });
-        if (!launched) onClose?.();
-      } else {
-        onClose?.();
-      }
+      if (!startGuide || !launched) onClose?.();
     };
     if (startGuide) {
       hit.disabled = true;
       myLevelSelectionPending = true;
       restartProfileBorderFeedback();
-      [spot, pointer, hit].forEach(element => element.classList.add('is-cleared'));
+      [pointer, hit].forEach(element => element.classList.add('is-cleared'));
+      spot.classList.add('is-handoff');
       setTimeout(cleanup, MY_LEVEL_GUIDE_HANDOFF_MS);
       return;
     }
@@ -1853,7 +1852,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   return true;
 }
 
-function startMyLevelTour({ onClose = null } = {}) {
+function startMyLevelTour({ onClose = null, seamless = false } = {}) {
   if (myLevelTourActive || document.getElementById('my-level-tour-catch')) return false;
   myLevelTourActive = true;
 
@@ -1869,7 +1868,7 @@ function startMyLevelTour({ onClose = null } = {}) {
   catcher.setAttribute('aria-hidden', 'true');
 
   const spot = document.createElement('div');
-  spot.className = 'tour-spot my-level-coach-spot';
+  spot.className = `tour-spot my-level-coach-spot${seamless ? ' is-seamless-handoff' : ''}`;
   spot.setAttribute('aria-hidden', 'true');
 
   const pop = document.createElement('div');
@@ -1884,6 +1883,7 @@ function startMyLevelTour({ onClose = null } = {}) {
     event.stopPropagation();
     event.preventDefault();
   });
+  document.body.classList.add('my-level-invite-locked');
   document.body.append(catcher, spot, pop);
 
   function unionRect(ids) {
@@ -1966,6 +1966,7 @@ function startMyLevelTour({ onClose = null } = {}) {
       catcher.remove();
       spot.remove();
       pop.remove();
+      document.body.classList.remove('my-level-invite-locked');
       focusProfileName();
       onClose?.();
     };
@@ -2013,8 +2014,12 @@ function startMyLevelTour({ onClose = null } = {}) {
 
     observeStep();
     place();
-    if (initial) requestAnimationFrame(() => pop.classList.add('is-ready'));
-    observedEls[0]?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    if (initial) {
+      requestAnimationFrame(() => requestAnimationFrame(() => pop.classList.add('is-ready')));
+    }
+    if (!(initial && seamless)) {
+      observedEls[0]?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    }
     setTimeout(queuePlace, reduce ? 0 : 440);
     pop.querySelector('.tour-pop-next')?.focus({ preventScroll: true });
   }

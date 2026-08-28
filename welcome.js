@@ -433,6 +433,8 @@ function showResult(days, opts = {}) {
   card.classList.add(RARITY[days]);
   document.getElementById('gacha-won-days').textContent = days;
   document.getElementById('gacha-won-unit').textContent = days === 1 ? 'DAY' : 'DAYS';
+  const benefitPass = document.getElementById('gacha-benefit-pass');
+  if (benefitPass) benefitPass.textContent = `${days}-day Pro Pass`;
 
   const flare = document.getElementById('gacha-flare');
   flare.classList.add(days === 7 ? 'flare-gold' : days === 1 ? 'flare-common' : 'flare-ink', 'is-on');

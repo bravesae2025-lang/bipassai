@@ -994,7 +994,7 @@ function hasCompleteSelectedMyLevel() {
     && window.BipassStyleProfile.readAnalysis(savedStyle)?.profile);
 }
 
-function visibleProfileFeedbackSurfaces() {
+function visibleProfileFeedbackSurface() {
   let lowerSurface = null;
   if (myStyleInputs && !myStyleInputs.hidden) {
     lowerSurface = myStyleInputs;
@@ -1004,7 +1004,11 @@ function visibleProfileFeedbackSurfaces() {
   } else {
     lowerSurface = createProfileBtn;
   }
-  return [profileOption, lowerSurface].filter(Boolean);
+  return lowerSurface;
+}
+
+function visibleProfileFeedbackSurfaces() {
+  return [profileOption, visibleProfileFeedbackSurface()].filter(Boolean);
 }
 
 function restartProfileBorderFeedback() {
@@ -1018,7 +1022,7 @@ function restartProfileBorderFeedback() {
 }
 
 function flashIncompleteMyLevel() {
-  const targets = visibleProfileFeedbackSurfaces();
+  const targets = [profileBlock].filter(Boolean);
   clearTimeout(profileErrorTimer);
   profileErrorTargets.forEach(target => {
     target.classList.remove('profile-needs-complete');
@@ -1735,8 +1739,12 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   scrim.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
-    finish();
   });
+  scrim.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  document.body.classList.add('my-level-invite-locked');
   document.body.append(scrim, spot, pointer, hit);
 
   function place() {
@@ -1781,6 +1789,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
 
     const cleanup = () => {
       target.classList.remove('my-level-invite-target');
+      document.body.classList.remove('my-level-invite-locked');
       myLevelTourInviteActive = false;
       scrim.remove();
       spot.remove();
@@ -1811,7 +1820,8 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
   function onKeydown(event) {
     if (event.key === 'Escape') {
       event.preventDefault();
-      finish();
+      event.stopPropagation();
+      hit.focus({ preventScroll: true });
       return;
     }
     if (event.key === 'Tab') {

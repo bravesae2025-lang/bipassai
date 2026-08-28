@@ -113,23 +113,30 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   letter-spacing: -0.03em; text-transform: uppercase;
 }
 .onb-title-xl { font-size: clamp(48px, 8.5vw, 100px); }
+.onb-title-name {
+  font-size: clamp(28px, 5.6vw, 66px);
+  line-height: 0.97;
+}
+.onb-title-name span { display: block; white-space: nowrap; }
 .onb-sub { color: var(--onb-mute); font-size: 14.5px; margin-top: 16px; max-width: 42ch; }
 
 /* ── Survey chips ────────────────────────────────────────────── */
 .onb-chips {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 11px;
-  margin-top: 40px; max-width: 560px;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px;
+  width: min(650px, 100%); margin-top: 40px;
 }
 .onb-chip {
   font-family: var(--ff-ui); font-size: 13px; font-weight: 600; color: var(--onb-ink);
   background: var(--onb-card); border: 1px solid var(--onb-line);
-  padding: 11px 18px; border-radius: 99px; cursor: pointer;
-  transition: transform .25s var(--ease-out), background .25s, border-color .25s, color .25s;
+  min-width: 0; height: 48px; padding: 0 10px; border-radius: 12px; cursor: pointer;
+  display: grid; place-items: center; text-align: center;
+  transition: transform .22s var(--ease-out), background .22s, border-color .22s, color .22s, box-shadow .22s;
 }
-.onb-chip:hover { border-color: var(--onb-line2); transform: translateY(-2px); }
+.onb-chip:hover { border-color: var(--onb-line2); transform: translateY(-1px); box-shadow: 0 5px 14px rgba(0,0,0,0.06); }
+.onb-chip:active { transform: scale(0.975); transition-duration: 90ms; }
 .onb-chip.is-selected {
   background: var(--onb-ink); color: #fff; border-color: var(--onb-ink);
-  transform: translateY(-2px) scale(1.02);
+  transform: none; box-shadow: 0 7px 18px rgba(0,0,0,0.15);
 }
 
 /* ── Actions ─────────────────────────────────────────────────── */
@@ -467,7 +474,33 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   text-transform: uppercase; color: var(--onb-faint);
 }
 .gacha-result-sub { animation: gacha-rise 0.5s var(--ease-out) 0.5s both; margin-top: 10px; }
-.gacha-result-actions { margin-top: 32px; animation: gacha-rise 0.5s var(--ease-out) 0.75s both; }
+.gacha-benefits {
+  width: min(420px, calc(100vw - 48px)); margin-top: 24px; padding: 6px 17px;
+  list-style: none; text-align: left; background: rgba(247,247,245,0.72);
+  border: 1px solid rgba(13,13,13,0.16); border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.045);
+  animation: gacha-rise 0.5s var(--ease-out) 0.35s both;
+}
+.gacha-benefits li {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center;
+  gap: 10px; min-height: 54px;
+}
+.gacha-benefits li + li { border-top: 1px solid var(--onb-line); }
+.gacha-benefit-check {
+  width: 23px; height: 23px; display: grid; place-items: center;
+  border: 1px solid rgba(13,13,13,0.24); border-radius: 7px;
+  background: #fff; color: var(--onb-ink); font-size: 13px; font-weight: 800;
+}
+.gacha-benefits b {
+  display: block; font-size: 13px; font-weight: 750; line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.gacha-benefits small {
+  display: block; margin-top: 2px; color: var(--onb-faint);
+  font-family: var(--ff-mono); font-size: 9px; line-height: 1.35;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.gacha-result-actions { margin-top: 24px; animation: gacha-rise 0.5s var(--ease-out) 0.58s both; }
 .gacha-note {
   font-family: var(--ff-mono); font-size: 10.5px; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--onb-faint);
@@ -490,6 +523,8 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 720px) {
   :root { --gacha-card-w: 118px; --gacha-card-h: 134px; --gacha-gap: 10px; }
+  .onb-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); width: min(390px, 100%); }
+  .onb-title-name { font-size: clamp(27px, 8.6vw, 48px); }
   .onb-gift-stats { flex-direction: column; gap: 18px; }
   .onb-stat-div { width: 60px; height: 1px; }
   .onb-stat { align-items: center; text-align: center; }
@@ -505,7 +540,7 @@ body.onb.is-claimed .onb-progress { opacity: 0; pointer-events: none; }
   .onb-step.is-current, .onb-reward-card { animation: none; }
   .r-legend::after,
   .gacha-flare.flare-gold::before, .gacha-won-card, .gacha-card.is-winner,
-  .gacha-credits-line, .gacha-result-sub, .gacha-result-actions { animation: none; }
+  .gacha-credits-line, .gacha-result-sub, .gacha-benefits, .gacha-result-actions { animation: none; }
   .gacha-flare.is-on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   .gacha-won-card { opacity: 1; }
   .is-spinning .gacha-reel-wrap,

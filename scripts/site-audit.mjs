@@ -105,6 +105,7 @@ const settingsJsFile = join(root, 'settings.js');
 const settingsJs = readFileSync(settingsJsFile, 'utf8');
 const welcomeJs = readFileSync(join(root, 'welcome.js'), 'utf8');
 const welcomeHtml = readFileSync(join(root, 'welcome.html'), 'utf8');
+const welcomeCss = readFileSync(join(root, 'welcome.css'), 'utf8');
 const articleGeneratorJs = readFileSync(join(root, 'generate-article.js'), 'utf8');
 const articleAdderJs = readFileSync(join(root, 'add-article.cjs'), 'utf8');
 const editorFile = join(root, 'editor.html');
@@ -200,8 +201,8 @@ if (!settingsHtml.includes('id="reset-onboarding-btn"')
   add(settingsFile, 'temporary onboarding test must replay the app and My Level tours without changing account state');
 }
 if (!styleCss.includes('.col-customize .profile-rim-feedback::after')
-    || !styleCss.includes('.col-customize .profile-needs-complete::after')
-    || !styleCss.includes('animation: profile-red-rim 1000ms ease-out both')
+    || !styleCss.includes('.col-customize .writing-profile-block.profile-needs-complete')
+    || !styleCss.includes('animation: profile-section-error-shake 480ms')
     || !styleCss.includes('.col-customize .writing-profile-create::after')
     || !styleCss.includes('.col-customize #my-style-inputs::after')) {
   add(styleFile, 'My Level surfaces must keep green rim feedback and show a one-second red rim when incomplete');
@@ -271,6 +272,26 @@ if (!welcomeJs.includes('if (TEST_RUN) {')
     || !welcomeHtml.includes('stroke-dasharray="0.8 1.15"')
     || welcomeHtml.includes('<polygon points="24,34 24,66 46,50"')) {
   add(join(root, 'welcome.html'), 'reward replay decline and the claimed token mark must preserve production state and current branding');
+}
+if (!welcomeHtml.includes('class="onb-title onb-title-name"')
+    || !welcomeHtml.includes('class="gacha-benefits"')
+    || !welcomeHtml.includes('id="gacha-benefit-pass"')
+    || !welcomeJs.includes('benefitPass.textContent = `${days}-day Pro Pass`')
+    || !welcomeCss.includes('grid-template-columns: repeat(5, minmax(0, 1fr))')
+    || !welcomeCss.includes('border-radius: 12px')) {
+  add(join(root, 'welcome.html'), 'onboarding must keep equal referral tiles, a two-line name title, and an accurate reward summary');
+}
+
+const myLevelInviteSource = appJs.slice(
+  appJs.indexOf('function showMyLevelTourInvite'),
+  appJs.indexOf('function startMyLevelTour'),
+);
+if (!myLevelInviteSource.includes("document.body.classList.add('my-level-invite-locked')")
+    || !myLevelInviteSource.includes("document.body.classList.remove('my-level-invite-locked')")
+    || !myLevelInviteSource.includes("hit.addEventListener('click', () => finish({ startGuide: true }))")
+    || !myLevelInviteSource.includes("hit.focus({ preventScroll: true })")
+    || /scrim\.addEventListener\('click',[\s\S]*?finish\(\);/.test(myLevelInviteSource)) {
+  add(appJsFile, 'the first-time My Level prompt must block dismissal until My Level is activated');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')

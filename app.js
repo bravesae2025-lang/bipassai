@@ -996,8 +996,30 @@ function hasCompleteSelectedMyLevel() {
     && window.BipassStyleProfile.readAnalysis(savedStyle)?.profile);
 }
 
+function getProfileSelectionSurface() {
+  if (myStyleInputs && !myStyleInputs.hidden) return myStyleInputs;
+
+  const activeCard = styleCardsList?.querySelector('.writing-profile-card.style-card-active');
+  if (activeCard) return activeCard;
+
+  if (styleCardsList && styleCardsList.style.display !== 'none') {
+    const savedCard = Array.from(styleCardsList.querySelectorAll('.writing-profile-card'))
+      .find(card => String(card.dataset.id) === String(activeStyleId));
+    if (savedCard) return savedCard;
+  }
+
+  return createProfileBtn;
+}
+
+function syncProfileSelectionSurface(selected) {
+  profileBlock?.querySelectorAll('.profile-selection-surface').forEach(surface => {
+    surface.classList.remove('profile-selection-surface');
+  });
+  if (selected) getProfileSelectionSurface()?.classList.add('profile-selection-surface');
+}
+
 function visibleProfileFeedbackSurfaces() {
-  return [profileOption, profileBlock].filter(Boolean);
+  return [profileOption, getProfileSelectionSurface()].filter(Boolean);
 }
 
 function clearProfileBorderFeedback() {
@@ -1617,7 +1639,7 @@ function syncLevelSelectionUi() {
   manualCustomizeBtn?.setAttribute('aria-expanded', String(manualActive));
 
   profileBlock?.classList.toggle('profile-is-active', completedProfileActive);
-  profileBlock?.classList.toggle('profile-selection-active', profileSelected);
+  syncProfileSelectionSurface(profileSelected);
   profileBlock?.classList.toggle('profile-is-manual', manualActive);
 
   if (profileSelected) {

@@ -205,19 +205,18 @@ if (!styleCss.includes('.col-customize .profile-rim-feedback::after')
     || !styleCss.includes('.col-customize .level-btn-profile.is-selected::after')
     || !styleCss.includes('.col-customize .level-btn-profile:not(.is-selected)')
     || !styleCss.includes('.col-customize .level-track-wrap.my-level-selected .level-track')
-    || !styleCss.includes('.col-customize .writing-profile-block.profile-selection-active')
-    || !styleCss.includes('.col-customize .writing-profile-block::after')
+    || !styleCss.includes('.col-customize .profile-selection-surface::after')
     || !styleCss.includes('animation: profile-option-enter 480ms var(--ease-out) backwards')
     || !styleCss.includes('.col-customize .writing-profile-block.profile-needs-complete')
     || !styleCss.includes('animation: profile-section-error-shake 480ms')
-    || !styleCss.includes('.profile-selection-active.profile-needs-complete::after')) {
-  add(styleFile, 'My Level must recess while off, persistently highlight both selected surfaces, dim presets, and show a red incomplete warning');
+    || !styleCss.includes('.profile-needs-complete .profile-selection-surface::after')) {
+  add(styleFile, 'My Level must recess while off, highlight its inner profile surface instead of the whole section, dim presets, and show a red incomplete warning');
 }
 if (!appJs.includes('const profileSelected = myLevelSelectionPending || completedProfileActive')
     || !appJs.includes("profileOption?.classList.toggle('is-selected', profileSelected)")
     || !appJs.includes("levelTrackWrap?.classList.toggle('my-level-selected', profileSelected)")
-    || !appJs.includes("profileBlock?.classList.toggle('profile-selection-active', profileSelected)")
-    || !appJs.includes('return [profileOption, profileBlock].filter(Boolean)')
+    || !appJs.includes('syncProfileSelectionSurface(profileSelected)')
+    || !appJs.includes('return [profileOption, getProfileSelectionSurface()].filter(Boolean)')
     || !appJs.includes('function clearProfileBorderFeedback()')
     || !appJs.includes("syncLevelSelectionUi();\n      restartProfileBorderFeedback();")) {
   add(appJsFile, 'unfinished My Level selection must persist visually until another level is selected');

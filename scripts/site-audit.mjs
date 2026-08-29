@@ -202,11 +202,18 @@ if (!settingsHtml.includes('id="reset-onboarding-btn"')
   add(settingsFile, 'temporary onboarding test must replay the app and My Level tours without changing account state');
 }
 if (!styleCss.includes('.col-customize .profile-rim-feedback::after')
+    || !styleCss.includes('.col-customize .level-btn-profile.is-selected::after')
     || !styleCss.includes('.col-customize .writing-profile-block.profile-needs-complete')
     || !styleCss.includes('animation: profile-section-error-shake 480ms')
     || !styleCss.includes('.col-customize .writing-profile-create::after')
     || !styleCss.includes('.col-customize #my-style-inputs::after')) {
   add(styleFile, 'My Level surfaces must keep green rim feedback and show a one-second red rim when incomplete');
+}
+if (!appJs.includes('const profileSelected = myLevelSelectionPending || completedProfileActive')
+    || !appJs.includes("profileOption?.classList.toggle('is-selected', profileSelected)")
+    || !appJs.includes('function clearProfileBorderFeedback()')
+    || !appJs.includes("syncLevelSelectionUi();\n      restartProfileBorderFeedback();")) {
+  add(appJsFile, 'unfinished My Level selection must persist visually until another level is selected');
 }
 if (!appJs.includes("localStorage.getItem('bipass_pref_level')")) {
   add(appJsFile, 'must apply the default writing level saved in Settings');
@@ -298,7 +305,7 @@ if (!appJs.includes('styleProfile: styleProfile || undefined')
     || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')
     || !appJs.includes('if (removedActiveProfile) {')
     || !appJs.includes('sessionStorage.removeItem(APPLIED_PROFILE_KEY)')
-    || !appJs.includes("selectorMode(selectedLevel, profileActive)")) {
+    || !appJs.includes("selectorMode(selectedLevel, completedProfileActive)")) {
   add(appJsFile, 'Writing Profile usage and active-profile deletion must keep result state honest');
 }
 if (!appJs.includes("'bipass-profile-details-toggle'")

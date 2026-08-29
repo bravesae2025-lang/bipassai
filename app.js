@@ -987,6 +987,7 @@ const profileOptionStatus = document.getElementById('writing-profile-option-stat
 const manualCustomizeBtn = document.getElementById('manual-customize-btn');
 let profileErrorTimer = 0;
 let profileErrorTargets = [];
+let profileFeedbackTimer = 0;
 
 function hasCompleteSelectedMyLevel() {
   return !!(myStyleActive
@@ -1011,13 +1012,22 @@ function visibleProfileFeedbackSurfaces() {
   return [profileOption, visibleProfileFeedbackSurface()].filter(Boolean);
 }
 
+function clearProfileBorderFeedback() {
+  clearTimeout(profileFeedbackTimer);
+  profileFeedbackTimer = 0;
+  document.querySelectorAll('.profile-rim-feedback').forEach(target => {
+    target.classList.remove('profile-rim-feedback');
+  });
+}
+
 function restartProfileBorderFeedback() {
+  clearProfileBorderFeedback();
   const targets = visibleProfileFeedbackSurfaces();
-  targets.forEach(target => target.classList.remove('profile-rim-feedback'));
   targets.forEach(target => void target.offsetWidth);
   targets.forEach(target => target.classList.add('profile-rim-feedback'));
-  setTimeout(() => {
+  profileFeedbackTimer = setTimeout(() => {
     targets.forEach(target => target.classList.remove('profile-rim-feedback'));
+    profileFeedbackTimer = 0;
   }, 1200);
 }
 
@@ -1575,13 +1585,16 @@ function setProfileAnalysisState(analyzing) {
 }
 
 function syncLevelSelectionUi() {
-  const profileActive = myStyleActive && !!savedStyle;
-  const mode = window.BipassStyleProfile.selectorMode(selectedLevel, profileActive);
-  const presetSelected = Object.hasOwn(LEVEL_INDEX, mode);
-  const optionState = window.BipassStyleProfile.profileOptionState(savedStyle, mode === 'profile');
+  const completedProfileActive = myStyleActive && !!savedStyle;
+  const profileSelected = myLevelSelectionPending || completedProfileActive;
+  const mode = window.BipassStyleProfile.selectorMode(selectedLevel, completedProfileActive);
+  const presetSelected = !profileSelected && Object.hasOwn(LEVEL_INDEX, mode);
+  const optionState = window.BipassStyleProfile.profileOptionState(savedStyle, completedProfileActive);
 
   pills.forEach((pill) => {
-    const active = pill.dataset.level === mode;
+    const active = pill.dataset.level === 'profile'
+      ? profileSelected
+      : !profileSelected && pill.dataset.level === mode;
     pill.classList.toggle('active', active);
     pill.setAttribute('aria-pressed', String(active));
   });
@@ -1590,8 +1603,8 @@ function syncLevelSelectionUi() {
     levelGlider.style.opacity = presetSelected ? '' : '0';
     if (presetSelected) levelGlider.style.transform = `translateX(${LEVEL_INDEX[mode] * 100}%)`;
   }
-  levelTrack?.classList.toggle('custom-active', mode === 'customize');
-  if (optionsPanel) optionsPanel.style.display = mode === 'customize' ? 'flex' : 'none';
+  levelTrack?.classList.toggle('custom-active', !profileSelected && mode === 'customize');
+  if (optionsPanel) optionsPanel.style.display = !profileSelected && mode === 'customize' ? 'flex' : 'none';
 
   if (profileOptionTitle) {
     profileOptionTitle.textContent = optionState.title;
@@ -1604,22 +1617,23 @@ function syncLevelSelectionUi() {
   if (profileOptionStatus) profileOptionStatus.textContent = optionState.status;
   profileOption?.classList.toggle('is-ready', optionState.kind === 'ready');
   profileOption?.classList.toggle('is-active', optionState.kind === 'active');
+  profileOption?.classList.toggle('is-selected', profileSelected);
   profileOption?.classList.toggle('is-empty', optionState.kind === 'empty');
   profileOption?.classList.toggle('is-legacy', optionState.legacy);
-  profileOption?.setAttribute('aria-pressed', String(mode === 'profile'));
+  profileOption?.setAttribute('aria-pressed', String(profileSelected));
   applyFingerprintValues(profileOption?.querySelector('.level-profile-fingerprint'), optionState.values);
   applyFingerprintValues(profileBlock?.querySelector('.writing-profile-head .writing-fingerprint'), optionState.values);
 
-  const manualActive = mode === 'customize';
+  const manualActive = !profileSelected && mode === 'customize';
   manualCustomizeBtn?.setAttribute('aria-expanded', String(manualActive));
 
-  profileBlock?.classList.toggle('profile-is-active', mode === 'profile');
+  profileBlock?.classList.toggle('profile-is-active', completedProfileActive);
   profileBlock?.classList.toggle('profile-is-manual', manualActive);
 
-  if (!mode) {
-    if (levelLabel) levelLabel.textContent = '';
-  } else if (mode === 'profile') {
+  if (profileSelected) {
     if (levelLabel) levelLabel.textContent = 'My Level';
+  } else if (!mode) {
+    if (levelLabel) levelLabel.textContent = '';
   } else {
     if (levelLabel) levelLabel.textContent = mode === 'customize'
       ? 'Customized'
@@ -1803,6 +1817,7 @@ function showMyLevelTourInvite({ onClose = null } = {}) {
     if (startGuide) {
       hit.disabled = true;
       myLevelSelectionPending = true;
+      syncLevelSelectionUi();
       restartProfileBorderFeedback();
       [pointer, hit].forEach(element => element.classList.add('is-cleared'));
       spot.classList.add('is-handoff');
@@ -2085,6 +2100,8 @@ function requestProfileCreator(style = null) {
     localStorage.getItem(MY_LEVEL_TOUR_KEY),
   );
   if (shouldShowTour) {
+    myLevelSelectionPending = true;
+    syncLevelSelectionUi();
     startMyLevelTour();
     return;
   }
@@ -2116,6 +2133,7 @@ function showProfileCreator(style = null, { focus = true } = {}) {
     if (focus) requestAnimationFrame(() => nameInput.focus());
   }
   if (analyzeLabel) analyzeLabel.textContent = style ? 'Reanalyze Writing Style' : 'Analyze My Writing Style';
+  syncLevelSelectionUi();
 }
 
 function closeProfileCreator() {
@@ -2155,6 +2173,7 @@ function activateMyStyle() {
 }
 
 function deactivateMyStyle() {
+  clearProfileBorderFeedback();
   myStyleActive = false;
   myLevelSelectionPending = false;
   sessionStorage.removeItem(APPLIED_PROFILE_KEY);

@@ -54,10 +54,20 @@ const {
   updateStyleScore,
 } = globalThis.BipassStyleProfile;
 
-test('annual checkout price and included credits match the advertised offer', () => {
-  const annualLineItem = checkoutLineItemForPlan('annual');
-  assert.equal(annualLineItem.price_data.currency, 'usd');
-  assert.equal(annualLineItem.price_data.unit_amount, 9900);
+test('plan checkout prices and included credits match the advertised offers', () => {
+  const expectedPrices = {
+    day: { cents: 299, name: 'Day Pass' },
+    monthly: { cents: 699, name: 'Monthly Pass' },
+    annual: { cents: 4999, name: 'Annual Pass' },
+  };
+
+  for (const [plan, expected] of Object.entries(expectedPrices)) {
+    const lineItem = checkoutLineItemForPlan(plan);
+    assert.equal(lineItem.price_data.currency, 'usd');
+    assert.equal(lineItem.price_data.unit_amount, expected.cents);
+    assert.match(lineItem.price_data.product_data.name, new RegExp(expected.name));
+  }
+
   assert.equal(PLAN_CONFIG.day.credits, 20_000);
   assert.equal(PLAN_CONFIG.monthly.credits, 50_000);
   assert.equal(PLAN_CONFIG.annual.credits, 40_000);
@@ -72,9 +82,9 @@ test('annual checkout price and included credits match the advertised offer', ()
 
 test('credit add-on checkout prices match the credits fulfilled by each package', () => {
   const expected = {
-    c10000: { credits: 10_000, priceCents: 299 },
-    c30000: { credits: 30_000, priceCents: 699 },
-    c50000: { credits: 50_000, priceCents: 999 },
+    c10000: { credits: 10_000, priceCents: 199 },
+    c30000: { credits: 30_000, priceCents: 449 },
+    c50000: { credits: 50_000, priceCents: 649 },
   };
 
   for (const [pkg, values] of Object.entries(expected)) {

@@ -95,6 +95,10 @@ const extensionManifest = JSON.parse(readFileSync(extensionManifestFile, 'utf8')
 const privacyHtml = readFileSync(privacyFile, 'utf8');
 const indexFile = join(root, 'index.html');
 const indexHtml = readFileSync(indexFile, 'utf8');
+const plansFile = join(root, 'plans.html');
+const plansHtml = readFileSync(plansFile, 'utf8');
+const aboutFile = join(root, 'about.html');
+const aboutHtml = readFileSync(aboutFile, 'utf8');
 const appFile = join(root, 'app.html');
 const appHtml = readFileSync(appFile, 'utf8');
 const appJsFile = join(root, 'app.js');
@@ -152,6 +156,39 @@ if (!organization
 }
 if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
+}
+
+const advertisedPrices = [
+  ['$2.99', 'Day Pass'],
+  ['$6.99', 'Monthly Pass'],
+  ['$49.99', 'Annual Pass'],
+  ['$1.99', '10,000-credit add-on'],
+  ['$4.49', '30,000-credit add-on'],
+  ['$6.49', '50,000-credit add-on'],
+];
+const plansText = plansHtml.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+for (const [price, offer] of advertisedPrices) {
+  if (!plansText.includes(price)) add(plansFile, `missing ${offer} price ${price}`);
+}
+if (!plansHtml.includes('Best Value · Save 40%')
+    || !plansHtml.includes('Save $33.89 vs buying 12 monthly passes')
+    || !indexHtml.includes('Best Value · Save 40%')
+    || !indexHtml.includes('Save $33.89 vs buying 12 monthly passes')) {
+  add(plansFile, 'annual savings copy must match the $49.99 annual and $6.99 monthly prices');
+}
+for (const [file, html] of [[indexFile, indexHtml], [aboutFile, aboutHtml]]) {
+  if (!html.includes('"lowPrice": "2.99"') || !html.includes('"highPrice": "49.99"')) {
+    add(file, 'structured pricing range must match the current plans');
+  }
+}
+if (!serverJs.includes('priceCents: 299')
+    || !serverJs.includes('priceCents: 699')
+    || !serverJs.includes('priceCents: 4999')
+    || !serverJs.includes('c10000: { credits: 10_000, priceCents: 199')
+    || !serverJs.includes('c30000: { credits: 30_000, priceCents: 449')
+    || !serverJs.includes('c50000: { credits: 50_000, priceCents: 649')
+    || serverJs.includes('const STRIPE_PRICES')) {
+  add(serverFile, 'Stripe checkout amounts must match every advertised plan and credit package');
 }
 
 const workspaceModes = [...appHtml.matchAll(/class="mode-dd-option[^\"]*"[^>]*data-mode="([^"]+)"/g)]

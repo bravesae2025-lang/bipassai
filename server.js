@@ -163,31 +163,39 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
 
-const STRIPE_PRICES = {
-  day:     'price_1TzOdB0rExXCXCyXpJSLFuKQ',
-  monthly: 'price_1TzObS0rExXCXCyXaH5ixBDT',
-};
-
-// About 17% below twelve $9.99 monthly passes ($119.88), billed once.
-const ANNUAL_PRICE_CENTS = 9900;
+const PLAN_CHECKOUT = Object.freeze({
+  day: {
+    priceCents: 299,
+    name: 'Bipass AI Day Pass',
+    description: '24-hour access with 20,000 credits',
+  },
+  monthly: {
+    priceCents: 699,
+    name: 'Bipass AI Monthly Pass',
+    description: '30-day access with 50,000 credits',
+  },
+  annual: {
+    priceCents: 4999,
+    name: 'Bipass AI Annual Pass',
+    description: '40,000 credits monthly plus a 20,000-credit annual bonus (500,000 total)',
+  },
+});
 
 export function checkoutLineItemForPlan(plan) {
-  if (plan === 'annual') {
-    return {
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: 'Bipass AI Annual Pass',
-          description: '40,000 credits monthly plus a 20,000-credit annual bonus (500,000 total)',
-        },
-        unit_amount: ANNUAL_PRICE_CENTS,
-      },
-      quantity: 1,
-    };
-  }
+  const config = PLAN_CHECKOUT[plan];
+  if (!config) return null;
 
-  const price = STRIPE_PRICES[plan];
-  return price ? { price, quantity: 1 } : null;
+  return {
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: config.name,
+        description: config.description,
+      },
+      unit_amount: config.priceCents,
+    },
+    quantity: 1,
+  };
 }
 
 function getBillingMeta(user) {
@@ -335,9 +343,9 @@ async function getUserById(userId) {
 }
 
 export const CREDIT_PACKAGES = {
-  c10000: { credits: 10_000, priceCents: 299, label: '10,000' },
-  c30000: { credits: 30_000, priceCents: 699, label: '30,000' },
-  c50000: { credits: 50_000, priceCents: 999, label: '50,000' },
+  c10000: { credits: 10_000, priceCents: 199, label: '10,000' },
+  c30000: { credits: 30_000, priceCents: 449, label: '30,000' },
+  c50000: { credits: 50_000, priceCents: 649, label: '50,000' },
 };
 
 // Keep the amount shown by Stripe Checkout in the same source of truth as the
@@ -639,7 +647,7 @@ app.post('/api/reset-credits', asyncHandler(async (req, res) => {
 export const PLAN_CONFIG = {
   day:     { ms: 86_400_000,             credits: 20_000, creditGrants: 1  },
   monthly: { ms: 30 * 86_400_000,        credits: 50_000, creditGrants: 1  },
-  annual:  { ms: 365 * 86_400_000,       credits: 40_000, creditGrants: 12, annualBonus: 20_000 }, // $99 — 500k total
+  annual:  { ms: 365 * 86_400_000,       credits: 40_000, creditGrants: 12, annualBonus: 20_000 }, // $49.99 — 500k total
 };
 
 // Add calendar months without letting dates such as January 31 overflow into

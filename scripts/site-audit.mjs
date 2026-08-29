@@ -378,7 +378,10 @@ if (!appHtml.includes('id="rec-flow-open"')
 if (!appHtml.includes('id="rec-guide-video"')
     || !appHtml.includes('assets/level-matching-guide.mp4?v=10')
     || !appHtml.includes('assets/level-matching-guide-poster.png?v=9')
-    || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")) {
+    || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")
+    || !appJs.includes("video.addEventListener('canplay', queuePlaybackRetry)")
+    || !appJs.includes("document.addEventListener('visibilitychange', () =>")
+    || !appJs.includes("window.addEventListener('pageshow', () =>")) {
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
 }
 if (!appJs.includes('class="profile-score-slider"')

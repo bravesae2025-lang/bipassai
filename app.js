@@ -4032,6 +4032,8 @@ function startTour() {
   let dialogTrigger = null;
   let dialogBound = false;
   let dialogCloseTimer = 0;
+  let playbackRetryQueued = false;
+  let playbackRetryCount = 0;
 
   function bindDialog() {
     if (dialogBound) return true;
@@ -4071,16 +4073,32 @@ function startTour() {
     if (playButton) playButton.title = paused ? 'Play walkthrough' : 'Pause walkthrough';
   }
 
+  function queuePlaybackRetry() {
+    if (playbackRetryQueued || playbackRetryCount >= 3 || !video.paused
+        || userPaused || collapsed || !inView || dialogOpen || document.hidden) return;
+    playbackRetryQueued = true;
+    const retry = () => {
+      playbackRetryQueued = false;
+      playbackRetryCount += 1;
+      syncPlayback();
+    };
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      window.setTimeout(retry, 420);
+    } else {
+      video.addEventListener('canplay', retry, { once: true });
+    }
+  }
+
   function syncPlayback() {
-    if (collapsed || !inView || userPaused || dialogOpen) {
+    if (collapsed || !inView || userPaused || dialogOpen || document.hidden) {
       video.pause();
       syncPlayButton();
       return;
     }
 
-    video.play().catch(() => {
-      userPaused = true;
+    video.play().then(syncPlayButton).catch(() => {
       syncPlayButton();
+      queuePlaybackRetry();
     });
   }
 
@@ -4118,14 +4136,36 @@ function startTour() {
 
   toggle?.addEventListener('click', toggleCollapsedByUser);
   openButton?.addEventListener('click', toggleCollapsedByUser);
-  playButton?.addEventListener('click', () => {
-    userPaused = !video.paused;
-    if (userPaused) video.pause();
-    else syncPlayback();
+  function togglePlayback() {
+    if (video.paused) {
+      userPaused = false;
+      playbackRetryCount = 0;
+      syncPlayback();
+    } else {
+      userPaused = true;
+      video.pause();
+    }
+    syncPlayButton();
+  }
+
+  playButton?.addEventListener('click', togglePlayback);
+  video.addEventListener('click', togglePlayback);
+  video.addEventListener('loadeddata', queuePlaybackRetry);
+  video.addEventListener('canplay', queuePlaybackRetry);
+  video.addEventListener('playing', () => {
+    playbackRetryCount = 0;
     syncPlayButton();
   });
   video.addEventListener('play', syncPlayButton);
   video.addEventListener('pause', syncPlayButton);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) playbackRetryCount = 0;
+    syncPlayback();
+  });
+  window.addEventListener('pageshow', () => {
+    playbackRetryCount = 0;
+    syncPlayback();
+  });
 
   function openDialog() {
     if (!bindDialog() || dialogOpen) return;

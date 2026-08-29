@@ -8996,7 +8996,8 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   --profile-surface-rgb: 29, 31, 30;
   --profile-inset-rgb: 21, 23, 22;
   --profile-rim-enter: 1150ms;
-  --profile-rim-exit: 420ms;
+  --profile-rim-exit: 680ms;
+  --profile-rim-exit-ease: cubic-bezier(0.4,0,0.2,1);
   --profile-motion-ease: cubic-bezier(0.22,1,0.36,1);
 }
 
@@ -13103,7 +13104,7 @@ body.creation-page {
   mask-composite: exclude;
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.16));
-  transition: --profile-rim-angle var(--profile-rim-exit) var(--profile-motion-ease);
+  transition: --profile-rim-angle var(--profile-rim-exit) var(--profile-rim-exit-ease);
 }
 
 .col-customize .level-btn-profile > * {
@@ -13514,6 +13515,9 @@ body.creation-page {
   mask-composite: exclude;
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.14));
+  transition:
+    --profile-rim-angle var(--profile-rim-exit) var(--profile-rim-exit-ease),
+    opacity 180ms ease;
 }
 
 /* Match the base surface selectors' specificity so the persistent selected rim
@@ -13533,7 +13537,7 @@ body.creation-page {
 }
 
 .col-customize .writing-profile-card.profile-deactivating::after {
-  animation: profile-green-rim-out var(--profile-rim-exit) var(--profile-motion-ease) both;
+  animation: profile-green-rim-out var(--profile-rim-exit) var(--profile-rim-exit-ease) both;
 }
 
 .col-customize .writing-profile-card.profile-activating .writing-fingerprint-card i {

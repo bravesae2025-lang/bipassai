@@ -13516,7 +13516,11 @@ body.creation-page {
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.14));
 }
 
-.col-customize .profile-selection-surface::after {
+/* Match the base surface selectors' specificity so the persistent selected rim
+   remains after the one-shot feedback animation is removed. */
+.col-customize .writing-profile-create.profile-selection-surface::after,
+.col-customize #my-style-inputs.profile-selection-surface::after,
+.col-customize .writing-profile-card.profile-selection-surface::after {
   --profile-rim-angle: 360deg;
 }
 

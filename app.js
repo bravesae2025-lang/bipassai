@@ -966,6 +966,7 @@ const loadingCount   = document.getElementById('loading-count');
 const loadingBar     = document.getElementById('loading-bar');
 const loadingBarFill = document.getElementById('loading-bar-fill');
 const levelTrack     = document.querySelector('.level-track');
+const levelTrackWrap = document.querySelector('.level-track-wrap');
 const colCustomize   = document.querySelector('.col-customize');
 const myStyleBox     = document.getElementById('my-style-block');
 const sampleContainer  = document.getElementById('sample-container');
@@ -995,21 +996,8 @@ function hasCompleteSelectedMyLevel() {
     && window.BipassStyleProfile.readAnalysis(savedStyle)?.profile);
 }
 
-function visibleProfileFeedbackSurface() {
-  let lowerSurface = null;
-  if (myStyleInputs && !myStyleInputs.hidden) {
-    lowerSurface = myStyleInputs;
-  } else if (savedStyles.length && styleCardsList?.style.display !== 'none') {
-    lowerSurface = styleCardsList.querySelector('.style-card-active')
-      || styleCardsList.querySelector('.writing-profile-card');
-  } else {
-    lowerSurface = createProfileBtn;
-  }
-  return lowerSurface;
-}
-
 function visibleProfileFeedbackSurfaces() {
-  return [profileOption, visibleProfileFeedbackSurface()].filter(Boolean);
+  return [profileOption, profileBlock].filter(Boolean);
 }
 
 function clearProfileBorderFeedback() {
@@ -1621,6 +1609,7 @@ function syncLevelSelectionUi() {
   profileOption?.classList.toggle('is-empty', optionState.kind === 'empty');
   profileOption?.classList.toggle('is-legacy', optionState.legacy);
   profileOption?.setAttribute('aria-pressed', String(profileSelected));
+  levelTrackWrap?.classList.toggle('my-level-selected', profileSelected);
   applyFingerprintValues(profileOption?.querySelector('.level-profile-fingerprint'), optionState.values);
   applyFingerprintValues(profileBlock?.querySelector('.writing-profile-head .writing-fingerprint'), optionState.values);
 
@@ -1628,6 +1617,7 @@ function syncLevelSelectionUi() {
   manualCustomizeBtn?.setAttribute('aria-expanded', String(manualActive));
 
   profileBlock?.classList.toggle('profile-is-active', completedProfileActive);
+  profileBlock?.classList.toggle('profile-selection-active', profileSelected);
   profileBlock?.classList.toggle('profile-is-manual', manualActive);
 
   if (profileSelected) {

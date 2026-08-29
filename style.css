@@ -8981,6 +8981,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
   font-size: 7.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  transition: opacity 260ms ease;
 }
 .style-presets-head::before,
 .style-presets-head::after { content: ''; height: 1px; flex: 1; background: rgba(255,255,255,0.11); }
@@ -9030,7 +9031,7 @@ textarea:focus { background: #fff; border-color: rgba(0,0,0,0.4); }
     0 24px 44px rgba(0,0,0,0.12);
   transition: border-color 220ms ease, background-color 220ms ease,
     box-shadow 260ms ease, transform 260ms var(--ease-out), opacity 180ms ease;
-  animation: profile-option-enter 480ms var(--ease-out) both;
+  animation: profile-option-enter 480ms var(--ease-out) backwards;
 }
 .level-btn-profile::before {
   content: '';
@@ -12018,7 +12019,7 @@ body.creation-page {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 20px rgba(0,0,0,0.14);
   transition: color 180ms ease, border-color 220ms ease, background-color 220ms ease,
     box-shadow 260ms ease, transform 260ms var(--ease-out);
-  animation: profile-option-enter 480ms var(--ease-out) 80ms both;
+  animation: profile-option-enter 480ms var(--ease-out) 80ms backwards;
 }
 .writing-profile-create strong { font-size: 11.5px; font-weight: 700; letter-spacing: -0.01em; }
 .writing-profile-create:hover {
@@ -13139,53 +13140,37 @@ body.creation-page {
 .col-customize .level-btn-profile.is-active::before { opacity: 1; }
 .col-customize .level-btn-profile.is-active::after { --profile-rim-angle: 360deg; }
 
-.col-customize .level-btn-profile.is-ready:not(.is-active),
-.col-customize .level-btn-profile.is-empty {
-  border-color: rgba(255,255,255,0.14);
-  background: linear-gradient(180deg, rgba(var(--glass-recess),0.72), rgba(22,23,28,0.68));
+/* Unselected My Level uses the same recessed physics as the preset tray. */
+.col-customize .level-btn-profile:not(.is-selected) {
+  border-color: rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(20,21,25,0.90), rgba(29,30,35,0.78));
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  transform: none;
+  transform: translateY(2px);
   box-shadow:
-    inset 0 2px 8px rgba(0,0,0,0.32),
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 1px 0 rgba(255,255,255,0.035);
+    inset 0 4px 10px rgba(0,0,0,0.46),
+    inset 0 -1px 0 rgba(255,255,255,0.045),
+    inset 0 0 0 1px rgba(0,0,0,0.16),
+    0 1px 0 rgba(255,255,255,0.025);
 }
 
-/* The empty card stays readable but rests inside the panel until selected. */
-.col-customize .level-btn-profile.is-empty {
-  border-color: rgba(255,255,255,0.30);
-  background: linear-gradient(180deg, rgba(34,35,41,0.90), rgba(22,23,28,0.90));
-  box-shadow:
-    inset 0 3px 9px rgba(0,0,0,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.055),
-    0 1px 0 rgba(255,255,255,0.035);
-}
+.col-customize .level-btn-profile:not(.is-selected)::before { opacity: 0.16; }
 
-.col-customize .level-btn-profile.is-ready:not(.is-active):hover,
-.col-customize .level-btn-profile.is-empty:hover {
-  border-color: rgba(255,255,255,0.22);
-  background: linear-gradient(180deg, rgba(31,32,38,0.82), rgba(24,25,30,0.76));
-  transform: none;
+.col-customize .level-btn-profile:not(.is-selected):hover {
+  border-color: rgba(255,255,255,0.17);
+  background: linear-gradient(180deg, rgba(23,24,29,0.92), rgba(32,33,39,0.82));
+  transform: translateY(1px);
   box-shadow:
-    inset 0 2px 7px rgba(0,0,0,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 1px 0 rgba(255,255,255,0.04);
-}
-
-.col-customize .level-btn-profile.is-empty:hover {
-  border-color: rgba(255,255,255,0.38);
-  background: linear-gradient(180deg, rgba(38,39,46,0.92), rgba(25,26,31,0.92));
-  box-shadow:
-    inset 0 3px 8px rgba(0,0,0,0.30),
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    0 1px 0 rgba(255,255,255,0.04);
+    inset 0 3px 8px rgba(0,0,0,0.40),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(0,0,0,0.12),
+    0 1px 0 rgba(255,255,255,0.03);
 }
 
 .col-customize .level-btn-profile.is-selected,
 .col-customize .level-btn-profile.is-selected.is-empty,
 .col-customize .level-btn-profile.is-selected.is-ready {
-  border-color: rgba(255,255,255,0.18);
+  border-color: rgba(var(--profile-accent-rgb),0.92);
   background: linear-gradient(180deg, rgba(var(--glass-recess),0.72), rgba(22,23,28,0.68));
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
@@ -13193,7 +13178,8 @@ body.creation-page {
   box-shadow:
     inset 0 10px 18px -18px rgba(255,255,255,0.48),
     inset 0 -1px 0 rgba(0,0,0,0.20),
-    0 0 0 1px rgba(var(--glass-signal),0.035),
+    0 0 0 1px rgba(var(--profile-accent-rgb),0.88),
+    0 0 0 5px rgba(var(--profile-accent-rgb),0.07),
     0 16px 36px rgba(0,0,0,0.25),
     0 28px 52px rgba(8,10,16,0.14);
 }
@@ -13206,13 +13192,14 @@ body.creation-page {
 
 .col-customize .level-btn-profile.is-selected:hover,
 .col-customize .level-btn-profile.is-selected.is-empty:hover {
-  border-color: rgba(255,255,255,0.22);
+  border-color: var(--profile-accent);
   background: linear-gradient(180deg, rgba(var(--glass-recess),0.76), rgba(22,23,28,0.72));
   transform: translateY(-2px);
   box-shadow:
     inset 0 10px 18px -18px rgba(255,255,255,0.54),
     inset 0 -1px 0 rgba(0,0,0,0.20),
-    0 0 0 1px rgba(var(--glass-signal),0.045),
+    0 0 0 1px rgba(var(--profile-accent-rgb),0.94),
+    0 0 0 5px rgba(var(--profile-accent-rgb),0.09),
     0 18px 40px rgba(0,0,0,0.27),
     0 30px 56px rgba(8,10,16,0.16);
 }
@@ -13227,13 +13214,14 @@ body.creation-page {
 }
 
 .col-customize .level-btn-profile.is-active:hover {
-  border-color: rgba(255,255,255,0.20);
+  border-color: var(--profile-accent);
   background: linear-gradient(180deg, rgba(var(--glass-recess),0.72), rgba(22,23,28,0.68));
   transform: translateY(-2px) scale(1.002);
   box-shadow:
     inset 0 10px 18px -18px rgba(255,255,255,0.54),
     inset 0 -1px 0 rgba(0,0,0,0.20),
-    0 0 0 1px rgba(var(--glass-signal),0.045),
+    0 0 0 1px rgba(var(--profile-accent-rgb),0.94),
+    0 0 0 5px rgba(var(--profile-accent-rgb),0.09),
     0 18px 40px rgba(0,0,0,0.27),
     0 30px 56px rgba(8,10,16,0.16);
 }
@@ -13270,6 +13258,11 @@ body.creation-page {
     inset 0 2px 7px rgba(0,0,0,0.30),
     inset 0 1px 0 rgba(255,255,255,0.06),
     0 1px 0 rgba(255,255,255,0.035);
+  transition:
+    opacity 320ms var(--profile-motion-ease),
+    filter 320ms var(--profile-motion-ease),
+    border-color 260ms ease,
+    box-shadow 320ms var(--profile-motion-ease);
 }
 
 .col-customize .level-glider {
@@ -13322,6 +13315,44 @@ body.creation-page {
 
 .col-customize .level-btn:not(.active):hover {
   color: rgba(var(--glass-white), 0.88);
+  background: rgba(255,255,255,0.055);
+}
+
+/* My Level owns the current selection, so presets recede without becoming
+   disabled: hovering or focusing them still exposes the exit path. */
+.col-customize .level-track-wrap.my-level-selected .style-presets-head {
+  opacity: 0.32;
+}
+
+.col-customize .level-track-wrap.my-level-selected .level-track {
+  opacity: 0.46;
+  filter: saturate(0.35) brightness(0.82);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow:
+    inset 0 4px 10px rgba(0,0,0,0.48),
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 1px 0 rgba(255,255,255,0.02);
+}
+
+.col-customize .level-track-wrap.my-level-selected .level-glider {
+  opacity: 0 !important;
+}
+
+.col-customize .level-track-wrap.my-level-selected .level-btn {
+  color: rgba(var(--glass-white),0.34);
+  text-shadow: none;
+}
+
+.col-customize .level-track-wrap.my-level-selected .level-track:hover,
+.col-customize .level-track-wrap.my-level-selected .level-track:focus-within {
+  opacity: 0.78;
+  filter: saturate(0.72) brightness(0.94);
+  border-color: rgba(255,255,255,0.13);
+}
+
+.col-customize .level-track-wrap.my-level-selected .level-btn:hover,
+.col-customize .level-track-wrap.my-level-selected .level-btn:focus-visible {
+  color: rgba(var(--glass-white),0.94);
   background: rgba(255,255,255,0.055);
 }
 
@@ -13379,11 +13410,26 @@ body.creation-page {
 }
 
 .col-customize .writing-profile-block {
-  margin-top: 6px;
-  padding-top: 16px;
+  position: relative;
+  isolation: isolate;
+  margin: 6px -10px -10px;
+  padding: 16px 10px 10px;
   border-top-color: rgba(255,255,255,0.13);
   box-shadow: 0 -1px 0 rgba(0,0,0,0.08);
-  transition: border-color 220ms ease, box-shadow 180ms ease;
+  transition:
+    border-color 260ms ease,
+    box-shadow 360ms var(--profile-motion-ease),
+    transform 360ms var(--profile-motion-ease);
+}
+
+.col-customize .writing-profile-block.profile-selection-active {
+  border-top-color: rgba(var(--profile-accent-rgb),0.92);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--profile-accent-rgb),0.88),
+    0 0 0 1px rgba(var(--profile-accent-rgb),0.52),
+    0 0 0 5px rgba(var(--profile-accent-rgb),0.065),
+    0 14px 30px rgba(0,0,0,0.12);
 }
 
 .col-customize .writing-profile-create,
@@ -13455,6 +13501,7 @@ body.creation-page {
     0 28px 52px rgba(8,10,16,0.14);
 }
 
+.col-customize .writing-profile-block::after,
 .col-customize .writing-profile-create::after,
 .col-customize #my-style-inputs::after,
 .col-customize .writing-profile-card::after {
@@ -13478,6 +13525,10 @@ body.creation-page {
   mask-composite: exclude;
   pointer-events: none;
   filter: drop-shadow(0 0 7px rgba(var(--profile-accent-rgb),0.14));
+}
+
+.col-customize .writing-profile-block.profile-selection-active::after {
+  --profile-rim-angle: 360deg;
 }
 
 .col-customize .writing-profile-card.style-card-active::after {
@@ -13542,6 +13593,11 @@ body.creation-page {
     0 0 0 6px rgba(248, 81, 73, 0.13),
     0 10px 28px rgba(248, 81, 73, 0.10);
   animation: profile-section-error-shake 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.col-customize .writing-profile-block.profile-selection-active.profile-needs-complete::after {
+  opacity: 0;
+  animation: none;
 }
 
 @keyframes profile-section-error-shake {
@@ -13820,8 +13876,11 @@ body.creation-page {
   .col-customize .level-profile-default,
   .col-customize #writing-profile-option-meta,
   .col-customize .level-profile-status,
+  .col-customize .level-track,
+  .col-customize .style-presets-head,
   .col-customize .level-btn,
   .col-customize .level-manual-btn,
+  .col-customize .writing-profile-block,
   .col-customize .writing-profile-create {
     transition: none;
     transform: none;
@@ -13830,6 +13889,7 @@ body.creation-page {
   .col-customize .level-glider,
   .col-customize .level-glider::after { transition: none; }
   .col-customize .level-btn-profile::after,
+  .col-customize .writing-profile-block::after,
   .col-customize .writing-profile-create::after,
   .col-customize #my-style-inputs::after,
   .col-customize .writing-profile-card::after {
@@ -13893,29 +13953,27 @@ body.creation-page {
   .col-customize .level-btn-profile:hover {
     background: transparent;
   }
-  .col-customize .level-btn-profile.is-ready,
-  .col-customize .level-btn-profile.is-ready:hover,
-  .col-customize .level-btn-profile.is-empty,
-  .col-customize .level-btn-profile.is-empty:hover {
-    background: linear-gradient(180deg, rgb(37,38,44), rgb(22,23,28));
-  }
-  .col-customize .level-btn-profile.is-empty,
-  .col-customize .level-btn-profile.is-empty:hover {
-    border-color: rgba(255,255,255,0.30);
-    background:
-      radial-gradient(100% 150% at 0% 0%, rgba(255,255,255,0.14), transparent 54%),
-      linear-gradient(145deg, rgb(61,62,70), rgb(31,32,38));
+  .col-customize .level-btn-profile:not(.is-selected),
+  .col-customize .level-btn-profile:not(.is-selected):hover {
+    border-color: rgba(255,255,255,0.11);
+    background: linear-gradient(180deg, rgb(20,21,25), rgb(29,30,35));
+    box-shadow:
+      inset 0 4px 10px rgba(0,0,0,0.46),
+      inset 0 -1px 0 rgba(255,255,255,0.045),
+      inset 0 0 0 1px rgba(0,0,0,0.16),
+      0 1px 0 rgba(255,255,255,0.025);
   }
   .col-customize .level-btn-profile.is-active,
   .col-customize .level-btn-profile.is-active:hover,
   .col-customize .level-btn-profile.is-selected,
   .col-customize .level-btn-profile.is-selected:hover {
-    border-color: rgba(255,255,255,0.20);
+    border-color: rgba(var(--profile-accent-rgb),0.92);
     background: linear-gradient(180deg, rgb(37,38,44), rgb(22,23,28));
     box-shadow:
       inset 0 10px 18px -18px rgba(255,255,255,0.48),
       inset 0 -1px 0 rgba(0,0,0,0.20),
-      0 0 0 1px rgba(var(--glass-signal),0.035),
+      0 0 0 1px rgba(var(--profile-accent-rgb),0.88),
+      0 0 0 5px rgba(var(--profile-accent-rgb),0.07),
       0 16px 36px rgba(0,0,0,0.25),
       0 28px 52px rgba(8,10,16,0.14);
   }
@@ -13956,6 +14014,10 @@ body.creation-page {
 
   .col-customize .level-btn-profile.is-active,
   .col-customize .level-btn-profile.is-selected { border-color: var(--profile-accent); }
+  .col-customize .writing-profile-block.profile-selection-active {
+    border-top-color: var(--profile-accent);
+    box-shadow: inset 0 0 0 2px var(--profile-accent);
+  }
   .col-customize .level-glider { outline: 1px solid var(--profile-accent); }
 }
 

@@ -121,7 +121,7 @@ const articleUrl = `https://bipassai.com/blog/${slug}.html`;
 const articleHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="/consent.js?v=1"></script>
+  <script src="/consent.js?v=2"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

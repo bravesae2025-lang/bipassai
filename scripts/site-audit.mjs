@@ -43,7 +43,7 @@ for (const file of htmlFiles) {
   if (/\bSyne\b/.test(html)) {
     add(file, 'customer-facing pages must use the native system UI font instead of Syne');
   }
-  if (!html.includes('<script src="/consent.js?v=1"></script>')) {
+  if (!html.includes('<script src="/consent.js?v=2"></script>')) {
     add(file, 'missing the site-wide privacy consent controller');
   }
   if (/googletagmanager\.com\/gtag\/js|gtag\(['"]config['"]/.test(html)) {
@@ -196,8 +196,8 @@ if (!plansHtml.includes('Secure one-time checkout is provided by Stripe')
     || !plansHtml.includes('Terms &amp; Refund Policy')) {
   add(plansFile, 'checkout choices must keep purchase terms separate and visible');
 }
-if (!articleGeneratorJs.includes('<script src="/consent.js?v=1"></script>')
-    || !articleAdderJs.includes('<script src="/consent.js?v=1"></script>')) {
+if (!articleGeneratorJs.includes('<script src="/consent.js?v=2"></script>')
+    || !articleAdderJs.includes('<script src="/consent.js?v=2"></script>')) {
   add(indexFile, 'blog generators must include the privacy consent controller');
 }
 

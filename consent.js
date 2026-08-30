@@ -145,8 +145,8 @@
         <a href="/terms.html">Terms &amp; refunds</a>
       </div>
       <div class="bpc-actions">
-        <button class="bpc-button bpc-reject${current === DENIED ? ' is-current' : ''}" type="button" data-consent="denied" aria-pressed="${current === DENIED}">Reject analytics</button>
-        <button class="bpc-button bpc-accept${current === GRANTED ? ' is-current' : ''}" type="button" data-consent="granted" aria-pressed="${current === GRANTED}">Accept analytics</button>
+        <button class="bpc-button bpc-reject${current === DENIED ? ' is-current' : ''}" type="button" data-consent="denied" aria-pressed="${current === DENIED}">Reject optional cookies</button>
+        <button class="bpc-button bpc-accept${current === GRANTED ? ' is-current' : ''}" type="button" data-consent="granted" aria-pressed="${current === GRANTED}">Accept optional cookies</button>
       </div>
     `;
 

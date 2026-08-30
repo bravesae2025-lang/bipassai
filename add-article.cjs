@@ -121,6 +121,8 @@ const articleUrl = `https://bipassai.com/blog/${slug}.html`;
 const articleHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/consent.js?v=1"></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${description}">
@@ -272,6 +274,14 @@ const articleHtml = `<!DOCTYPE html>
       ${bodyHtml}
     </div>
   </div>
+
+  <footer class="site-footer">
+    <span>© 2026 Bipass AI</span>
+    <span class="site-footer-sep">·</span>
+    <a href="/privacy.html">Privacy Policy</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/terms.html">Terms &amp; Refund Policy</a>
+  </footer>
 
   <script src="/script.js" defer></script>
   <script src="/auth.js?v=3" defer></script>

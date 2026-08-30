@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8P3Y42GBC4"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-8P3Y42GBC4');
-  </script>
+  <script src="/consent.js?v=1"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -214,6 +206,31 @@
         </div>
 
         <a class="settings-outline-btn settings-add-profile-btn" id="settings-add-profile-btn" href="/home?createProfile=1">+ Add writing profile</a>
+      </section>
+
+      <!-- ── Privacy ─────────────────────────────────────────── -->
+      <section class="settings-section">
+        <div class="settings-section-label">Privacy</div>
+        <p class="settings-section-sub">Necessary account storage is always on. Optional Analytics is your choice.</p>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Website Analytics</div>
+            <div class="settings-row-sub">Share page, device, and approximate-location statistics with Google Analytics. Currently <strong id="pref-analytics-status">Off</strong>.</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="pref-analytics" aria-label="Allow optional website Analytics">
+            <span class="settings-toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Privacy and purchase terms</div>
+            <div class="settings-row-sub">Read our <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms &amp; Refund Policy</a>.</div>
+          </div>
+          <button class="settings-outline-btn" id="open-consent-settings" type="button">Review choices</button>
+        </div>
       </section>
 
       <!-- Temporary QA control: replay the complete new-user journey without signing out. -->

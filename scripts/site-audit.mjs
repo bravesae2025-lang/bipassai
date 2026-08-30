@@ -43,6 +43,12 @@ for (const file of htmlFiles) {
   if (/\bSyne\b/.test(html)) {
     add(file, 'customer-facing pages must use the native system UI font instead of Syne');
   }
+  if (!html.includes('<script src="/consent.js?v=1"></script>')) {
+    add(file, 'missing the site-wide privacy consent controller');
+  }
+  if (/googletagmanager\.com\/gtag\/js|gtag\(['"]config['"]/.test(html)) {
+    add(file, 'Google Analytics must not load directly before the visitor chooses');
+  }
 
   const ids = [...html.matchAll(/\sid=["']([^"']+)["']/gi)].map((match) => match[1]);
   for (const id of new Set(ids)) {
@@ -124,6 +130,10 @@ const authFile = join(root, 'auth.js');
 const authJs = readFileSync(authFile, 'utf8');
 const historyFile = join(root, 'history.js');
 const historyJs = readFileSync(historyFile, 'utf8');
+const consentFile = join(root, 'consent.js');
+const consentJs = readFileSync(consentFile, 'utf8');
+const consentCssFile = join(root, 'consent.css');
+const consentCss = readFileSync(consentCssFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -156,6 +166,39 @@ if (!organization
 }
 if (!/not affiliated with BypassAI/i.test(indexHtml)) {
   add(indexFile, 'missing similarly named service affiliation clarification');
+}
+
+if (!consentJs.includes("const STORAGE_KEY = 'bipass_analytics_consent_v1'")
+    || !consentJs.includes("analytics_storage: 'granted'")
+    || !consentJs.includes("ad_storage: 'denied'")
+    || !consentJs.includes('allow_google_signals: false')
+    || !consentJs.includes('cookie_expires: 31_536_000')
+    || !consentJs.includes('deleteAnalyticsCookies()')
+    || !consentJs.includes('data-consent="denied"')
+    || !consentJs.includes('data-consent="granted"')) {
+  add(consentFile, 'Analytics must remain optional, privacy-preserving, and reversible');
+}
+if (!consentCss.includes('.bpc-panel')
+    || !consentCss.includes('@media (prefers-reduced-motion: reduce)')
+    || !consentCss.includes('@media (prefers-reduced-transparency: reduce)')
+    || !consentCss.includes('@media (prefers-contrast: more)')) {
+  add(consentCssFile, 'privacy controls must remain responsive and accessible');
+}
+if (!settingsHtml.includes('id="pref-analytics"')
+    || !settingsHtml.includes('id="open-consent-settings"')) {
+  add(settingsFile, 'Settings must provide persistent Analytics controls');
+}
+if (!privacyHtml.includes('Google Analytics is optional and does not load unless you accept it')
+    || !privacyHtml.includes('Cookie settings')) {
+  add(privacyFile, 'privacy policy must explain prior Analytics consent and withdrawal');
+}
+if (!plansHtml.includes('Secure one-time checkout is provided by Stripe')
+    || !plansHtml.includes('Terms &amp; Refund Policy')) {
+  add(plansFile, 'checkout choices must keep purchase terms separate and visible');
+}
+if (!articleGeneratorJs.includes('<script src="/consent.js?v=1"></script>')
+    || !articleAdderJs.includes('<script src="/consent.js?v=1"></script>')) {
+  add(indexFile, 'blog generators must include the privacy consent controller');
 }
 
 const advertisedPrices = [

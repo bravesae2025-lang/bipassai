@@ -1,0 +1,223 @@
+.bpc-panel {
+  --bpc-ink: #0b0b0c;
+  --bpc-paper: #fbfbfa;
+  --bpc-fog: #c8c8c6;
+  --bpc-line: rgba(255, 255, 255, 0.14);
+  --bpc-signal: #4ade80;
+  position: fixed;
+  z-index: 20000;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  width: min(620px, calc(100vw - 28px));
+  padding: 20px;
+  overflow: hidden;
+  color: var(--bpc-paper);
+  background: rgba(11, 11, 12, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.985);
+  transform-origin: left bottom;
+  transition: opacity 220ms ease, transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bpc-panel.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.bpc-panel.is-leaving {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(0.99);
+  pointer-events: none;
+}
+
+.bpc-signal {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--bpc-signal), rgba(74, 222, 128, 0.08));
+}
+
+.bpc-signal span {
+  position: absolute;
+  top: 22px;
+  left: -1px;
+  width: 5px;
+  height: 20px;
+  border-radius: 99px;
+  background: var(--bpc-signal);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.65);
+}
+
+.bpc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 22px;
+}
+
+.bpc-kicker {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.bpc-close {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin: -5px -5px 0 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--bpc-line);
+  border-radius: 9px;
+  font: 400 19px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease, transform 120ms ease;
+}
+
+.bpc-close:hover { color: #fff; background: rgba(255, 255, 255, 0.14); }
+.bpc-close:active { transform: scale(0.94); }
+
+.bpc-title {
+  margin: 8px 0 7px;
+  color: #fff;
+  font-size: clamp(21px, 2vw, 26px);
+  font-weight: 720;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.bpc-copy {
+  max-width: 56ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+.bpc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.bpc-meta span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.bpc-meta i { width: 6px; height: 6px; background: var(--bpc-signal); border-radius: 50%; box-shadow: 0 0 8px rgba(74, 222, 128, 0.55); }
+.bpc-meta a { color: rgba(255, 255, 255, 0.74); text-decoration: none; }
+.bpc-meta a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+
+.bpc-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 17px;
+}
+
+.bpc-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 120ms ease;
+}
+
+.bpc-button:active { transform: scale(0.98); }
+.bpc-reject { color: #fff; background: rgba(255, 255, 255, 0.07); }
+.bpc-reject:hover { background: rgba(255, 255, 255, 0.13); border-color: rgba(255, 255, 255, 0.3); }
+.bpc-accept { color: var(--bpc-ink); background: var(--bpc-paper); border-color: var(--bpc-paper); }
+.bpc-accept:hover { background: #fff; border-color: #fff; }
+.bpc-button.is-current { box-shadow: 0 0 0 2px var(--bpc-signal) inset; }
+.bpc-button:focus-visible, .bpc-close:focus-visible { outline: 2px solid var(--bpc-signal); outline-offset: 3px; }
+
+.bpc-footer-button {
+  appearance: none;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.bpc-footer-button:hover { color: var(--black, #0d0d0d); text-decoration: underline; text-underline-offset: 3px; }
+
+.plans-legal-note {
+  max-width: 920px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
+.credits-note a,
+.settings-row-sub a {
+  color: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.credits-note a:hover,
+.settings-row-sub a:hover { color: #0d0d0d; }
+
+@media (max-width: 560px) {
+  .bpc-panel {
+    left: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: calc(100vw - 20px);
+    padding: 17px;
+    border-radius: 14px;
+    transform-origin: center bottom;
+  }
+
+  .bpc-title { margin-top: 6px; font-size: 21px; }
+  .bpc-copy { font-size: 13px; line-height: 1.48; }
+  .bpc-meta { margin-top: 12px; }
+  .bpc-actions { margin-top: 14px; gap: 7px; }
+  .bpc-button { min-height: 43px; padding: 0 10px; font-size: 12px; }
+}
+
+@media (max-width: 350px) {
+  .bpc-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bpc-panel, .bpc-close, .bpc-button { transition: opacity 160ms ease, color 0s, background-color 0s; transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bpc-panel { background: #0b0b0c; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+@media (prefers-contrast: more) {
+  .bpc-panel { background: #000; border-color: #fff; }
+  .bpc-copy, .bpc-meta { color: #fff; }
+}

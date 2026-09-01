@@ -4047,6 +4047,12 @@ function startTour() {
     dialog.addEventListener('click', (event) => {
       if (event.target === dialog) closeDialog();
     });
+    dialogVideo.addEventListener('waiting', () => {
+      dialogVideo?.addEventListener('canplay', playDialogVideo, { once: true });
+    });
+    dialogVideo.addEventListener('stalled', () => {
+      dialogVideo?.addEventListener('canplay', playDialogVideo, { once: true });
+    });
     dialogBound = true;
     return true;
   }
@@ -4074,7 +4080,9 @@ function startTour() {
   }
 
   function queuePlaybackRetry() {
-    if (playbackRetryQueued || playbackRetryCount >= 3 || !video.paused
+    const needsRestart = video.paused
+      || video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
+    if (playbackRetryQueued || playbackRetryCount >= 4 || !needsRestart
         || userPaused || collapsed || !inView || dialogOpen || document.hidden) return;
     playbackRetryQueued = true;
     const retry = () => {
@@ -4082,11 +4090,18 @@ function startTour() {
       playbackRetryCount += 1;
       syncPlayback();
     };
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      window.setTimeout(retry, 420);
+    if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      window.setTimeout(retry, 240);
     } else {
       video.addEventListener('canplay', retry, { once: true });
     }
+  }
+
+  function playDialogVideo() {
+    if (!dialogOpen || reduceMotion || document.hidden) return;
+    dialogVideo?.play().catch(() => {
+      dialogVideo?.addEventListener('canplay', playDialogVideo, { once: true });
+    });
   }
 
   function syncPlayback() {
@@ -4152,6 +4167,8 @@ function startTour() {
   video.addEventListener('click', togglePlayback);
   video.addEventListener('loadeddata', queuePlaybackRetry);
   video.addEventListener('canplay', queuePlaybackRetry);
+  video.addEventListener('waiting', queuePlaybackRetry);
+  video.addEventListener('stalled', queuePlaybackRetry);
   video.addEventListener('playing', () => {
     playbackRetryCount = 0;
     syncPlayButton();
@@ -4179,7 +4196,7 @@ function startTour() {
     setDialogOrigin();
     void dialog.offsetWidth;
     syncPlayback();
-    if (!reduceMotion) dialogVideo.play().catch(() => {});
+    playDialogVideo();
     requestAnimationFrame(() => {
       dialog.classList.add('is-open');
       dialogClose?.focus({ preventScroll: true });

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -134,6 +134,11 @@ const consentFile = join(root, 'consent.js');
 const consentJs = readFileSync(consentFile, 'utf8');
 const consentCssFile = join(root, 'consent.css');
 const consentCss = readFileSync(consentCssFile, 'utf8');
+const levelGuideFile = join(root, 'assets', 'level-matching-guide.mp4');
+const remotionCompositionFile = join(root, 'remotion-auto-typer-showcase', 'src', 'Composition.tsx');
+const remotionComposition = readFileSync(remotionCompositionFile, 'utf8');
+const remotionConfigFile = join(root, 'remotion-auto-typer-showcase', 'remotion.config.ts');
+const remotionConfig = readFileSync(remotionConfigFile, 'utf8');
 if (!/id=["']login-username["']/.test(extensionHtml)) {
   add(extensionHtmlFile, 'username accounts need a username login field');
 }
@@ -419,13 +424,36 @@ if (!appHtml.includes('id="rec-flow-open"')
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
 }
 if (!appHtml.includes('id="rec-guide-video"')
-    || !appHtml.includes('assets/level-matching-guide.mp4?v=10')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=11')
+    || !appHtml.includes('preload="auto"')
     || !appHtml.includes('assets/level-matching-guide-poster.png?v=9')
     || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")
     || !appJs.includes("video.addEventListener('canplay', queuePlaybackRetry)")
+    || !appJs.includes("video.addEventListener('waiting', queuePlaybackRetry)")
+    || !appJs.includes("video.addEventListener('stalled', queuePlaybackRetry)")
     || !appJs.includes("document.addEventListener('visibilitychange', () =>")
     || !appJs.includes("window.addEventListener('pageshow', () =>")) {
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
+}
+if (!indexHtml.includes('id="autotyper-film"')
+    || !indexHtml.includes('assets/level-matching-guide.mp4?v=11')
+    || !indexHtml.includes('preload="auto"')
+    || !indexHtml.includes("video.addEventListener('waiting', queuePlaybackRetry)")
+    || !indexHtml.includes("video.addEventListener('stalled', queuePlaybackRetry)")) {
+  add(indexFile, 'the landing-page showcase must preload and recover the web-optimized walkthrough');
+}
+if (!remotionComposition.includes('durationInFrames={1152}')
+    || !remotionComposition.includes('fps={60}')
+    || !remotionConfig.includes('Config.setScale(1)')
+    || !remotionConfig.includes('Config.setMuted(true)')) {
+  add(remotionCompositionFile, 'the Level Matching web master must stay at 19.2 seconds, 60fps, and silent');
+}
+if (statSync(levelGuideFile).size > 5_000_000) {
+  add(levelGuideFile, 'the embedded walkthrough is too heavy for reliable browser decoding');
+}
+if (!serverJs.includes("app.get('/assets/level-matching-guide.mp4'")
+    || !serverJs.includes("'public, max-age=31536000, immutable'")) {
+  add(serverFile, 'the versioned walkthrough must be cached for reliable repeat playback');
 }
 if (!appJs.includes('class="profile-score-slider"')
     || !appJs.includes('class="profile-refine-form"')

@@ -8,9 +8,10 @@ A 21-second silent homepage showcase built as one continuous Chrome-extension fl
 4. Finish with an editable draft and restrained end card.
 
 `AutoTyperShowcase` is 1920×1080 at 60fps. `LevelMatchingGuide` is a 19.2-second,
-five-step product walkthrough rendered at 120fps and authored at 2560×1440. It
-renders at 1.5× for a 3840×2160 website master. Each scene is registered in
-Remotion Studio for easy timing and visual review.
+five-step product walkthrough authored at 2560×1440 and rendered for the web at
+1920×1080 / 60fps. This keeps the UI crisp while staying inside reliable browser
+hardware-decoding limits. Each scene is registered in Remotion Studio for easy
+timing and visual review.
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -40,7 +41,8 @@ npm run dev
 **Render video**
 
 ```console
-npx remotion render LevelMatchingGuide out/level-matching-guide.mp4
+npx remotion render src/index.ts LevelMatchingGuide ../assets/level-matching-guide.mp4 \
+  --codec=h264 --crf=20 --scale=0.75 --pixel-format=yuv420p --muted --overwrite
 ```
 
 **Upgrade Remotion**

@@ -333,8 +333,9 @@ const DocsWorkspace = ({frame}: {readonly frame: number}) => {
 export const LevelMatchingGuide = () => {
   const renderFrame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  // Keep the approved 25fps edit points as a time-based authoring timeline
-  // while rendering five times as many unique animation samples at 120fps.
+  // Keep the approved 25fps edit points as a time-based authoring timeline.
+  // The website master renders at 60fps: smooth enough for cursor and camera
+  // motion without forcing browsers to decode an unnecessary 120fps stream.
   const frame = renderFrame * (25 / fps);
   const showLoading = frame >= 188 && frame < 250;
   const showEditor = frame >= 250 && frame < 372;

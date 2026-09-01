@@ -16,6 +16,8 @@ Config.setOverwriteOutput(true);
 Config.setCodec("h264");
 Config.setCrf(17);
 Config.setX264Preset("slow");
-// Render at 1.5x so product UI stays sharp on high-density displays. The
-// 2560×1440 Level Matching guide therefore exports as a 3840×2160 master.
-Config.setScale(1.5);
+Config.setMuted(true);
+// Keep default renders at their authored resolution. The website guide uses
+// an explicit 0.75 scale in the render command to produce a decoder-friendly
+// 1920×1080 master instead of the previous 3840×2160 / 120fps file.
+Config.setScale(1);

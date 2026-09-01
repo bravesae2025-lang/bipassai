@@ -466,6 +466,14 @@ app.use(express.json());
 // search results showed a generic globe instead of the logo.
 app.get('/favicon.ico', (_req, res) => res.sendFile(`${__dirname}/favicon.png`));
 
+// The walkthrough URL is cache-busted in HTML whenever the render changes.
+// Keep the small web master local after its first download so loops, modal
+// handoffs, and repeat visits never depend on another network round trip.
+app.get('/assets/level-matching-guide.mp4', (_req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.sendFile(`${__dirname}/assets/level-matching-guide.mp4`);
+});
+
 app.get('/home',     (_req, res) => res.sendFile(`${__dirname}/app.html`));
 app.get('/app',      (_req, res) => res.redirect(301, '/home'));
 app.get('/app.html', (_req, res) => res.redirect(301, '/home'));

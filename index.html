@@ -514,8 +514,8 @@
     <div class="autotyper-film-card workflow-film-card" data-anim="slide-up" data-anim-delay="2">
       <div class="autotyper-film-stage">
         <img class="autotyper-film-poster" src="assets/level-matching-guide-poster.png?v=9" width="3840" height="2160" alt="The real Bipass Level Matching workspace with a draft and Writing Profile panel">
-        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="metadata" poster="assets/level-matching-guide-poster.png?v=9" aria-label="The real Bipass workflow: paste a draft, choose Student level, match it, review changes, and Auto Type into Google Docs">
-          <source src="assets/level-matching-guide.mp4?v=10" type="video/mp4">
+        <video class="autotyper-film-video" id="autotyper-film" muted loop playsinline preload="auto" poster="assets/level-matching-guide-poster.png?v=9" aria-label="The real Bipass workflow: paste a draft, choose Student level, match it, review changes, and Auto Type into Google Docs">
+          <source src="assets/level-matching-guide.mp4?v=11" type="video/mp4">
         </video>
       </div>
     </div>
@@ -1500,10 +1500,30 @@
 
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
       let inView = false;
+      let retryQueued = false;
+      let retryCount = 0;
 
       const playWhenReady = () => {
         if (!inView || reducedMotion.matches || document.hidden) return;
-        video.play().catch(() => {});
+        video.play().then(() => {
+          retryCount = 0;
+        }).catch(queuePlaybackRetry);
+      };
+
+      const queuePlaybackRetry = () => {
+        if (retryQueued || retryCount >= 4 || !inView
+            || reducedMotion.matches || document.hidden) return;
+        retryQueued = true;
+        const retry = () => {
+          retryQueued = false;
+          retryCount += 1;
+          playWhenReady();
+        };
+        if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+          window.setTimeout(retry, 240);
+        } else {
+          video.addEventListener('canplay', retry, { once: true });
+        }
       };
 
       // From cache the video can already have data before this script runs, so
@@ -1517,6 +1537,11 @@
       video.addEventListener('error', () => {
         video.classList.remove('is-ready');
       });
+      video.addEventListener('waiting', queuePlaybackRetry);
+      video.addEventListener('stalled', queuePlaybackRetry);
+      video.addEventListener('playing', () => {
+        retryCount = 0;
+      });
 
       const observer = new IntersectionObserver(([entry]) => {
         inView = entry.isIntersecting && entry.intersectionRatio >= 0.2;
@@ -1527,7 +1552,10 @@
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) video.pause();
-        else playWhenReady();
+        else {
+          retryCount = 0;
+          playWhenReady();
+        }
       });
       reducedMotion.addEventListener?.('change', () => {
         if (reducedMotion.matches) video.pause();

@@ -424,7 +424,7 @@ if (!appHtml.includes('id="rec-flow-open"')
   add(appFile, 'the compact workflow guide must provide a clear, accessible reopen action');
 }
 if (!appHtml.includes('id="rec-guide-video"')
-    || !appHtml.includes('assets/level-matching-guide.mp4?v=11')
+    || !appHtml.includes('assets/level-matching-guide.mp4?v=12')
     || !appHtml.includes('preload="auto"')
     || !appHtml.includes('assets/level-matching-guide-poster.png?v=9')
     || !appJs.includes("localStorage.getItem('bipass_pref_show_howto')")
@@ -436,7 +436,7 @@ if (!appHtml.includes('id="rec-guide-video"')
   add(appFile, 'the optional dashboard guide must use the rendered Level Matching walkthrough');
 }
 if (!indexHtml.includes('id="autotyper-film"')
-    || !indexHtml.includes('assets/level-matching-guide.mp4?v=11')
+    || !indexHtml.includes('assets/level-matching-guide.mp4?v=12')
     || !indexHtml.includes('preload="auto"')
     || !indexHtml.includes("video.addEventListener('waiting', queuePlaybackRetry)")
     || !indexHtml.includes("video.addEventListener('stalled', queuePlaybackRetry)")) {

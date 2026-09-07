@@ -10079,13 +10079,6 @@ mark.word-changed[data-cat] {
 .word-change-pair[data-cat] > .word-original {
   text-decoration-color: var(--cc);
 }
-/* Capitals: keep the bordered box but recolor the letter bold */
-mark.word-changed[data-cat="caps"],
-.word-change-pair[data-cat="caps"] > mark.word-changed {
-  color: var(--cc);
-  font-weight: 700;
-}
-
 /* ── Multi-category change: striped highlight from inline gradient (set by JS) ── */
 /* (single-cat marks use [data-cat] rules above; [data-cats] marks carry an inline
    style with the gradient background + split underline, so no color rule here.) */
@@ -12941,17 +12934,19 @@ body.creation-page {
   content: '';
   position: absolute;
   z-index: 0;
-  top: -28px;
-  right: -10px;
-  left: clamp(8px, 2vw, 28px);
-  height: min(720px, 76vh);
-  border-radius: 42px;
+  top: -72px;
+  right: -48px;
+  left: clamp(-32px, -2vw, -12px);
+  height: min(810px, 86vh);
+  border-radius: 46%;
   background:
-    radial-gradient(circle at 12% 4%, rgba(247,249,255,0.84) 0, rgba(218,226,242,0.42) 22%, transparent 48%),
-    radial-gradient(circle at 96% 28%, rgba(128,151,190,0.54) 0, rgba(105,124,160,0.25) 30%, transparent 58%),
-    radial-gradient(circle at 54% 100%, rgba(122,104,142,0.34) 0, transparent 52%);
-  filter: blur(24px) saturate(120%);
-  opacity: 0.9;
+    radial-gradient(circle at 20% 20%, rgba(247,249,255,0.72) 0, rgba(218,226,242,0.34) 24%, transparent 52%),
+    radial-gradient(circle at 88% 34%, rgba(128,151,190,0.44) 0, rgba(105,124,160,0.20) 30%, transparent 62%),
+    radial-gradient(circle at 54% 82%, rgba(122,104,142,0.27) 0, transparent 58%);
+  -webkit-mask-image: radial-gradient(ellipse closest-side at 50% 50%, #000 48%, rgba(0,0,0,0.82) 66%, transparent 100%);
+          mask-image: radial-gradient(ellipse closest-side at 50% 50%, #000 48%, rgba(0,0,0,0.82) 66%, transparent 100%);
+  filter: blur(32px) saturate(112%);
+  opacity: 0.78;
   pointer-events: none;
 }
 
@@ -13269,7 +13264,7 @@ body.creation-page {
 .col-customize .level-glider {
   top: 3px;
   left: 3px;
-  width: calc(25% - 1.5px);
+  width: calc(33.333% - 2px);
   height: calc(100% - 6px);
   overflow: hidden;
   border-radius: 8px;
@@ -13834,11 +13829,11 @@ body.creation-page {
   }
 
   .right-panel-wrap::before {
-    top: -12px;
-    right: -18px;
-    left: -18px;
-    height: 640px;
-    border-radius: 32px;
+    top: -52px;
+    right: -42px;
+    left: -42px;
+    height: 720px;
+    border-radius: 44%;
   }
 
   .col.col-customize {

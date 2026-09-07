@@ -39,6 +39,7 @@ const {
   canCreateStyle,
   defaultProfileEnabled,
   fromAnalysisPayload,
+  normalizeSelectorLevel,
   readAnalysis,
   removeStyle,
   resultSnapshot,
@@ -478,7 +479,11 @@ test('Writing Profile selector distinguishes presets, profiles, and manual custo
   assert.equal(defaultProfileEnabled(null), true);
   assert.equal(defaultProfileEnabled('true'), true);
   assert.equal(defaultProfileEnabled('false'), false);
+  assert.equal(normalizeSelectorLevel('hard'), 'medium');
+  assert.equal(normalizeSelectorLevel('unknown'), null);
   assert.equal(selectorMode('easy', true), 'easy');
+  assert.equal(selectorMode('medium', false), 'medium');
+  assert.equal(selectorMode('hard', false), 'medium');
   assert.equal(selectorMode('customize', true), 'profile');
   assert.equal(selectorMode('customize', false), 'customize');
   assert.equal(selectorMode('unknown', false), null);

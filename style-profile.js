@@ -217,9 +217,15 @@
     };
   }
 
+  function normalizeSelectorLevel(level) {
+    if (level === 'hard') return 'medium';
+    return ['easy', 'medium', 'customize'].includes(level) ? level : null;
+  }
+
   function selectorMode(level, profileActive) {
-    if (level === 'customize') return profileActive ? 'profile' : 'customize';
-    return ['easy', 'medium', 'hard'].includes(level) ? level : null;
+    const normalizedLevel = normalizeSelectorLevel(level);
+    if (normalizedLevel === 'customize') return profileActive ? 'profile' : 'customize';
+    return normalizedLevel;
   }
 
   function defaultProfileEnabled(storedValue) {
@@ -373,6 +379,7 @@
     defaultProfileEnabled,
     fromAnalysisPayload,
     normalizeProfile,
+    normalizeSelectorLevel,
     profileOptionState,
     readProfileStore,
     readAnalysis,

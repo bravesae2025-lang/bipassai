@@ -1,5 +1,5 @@
-const LEVEL_INDEX = { easy: 0, medium: 1, hard: 2, customize: 3 };
-const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student', hard: 'Academic' };
+const LEVEL_INDEX = { easy: 0, medium: 1, customize: 2 };
+const LEVEL_LABELS = { easy: 'Beginner', medium: 'Student' };
 
 const GENERATE_PROMPTS = {
   easy: `Read the task or topic below and write a complete original response. Write it as a beginner or non-native English speaker would. Aim for natural writing, but do not claim or imply any guaranteed detector result. Follow every rule strictly.
@@ -1367,9 +1367,9 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
-  const validLevels = ['easy', 'medium', 'hard', 'customize'];
-  const savedLevel = sessionStorage.getItem('bipass_level');
-  const preferredLevel = localStorage.getItem('bipass_pref_level');
+  const validLevels = ['easy', 'medium', 'customize'];
+  const savedLevel = window.BipassStyleProfile.normalizeSelectorLevel(sessionStorage.getItem('bipass_level'));
+  const preferredLevel = window.BipassStyleProfile.normalizeSelectorLevel(localStorage.getItem('bipass_pref_level'));
   // Capture this before selectLevel(): selecting a level intentionally turns
   // the Writing Profile off for manual changes, but it must not overwrite the saved
   // startup preference while state is still being restored.
@@ -3553,7 +3553,7 @@ const TOUR_STEPS = [
   {
     els: ['level-box'],
     title: 'Choose how it should sound',
-    body: 'Select your Writing Profile or tap anywhere on a preset card: Beginner, Student, Academic, or Custom. The whole card is clickable.',
+    body: 'Select your Writing Profile or tap anywhere on a preset card: Beginner, Student, or Custom. The whole card is clickable.',
   },
   {
     els: ['level-match-btn'],

@@ -227,6 +227,7 @@ test('extension OAuth only accepts Chrome identity redirect origins', () => {
 });
 
 test('development and server files are not exposed by the frontend static server', () => {
+  assert.equal(isPrivateStaticPath('/level-matching.js'), true);
   for (const path of [
     '/server.js', '/%73erver.js', '/package.json', '/node_modules/express/index.js',
     '/test/server.test.js', '/scripts/site-audit.mjs', '/extension/manifest.json',
@@ -765,7 +766,7 @@ test('preset prompts scale mistakes down from Beginner to Academic', () => {
   assert.match(academic, /approximately 1 minor punctuation slip/);
 });
 
-test('level matching always locks sentence structure', () => {
+test('legacy baseline prompt retains its original structure lock for comparisons', () => {
   const prompt = buildCustomizePrompt(resolveLevelMatchProfile('medium'), 120);
   assert.match(prompt, /STRUCTURE LOCK: every sentence must stay one sentence/);
   assert.match(prompt, /word count per sentence must be identical or differ by at most one word/);

@@ -29,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=132">
+  <link rel="stylesheet" href="style.css?v=134">
 </head>
 <body class="creation-page">
 
@@ -310,6 +310,16 @@
             </div>
           </div>
 
+          <p class="preset-description" id="preset-description" aria-live="polite"></p>
+          <fieldset class="structure-control" id="structure-control">
+            <legend>Sentence structure</legend>
+            <div class="structure-options">
+              <label><input type="radio" name="structure-mode" value="keep" checked><span>Keep structure</span></label>
+              <label><input type="radio" name="structure-mode" value="flow"><span>Improve flow</span></label>
+            </div>
+            <p id="structure-description" aria-live="polite">Keep your sentence order and paragraph breaks.</p>
+          </fieldset>
+
           <div class="control-block" id="options-panel" style="display:none">
             <section class="custom-control-group custom-word-group" aria-labelledby="custom-word-heading">
             <div class="control-head" id="custom-word-heading">Word Level</div>
@@ -585,7 +595,8 @@
   <script src="auth.js?v=3"></script>
   <script src="style-profile.js?v=12"></script>
   <script src="billing-rates.js?v=1"></script>
-  <script src="app.js?v=75"></script>
+  <script src="match-result.js?v=1"></script>
+  <script src="app.js?v=76"></script>
 
   <script>
   /* Preserve the original compact workflow switcher with only active workflows. */

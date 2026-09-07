@@ -153,6 +153,9 @@ function bindCardActions(container) {
       sessionStorage.setItem('bipass_mode', normalizeResultMode(loadBtn.dataset.mode));
       sessionStorage.setItem('bipass_result_id', loadBtn.dataset.id);
       sessionStorage.removeItem('bipass_applied_profile');
+      sessionStorage.removeItem('bipass_result_html');
+      sessionStorage.removeItem('bipass_change_count');
+      sessionStorage.removeItem('bipass_change_filters');
       window.location.href = 'editor.html';
     }
 

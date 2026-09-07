@@ -4,6 +4,7 @@ import { dirname } from 'path';
 import crypto from 'crypto';
 import Stripe from 'stripe';
 import './billing-rates.js';
+import { normalizeStructureMode, runLevelMatching, geminiGenerator } from './level-matching.js';
 
 const {
   CREDIT_RATES,
@@ -493,7 +494,7 @@ const PRIVATE_STATIC_DIRECTORIES = new Set([
   'blog-drafts', 'ad-assets', 'remotion-auto-typer-showcase',
 ]);
 const PRIVATE_STATIC_FILES = new Set([
-  'server.js', 'package.json', 'package-lock.json', 'procfile', 'railway.json',
+  'server.js', 'level-matching.js', 'preset-edits.js', 'package.json', 'package-lock.json', 'procfile', 'railway.json',
   'blog_bot.md', 'topics.txt', 'add-article.js', 'add-article.cjs',
   'generate-article.js', 'ping-indexnow.js',
   'bipass ads clip 1.mov', 'bipassai showcase clip 2.mov',
@@ -1643,13 +1644,17 @@ PROFILE_DATA_JSON: ${JSON.stringify(data)}`;
 }
 
 app.post('/api/adjust-level', asyncHandler(async (req, res) => {
-  const { text, level, mistakes, styleProfile } = req.body || {};
+  const { text, level, mistakes, styleProfile, structureMode: requestedStructureMode } = req.body || {};
   if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'No text provided' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   const user = await getUserFromToken(token);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
+
+  let structureMode;
+  try { structureMode = normalizeStructureMode(requestedStructureMode); }
+  catch (error) { return res.status(400).json({ error: error.message }); }
 
   // Keep authorization semantics intact before validating optional profile data.
   // This also avoids exposing validation behavior on a protected endpoint.
@@ -1664,7 +1669,6 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
 
   const historyCount = await requireHistorySpace(user.id, res);
   if (historyCount === null) return;
-  const wordCount = billableWordCount(text);
   const creditsNeeded = creditsForText(text, 'level');
 
   // ── Credit check ───────────────────────────────────────────────
@@ -1702,61 +1706,31 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server not configured' });
 
-  let cancelled = false;
-  req.on('close', () => { cancelled = true; });
+  const controller = new AbortController();
+  res.on('close', () => { if (!res.writableEnded) controller.abort(); });
 
   const presetCfg = resolveLevelMatchProfile(level, mistakes);
   const profileApplied = level === 'customize' && !!normalizedStyleProfile;
-  const systemPrompt = buildCustomizePrompt(presetCfg, wordCount)
-    + buildWritingProfileInstructions(profileApplied ? normalizedStyleProfile : null);
-
-  const fullPrompt = `${systemPrompt}\n\nText:\n${text}`;
-
   try {
-    const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: fullPrompt }] }],
-        // maxOutputTokens is ONE pool shared by thinking + the answer. Give it big
-        // headroom and cap thinking so reasoning can't starve the output (was 8192,
-        // which thinking consumed → ~80-word truncations on annotated essays).
-        generationConfig: {
-          temperature: 0.5,
-          topP: 0.95,
-          maxOutputTokens: 32768,
-          thinkingConfig: { thinkingBudget: 8192 },
-        },
+    const matched = await runLevelMatching({
+      text, level, config: presetCfg, structureMode,
+      profile: profileApplied ? normalizedStyleProfile : null,
+      generate: geminiGenerator({ apiKey, endpoint: GEMINI_ENDPOINT, signal: controller.signal,
+        onUsage: usage => console.info('[level-match] usage', JSON.stringify(usage)),
       }),
+      onMetric: metric => console.info('[level-match]', JSON.stringify(metric)),
     });
-
-    if (!geminiRes.ok) {
-      const err = await geminiRes.json().catch(() => ({}));
-      return res.status(geminiRes.status).json({ error: err?.error?.message || 'Gemini error' });
-    }
-
-    const data   = await geminiRes.json();
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!result) return res.status(500).json({ error: 'No output from Gemini' });
-    if (data?.candidates?.[0]?.finishReason === 'MAX_TOKENS')
-      console.warn('[adjust-level] output hit MAX_TOKENS — result may be truncated');
-
-    // Safety net: kill any dashes/hyphens the model still slipped in.
-    const finalResult = result.trim()
-      .replace(/\s*—\s*/g, ', ')                  // em dash → comma
-      .replace(/\s*–\s*/g, ', ')                  // en dash → comma
-      .replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2'); // life-changing → life changing
-
     // ── Deduct word-based credits. ───────────────────────────────
-    if (cancelled) return;
+    if (controller.signal.aborted) return;
     const creditsUsed = creditsNeeded;
     const newCredits  = Math.max(0, credits - creditsUsed);
     if (creditsUsed) await updateUserCredits(user.id, newCredits);
 
-    return res.json({ result: finalResult, creditsUsed, creditsRemaining: newCredits, profileApplied });
+    return res.json({ ...matched, creditsUsed, creditsRemaining: newCredits, profileApplied });
   } catch (err) {
-    console.error('/api/adjust-level error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    if (controller.signal.aborted) return;
+    console.error('[level-match] request failed:', err.name);
+    return res.status(502).json({ error: 'We could not validate this rewrite. No credits were used. Please try again.', retryable: true });
   }
 }));
 

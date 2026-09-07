@@ -872,6 +872,7 @@ async function adjustLevel() {
       body:    JSON.stringify({
         text,
         level: selectedLevel,
+        structureMode: document.querySelector('input[name="structure-mode"]:checked')?.value || 'keep',
         mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
         styleProfile: styleProfile || undefined,
       }),
@@ -890,10 +891,11 @@ async function adjustLevel() {
     }
     const data   = await res.json();
     // Mirror the input's paragraph spacing so the result isn't over-spaced.
-    const result = _matchParagraphSpacing(data.result, text);
+    const canonical = window.BipassMatchResult.fromResponse(data, text);
+    const result = canonical ? data.cleanText : _matchParagraphSpacing(data.result, text);
 
     // Prefer AI annotations (accurate multi-category); fall back to the diff.
-    const parsed   = _parseAnnotatedResult(result);
+    const parsed   = canonical || _parseAnnotatedResult(result);
     const cleanRes = parsed ? parsed.cleanText : result;
     const htmlDiff = parsed ? parsed.html      : _buildDiffHtml(text, result);
     const changed  = parsed ? parsed.total     : _countChanges(text, result);
@@ -909,11 +911,13 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_input',        text);
     sessionStorage.setItem('bipass_result',       cleanRes);
     sessionStorage.setItem('bipass_result_html',  htmlDiff);
+    sessionStorage.removeItem('bipass_change_filters');
     sessionStorage.setItem('bipass_mode',         'level');
     sessionStorage.setItem('bipass_flow',         'level');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
     sessionStorage.setItem('bipass_level',        selectedLevel);
+    sessionStorage.setItem('bipass_structure_mode', data.structureMode || 'keep');
     storeAppliedProfile(data.profileApplied === true);
     sessionStorage.removeItem('bipass_result_id');
     window.location.href = 'editor.html';
@@ -1367,6 +1371,10 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
+  const structureMode = sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'flow' : 'keep';
+  const structureInput = document.querySelector(`input[name="structure-mode"][value="${structureMode}"]`);
+  if (structureInput) structureInput.checked = true;
+  updateStructureDescription();
   const validLevels = ['easy', 'medium', 'customize'];
   const savedLevel = window.BipassStyleProfile.normalizeSelectorLevel(sessionStorage.getItem('bipass_level'));
   const preferredLevel = window.BipassStyleProfile.normalizeSelectorLevel(localStorage.getItem('bipass_pref_level'));
@@ -1415,7 +1423,19 @@ function restoreState() {
 
 // ─── Events ───────────────────────────────────────────────────
 
+function updateStructureDescription() {
+  const flow = document.querySelector('input[name="structure-mode"]:checked')?.value === 'flow';
+  const description = document.getElementById('structure-description');
+  if (description) description.textContent = flow ? 'Simplify long sentences and vary their length.' : 'Keep your sentence order and paragraph breaks.';
+}
+
 function bindEvents() {
+  document.querySelectorAll('input[name="structure-mode"]').forEach(input => {
+    input.addEventListener('change', () => {
+      sessionStorage.setItem('bipass_structure_mode', input.value);
+      updateStructureDescription();
+    });
+  });
   inputText.addEventListener('input', updateStats);
   inputText.addEventListener('paste', () => setTimeout(updateStats, 0));
   promptText?.addEventListener('input', () => {
@@ -1575,7 +1595,7 @@ function restartProfileFingerprintMotion() {
   targets.forEach(target => target.classList.remove('is-settling'));
   requestAnimationFrame(() => {
     targets.forEach(target => target.classList.add('is-settling'));
-    setTimeout(() => target.classList.remove('is-settling'), 900);
+    setTimeout(() => targets.forEach(target => target.classList.remove('is-settling')), 900);
   });
 }
 
@@ -1600,6 +1620,12 @@ function syncLevelSelectionUi() {
   const mode = window.BipassStyleProfile.selectorMode(selectedLevel, completedProfileActive);
   const presetSelected = !profileSelected && Object.hasOwn(LEVEL_INDEX, mode);
   const optionState = window.BipassStyleProfile.profileOptionState(savedStyle, completedProfileActive);
+  const description = document.getElementById('preset-description');
+  if (description) description.textContent = profileSelected
+    ? 'Match the vocabulary and writing habits in your samples.'
+    : mode === 'easy' ? 'Simple everyday words with noticeable, readable imperfections.'
+    : mode === 'medium' ? 'Everyday student vocabulary with lighter imperfections.'
+    : 'Choose your vocabulary level and writing patterns below.';
 
   pills.forEach((pill) => {
     const active = pill.dataset.level === 'profile'
@@ -3556,19 +3582,16 @@ const TOUR_STEPS = [
     body: 'Select your Writing Profile or tap anywhere on a preset card: Beginner, Student, or Custom. The whole card is clickable.',
   },
   {
-    els: ['level-match-btn'],
-    title: 'Match and review',
-    body: 'Run Level Matching, check every change in the editor, then copy the approved result or send it to Auto Typer.',
+    els: ['structure-control'],
+    title: 'Choose your sentence flow',
+    body: 'Keep structure preserves sentence order and paragraph breaks. Improve flow simplifies complex sentences. Review the result to make sure it still says what you mean.',
   },
   {
-    els: [],
-    kind: 'required-notice',
-    kicker: 'Important notice',
-    title: 'Humanizer first for AI text',
-    body: 'For AI-generated text, use a Humanizer before Level Matching to reduce the chance of a high AI-detection score.',
+    els: ['level-match-btn'],
+    title: 'Match and review',
+    body: 'Run Level Matching, check every change in the editor, then copy the approved result or send it to Auto Typer. Restructured sentences are reviewed as a whole group.',
   },
 ];
-const REQUIRED_NOTICE_MS = 5000;
 const ONBOARDING_TEST_LEVEL_TOUR_KEY = 'bipass_onboarding_test_my_level';
 
 function finishOnboardingTestReplay(reduce = false) {
@@ -3599,8 +3622,6 @@ function startTour() {
   let placeRaf = 0;
   let transitioning = false;
   let observedEls = [];
-  let noticeTimerId = 0;
-  let noticeReady = false;
 
   const catcher = document.createElement('div');
   catcher.id = 'tour-catch';
@@ -3618,7 +3639,6 @@ function startTour() {
   pop.setAttribute('aria-labelledby', 'tour-pop-title');
   pop.setAttribute('aria-describedby', 'tour-pop-body');
   pop.tabIndex = -1;
-  pop.style.setProperty('--tour-read-duration', `${REQUIRED_NOTICE_MS}ms`);
 
   // On narrow screens this banner sits over the workflow selector. Keep the
   // first coach mark unobstructed, then put the banner back when the tour ends.
@@ -3652,14 +3672,6 @@ function startTour() {
   function place() {
     placeRaf = 0;
     const step = TOUR_STEPS[i];
-    if (step.kind === 'required-notice') {
-      const popRect = pop.getBoundingClientRect();
-      pop.style.top = Math.max(12, (window.innerHeight - popRect.height) / 2) + 'px';
-      pop.style.left = Math.max(12, (window.innerWidth - popRect.width) / 2) + 'px';
-      pop.classList.remove('tour-pop-above');
-      return;
-    }
-
     const rect = unionRect(step.els);
     if (!rect) return;
     const pad = 10;
@@ -3703,47 +3715,6 @@ function startTour() {
     observedEls.forEach(el => resizeObserver?.observe(el));
   }
 
-  function clearNoticeTimer() {
-    clearInterval(noticeTimerId);
-    noticeTimerId = 0;
-  }
-
-  function armRequiredNotice() {
-    clearNoticeTimer();
-    noticeReady = false;
-    const button = pop.querySelector('.tour-pop-next');
-    const status = pop.querySelector('.tour-pop-read-status');
-    const label = pop.querySelector('.tour-pop-next-label');
-    const icon = pop.querySelector('.tour-pop-next-icon');
-    if (!button) return;
-
-    const unlockAt = performance.now() + REQUIRED_NOTICE_MS;
-    button.disabled = true;
-    button.setAttribute('aria-disabled', 'true');
-
-    function updateTimer() {
-      const seconds = Math.max(0, Math.ceil((unlockAt - performance.now()) / 1000));
-      if (seconds > 0) {
-        if (status) status.textContent = `Please read — continue unlocks in ${seconds} second${seconds === 1 ? '' : 's'}`;
-        if (label) label.textContent = 'Continue in';
-        if (icon) icon.textContent = `${seconds}s`;
-        return;
-      }
-
-      clearNoticeTimer();
-      noticeReady = true;
-      button.disabled = false;
-      button.removeAttribute('aria-disabled');
-      if (status) status.textContent = 'Notice read. You can continue.';
-      if (label) label.textContent = 'I understand';
-      if (icon) icon.textContent = '✓';
-      button.focus({ preventScroll: true });
-    }
-
-    updateTimer();
-    noticeTimerId = setInterval(updateTimer, 200);
-  }
-
   function animateCopy() {
     if (reduce) return;
     pop.querySelector('.tour-pop-copy')?.animate(
@@ -3765,13 +3736,7 @@ function startTour() {
   function render(initial = false) {
     const step = TOUR_STEPS[i];
     const last = i === TOUR_STEPS.length - 1;
-    const requiredNotice = step.kind === 'required-notice';
-    clearNoticeTimer();
-    noticeReady = !requiredNotice;
-    catcher.classList.toggle('is-notice', requiredNotice);
-    spot.classList.toggle('is-hidden', requiredNotice);
-    pop.classList.toggle('tour-pop-notice', requiredNotice);
-    pop.setAttribute('role', requiredNotice ? 'alertdialog' : 'dialog');
+    pop.setAttribute('role', 'dialog');
     pop.innerHTML = `
       <div class="tour-pop-progress" aria-label="Step ${i + 1} of ${TOUR_STEPS.length}">
         <span class="tour-pop-count">Step ${i + 1} of ${TOUR_STEPS.length}</span>
@@ -3779,35 +3744,26 @@ function startTour() {
           ${TOUR_STEPS.map((_, index) => `<i class="${index < i ? 'is-done' : index === i ? 'is-current' : ''}"></i>`).join('')}
         </span>
       </div>
-      ${requiredNotice ? `
-        <div class="tour-pop-alert">
-          <span class="tour-pop-alert-icon" aria-hidden="true">!</span>
-          <span class="tour-pop-kicker"></span>
-        </div>` : ''}
       <div class="tour-pop-copy" aria-live="polite">
         <div class="tour-pop-title" id="tour-pop-title"></div>
         <div class="tour-pop-body" id="tour-pop-body"></div>
       </div>
-      ${requiredNotice ? '<div class="tour-pop-readbar" aria-hidden="true"><i></i></div>' : ''}
       <div class="tour-pop-actions">
-        ${requiredNotice
-          ? '<span class="tour-pop-read-status" role="status" aria-live="polite"></span>'
-          : '<button type="button" class="tour-pop-skip">Skip tour</button>'}
+        <button type="button" class="tour-pop-skip">Skip tour</button>
         <span class="tour-pop-nav">
-          ${!requiredNotice && i > 0 ? '<button type="button" class="tour-pop-back" aria-label="Previous step">Back</button>' : ''}
-          <button type="button" class="tour-pop-next" ${requiredNotice ? 'disabled aria-disabled="true"' : ''}>
-            <span class="tour-pop-next-label">${requiredNotice ? 'Continue in' : last ? 'Finish' : 'Next'}</span>
-            <span class="tour-pop-next-icon" aria-hidden="true">${requiredNotice ? `${Math.ceil(REQUIRED_NOTICE_MS / 1000)}s` : last ? '✓' : '→'}</span>
+          ${i > 0 ? '<button type="button" class="tour-pop-back" aria-label="Previous step">Back</button>' : ''}
+          <button type="button" class="tour-pop-next">
+            <span class="tour-pop-next-label">${last ? 'Finish' : 'Next'}</span>
+            <span class="tour-pop-next-icon" aria-hidden="true">${last ? '✓' : '→'}</span>
           </button>
         </span>
       </div>
       <span class="tour-pop-arrow" aria-hidden="true"></span>`;
-    pop.querySelector('.tour-pop-kicker')?.replaceChildren(document.createTextNode(step.kicker || ''));
     pop.querySelector('.tour-pop-title').textContent = step.title;
     pop.querySelector('.tour-pop-body').textContent = step.body;
     pop.querySelector('.tour-pop-next').addEventListener('click', next);
     pop.querySelector('.tour-pop-back')?.addEventListener('click', previous);
-    pop.querySelector('.tour-pop-skip')?.addEventListener('click', skipToNotice);
+    pop.querySelector('.tour-pop-skip')?.addEventListener('click', finish);
 
     const first = document.getElementById(step.els[0]);
     step.onEnter?.();
@@ -3817,12 +3773,7 @@ function startTour() {
     first?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     setTimeout(queuePlace, reduce ? 0 : 440);
     animateCopy();
-    if (requiredNotice) {
-      pop.focus({ preventScroll: true });
-      armRequiredNotice();
-    } else {
-      pop.querySelector('.tour-pop-next')?.focus({ preventScroll: true });
-    }
+    pop.querySelector('.tour-pop-next')?.focus({ preventScroll: true });
   }
 
   async function moveTo(nextIndex) {
@@ -3848,24 +3799,15 @@ function startTour() {
   }
 
   function next() {
-    if (TOUR_STEPS[i].kind === 'required-notice') {
-      if (noticeReady) finish();
-      return;
-    }
     moveTo(i + 1);
   }
 
   function previous() {
-    if (TOUR_STEPS[i].kind !== 'required-notice') moveTo(i - 1);
-  }
-
-  function skipToNotice() {
-    moveTo(TOUR_STEPS.length - 1);
+    moveTo(i - 1);
   }
 
   function cleanup() {
     cancelAnimationFrame(placeRaf);
-    clearNoticeTimer();
     resizeObserver?.disconnect();
     window.removeEventListener('scroll', queuePlace, true);
     window.removeEventListener('resize', queuePlace);
@@ -3900,7 +3842,6 @@ function startTour() {
 
   function finish() {
     if (transitioning) return;
-    if (TOUR_STEPS[i].kind === 'required-notice' && !noticeReady) return;
     transitioning = true;
     TOUR_STEPS[i]?.onExit?.();
     if (reduce) { cleanup(); return; }
@@ -3929,8 +3870,7 @@ function startTour() {
     }
     if (event.key === 'Escape') {
       event.preventDefault();
-      if (TOUR_STEPS[i].kind === 'required-notice') finish();
-      else skipToNotice();
+      finish();
     }
     if (event.key === 'ArrowRight') { event.preventDefault(); next(); }
     if (event.key === 'ArrowLeft') { event.preventDefault(); previous(); }

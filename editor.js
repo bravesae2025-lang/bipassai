@@ -185,11 +185,16 @@ async function init() {
   const changeCount = parseInt(sessionStorage.getItem('bipass_change_count') || '0');
   const changeEl = document.getElementById('editor-change-count');
   if (changeEl && changeCount > 0) {
-    changeEl.textContent = `${changeCount} word${changeCount !== 1 ? 's' : ''} changed`;
+    changeEl.textContent = `${changeCount} change${changeCount !== 1 ? 's' : ''}`;
     changeEl.classList.remove('hidden');
   }
 
   const appliedProfile = readAppliedProfile();
+  const structureBadge = document.getElementById('editor-structure');
+  if (structureBadge && mode === 'level' && flow !== 'edit' && sessionStorage.getItem('bipass_result_html') && sessionStorage.getItem('bipass_structure_mode')) {
+    structureBadge.textContent = sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'Flow improved' : 'Structure kept';
+    structureBadge.classList.remove('hidden');
+  }
   const levelMap = {
     easy: 'Beginner',
     medium: 'Student',
@@ -275,7 +280,7 @@ function setupViewToggle(result, mode) {
 
   const CAT_COLORS = {
     word: '#e8a317', caps: '#2f6df6', punct: '#8b5cf6',
-    spelling: '#e0533d', tense: '#1aa564', grammar: '#d6336c',
+    spelling: '#e0533d', tense: '#1aa564', grammar: '#d6336c', structure: '#64748b',
   };
 
   // A change carries either a single data-cat or a space-separated data-cats list
@@ -286,12 +291,12 @@ function setupViewToggle(result, mode) {
   const changeEls = () => Array.from(
     changesView.querySelectorAll('.word-change-pair, mark.word-changed')
   ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
-  const acceptedChangeEls = () => changeEls().filter(el => !el.classList.contains('change-dismissed'));
+  const acceptedChangeEls = () => changeEls().filter(el => !el.classList.contains('change-dismissed') && !el.classList.contains('change-reverted'));
 
   function refreshCounts() {
     if (!filter || !changesView) return;
-    ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar'].forEach(cat => {
-      const n = acceptedChangeEls().filter(el => catsOf(el).includes(cat)).length;
+    ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar', 'structure'].forEach(cat => {
+      const n = changeEls().filter(el => !el.classList.contains('change-dismissed') && catsOf(el).includes(cat)).length;
       const cEl = filter.querySelector(`[data-count="${cat}"]`);
       if (cEl) cEl.textContent = n;
       const row = filter.querySelector(`.cf-row[data-cat="${cat}"]`);
@@ -338,9 +343,19 @@ function setupViewToggle(result, mode) {
 
   // Wire category filter toggles
   filter?.querySelectorAll('.cf-row input').forEach(box => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('bipass_change_filters') || '{}');
+      box.checked = saved[box.closest('.cf-row').dataset.cat] !== false;
+      box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
+    } catch { /* Old sessions start with all categories enabled. */ }
     box.addEventListener('change', () => {
       box.closest('.cf-row').classList.toggle('cf-off', !box.checked);
       applyFilters();
+      sessionStorage.setItem('bipass_change_filters', JSON.stringify(Object.fromEntries(
+        [...filter.querySelectorAll('.cf-row input')].map(input => [input.closest('.cf-row').dataset.cat, input.checked])
+      )));
+      persistAcceptedChanges();
+      refreshCounts();
     });
   });
 
@@ -360,7 +375,7 @@ function setupViewToggle(result, mode) {
   }
 
   function changedText(el) {
-    return (el.tagName === 'MARK' ? el : el.querySelector('mark.word-changed'))?.textContent || '';
+    return window.BipassMatchResult.acceptedText(el);
   }
 
   function runFinderSearch(revealFirst = false) {
@@ -387,7 +402,7 @@ function setupViewToggle(result, mode) {
         : 'Not found in text';
       if (revealFirst && finderMatches.length) {
         const first = finderMatches[0];
-        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        first.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
         first.classList.remove('hz-flash');
         void first.offsetWidth;
         first.classList.add('hz-flash');
@@ -469,33 +484,19 @@ function setupViewToggle(result, mode) {
     return clone.innerHTML;
   }
 
-  function dismissedResultText() {
-    const clone = changesView.cloneNode(true);
-    clone.querySelectorAll('.word-change-pair').forEach(pair => {
-      const original = pair.querySelector('.word-original');
-      const changed = pair.querySelector('mark.word-changed');
-      const word = pair.classList.contains('change-dismissed')
-        ? (original?.textContent || '')
-        : (changed?.textContent || '');
-      pair.replaceWith(document.createTextNode(word));
-    });
-    clone.querySelectorAll('mark.word-changed.change-dismissed').forEach(mark => mark.remove());
-    clone.querySelectorAll('.word-original').forEach(original => original.remove());
-    return clone.innerText.trim();
-  }
-
   function persistAcceptedChanges() {
     const html = serializableViewHtml();
     sessionStorage.setItem('bipass_result_html', html);
-    sessionStorage.setItem('bipass_result', dismissedResultText());
+    sessionStorage.setItem('bipass_result', extractResultText(changesView));
     sessionStorage.setItem('bipass_change_count', String(acceptedChangeEls().length));
     const changeCount = document.getElementById('editor-change-count');
     if (changeCount) {
       const remaining = acceptedChangeEls().length;
-      changeCount.textContent = `${remaining} word${remaining === 1 ? '' : 's'} changed`;
+      changeCount.textContent = `${remaining} change${remaining === 1 ? '' : 's'}`;
       changeCount.classList.toggle('hidden', remaining === 0);
     }
     markExtensionUploadStale();
+    updateWc();
   }
 
   function positionRejectButton(target) {
@@ -532,6 +533,8 @@ function setupViewToggle(result, mode) {
   function dismissChange(target) {
     target.classList.add('change-dismissed');
     target.classList.remove('change-search-match', 'hz-flash');
+    const groupButton = target.querySelector('.structure-reject');
+    if (groupButton) groupButton.textContent = 'Undo rejection';
     persistAcceptedChanges();
     refreshCounts();
     refreshFinder();
@@ -544,6 +547,8 @@ function setupViewToggle(result, mode) {
 
   function restoreChange(target) {
     target.classList.remove('change-dismissed');
+    const groupButton = target.querySelector('.structure-reject');
+    if (groupButton) groupButton.textContent = 'Reject group';
     if (filter && !filter.classList.contains('hidden')) {
       applyFilters();
     } else {
@@ -556,7 +561,25 @@ function setupViewToggle(result, mode) {
     showToast('Change restored');
   }
 
-  changesView.addEventListener('pointerover', event => showRejectButton(topLevelChange(event.target)));
+  changesView.addEventListener('click', event => {
+    const group = event.target.closest('.structure-change');
+    if (!group) return;
+    if (event.target.closest('.structure-original-toggle')) {
+      const open = group.classList.toggle('original-expanded');
+      const button = group.querySelector('.structure-original-toggle');
+      button.setAttribute('aria-expanded', String(open));
+      button.textContent = open ? 'Hide original' : 'Show original';
+    }
+    if (event.target.closest('.structure-reject')) {
+      if (group.classList.contains('change-dismissed')) restoreChange(group);
+      else dismissChange(group);
+    }
+  });
+  changesView.addEventListener('input', () => { persistAcceptedChanges(); refreshFinder(); });
+  changesView.addEventListener('pointerover', event => {
+    const target = topLevelChange(event.target);
+    if (!target?.classList.contains('structure-change')) showRejectButton(target);
+  });
   changesView.addEventListener('pointerout', event => {
     const target = topLevelChange(event.target);
     if (!target || target !== rejectTarget || rejectButton.classList.contains('undo')) return;
@@ -565,7 +588,8 @@ function setupViewToggle(result, mode) {
     rejectHideTimer = setTimeout(() => hideRejectButton(), 120);
   });
   changesView.addEventListener('pointerdown', event => {
-    if (event.pointerType !== 'mouse') showRejectButton(topLevelChange(event.target));
+    const target = topLevelChange(event.target);
+    if (event.pointerType !== 'mouse' && !target?.classList.contains('structure-change')) showRejectButton(target);
   });
   rejectButton.addEventListener('pointerenter', () => clearTimeout(rejectHideTimer));
   rejectButton.addEventListener('pointerleave', () => {
@@ -687,24 +711,14 @@ function countWords(val) {
 }
 
 function updateWc() {
-  const w = countWords(editorTextarea.value);
+  const w = countWords(currentResultText());
   editorWc.textContent = `${w} word${w !== 1 ? 's' : ''}`;
 }
 
 // ─── Copy ─────────────────────────────────────────────────────
 
 function extractResultText(el) {
-  const clone = el.cloneNode(true);
-  clone.querySelectorAll('.word-change-pair').forEach(pair => {
-    const isReverted = pair.classList.contains('change-reverted') || pair.classList.contains('change-dismissed');
-    const original = pair.querySelector('.word-original');
-    const changed  = pair.querySelector('mark.word-changed');
-    const word = isReverted ? (original?.textContent ?? '') : (changed?.textContent ?? '');
-    pair.replaceWith(document.createTextNode(word));
-  });
-  clone.querySelectorAll('mark.word-changed.change-reverted, mark.word-changed.change-dismissed').forEach(mark => mark.remove());
-  clone.querySelectorAll('.word-original').forEach(el => el.remove());
-  return clone.innerText.trim();
+  return window.BipassMatchResult.acceptedText(el);
 }
 
 function currentResultText() {
@@ -1075,6 +1089,7 @@ function storeRevisionResult({ source, result, resultHtml, flow, level, changed,
   sessionStorage.setItem('bipass_input', source);
   sessionStorage.setItem('bipass_result', result);
   sessionStorage.setItem('bipass_result_html', resultHtml);
+  sessionStorage.removeItem('bipass_change_filters');
   sessionStorage.setItem('bipass_mode', 'level');
   sessionStorage.setItem('bipass_flow', flow);
   sessionStorage.setItem('bipass_level', level || 'medium');
@@ -1138,10 +1153,12 @@ async function applyRevision() {
         const levelData = await callEditorJson('/api/adjust-level', {
           text: source,
           level: intent.level,
+          structureMode: sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'flow' : 'keep',
           mistakes: intent.level === 'customize' ? storedMatchSettings() : undefined,
           styleProfile: intent.level === 'customize' ? appliedProfile?.styleProfile : undefined,
         }, token);
-        const levelResult = levelResultData(levelData.result, source);
+        const canonical = window.BipassMatchResult.fromResponse(levelData, source);
+        const levelResult = canonical ? { result: canonical.cleanText, html: canonical.html, changed: canonical.total } : levelResultData(levelData.result, source);
         payload = {
           source,
           result: levelResult.result,

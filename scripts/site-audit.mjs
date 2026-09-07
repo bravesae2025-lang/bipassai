@@ -255,12 +255,10 @@ const tourSource = appJs.slice(
   appJs.indexOf('// ─── Own Text → Extension'),
 );
 const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match => match[1]);
-if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-match-btn'
-    || !tourSource.includes("kind: 'required-notice'")
-    || !tourSource.includes('use a Humanizer before Level Matching')
-    || !tourSource.includes('const REQUIRED_NOTICE_MS = 5000')
-    || !tourSource.includes('const unlockAt = performance.now() + REQUIRED_NOTICE_MS')
-    || !tourSource.includes("addEventListener('click', skipToNotice)")) {
+if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,structure-control,level-match-btn'
+    || tourSource.includes("kind: 'required-notice'")
+    || !tourSource.includes('Keep structure preserves sentence order and paragraph breaks')
+    || !tourSource.includes('Restructured sentences are reviewed as a whole group')) {
   add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
 }
 if (!settingsHtml.includes('id="reset-onboarding-btn"')

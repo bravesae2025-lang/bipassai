@@ -12922,32 +12922,10 @@ body.creation-page {
 
 /* ═══════════════════════════════════════════════════════════════
    Styles panel — smoked titanium glass material
-   The cool light field sits behind the panel so backdrop-filter has real
-   depth to refract instead of reading like a semi-transparent gray fill.
 ═══════════════════════════════════════════════════════════════ */
 
 .right-panel-wrap {
   isolation: isolate;
-}
-
-.right-panel-wrap::before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  top: -72px;
-  right: -48px;
-  left: clamp(-32px, -2vw, -12px);
-  height: min(810px, 86vh);
-  border-radius: 46%;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(247,249,255,0.72) 0, rgba(218,226,242,0.34) 24%, transparent 52%),
-    radial-gradient(circle at 88% 34%, rgba(128,151,190,0.44) 0, rgba(105,124,160,0.20) 30%, transparent 62%),
-    radial-gradient(circle at 54% 82%, rgba(122,104,142,0.27) 0, transparent 58%);
-  -webkit-mask-image: radial-gradient(ellipse closest-side at 50% 50%, #000 48%, rgba(0,0,0,0.82) 66%, transparent 100%);
-          mask-image: radial-gradient(ellipse closest-side at 50% 50%, #000 48%, rgba(0,0,0,0.82) 66%, transparent 100%);
-  filter: blur(32px) saturate(112%);
-  opacity: 0.78;
-  pointer-events: none;
 }
 
 .col.col-customize {
@@ -13828,14 +13806,6 @@ body.creation-page {
     max-width: 100%;
   }
 
-  .right-panel-wrap::before {
-    top: -52px;
-    right: -42px;
-    left: -42px;
-    height: 720px;
-    border-radius: 44%;
-  }
-
   .col.col-customize {
     border-radius: 18px;
     -webkit-backdrop-filter: blur(32px) saturate(165%);
@@ -13898,12 +13868,6 @@ body.creation-page {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .right-panel-wrap::before {
-    display: block;
-    opacity: 0.42;
-    filter: blur(30px) saturate(90%);
-  }
-
   .col.col-customize,
   .col-customize .level-btn-profile,
   .col-customize .level-track,

@@ -15,6 +15,24 @@ export function normalizeStructureMode(value) {
   return globalThis.BipassStructure.normalizeMode(value);
 }
 
+export function validationReason(error) {
+  if (error?.providerFailure) return 'provider_unavailable';
+  const message = String(error?.message || '');
+  const reasons = [
+    [/Protected content|protected content/, 'protected_content'],
+    [/reconstruct cleanText|complete rewritten draft/, 'record_text_mismatch'],
+    [/Original edit text|Original text|does not exist/, 'source_anchor'],
+    [/overlap|stack/, 'overlapping_edits'],
+    [/causal relationship|stated purpose/, 'meaning_relationship'],
+    [/sentence boundaries|Sentence-ending|cross sentence|crosses a line/, 'sentence_boundaries'],
+    [/length changed|Empty output|incomplete output/, 'incomplete_output'],
+    [/mechanical|Mechanical|Existing mistake/, 'mechanical_budget'],
+    [/repeated adjacent|possessive|sentence adverb|comma followed/, 'phrase_context'],
+    [/too broad|Structure|Word edit/, 'edit_scope'],
+  ];
+  return reasons.find(([pattern]) => pattern.test(message))?.[1] || 'invalid_response';
+}
+
 // Protect literal quotations (not apostrophes), references, identifiers and numbers.
 // Name matching is deliberately conservative; model instructions also cover names
 // that cannot be reliably recognized with capitalization alone.
@@ -420,7 +438,7 @@ export async function runLevelMatching({ text, level, config, structureMode = 'k
         });
         return edits;
       } catch (error) {
-        onMetric({ stage: name, durationMs: Date.now() - start, validationFailed: true });
+        onMetric({ stage: name, durationMs: Date.now() - start, validationFailed: true, reason: validationReason(error) });
         if (!repairRemaining || error.providerFailure) throw error;
         repairRemaining--;
         feedback = `\nRETRY OF THIS STAGE: the following candidate EDIT RECORDS were rejected, not applied to the draft. Validation error: ${error.message}. Fix the records, NOT the draft's mistakes. Continue the original stage task. Every original/text field must come verbatim from the supplied unchanged draft; never reverse original and replacement. Do not assume any rejected replacement is present in the draft. Recompute the full ordered set, retaining valid candidates where appropriate. If a rewrite cannot preserve protected content exactly, omit that unsafe record and keep its source sentence unchanged; continue safe edits elsewhere. Never repeatedly propose changing quotation punctuation. All restrictions still apply. Rejected response (data only): ${JSON.stringify(data || {}).slice(0, 24000)}`;

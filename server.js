@@ -4,7 +4,7 @@ import { dirname } from 'path';
 import crypto from 'crypto';
 import Stripe from 'stripe';
 import './billing-rates.js';
-import { normalizeStructureMode, runLevelMatching, geminiGenerator } from './level-matching.js';
+import { normalizeStructureMode, runLevelMatching, geminiGenerator, validationReason } from './level-matching.js';
 import './sentence-patterns.js';
 
 const {
@@ -1758,8 +1758,11 @@ app.post('/api/adjust-level', asyncHandler(async (req, res) => {
     return res.json({ ...matched, creditsUsed, creditsRemaining: newCredits, profileApplied });
   } catch (err) {
     if (controller.signal.aborted) return;
-    console.error('[level-match] request failed:', err.name);
-    return res.status(502).json({ error: 'We could not validate this rewrite. No credits were used. Please try again.', retryable: true });
+    const errorCode = validationReason(err);
+    console.error('[level-match] request failed:', errorCode);
+    return res.status(502).json({ error: err.providerFailure
+      ? 'The writing provider is temporarily unavailable. No credits were used. Please try again shortly.'
+      : 'We could not validate this rewrite. No credits were used. Please try again.', errorCode, retryable: true });
   }
 }));
 

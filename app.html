@@ -29,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=135">
+  <link rel="stylesheet" href="style.css?v=136">
 </head>
 <body class="creation-page">
 
@@ -388,6 +388,10 @@
           <div class="control-block writing-profile-block" id="writing-profile-block">
             <div class="writing-profile-head">
               <div class="control-head">My profiles</div>
+              <details class="profile-sample-help">
+                <summary aria-label="Writing sample tips"><span aria-hidden="true">i</span></summary>
+                <p>Use 200+ words and multiple samples of the writing type you want to match. You can start with 50 words; shorter samples receive limited sentence estimates.</p>
+              </details>
             </div>
 
             <div class="writing-profile-empty" id="writing-profile-empty">
@@ -403,7 +407,6 @@
             </div>
 
             <div id="my-style-inputs" hidden>
-              <p class="profile-patterns-note">Use 200+ words and multiple samples of the writing type you want to match. You can start with 50 words; shorter samples receive limited sentence estimates.</p>
               <div class="style-name-field">
                 <input class="style-name-input" id="style-name-input" type="text" placeholder="Name your profile" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Writing profile name">
               </div>
@@ -607,7 +610,7 @@
   <script src="structure-settings.js?v=1"></script>
   <script src="billing-rates.js?v=1"></script>
   <script src="match-result.js?v=1"></script>
-  <script src="app.js?v=77"></script>
+  <script src="app.js?v=78"></script>
 
   <script>
   /* Preserve the original compact workflow switcher with only active workflows. */

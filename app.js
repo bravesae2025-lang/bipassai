@@ -834,7 +834,9 @@ function activeStyleProfilePayload() {
   return window.BipassStyleProfile.readAnalysis(savedStyle)?.profile || null;
 }
 
+let activeLevelMatch = null;
 async function adjustLevel() {
+  if (activeLevelMatch) return;
   if (myLevelSelectionPending
       || (myStyleActive && selectedLevel === 'customize' && !hasCompleteSelectedMyLevel())) {
     flashIncompleteMyLevel();
@@ -843,7 +845,11 @@ async function adjustLevel() {
   const text = inputText.value.trim();
   if (!text) { showToast('Paste some text first'); inputText.focus(); return; }
   if (!requireLevel()) return;
-  if (!(await preflightGate())) return;
+  const controller = new AbortController();
+  activeLevelMatch = controller;
+  currentAbortController = controller;
+  try {
+  if (!(await preflightGate()) || controller.signal.aborted) return;
 
   const getMistakes = () => ({
     grammar:   parseInt(optionsPanel?.querySelector('[data-mistake="grammar"]')?.value   || 0),
@@ -860,10 +866,10 @@ async function adjustLevel() {
   const requestProfileSnapshot = styleProfile && savedStyle ? window.BipassStyleProfile.resultSnapshot(savedStyle) : null;
 
   setLoading(true, 'Matching level…');
-  try {
     const token  = await window.bipassAuth.getToken();
     const res    = await fetch('/api/adjust-level', {
       method:  'POST',
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({
         text,
@@ -873,6 +879,7 @@ async function adjustLevel() {
         styleProfile: styleProfile || undefined,
       }),
     });
+    if (controller.signal.aborted) return;
     // Out of credits — show the warning and STOP. Do not fall through to the
     // offline fallback (that would hand out a free result).
     if (res.status === 402) {
@@ -886,6 +893,7 @@ async function adjustLevel() {
       throw new Error(d.error || 'Level matching failed');
     }
     const data   = await res.json();
+    if (controller.signal.aborted) return;
     // Mirror the input's paragraph spacing so the result isn't over-spaced.
     const canonical = window.BipassMatchResult.fromResponse(data, text);
     const result = canonical ? data.cleanText : _matchParagraphSpacing(data.result, text);
@@ -903,6 +911,7 @@ async function adjustLevel() {
       animateLoadingCredits(data.creditsUsed);
       await new Promise(r => setTimeout(r, 1200));
     }
+    if (controller.signal.aborted) return;
 
     sessionStorage.setItem('bipass_input',        text);
     sessionStorage.setItem('bipass_result',       cleanRes);
@@ -922,9 +931,13 @@ async function adjustLevel() {
     sessionStorage.removeItem('bipass_result_id');
     window.location.href = 'editor.html';
   } catch (err) {
-    showToast(err.message || 'Level matching failed. Please try again.');
+    if (!controller.signal.aborted && activeLevelMatch === controller) showToast(err.message || 'Level matching failed. Please try again.');
   } finally {
-    setLoading(false);
+    if (activeLevelMatch === controller) {
+      activeLevelMatch = null;
+      if (currentAbortController === controller) currentAbortController = null;
+      setLoading(false);
+    }
   }
 }
 
@@ -1481,6 +1494,7 @@ function bindEvents() {
 
   document.getElementById('loading-cancel-btn')?.addEventListener('click', () => {
     if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
+    activeLevelMatch = null;
     setLoading(false);
     showToast('Cancelled');
   });

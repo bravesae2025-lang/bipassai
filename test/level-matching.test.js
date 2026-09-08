@@ -1,10 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeStructureMode, resolveEdits, composeChanges, runLevelMatching, presetBudget, geminiGenerator, customMechanicalTargets, wordingPrompt } from '../level-matching.js';
+import { normalizeStructureMode, resolveEdits, composeChanges, runLevelMatching, presetBudget, geminiGenerator, customMechanicalTargets, wordingPrompt, validationReason } from '../level-matching.js';
 import '../match-result.js';
 const { applyChanges, fromResponse } = globalThis.BipassMatchResult;
 const edit = (original, replacement, category = 'word', occurrence = 1) => ({ original, replacement, category, occurrence });
 const reply = edits => ({ edits, existingMistakes: [], shortfall: '' });
+
+test('validation telemetry categorizes failures without exposing draft data', () => {
+  assert.equal(validationReason(new Error('The edit records do not reconstruct cleanText. Private draft here')), 'record_text_mismatch');
+  assert.equal(validationReason(new Error('Protected content changed: private name')), 'protected_content');
+  assert.equal(validationReason(new Error('arbitrary private writing')), 'invalid_response');
+  assert.equal(validationReason({ providerFailure: true, message: 'secret provider details' }), 'provider_unavailable');
+});
 
 test('structure mode defaults safely and rejects unexpected explicit values', () => {
   assert.equal(normalizeStructureMode(), 'keep');

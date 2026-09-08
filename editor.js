@@ -194,7 +194,8 @@ async function init() {
   if (structureBadge && mode === 'level' && flow !== 'edit' && sessionStorage.getItem('bipass_result_html') && sessionStorage.getItem('bipass_structure_mode')) {
     let policy;
     try { policy = JSON.parse(sessionStorage.getItem('bipass_applied_structure') || 'null'); } catch (_) {}
-    structureBadge.textContent = window.BipassStructure.LABELS[policy?.style] || (sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'Flow improved' : 'Structure kept');
+    structureBadge.textContent = 'Sentence structure unchanged';
+    structureBadge.title = window.BipassStructure.LABELS[policy?.style] || 'Sentence structure';
     structureBadge.classList.remove('hidden');
   }
   const levelMap = {
@@ -295,7 +296,16 @@ function setupViewToggle(result, mode) {
   ).filter(el => !(el.tagName === 'MARK' && el.closest('.word-change-pair')));
   const acceptedChangeEls = () => changeEls().filter(el => !el.classList.contains('change-dismissed') && !el.classList.contains('change-reverted'));
 
+  function refreshStructureBadge() {
+    const badge = document.getElementById('editor-structure');
+    if (!badge) return;
+    const count = acceptedChangeEls().filter(el => catsOf(el).includes('structure')).length;
+    badge.textContent = count ? `Sentence structure changed · ${count} group${count === 1 ? '' : 's'}` : 'Sentence structure unchanged';
+    badge.classList.remove('hidden');
+  }
+
   function refreshCounts() {
+    refreshStructureBadge();
     if (!filter || !changesView) return;
     ['word', 'caps', 'punct', 'spelling', 'tense', 'grammar', 'structure'].forEach(cat => {
       const n = changeEls().filter(el => !el.classList.contains('change-dismissed') && catsOf(el).includes(cat)).length;
@@ -341,6 +351,7 @@ function setupViewToggle(result, mode) {
       }
     });
     refreshFinder();
+    refreshStructureBadge();
   }
 
   // Wire category filter toggles
@@ -487,6 +498,7 @@ function setupViewToggle(result, mode) {
   }
 
   function persistAcceptedChanges() {
+    refreshStructureBadge();
     const html = serializableViewHtml();
     sessionStorage.setItem('bipass_result_html', html);
     sessionStorage.setItem('bipass_result', extractResultText(changesView));

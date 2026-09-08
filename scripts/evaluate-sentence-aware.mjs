@@ -14,11 +14,16 @@ if (!apiKey) throw new Error('Provider credential unavailable in this runtime');
 const smoke = process.env.MATCH_EVAL_SMOKE === '1';
 const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const results = [];
+let providerBlocked = false;
 const write = (id, data) => writeFileSync(resolve(out, `${id}.json`), JSON.stringify(data, null, 2));
 async function record(id, fn) {
+  if (providerBlocked) return null;
   const start = Date.now(), usage = [], stages = [], metrics = [];
   const fetchImpl = async (...args) => {
     const response = await fetch(...args);
+    // Stop the matrix on quota/auth failures instead of issuing hundreds of
+    // doomed requests. Never change billing or try another credential/model.
+    if ([401, 403, 429].includes(response.status)) providerBlocked = true;
     if (response.ok) { const data = await response.clone().json(); usage.push(data.usageMetadata || {}); stages.push(data.candidates?.[0]?.content?.parts?.filter(p => !p.thought).map(p => p.text || '').join('')); }
     return response;
   };
@@ -40,15 +45,19 @@ const behaviours = [
   { id: 'custom-off', level: 'customize', structureMode: 'keep' },
   ...['balanced', 'shorter', 'connected'].map(structureStyle => ({ id: structureStyle, level: 'customize', structureMode: 'flow', structureStyle })),
 ];
-const selected = smoke ? corpus.filter(d => d.id === 'long-clauses') : corpus;
+const profilesOnly = process.env.MATCH_EVAL_SCOPE === 'profiles';
+const skipProfiles = process.env.MATCH_EVAL_SKIP_PROFILES === '1';
+const draftIds = process.env.MATCH_EVAL_DRAFTS?.split(',');
+const behaviourIds = process.env.MATCH_EVAL_BEHAVIOURS?.split(',');
+const selected = profilesOnly ? [] : (smoke ? corpus.filter(d => d.id === 'long-clauses') : corpus).filter(d => !draftIds || draftIds.includes(d.id));
 const repeats = smoke ? 1 : 2;
-const jobs = selected.flatMap(draft => behaviours.flatMap(behaviour => Array.from({ length: repeats }, (_, repeat) => ({ draft, behaviour, repeat }))));
+const jobs = selected.flatMap(draft => behaviours.filter(b => !behaviourIds || behaviourIds.includes(b.id)).flatMap(behaviour => Array.from({ length: repeats }, (_, repeat) => ({ draft, behaviour, repeat }))));
 const analysed = [];
-for (const profile of smoke ? profiles.slice(0, 1) : profiles) {
+for (const profile of skipProfiles ? [] : smoke ? profiles.slice(0, 1) : profiles) {
   const data = await record(`analysis-${profile.id}`, async ({ fetchImpl }) => ({ samples: profile.samples, ...await analyzeWritingSamples(profile.samples, apiKey, fetchImpl) }));
   if (data) analysed.push({ ...profile, analysis: data.analysis });
 }
-if (!smoke) {
+if (!smoke && !skipProfiles) {
   await record('analysis-short', async ({ fetchImpl }) => analyzeWritingSamples([profiles[0].samples[0].split(' ').slice(0, 70).join(' ')], apiKey, fetchImpl));
   await record('analysis-clauses', async ({ fetchImpl }) => {
     const data = await analyzeWritingSamples([clauses.map(c => c.text).join(' ')], apiKey, fetchImpl);
@@ -57,10 +66,10 @@ if (!smoke) {
   if (analysed.length) await record('refine-profile', async ({ fetchImpl }) => refineWritingProfile(analysed[0].analysis, 'Check the sentence habits again against these samples.', analysed[0].samples, apiKey, fetchImpl));
 }
 for (const profile of analysed) for (const draft of corpus.filter(d => ['formal', 'long-clauses', 'technical'].includes(d.id))) for (let repeat = 0; repeat < repeats; repeat++) jobs.push({ draft, repeat, behaviour: { id: `profile-${profile.id}`, level: 'customize', structureMode: 'auto', profile: profile.analysis.profile, config: profile.analysis.scores } });
-if (!smoke && process.env.MATCH_EVAL_BASELINE_MODULE) for (const draft of corpus) for (const level of ['easy', 'medium']) jobs.push({ draft, repeat: 0, baseline: true, behaviour: { id: `baseline-${level}`, level, structureMode: 'flow' } });
+if (!smoke && !profilesOnly && process.env.MATCH_EVAL_BASELINE_MODULE) for (const draft of corpus) for (const level of ['easy', 'medium']) jobs.push({ draft, repeat: 0, baseline: true, behaviour: { id: `baseline-${level}`, level, structureMode: 'flow' } });
 let cursor = 0;
 async function worker() {
-  while (cursor < jobs.length) {
+  while (!providerBlocked && cursor < jobs.length) {
     const { draft, behaviour, repeat, baseline } = jobs[cursor++];
     await record(`${draft.id}-${behaviour.id}-${repeat}`, async ({ fetchImpl, metrics }) => {
       const module = baseline ? await import(process.env.MATCH_EVAL_BASELINE_MODULE) : { runLevelMatching, geminiGenerator };
@@ -80,5 +89,7 @@ async function worker() {
   }
 }
 await Promise.all(Array.from({ length: 4 }, worker));
-console.log(JSON.stringify({ complete: true, total: results.length, passed: results.filter(r => r.passed).length, out }));
-if (results.some(r => !r.passed)) process.exitCode = 1;
+const completion = { complete: !providerBlocked && cursor === jobs.length, providerBlocked, queuedJobsNotRun: jobs.length - cursor, total: results.length, passed: results.filter(r => r.passed).length, out };
+write('completion', completion);
+console.log(JSON.stringify(completion));
+if (providerBlocked || results.some(r => !r.passed)) process.exitCode = 1;

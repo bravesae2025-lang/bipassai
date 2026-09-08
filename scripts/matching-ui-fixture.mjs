@@ -42,7 +42,7 @@ app.get('/qa-sdk.js', (_req, res) => res.type('js').send(sdk));
 app.get('/qa-frame', (req, res) => {
   const size = req.query.size === 'mobile' ? [390, 844] : req.query.size === 'desktop' ? [1440, 900] : [1366, 768];
   const view = req.query.view === 'custom' ? '/home' : req.query.view === 'profile' ? '/qa-profile' : '/qa-long';
-  res.type('html').send(`<!doctype html><title>Responsive matching fixture</title><style>body{margin:0;background:#ddd}iframe{display:block;border:0;width:${size[0]}px;height:${size[1]}px}</style><iframe title="${size[0]} by ${size[1]} matching preview" src="${view}"></iframe>`);
+  res.type('html').send(`<!doctype html><title>Responsive matching fixture</title><style>body{margin:0;background:#ddd}iframe{display:block;border:0;width:${size[0]}px;height:${size[1]}px}</style><iframe title="${size[0]} by ${size[1]} matching preview" allow="clipboard-read; clipboard-write" src="${view}"></iframe>`);
 });
 app.get(['/home', '/app.html', '/editor.html', '/qa-result', '/qa-profile', '/qa-long'], async (req, res) => {
   const file = req.path.includes('editor') || ['/qa-result', '/qa-long'].includes(req.path) ? 'editor.html' : 'app.html';

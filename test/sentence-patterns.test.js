@@ -44,6 +44,10 @@ test('classifications and observations reject missing IDs, duplicates and invent
   assert.throws(() => P.complete(prepared, { ...raw, observations: [{ ...observation, evidence: [{ sentenceId: 's0-0', quote: 'invented evidence' }] }] }));
   assert.throws(() => P.normalize({ ...valid, observations: [{ ...valid.observations[0], support: 0 }] }));
   assert.throws(() => P.normalize({ ...valid, sentenceCount: 0 }));
+  assert.match(P.schema.properties.observations.description, /At most 10/);
+  assert.equal(P.schema.properties.observations.items.properties.evidence.minItems, 1);
+  assert.equal(P.schema.properties.observations.items.properties.evidence.maxItems, 3);
+  assert.throws(() => P.complete(prepared, { ...raw, observations: [{ ...observation, evidence: Array(4).fill(observation.evidence[0]) }] }), /1–3 evidence/);
 });
 test('short and conflicting samples produce conservative or mixed estimates', () => {
   const short = labelled(['We read books. '.repeat(15)]);
@@ -73,4 +77,34 @@ test('v4 survives server/client storage, score refinement and result snapshots w
 });
 test('truncated profile analysis fails instead of replacing a profile', async () => {
   await assert.rejects(analyzeWritingSamples(['We read books. '.repeat(30)], 'test', async () => Response.json({ candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [{ text: '{}' }] } }] })), /incomplete/i);
+});
+
+test('profile analysis repairs overlong evidence once without weakening validation', async () => {
+  const samples = ['We read interesting books together every evening and talk about the different ideas with our friends. '.repeat(15)];
+  const { raw } = labelled(samples);
+  const observation = kind => ({ kind, label: kind === 'tone' ? 'Direct' : 'Everyday vocabulary', evidence: [{ sentenceId: 's0-0', quote: 'We read interesting books' }] });
+  raw.observations = [observation('tone'), observation('vocabulary')];
+  const profile = { summary: 'Direct writing.', tone: { label: 'Direct', evidence: 'Plain statements.' }, sentenceStyle: { label: 'Simple', evidence: 'Direct clauses.' }, strengths: [], habits: [] };
+  let calls = 0;
+  const result = await analyzeWritingSamples(samples, 'test', async (_url, request) => {
+    const sentenceAnalysis = structuredClone(raw);
+    if (!calls++) sentenceAnalysis.observations[0].evidence[0].quote = samples[0].split(' ').slice(0, 15).join(' ');
+    else assert.match(JSON.parse(request.body).contents.at(-1).parts[0].text, /at most 12 words/);
+    return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ profile, scores: { wordLevel: 4, grammar: 0, tense: 0, punct: 0, caps: 0, spelling: 0 }, evidence: {}, sentenceAnalysis }) }] } }] });
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.analysis.version, 4);
+  assert.ok(!JSON.stringify(result.analysis).includes('We read interesting books'));
+});
+
+test('persistent malformed profile records fail after two calls and outages do not retry', async () => {
+  let calls = 0;
+  await assert.rejects(analyzeWritingSamples(['We read books. '.repeat(30)], 'test', async () => {
+    calls++;
+    return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: '{}' }] } }] });
+  }));
+  assert.equal(calls, 2);
+  calls = 0;
+  await assert.rejects(analyzeWritingSamples(['We read books. '.repeat(30)], 'test', async () => { calls++; return Response.json({ error: { message: 'Unavailable' } }, { status: 503 }); }), /Unavailable/);
+  assert.equal(calls, 1);
 });

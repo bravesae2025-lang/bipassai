@@ -43,11 +43,11 @@
     const contractions = [...prose.matchAll(/\b(?:i['’](?:m|ve|ll|d)|(?:we|you|they)['’](?:re|ve|ll|d)|(?:he|she|it|that|there|what)['’](?:s|ll|d)|(?:do|does|did|is|are|was|were|has|have|had|could|would|should|must|ca|wo)n['’]t)\b/gi)].length;
     return { sentences, stats: { sampleCount: samples.length, totalWords: samples.reduce((sum, s) => sum + words(s).length, 0), sentenceCount: all.length, sampledSentences: sentences.length, length: distribution(all.map(s => words(s.text).length)), paragraphLength: distribution(samples.flatMap(s => s.split(/\n\s*\n/).filter(p => p.trim()).map(p => words(p).length))), connectors, openings, contractions } };
   }
-  const evidenceSchema = { type: 'OBJECT', properties: { sentenceId: { type: 'STRING' }, quote: { type: 'STRING' } }, required: ['sentenceId', 'quote'] };
+  const evidenceSchema = { type: 'OBJECT', properties: { sentenceId: { type: 'STRING' }, quote: { type: 'STRING', description: 'Exact contiguous excerpt from this sentence ID, preferably 3–8 words, NEVER more than 12 words. Do not quote the full sentence.' } }, required: ['sentenceId', 'quote'] };
   const schema = {
     type: 'OBJECT', properties: {
       labels: { type: 'ARRAY', items: { type: 'OBJECT', properties: { id: { type: 'STRING' }, type: { type: 'STRING', enum: TYPES } }, required: ['id', 'type'] } },
-      observations: { type: 'ARRAY', items: { type: 'OBJECT', properties: { kind: { type: 'STRING', enum: KINDS }, label: { type: 'STRING' }, evidence: { type: 'ARRAY', items: evidenceSchema } }, required: ['kind', 'label', 'evidence'] } },
+      observations: { type: 'ARRAY', description: 'At most 10 observations. Each needs 1–3 evidence objects.', items: { type: 'OBJECT', properties: { kind: { type: 'STRING', enum: KINDS }, label: { type: 'STRING', description: 'Neutral reusable writing habit, at most 72 characters. Not a topic, personal fact, or sample content.' }, evidence: { type: 'ARRAY', minItems: 1, maxItems: 3, items: evidenceSchema } }, required: ['kind', 'label', 'evidence'] } },
     }, required: ['labels', 'observations'],
   };
   const instructions = `SENTENCE ANALYSIS: Label every supplied sentence ID once as simple (one independent clause), compound (two or more independent clauses, no dependent clause), complex (one independent clause plus dependent clauses), compound-complex (multiple independent and dependent clauses), fragment, or uncertain. Shared-subject verbs joined by and do NOT alone make a compound sentence. Do not infer structure from length or conjunction counts. Use uncertain for ambiguous/malformed grammar; do not silently repair it. Quoted material is not evidence of the author's own habits.
@@ -64,11 +64,14 @@ Return 1–10 concise observations with kind tone/vocabulary/opening/connector/c
       if (TYPES.slice(0, 4).includes(label.type)) perSample.get(sentence.sample)[label.type]++;
     }
     const observations = raw.observations.map(item => {
-      if (!KINDS.includes(item.kind) || typeof item.label !== 'string' || !item.label.trim() || item.label.length > 72 || !Array.isArray(item.evidence) || !item.evidence.length || item.evidence.length > 3) throw new Error('Invalid writing observation');
+      if (!KINDS.includes(item.kind) || typeof item.label !== 'string' || !item.label.trim() || item.label.length > 72) throw new Error('Each observation needs an allowed kind and a nonempty label of at most 72 characters');
+      if (!Array.isArray(item.evidence) || !item.evidence.length || item.evidence.length > 3) throw new Error('Each observation must have 1–3 evidence objects, never four or more. Select the strongest supporting examples');
       const ids = new Set();
       for (const evidence of item.evidence) {
         const sentence = byId.get(evidence.sentenceId);
-        if (!sentence || typeof evidence.quote !== 'string' || !evidence.quote.trim() || words(evidence.quote).length > 12 || !withoutQuotes(sentence.text).includes(evidence.quote)) throw new Error('Writing observation has invented or quoted evidence');
+        if (typeof evidence.quote !== 'string' || !evidence.quote.trim()) throw new Error('Writing observation needs a nonempty evidence excerpt');
+        if (words(evidence.quote).length > 12) throw new Error('Evidence excerpts must have at most 12 words. Choose a short, exact 3–8 word span supporting the observation, not a whole sentence');
+        if (!sentence || !withoutQuotes(sentence.text).includes(evidence.quote)) throw new Error('Writing observation has invented or quoted evidence. Copy an exact contiguous excerpt from the referenced sentence ID outside quotations');
         ids.add(sentence.id);
       }
       // Store provenance counts, never raw excerpts or original sentences.

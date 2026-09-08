@@ -58,6 +58,29 @@ test('connector simplification cannot insert so after an existing subject', () =
   assert.doesNotThrow(() => resolveEdits('The school consequently agreed.', [edit('The school consequently agreed.', 'So, the school agreed.', 'structure')], 'wording', 'flow'));
 });
 
+test('noun-to-clause simplification includes the possessive context', () => {
+  const source = "They considered the teachers' observations before deciding.";
+  assert.throws(() => resolveEdits(source, [edit('observations', 'what they saw')], 'wording'), /possessive noun/);
+  const valid = resolveEdits(source, [edit("the teachers' observations", 'what the teachers observed')], 'wording');
+  assert.equal(applyChanges(source, valid), 'They considered what the teachers observed before deciding.');
+});
+
+test('wording rejects newly introduced capitalized comma-splice joins', () => {
+  const source = 'The team waited. They had time.';
+  assert.throws(() => resolveEdits(source, [edit(source, 'The team waited, They had time.', 'structure')], 'wording', 'flow'), /comma splice/);
+  assert.doesNotThrow(() => resolveEdits(source, [edit(source, 'The team waited, and they had time.', 'structure')], 'wording', 'flow'));
+  assert.doesNotThrow(() => resolveEdits('We heard “Wait, They will come.”', [], 'wording'));
+});
+
+test('model edit schema restricts categories to the requested stage and structure mode', async () => {
+  for (const structureMode of ['keep', 'flow']) {
+    await runLevelMatching({ text: 'We use tools.', level: 'customize', structureMode, config: { wordLevel: 5, spelling: 1 }, generate: async request => {
+      assert.deepEqual(request.schema.properties.edits.items.properties.category.enum, request.prompt.includes('Stage 1:') ? (structureMode === 'keep' ? ['word'] : ['word', 'structure']) : ['grammar', 'tense', 'punct', 'caps', 'spelling']);
+      return reply([]);
+    } });
+  }
+});
+
 test('a boundary repetition uses the existing repair allowance', async () => {
   const source = 'Further details are available at https://example.org/research.';
   const outputs = [reply([edit('Further details are available', 'More information is at')]), reply([edit('Further details are available', 'More information is')]), reply([])];
@@ -67,7 +90,7 @@ test('a boundary repetition uses the existing repair allowance', async () => {
     return outputs[calls++];
   } });
   assert.equal(result.cleanText, 'More information is at https://example.org/research.');
-  assert.equal(calls, 3);
+  assert.equal(calls, 2);
 });
 
 test('structure groups use complete sentence spans and cannot cross paragraphs', () => {
@@ -144,12 +167,47 @@ test('phrase deletion next to an unchanged quotation anchors outside protected t
   }
 });
 
+test('supported profile clause measurements override generic vocabulary-driven simplification', () => {
+  const patterns = { confidence: 'supported', mixed: false, counts: { simple: 2, compound: 9, complex: 3, 'compound-complex': 2 } };
+  const prompt = sentencePatterns => wordingPrompt({ level: 'customize', config: { wordLevel: 2 }, structureMode: 'flow', appliedStructure: { style: 'profile' }, profile: { sentencePatterns } });
+  assert.match(prompt(patterns), /most frequent confidently classified form in this sample is compound/);
+  assert.match(prompt(patterns), /Vocabulary difficulty does not determine clause complexity/);
+  assert.doesNotMatch(prompt({ ...patterns, mixed: true }), /most frequent confidently classified form/);
+  assert.doesNotMatch(prompt({ ...patterns, confidence: 'limited' }), /most frequent confidently classified form/);
+});
+
 test('partial flow and wording edits in the same sentence form one reversible group', () => {
   const source = 'We utilize maps because the route is complex.';
   const changes = resolveEdits(source, [edit('utilize', 'use'), edit('because the route is complex.', 'as the route is hard to follow.', 'structure')], 'wording', 'flow');
   assert.equal(changes.length, 1);
   assert.equal(changes[0].original, source);
   assert.equal(changes[0].replacement, 'We use maps as the route is hard to follow.');
+});
+
+test('structure groups retain leading and trailing inter-sentence whitespace', () => {
+  const source = 'We used maps. The road was long, so we rested. We went home.';
+  for (const original of [' The road was long, so we rested.', 'The road was long, so we rested. ']) {
+    const replacement = original.replace('The road was long, so we rested.', 'The road was long. So we rested.');
+    const changes = resolveEdits(source, [edit(original, replacement, 'structure')], 'wording', 'flow');
+    assert.equal(changes.length, 1);
+    assert.equal(applyChanges(source, changes), source.replace(original, replacement));
+    assert.equal(changes[0].original, original);
+  }
+});
+
+test('rewrites cannot silently strengthen possibility or change stated obligations', () => {
+  for (const modal of ['may', 'might', 'can', 'could', 'would', 'should', 'must', 'will']) {
+    const source = `Light ${modal} affect growth.`;
+    assert.throws(() => resolveEdits(source, [edit(source, 'Light affects growth.', 'structure')], 'wording', 'flow'), /Protected content/);
+    assert.doesNotThrow(() => resolveEdits(source, [edit('growth', 'plant growth')], 'wording', 'flow'));
+  }
+});
+
+test('short phrase replacements are not mistaken for whole-draft truncation', () => {
+  const phrase = "both the teachers' observations and the students' accounts of their experiences";
+  const source = `The school agreed to review the timetable, considering ${phrase}, before making more changes.`;
+  const changes = resolveEdits(source, [edit(phrase, 'teacher observations and student experiences')], 'wording', 'keep');
+  assert.equal(applyChanges(source, changes), source.replace(phrase, 'teacher observations and student experiences'));
 });
 
 test('preset grammar rejects tense shifts and valid article substitutions', async () => {
@@ -239,18 +297,44 @@ test('pipeline repairs once and returns clean canonical data', async () => {
     calls++;
     return calls === 1 ? reply([edit('missing', 'use')]) : calls === 2 ? reply([edit('utilize', 'use')]) : reply([]);
   } });
-  assert.equal(calls, 3);
+  assert.equal(calls, 2);
   assert.equal(result.cleanText, 'We use tools.');
   assert.equal(result.structureMode, 'keep');
 });
 
 test('pipeline never retries indefinitely and never accepts zero-score mechanical changes', async () => {
   let calls = 0;
-  await assert.rejects(runLevelMatching({ text: 'We use tools.', level: 'customize', config: { wordLevel: 5 }, generate: async () => {
+  await assert.rejects(runLevelMatching({ text: 'We use tools.', level: 'customize', config: { wordLevel: 5, spelling: 1 }, generate: async () => {
     calls++;
     return calls === 1 ? reply([]) : reply([edit('use', 'uses', 'grammar')]);
   } }));
   assert.equal(calls, 3);
+});
+
+test('zero mechanical settings preserve stage-one text with no unnecessary provider call', async () => {
+  let calls = 0;
+  const metrics = [];
+  const result = await runLevelMatching({ text: 'We uses tools.', level: 'customize', config: { wordLevel: 5 }, onMetric: m => metrics.push(m), generate: async () => { calls++; return reply([]); } });
+  assert.equal(calls, 1);
+  assert.equal(result.cleanText, 'We uses tools.');
+  assert.equal(metrics.at(-1).skipped, true);
+});
+
+test('complete wording text must match its records before proceeding', async () => {
+  let calls = 0;
+  const source = 'We went to the park.';
+  const result = await runLevelMatching({ text: source, level: 'customize', config: { wordLevel: 5 }, generate: async request => {
+    assert.equal(request.schema.propertyOrdering[0], 'cleanText');
+    calls++;
+    if (calls === 2) {
+      assert.match(request.prompt, /Actual text produced by your edits/);
+      assert.match(request.prompt, /We visited to the park/);
+      assert.match(request.prompt, /Do not copy broken edit-boundary grammar/);
+    }
+    return calls === 1 ? { ...reply([edit('went', 'visited')]), cleanText: 'We visited the park.' } : { ...reply([edit('went to', 'visited')]), cleanText: 'We visited the park.' };
+  } });
+  assert.equal(calls, 2);
+  assert.equal(result.cleanText, 'We visited the park.');
 });
 
 test('preset density excludes quotations and scales below one error on tiny input', () => {

@@ -14,8 +14,13 @@ async function request(body, outputs) {
   let calls = 0, writes = [];
   globalThis.fetch = async (url, options = {}) => {
     if (url.includes('generativelanguage')) {
-      const output = outputs[calls++];
+      let output = outputs[calls++];
       if (output === 'unavailable') return new Response('{}', { status: 503 });
+      const request = JSON.parse(options.body);
+      if (request.generationConfig.responseSchema.required.includes('cleanText') && Array.isArray(output?.edits) && !Object.hasOwn(output, 'cleanText')) {
+        const source = JSON.parse(request.contents[0].parts[0].text).draft;
+        output = { ...output, cleanText: output.edits.reduce((text, edit) => text.replace(edit.original, edit.replacement), source) };
+      }
       return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(output) }] } }] });
     }
     if (options.method === 'HEAD') return new Response(null, { headers: { 'content-range': '0-0/0' } });
@@ -32,6 +37,13 @@ async function request(body, outputs) {
 }
 const empty = { edits: [], existingMistakes: [], shortfall: '' };
 const wording = { ...empty, edits: [{ original: 'utilize', replacement: 'use', occurrence: 1, category: 'word' }] };
+
+test('inconsistent complete wording and records cannot charge', async () => {
+  const bad = { ...wording, cleanText: 'We use different tools.' };
+  const result = await request({ text: 'We utilize tools.', level: 'medium' }, [bad, bad]);
+  assert.equal(result.status, 502);
+  assert.equal(result.writes.length, 0);
+});
 
 test('automatic preset and Custom policies resolve before generation and charge once', async () => {
   for (const [level, structureMode, structureStyle, expected] of [

@@ -64,6 +64,20 @@ function assertPreserved(before, after, lock, checkLength = true) {
   if (checkLength && words(before) >= 12 && (words(after) < words(before) * 0.55 || words(after) > words(before) * 1.6)) throw new Error('Output length changed excessively');
 }
 
+// Narrow, conservative guards for observed meaning drift. These do not prove
+// semantic equivalence; ambiguous rewrites must be repaired or left unchanged.
+function assertRelations(before, after) {
+  if (/\b(?:consequently|therefore|thus|as a result|for this reason)\b/i.test(before)
+      && !/\b(?:consequently|therefore|thus|as a result|for (?:this|that) reason|because|so|led to|resulted in)\b/i.test(after)) {
+    throw new Error('An explicit causal relationship became mere chronology or disappeared. Preserve the reason/result link with a grammatical causal phrase, not just "then"');
+  }
+  const purpose = /\b(?:in order to|so that|to (?:give|allow|enable|help|provide))\b/i;
+  const assertedOutcome = /\bso\s+(?!that\b)(?:[\p{L}]+\s+){1,6}(?:had|got|became|was|were)\b/iu;
+  if (purpose.test(before) && !assertedOutcome.test(before) && assertedOutcome.test(after)) {
+    throw new Error('A stated purpose became an asserted outcome. Retain the purpose wording or use an explicit intended-purpose construction such as "so that ... could ..."; do not claim the goal happened');
+  }
+}
+
 export function resolveEdits(source, raw, stage, mode = 'keep', validateEdit = () => {}) {
   if (!Array.isArray(raw) || raw.length > 2000) throw new Error('Invalid edits array');
   const edits = [], errors = [];
@@ -113,6 +127,7 @@ export function resolveEdits(source, raw, stage, mode = 'keep', validateEdit = (
       if (start < span.end && end > span.start && (!isStructure || !replacement.includes(span.text))) throw new Error('Edit overlaps protected content');
     }
     const resolved = { start, end, original, replacement, categories: [edit.category] };
+    if (stage === 'wording') assertRelations(original, replacement);
     if (stage === 'wording' && !isStructure
         && /^(?:consequently|therefore|thus)$/i.test(original.trim()) && /^so\b/i.test(replacement.trim())) {
       const preceding = source.slice(0, start).trimEnd();
@@ -272,6 +287,7 @@ export function wordingPrompt({ level, config, structureMode, profile, appliedSt
       : `CUSTOM vocabulary score ${config.wordLevel}/10 (0–1 elementary; 2–3 beginner; 4–6 student; 7–8 academic; 9–10 expert). Match this target literally.`;
   return `You are a writing editor. Stage 1: simplify wording${structureMode === 'flow' ? ' and improve sentence flow' : ''}. ${difficulty}
 First write cleanText: the COMPLETE natural, grammatical draft after this stage, including unchanged text and exact line breaks. Read whole sentences in context, not isolated replacement words. Then supply edits that reproduce cleanText exactly. Never add empty framing such as "They said something" or "This showed something" to manufacture short sentences. Preserve the informative statement directly.
+MEANING CHECK BEFORE RECORDS: Preserve purpose versus achieved outcome. "Introduced a plan to give people more time" states a goal, not proof that people got more time; keep the infinitive purpose or an explicit "so that ... could ..." construction. Preserve explicit causality: consequently/therefore may become a grammatical "because of this" or "so", never merely chronological "then". Preserve attribution and uncertainty while adjusting clauses. If unsure, leave the affected sentence unchanged instead of guessing.
 Inspect every sentence, not just a list of AI buzzwords. Simplify phrases such as "in the event that" to "if", "due to the fact that" to "because", "a substantial proportion" to "a large part" when appropriate. Do not force unnecessary synonym swaps. Read each proposed phrase replacement together with its unchanged surrounding words: do not duplicate adjoining words such as "at at" or "to to". Do not add mechanical mistakes in this stage. Preserve existing imperfections for the next stage to assess. Keep grammatical links around quotations: do not remove "having" from "described as having [quotation]". Keep comparisons and causal relationships explicit.
 ${structureMode === 'keep' ? 'KEEP STRUCTURE: preserve sentence boundaries, sentence order, clauses and all paragraph breaks. Word/phrase replacements may have different lengths. Use category word only, at most 12 source words per edit.' : 'IMPROVE FLOW: follow the selected sentence policy below. Splitting, joining related adjacent sentences, and clause reordering are available tools, not default requirements. Do not apply the same sentence-splitting strategy to every policy. Vary sentence length naturally. Preserve paragraph order and all paragraph/line breaks. For splitting, merging or clause reordering, use category structure and replace the complete affected sentence or adjacent sentence group, including any vocabulary simplification in that group. Other small vocabulary edits use category word. Never overlap groups.'}
 ${structureMode === 'flow' ? sentenceDirections[appliedStructure?.style || (profile?.sentencePatterns ? 'profile' : level === 'easy' ? 'beginner' : 'student')] : ''}

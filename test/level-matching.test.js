@@ -45,6 +45,17 @@ test('flow instructions defer to each policy instead of prescribing universal sp
   assert.match(wordingPrompt({ level: 'easy', config, structureMode: 'flow' }), /simplest accurate everyday equivalents/);
 });
 
+test('wording preserves explicit causality and does not assert intended outcomes', () => {
+  const causal = 'The school consequently agreed to review the timetable.';
+  assert.throws(() => resolveEdits(causal, [edit(causal, 'The school then agreed to review the timetable.', 'structure')], 'wording', 'flow'), /causal relationship/);
+  assert.doesNotThrow(() => resolveEdits(causal, [edit(causal, 'Because of this, the school agreed to review the timetable.', 'structure')], 'wording', 'flow'));
+  const purpose = 'The school introduced a timetable to give students more time to finish their work.';
+  assert.throws(() => resolveEdits(purpose, [edit(purpose, 'The school introduced a timetable so students had more time to finish their work.', 'structure')], 'wording', 'flow'), /stated purpose/);
+  assert.doesNotThrow(() => resolveEdits(purpose, [edit(purpose, 'The school introduced a timetable so that students could have more time to finish their work.', 'structure')], 'wording', 'flow'));
+  const actual = 'The timetable changed, so students had more time.';
+  assert.doesNotThrow(() => resolveEdits(actual, [edit(actual, 'The timetable was changed, so students had more time.', 'structure')], 'wording', 'flow'));
+});
+
 test('wording catches duplicate function words introduced at replacement boundaries', () => {
   const source = 'Further details are available at https://example.org/research.';
   assert.throws(() => resolveEdits(source, [edit('Further details are available', 'More information is at')], 'wording'), /repeated adjacent "at"/);

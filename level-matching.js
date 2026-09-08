@@ -123,6 +123,20 @@ export function resolveEdits(source, raw, stage, mode = 'keep', validateEdit = (
     if (stage === 'mechanics' && shareWord(source, edits[i - 1], edits[i])) throw new Error('Mechanical slips cannot stack on one word');
   }
   const output = applyChanges(source, edits);
+  if (stage === 'wording') {
+    const repetitions = text => {
+      const counts = new Map();
+      for (const match of text.matchAll(/\b(at|to|of|for|in|on|by|with|from|a|an|the)\s+\1\b/gi)) {
+        const word = match[1].toLowerCase();
+        counts.set(word, (counts.get(word) || 0) + 1);
+      }
+      return counts;
+    };
+    const before = repetitions(source);
+    for (const [word, count] of repetitions(output)) {
+      if (count > (before.get(word) || 0)) throw new Error(`Wording introduced repeated adjacent "${word}". Check replacement boundaries against unchanged surrounding words.`);
+    }
+  }
   assertPreserved(source, output, mode === 'keep' || stage === 'mechanics');
   if (stage !== 'wording' || mode !== 'flow') return edits;
   // Expand clause-level flow records into whole-sentence review groups, folding
@@ -217,7 +231,7 @@ export function wordingPrompt({ level, config, structureMode, profile, appliedSt
     : level === 'medium' ? 'STUDENT: replace unnecessarily formal language with everyday student vocabulary. Keep clear ordinary words.'
       : `CUSTOM vocabulary score ${config.wordLevel}/10 (0–1 elementary; 2–3 beginner; 4–6 student; 7–8 academic; 9–10 expert). Match this target literally.`;
   return `You are a writing editor. Stage 1: simplify wording${structureMode === 'flow' ? ' and improve sentence flow' : ''}. ${difficulty}
-Inspect every sentence, not just a list of AI buzzwords. Simplify phrases such as "in the event that" to "if", "due to the fact that" to "because", "a substantial proportion" to "a large part" when appropriate. Do not force unnecessary synonym swaps. Do not add mechanical mistakes in this stage. Preserve existing imperfections for the next stage to assess. Keep grammatical links around quotations: do not remove "having" from "described as having [quotation]". Keep comparisons and causal relationships explicit.
+Inspect every sentence, not just a list of AI buzzwords. Simplify phrases such as "in the event that" to "if", "due to the fact that" to "because", "a substantial proportion" to "a large part" when appropriate. Do not force unnecessary synonym swaps. Read each proposed phrase replacement together with its unchanged surrounding words: do not duplicate adjoining words such as "at at" or "to to". Do not add mechanical mistakes in this stage. Preserve existing imperfections for the next stage to assess. Keep grammatical links around quotations: do not remove "having" from "described as having [quotation]". Keep comparisons and causal relationships explicit.
 ${structureMode === 'keep' ? 'KEEP STRUCTURE: preserve sentence boundaries, sentence order, clauses and all paragraph breaks. Word/phrase replacements may have different lengths. Use category word only, at most 12 source words per edit.' : 'IMPROVE FLOW: follow the selected sentence policy below. Splitting, joining related adjacent sentences, and clause reordering are available tools, not default requirements. Do not apply the same sentence-splitting strategy to every policy. Vary sentence length naturally. Preserve paragraph order and all paragraph/line breaks. For splitting, merging or clause reordering, use category structure and replace the complete affected sentence or adjacent sentence group, including any vocabulary simplification in that group. Other small vocabulary edits use category word. Never overlap groups.'}
 ${structureMode === 'flow' ? sentenceDirections[appliedStructure?.style || (profile?.sentencePatterns ? 'profile' : level === 'easy' ? 'beginner' : 'student')] : ''}
 These are flexible preferences, never per-paragraph quotas or a short/long alternating template. Leave already-suitable sentences alone. Simple/compound/complex refers to independent and dependent clauses, not the number of conjunctions. Preserve causal, contrastive, conditional and chronological relationships; do not insert a connector merely for variety.

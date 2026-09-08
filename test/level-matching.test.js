@@ -42,6 +42,27 @@ test('flow instructions defer to each policy instead of prescribing universal sp
   assert.match(wordingPrompt({ level: 'easy', config, structureMode: 'flow' }), /simplest accurate everyday equivalents/);
 });
 
+test('wording catches duplicate function words introduced at replacement boundaries', () => {
+  const source = 'Further details are available at https://example.org/research.';
+  assert.throws(() => resolveEdits(source, [edit('Further details are available', 'More information is at')], 'wording'), /repeated adjacent "at"/);
+  const valid = resolveEdits(source, [edit('Further details are available', 'More information is')], 'wording');
+  assert.equal(applyChanges(source, valid), 'More information is at https://example.org/research.');
+  assert.doesNotThrow(() => resolveEdits('We met at at home.', [], 'wording'));
+  assert.doesNotThrow(() => resolveEdits('I knew that that was correct.', [], 'wording'));
+});
+
+test('a boundary repetition uses the existing repair allowance', async () => {
+  const source = 'Further details are available at https://example.org/research.';
+  const outputs = [reply([edit('Further details are available', 'More information is at')]), reply([edit('Further details are available', 'More information is')]), reply([])];
+  let calls = 0;
+  const result = await runLevelMatching({ text: source, level: 'customize', config: { wordLevel: 5 }, generate: async request => {
+    if (calls === 1) assert.match(request.prompt, /repeated adjacent/);
+    return outputs[calls++];
+  } });
+  assert.equal(result.cleanText, 'More information is at https://example.org/research.');
+  assert.equal(calls, 3);
+});
+
 test('structure groups use complete sentence spans and cannot cross paragraphs', () => {
   const source = '## Heading\nThe rain continued, so we stayed inside.';
   const group = 'The rain continued, so we stayed inside.';

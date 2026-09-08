@@ -51,6 +51,13 @@ test('wording catches duplicate function words introduced at replacement boundar
   assert.doesNotThrow(() => resolveEdits('I knew that that was correct.', [], 'wording'));
 });
 
+test('connector simplification cannot insert so after an existing subject', () => {
+  assert.throws(() => resolveEdits('The school consequently agreed to review it.', [edit('consequently', 'So')], 'wording', 'flow'), /sentence adverb/);
+  assert.doesNotThrow(() => resolveEdits('Consequently, the school agreed.', [edit('Consequently', 'So')], 'wording'));
+  assert.doesNotThrow(() => resolveEdits('It rained, and consequently we stayed.', [edit('consequently', 'so')], 'wording'));
+  assert.doesNotThrow(() => resolveEdits('The school consequently agreed.', [edit('The school consequently agreed.', 'So, the school agreed.', 'structure')], 'wording', 'flow'));
+});
+
 test('a boundary repetition uses the existing repair allowance', async () => {
   const source = 'Further details are available at https://example.org/research.';
   const outputs = [reply([edit('Further details are available', 'More information is at')]), reply([edit('Further details are available', 'More information is')]), reply([])];

@@ -109,6 +109,13 @@ export function resolveEdits(source, raw, stage, mode = 'keep', validateEdit = (
       if (start < span.end && end > span.start && (!isStructure || !replacement.includes(span.text))) throw new Error('Edit overlaps protected content');
     }
     const resolved = { start, end, original, replacement, categories: [edit.category] };
+    if (stage === 'wording' && !isStructure
+        && /^(?:consequently|therefore|thus)$/i.test(original.trim()) && /^so\b/i.test(replacement.trim())) {
+      const preceding = source.slice(0, start).trimEnd();
+      if (preceding && !/(?:[.!?;:,]|\b(?:and|but|or))$/i.test(preceding)) {
+        throw new Error('A sentence adverb cannot become "so" after the subject. Keep a grammatical adverb or rewrite the complete clause as a Structure group.');
+      }
+    }
     validateEdit(resolved);
     edits.push(resolved);
     } catch (error) {
@@ -234,7 +241,7 @@ export function wordingPrompt({ level, config, structureMode, profile, appliedSt
 Inspect every sentence, not just a list of AI buzzwords. Simplify phrases such as "in the event that" to "if", "due to the fact that" to "because", "a substantial proportion" to "a large part" when appropriate. Do not force unnecessary synonym swaps. Read each proposed phrase replacement together with its unchanged surrounding words: do not duplicate adjoining words such as "at at" or "to to". Do not add mechanical mistakes in this stage. Preserve existing imperfections for the next stage to assess. Keep grammatical links around quotations: do not remove "having" from "described as having [quotation]". Keep comparisons and causal relationships explicit.
 ${structureMode === 'keep' ? 'KEEP STRUCTURE: preserve sentence boundaries, sentence order, clauses and all paragraph breaks. Word/phrase replacements may have different lengths. Use category word only, at most 12 source words per edit.' : 'IMPROVE FLOW: follow the selected sentence policy below. Splitting, joining related adjacent sentences, and clause reordering are available tools, not default requirements. Do not apply the same sentence-splitting strategy to every policy. Vary sentence length naturally. Preserve paragraph order and all paragraph/line breaks. For splitting, merging or clause reordering, use category structure and replace the complete affected sentence or adjacent sentence group, including any vocabulary simplification in that group. Other small vocabulary edits use category word. Never overlap groups.'}
 ${structureMode === 'flow' ? sentenceDirections[appliedStructure?.style || (profile?.sentencePatterns ? 'profile' : level === 'easy' ? 'beginner' : 'student')] : ''}
-These are flexible preferences, never per-paragraph quotas or a short/long alternating template. Leave already-suitable sentences alone. Simple/compound/complex refers to independent and dependent clauses, not the number of conjunctions. Preserve causal, contrastive, conditional and chronological relationships; do not insert a connector merely for variety.
+These are flexible preferences, never per-paragraph quotas or a short/long alternating template. Leave already-suitable sentences alone. Simple/compound/complex refers to independent and dependent clauses, not the number of conjunctions. Preserve causal, contrastive, conditional and chronological relationships; do not insert a connector merely for variety. Connectors must fit their grammatical position: do not replace a mid-clause adverb such as consequently/therefore with "so" after the subject. Keep an appropriate adverb or recast the complete clause as a Structure group.
 ${profile ? `Apply this descriptive writing profile where compatible with the chosen structure setting: ${JSON.stringify(profile)}.` : ''}
 ${protection}`;
 }

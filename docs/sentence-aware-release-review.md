@@ -11,7 +11,7 @@ Status: initial implementation pushed as `9d66376`. The user requested a deploy/
 
 ## Completed checks
 
-- `npm run check`: site audit covering 34 HTML files and 104 automated tests.
+- `npm run check`: site audit covering 34 HTML files and 105 automated tests.
 - Tests cover automatic / manual / legacy profile routing, invalid combinations, single charging and no-charge errors, v4 storage and result snapshots, truncation, invented evidence, deterministic sampling, short and mixed estimates.
 - Nine hand-labelled clause fixtures cover shared-subject verbs, independent and subordinate clauses, compound-complex sentences, fragments, quotations, abbreviations and ambiguity. Unit tests verify fixture plumbing and validation, **not live model classification accuracy**.
 - Browser checks use real application HTML, CSS and JavaScript with an explicitly fake local account/API. Desktop, 1366×768 short-laptop, and 390×844 mobile layouts were inspected using fixed-size same-origin frames. The browser viewport override did not reliably apply to the intended tab.
@@ -33,6 +33,8 @@ The original two long sentences became four in both runs. Beginner produced 74 w
 A follow-up removes that universal splitting instruction, explicitly preserves useful compound connections for Student/Balanced, and asks Beginner to choose simpler common verbs too. A regression test checks the instruction separation. This is a calibration change motivated by observed outputs, not proof that all future outputs meet the intended mix. Full pre-imperfection traces, provider usage, repair rate and exact latency were not available through these UI runs.
 
 A real Custom-off request preserved all four sentence boundaries, the quotation, `Smith (2020)`, `12.5%`, `cannot`, and the exact URL. It simplified five phrases but introduced `at at` where a replacement met unchanged text. A second fix checks the complete wording-stage output for newly introduced duplicate function words and routes that failure through the existing single repair allowance. Tests reproduce the boundary problem, verify repair, and retain existing repetitions and legitimate `that that` constructions. No mechanical target or charging behavior changed.
+
+After Railway marked `d470597` active, the Custom retest returned `More details are at https://example.org/research.` without duplication, preserving all protected strings and the structure lock. Student's retest used three sentences rather than four, but exposed another phrase-context error: mid-clause `consequently` became `So` after the subject. A further validation check rejects that specific invalid connector substitution, while permitting sentence-initial `So`, `and so`, and whole-clause Structure rewrites. This uses the same repair allowance; it does not claim to validate all grammar or meaning automatically.
 
 `scripts/evaluate-sentence-aware.mjs` prepares:
 

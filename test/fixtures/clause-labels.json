@@ -1,0 +1,11 @@
+[
+  {"text":"We walked home and cooked dinner.","type":"simple","reason":"Shared subject with coordinated predicates, not independent clauses."},
+  {"text":"We walked home, and they cooked dinner.","type":"compound","reason":"Two independent clauses."},
+  {"text":"We walked home because the bus was late.","type":"complex","reason":"One independent clause and one reason clause."},
+  {"text":"Although the bus was late, we walked home, and they cooked dinner.","type":"compound-complex","reason":"Two independent clauses and a subordinate concession."},
+  {"text":"Because the bus was late.","type":"fragment","reason":"Dependent clause without an independent clause."},
+  {"text":"The report said, “We walked home.”","type":"simple","reason":"Quoted words do not establish the author's own recurring clause habits."},
+  {"text":"Dr. Green arrived, but the room was empty.","type":"compound","reason":"Abbreviation does not begin a separate sentence."},
+  {"text":"The children playing outside the room.","type":"fragment","reason":"No finite main verb."},
+  {"text":"They saw her duck.","type":"uncertain","reason":"Ambiguous noun versus embedded predicate interpretation; do not overclaim."}
+]

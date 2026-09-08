@@ -192,7 +192,9 @@ async function init() {
   const appliedProfile = readAppliedProfile();
   const structureBadge = document.getElementById('editor-structure');
   if (structureBadge && mode === 'level' && flow !== 'edit' && sessionStorage.getItem('bipass_result_html') && sessionStorage.getItem('bipass_structure_mode')) {
-    structureBadge.textContent = sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'Flow improved' : 'Structure kept';
+    let policy;
+    try { policy = JSON.parse(sessionStorage.getItem('bipass_applied_structure') || 'null'); } catch (_) {}
+    structureBadge.textContent = window.BipassStructure.LABELS[policy?.style] || (sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'Flow improved' : 'Structure kept');
     structureBadge.classList.remove('hidden');
   }
   const levelMap = {
@@ -1020,6 +1022,10 @@ function editCategoryFor(comment) {
 }
 
 function storedMatchSettings() {
+  try {
+    const snapshot = JSON.parse(sessionStorage.getItem('bipass_result_mistakes') || 'null');
+    if (snapshot && ['wordLevel', 'grammar', 'tense', 'punct', 'caps', 'spelling'].every(key => Number.isFinite(snapshot[key]) && snapshot[key] >= 0 && snapshot[key] <= 10)) return snapshot;
+  } catch (_) {}
   const read = (key, fallback = 0) => {
     const value = Number.parseInt(sessionStorage.getItem(`bipass_m_${key}`) ?? String(fallback), 10);
     return Number.isFinite(value) ? Math.max(0, Math.min(10, value)) : fallback;
@@ -1085,7 +1091,7 @@ function setRevisionBusy(on, label) {
   document.querySelectorAll('[data-revision-comment]').forEach(button => { button.disabled = on; });
 }
 
-function storeRevisionResult({ source, result, resultHtml, flow, level, changed, profileApplied = false }) {
+function storeRevisionResult({ source, result, resultHtml, flow, level, changed, profileApplied = false, appliedStructure, structureMode }) {
   sessionStorage.setItem('bipass_input', source);
   sessionStorage.setItem('bipass_result', result);
   sessionStorage.setItem('bipass_result_html', resultHtml);
@@ -1098,6 +1104,9 @@ function storeRevisionResult({ source, result, resultHtml, flow, level, changed,
   sessionStorage.removeItem('bipass_tokens');
   sessionStorage.removeItem('bipass_result_id');
   if (!profileApplied) sessionStorage.removeItem(APPLIED_PROFILE_KEY);
+  if (appliedStructure) sessionStorage.setItem('bipass_applied_structure', JSON.stringify(appliedStructure));
+  else sessionStorage.removeItem('bipass_applied_structure');
+  if (structureMode) sessionStorage.setItem('bipass_structure_mode', structureMode);
 
 }
 
@@ -1150,12 +1159,15 @@ async function applyRevision() {
     } else {
       const token = await window.bipassAuth.getToken();
       if (intent.kind === 'level') {
+        let structurePolicy;
+        try { structurePolicy = JSON.parse(sessionStorage.getItem('bipass_applied_structure') || 'null'); } catch (_) {}
+        const styleProfile = intent.level === 'customize' ? appliedProfile?.styleProfile : undefined;
         const levelData = await callEditorJson('/api/adjust-level', {
           text: source,
           level: intent.level,
-          structureMode: sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'flow' : 'keep',
+          ...window.BipassStructure.requestFromResult(structurePolicy, sessionStorage.getItem('bipass_structure_mode'), intent.level, styleProfile),
           mistakes: intent.level === 'customize' ? storedMatchSettings() : undefined,
-          styleProfile: intent.level === 'customize' ? appliedProfile?.styleProfile : undefined,
+          styleProfile,
         }, token);
         const canonical = window.BipassMatchResult.fromResponse(levelData, source);
         const levelResult = canonical ? { result: canonical.cleanText, html: canonical.html, changed: canonical.total } : levelResultData(levelData.result, source);
@@ -1167,6 +1179,8 @@ async function applyRevision() {
           flow: 'level',
           level: intent.level,
           profileApplied: levelData.profileApplied === true,
+          appliedStructure: levelData.appliedStructure,
+          structureMode: levelData.structureMode,
         };
       }
     }

@@ -29,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=134">
+  <link rel="stylesheet" href="style.css?v=135">
 </head>
 <body class="creation-page">
 
@@ -311,14 +311,6 @@
           </div>
 
           <p class="preset-description" id="preset-description" aria-live="polite"></p>
-          <fieldset class="structure-control" id="structure-control">
-            <legend>Sentence structure</legend>
-            <div class="structure-options">
-              <label><input type="radio" name="structure-mode" value="keep" checked><span>Keep structure</span></label>
-              <label><input type="radio" name="structure-mode" value="flow"><span>Improve flow</span></label>
-            </div>
-            <p id="structure-description" aria-live="polite">Keep your sentence order and paragraph breaks.</p>
-          </fieldset>
 
           <div class="control-block" id="options-panel" style="display:none">
             <section class="custom-control-group custom-word-group" aria-labelledby="custom-word-heading">
@@ -375,6 +367,22 @@
               <span class="mistake-slider-val" data-mistake="spelling">None</span>
             </div>
             </section>
+            <div class="custom-structure" id="structure-control">
+              <label class="custom-structure-switch" for="custom-structure-enabled">
+                <span>Change sentence structure</span>
+                <input id="custom-structure-enabled" name="custom-structure-enabled" type="checkbox" role="switch" aria-controls="custom-structure-style-row" aria-describedby="structure-description">
+                <span class="custom-switch-track" aria-hidden="true"></span>
+              </label>
+              <div class="custom-structure-style-row" id="custom-structure-style-row" hidden>
+                <label for="custom-structure-style">Style</label>
+                <select id="custom-structure-style" name="custom-structure-style" aria-describedby="structure-description">
+                  <option value="balanced">Balanced</option>
+                  <option value="shorter">Shorter</option>
+                  <option value="connected">More connected</option>
+                </select>
+              </div>
+              <p id="structure-description" aria-live="polite">Keep your sentence order and paragraph breaks.</p>
+            </div>
           </div>
 
           <div class="control-block writing-profile-block" id="writing-profile-block">
@@ -395,6 +403,7 @@
             </div>
 
             <div id="my-style-inputs" hidden>
+              <p class="profile-patterns-note">Use 200+ words and multiple samples of the writing type you want to match. You can start with 50 words; shorter samples receive limited sentence estimates.</p>
               <div class="style-name-field">
                 <input class="style-name-input" id="style-name-input" type="text" placeholder="Name your profile" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Writing profile name">
               </div>
@@ -593,10 +602,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="style-profile.js?v=12"></script>
+  <script src="sentence-patterns.js?v=1"></script>
+  <script src="style-profile.js?v=13"></script>
+  <script src="structure-settings.js?v=1"></script>
   <script src="billing-rates.js?v=1"></script>
   <script src="match-result.js?v=1"></script>
-  <script src="app.js?v=76"></script>
+  <script src="app.js?v=77"></script>
 
   <script>
   /* Preserve the original compact workflow switcher with only active workflows. */

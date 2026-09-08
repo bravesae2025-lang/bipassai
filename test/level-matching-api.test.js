@@ -33,6 +33,50 @@ async function request(body, outputs) {
 const empty = { edits: [], existingMistakes: [], shortfall: '' };
 const wording = { ...empty, edits: [{ original: 'utilize', replacement: 'use', occurrence: 1, category: 'word' }] };
 
+test('automatic preset and Custom policies resolve before generation and charge once', async () => {
+  for (const [level, structureMode, structureStyle, expected] of [
+    ['easy', 'auto', undefined, 'beginner'], ['medium', 'auto', undefined, 'student'],
+    ['customize', 'keep', undefined, 'keep'], ...['balanced', 'shorter', 'connected'].map(s => ['customize', 'flow', s, s]),
+  ]) {
+    const result = await request({ text: 'We utilize tools.', level, structureMode, structureStyle }, [wording, empty]);
+    assert.equal(result.status, 200);
+    assert.equal(result.data.appliedStructure.style, expected);
+    assert.equal(result.data.structureMode, structureMode === 'keep' ? 'keep' : 'flow');
+    assert.equal(result.writes.length, 1);
+  }
+});
+test('contradictory Custom style combinations fail before generation or charging', async () => {
+  for (const settings of [
+    { level: 'medium', structureMode: 'auto', structureStyle: 'shorter' },
+    { level: 'easy', structureMode: 'flow', structureStyle: 'balanced' },
+    { level: 'customize', structureMode: 'auto' },
+    { level: 'customize', structureMode: 'keep', structureStyle: 'connected' },
+    { level: 'customize', structureMode: 'flow', structureStyle: null },
+  ]) {
+    const result = await request({ text: 'We utilize tools.', ...settings }, []);
+    assert.equal(result.status, 400);
+    assert.equal(result.calls, 0);
+    assert.equal(result.writes.length, 0);
+  }
+});
+test('My Level auto handles legacy and v4 profiles without allowing a Custom style override', async () => {
+  const legacy = { summary: 'Direct voice.', tone: { label: 'Direct', evidence: 'Clear statements.' }, sentenceStyle: { label: 'Short', evidence: 'Compact sentences.' }, strengths: [], habits: [] };
+  const P = globalThis.BipassSentencePatterns;
+  const prepared = P.prepare(['We read short books. '.repeat(20)]);
+  const current = { ...legacy, sentencePatterns: P.complete(prepared, { labels: prepared.sentences.map(s => ({ id: s.id, type: 'simple' })), observations: [] }) };
+  for (const [styleProfile, style, mode] of [[legacy, 'keep', 'keep'], [current, 'profile', 'flow']]) {
+    const result = await request({ text: 'We utilize tools.', level: 'customize', structureMode: 'auto', styleProfile }, [wording, empty]);
+    assert.equal(result.status, 200);
+    assert.equal(result.data.appliedStructure.style, style);
+    assert.equal(result.data.structureMode, mode);
+    assert.equal(result.data.profileApplied, true);
+    assert.equal(result.writes.length, 1);
+  }
+  const invalid = await request({ text: 'We utilize tools.', level: 'customize', structureMode: 'flow', structureStyle: 'balanced', styleProfile: current }, []);
+  assert.equal(invalid.status, 400);
+  assert.equal(invalid.writes.length, 0);
+});
+
 test('adjust-level defaults to keep and charges exactly once after both validated stages', async () => {
   const result = await request({ text: 'We utilize tools.', level: 'medium' }, [wording, empty]);
   assert.equal(result.status, 200);

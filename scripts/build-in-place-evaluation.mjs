@@ -9,8 +9,9 @@ const run = process.argv[3] || '1';
 if (!['smoke', 'full'].includes(mode)) throw new Error('Use smoke or full');
 if (!/^[a-z0-9-]+$/.test(run)) throw new Error('Use a short alphanumeric run identifier');
 const result = read('match-result.js');
-const matching = read('preset-edits.js') + '\n' + read('level-matching.js')
+const matching = read('structure-settings.js') + '\n' + read('preset-edits.js') + '\n' + read('level-matching.js')
   .replace("import './match-result.js';", '')
+  .replace("import './structure-settings.js';", '')
   .replace("import { presetEditPalette, selectedPresetEdits } from './preset-edits.js';", '');
 const harness = read('scripts/evaluate-level-matching.mjs')
   .replace(/import \{ runLevelMatching[^\n]+\n/, '')

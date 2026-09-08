@@ -255,9 +255,9 @@ const tourSource = appJs.slice(
   appJs.indexOf('// ─── Own Text → Extension'),
 );
 const tourTargets = [...tourSource.matchAll(/els: \['([^']+)'\]/g)].map(match => match[1]);
-if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,structure-control,level-match-btn'
+if (tourTargets.join(',') !== 'mode-dd,input-text,level-box,level-box,level-match-btn'
     || tourSource.includes("kind: 'required-notice'")
-    || !tourSource.includes('Keep structure preserves sentence order and paragraph breaks')
+    || !tourSource.includes('Balanced, Shorter, or More connected')
     || !tourSource.includes('Restructured sentences are reviewed as a whole group')) {
   add(appJsFile, 'first-visit tour must follow the current five-step Level Matching workflow');
 }
@@ -394,7 +394,8 @@ if (!myLevelInviteSource.includes("document.body.classList.add('my-level-invite-
   add(appJsFile, 'the first-time My Level prompt must block dismissal until My Level is activated');
 }
 if (!appJs.includes('styleProfile: styleProfile || undefined')
-    || !appJs.includes('storeAppliedProfile(data.profileApplied === true)')
+    || !appJs.includes('data.profileApplied === true && requestProfileSnapshot')
+    || !appJs.includes("sessionStorage.setItem('bipass_result_mistakes'")
     || !appJs.includes('if (removedActiveProfile) {')
     || !appJs.includes('sessionStorage.removeItem(APPLIED_PROFILE_KEY)')
     || !appJs.includes("selectorMode(selectedLevel, completedProfileActive)")) {

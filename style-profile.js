@@ -39,6 +39,10 @@
     const sentenceStyle = normalizeEvidenceItem(value.sentenceStyle);
     const summary = cleanText(value.summary, 220);
     if (!summary || !tone || !sentenceStyle) return null;
+    let sentencePatterns;
+    if (value.sentencePatterns != null) {
+      try { sentencePatterns = root.BipassSentencePatterns.normalize(value.sentencePatterns); } catch (_) { return null; }
+    }
     const list = (items) => (Array.isArray(items) ? items : [])
       .map(normalizeEvidenceItem)
       .filter(Boolean)
@@ -47,6 +51,7 @@
       summary,
       tone,
       sentenceStyle,
+      ...(sentencePatterns ? { sentencePatterns } : {}),
       strengths: list(value.strengths),
       habits: list(value.habits),
     };
@@ -88,8 +93,9 @@
     const evidence = {};
     for (const key of SCORE_KEYS) evidence[key] = cleanText(raw.evidence?.[key], 240);
     const profile = normalizeProfile(raw.profile);
+    if (Number(raw.version) >= 4 && !profile?.sentencePatterns) return null;
     return {
-      version: profile ? 3 : Number(raw.version) || 2,
+      version: profile?.sentencePatterns ? 4 : profile ? 3 : Number(raw.version) || 2,
       scores: normalizedScores,
       evidence,
       ...(profile ? { profile } : {}),
@@ -103,7 +109,7 @@
     })) : [];
     const profileAnalysis = analysis && typeof analysis === 'object' ? analysis : null;
     return JSON.stringify({
-      version: profileAnalysis?.profile ? 3 : 2,
+      version: profileAnalysis?.profile?.sentencePatterns ? 4 : profileAnalysis?.profile ? 3 : 2,
       traits: normalizedTraits,
       ...(profileAnalysis ? { analysis: profileAnalysis } : {}),
     });
@@ -177,12 +183,13 @@
       intensity: clampScore(trait?.intensity, 0),
     }));
     const profile = normalizeProfile(data.analysis.profile);
+    if (Number(data.analysis.version) >= 4 && !profile?.sentencePatterns) throw new Error('Sentence analysis is incomplete');
     if (Number(data.analysis.version) >= 3 && !profile) {
       throw new Error('Incomplete writing profile');
     }
     const analysis = {
       ...data.analysis,
-      version: profile ? 3 : 2,
+      version: profile?.sentencePatterns ? 4 : profile ? 3 : 2,
       scores: normalizedScores,
       ...(profile ? { profile } : {}),
     };

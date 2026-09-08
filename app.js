@@ -834,14 +834,6 @@ function activeStyleProfilePayload() {
   return window.BipassStyleProfile.readAnalysis(savedStyle)?.profile || null;
 }
 
-function storeAppliedProfile(confirmed) {
-  const snapshot = confirmed && savedStyle
-    ? window.BipassStyleProfile.resultSnapshot(savedStyle)
-    : null;
-  if (snapshot) sessionStorage.setItem(APPLIED_PROFILE_KEY, JSON.stringify(snapshot));
-  else sessionStorage.removeItem(APPLIED_PROFILE_KEY);
-}
-
 async function adjustLevel() {
   if (myLevelSelectionPending
       || (myStyleActive && selectedLevel === 'customize' && !hasCompleteSelectedMyLevel())) {
@@ -862,6 +854,10 @@ async function adjustLevel() {
     wordLevel: parseInt(optionsPanel?.querySelector('[data-mistake="wordlevel"]')?.value ?? 5),
   });
   const styleProfile = activeStyleProfilePayload();
+  const requestLevel = selectedLevel;
+  const requestMistakes = requestLevel === 'customize' ? getMistakes() : undefined;
+  const requestStructure = currentStructureRequest();
+  const requestProfileSnapshot = styleProfile && savedStyle ? window.BipassStyleProfile.resultSnapshot(savedStyle) : null;
 
   setLoading(true, 'Matching level…');
   try {
@@ -871,9 +867,9 @@ async function adjustLevel() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({
         text,
-        level: selectedLevel,
-        structureMode: document.querySelector('input[name="structure-mode"]:checked')?.value || 'keep',
-        mistakes: selectedLevel === 'customize' ? getMistakes() : undefined,
+        level: requestLevel,
+        ...requestStructure,
+        mistakes: requestMistakes,
         styleProfile: styleProfile || undefined,
       }),
     });
@@ -916,9 +912,13 @@ async function adjustLevel() {
     sessionStorage.setItem('bipass_flow',         'level');
     sessionStorage.setItem('bipass_change_count', String(changed));
     sessionStorage.setItem('bipass_wc',           String(countWords(text)));
-    sessionStorage.setItem('bipass_level',        selectedLevel);
+    sessionStorage.setItem('bipass_level',        requestLevel);
+    sessionStorage.setItem('bipass_result_mistakes', JSON.stringify(requestMistakes || null));
     sessionStorage.setItem('bipass_structure_mode', data.structureMode || 'keep');
-    storeAppliedProfile(data.profileApplied === true);
+    if (data.appliedStructure) sessionStorage.setItem('bipass_applied_structure', JSON.stringify(data.appliedStructure));
+    else sessionStorage.removeItem('bipass_applied_structure');
+    if (data.profileApplied === true && requestProfileSnapshot) sessionStorage.setItem(APPLIED_PROFILE_KEY, JSON.stringify(requestProfileSnapshot));
+    else sessionStorage.removeItem(APPLIED_PROFILE_KEY);
     sessionStorage.removeItem('bipass_result_id');
     window.location.href = 'editor.html';
   } catch (err) {
@@ -1371,9 +1371,10 @@ async function init() {
 // ─── Restore state from sessionStorage (after regenerate) ─────
 
 function restoreState() {
-  const structureMode = sessionStorage.getItem('bipass_structure_mode') === 'flow' ? 'flow' : 'keep';
-  const structureInput = document.querySelector(`input[name="structure-mode"][value="${structureMode}"]`);
-  if (structureInput) structureInput.checked = true;
+  const customStructure = window.BipassStructure.customPreference(sessionStorage);
+  document.getElementById('custom-structure-enabled').checked = customStructure.enabled;
+  document.getElementById('custom-structure-style').value = customStructure.style;
+  sessionStorage.setItem('bipass_custom_structure', JSON.stringify(customStructure));
   updateStructureDescription();
   const validLevels = ['easy', 'medium', 'customize'];
   const savedLevel = window.BipassStyleProfile.normalizeSelectorLevel(sessionStorage.getItem('bipass_level'));
@@ -1424,15 +1425,26 @@ function restoreState() {
 // ─── Events ───────────────────────────────────────────────────
 
 function updateStructureDescription() {
-  const flow = document.querySelector('input[name="structure-mode"]:checked')?.value === 'flow';
+  const flow = document.getElementById('custom-structure-enabled')?.checked === true;
+  const style = document.getElementById('custom-structure-style')?.value || 'balanced';
+  const row = document.getElementById('custom-structure-style-row');
+  if (row) row.hidden = !flow;
   const description = document.getElementById('structure-description');
-  if (description) description.textContent = flow ? 'Simplify long sentences and vary their length.' : 'Keep your sentence order and paragraph breaks.';
+  const descriptions = { balanced: 'Mix connected ideas with shorter sentences.', shorter: 'Break up dense sentences while keeping their connections.', connected: 'Join related ideas, with room for shorter sentences.' };
+  if (description) description.textContent = flow ? descriptions[style] : 'Keep your sentence order and paragraph breaks.';
+}
+
+function currentStructureRequest() {
+  if (selectedLevel !== 'customize' || myStyleActive) return { structureMode: 'auto' };
+  return document.getElementById('custom-structure-enabled')?.checked
+    ? { structureMode: 'flow', structureStyle: document.getElementById('custom-structure-style')?.value || 'balanced' }
+    : { structureMode: 'keep' };
 }
 
 function bindEvents() {
-  document.querySelectorAll('input[name="structure-mode"]').forEach(input => {
+  document.querySelectorAll('#custom-structure-enabled, #custom-structure-style').forEach(input => {
     input.addEventListener('change', () => {
-      sessionStorage.setItem('bipass_structure_mode', input.value);
+      sessionStorage.setItem('bipass_custom_structure', JSON.stringify({ enabled: document.getElementById('custom-structure-enabled').checked, style: document.getElementById('custom-structure-style').value }));
       updateStructureDescription();
     });
   });
@@ -1607,7 +1619,7 @@ function setProfileAnalysisState(analyzing) {
   if (profileOption) profileOption.disabled = analyzing;
   if (analyzing) {
     if (profileOptionTitle) profileOptionTitle.textContent = 'Building My Level';
-    if (profileOptionMeta) profileOptionMeta.textContent = 'Measuring six traits from your samples';
+    if (profileOptionMeta) profileOptionMeta.textContent = 'Reading your words and sentence habits';
     if (profileOptionStatus) profileOptionStatus.textContent = 'Analyzing';
   } else {
     syncLevelSelectionUi();
@@ -1622,9 +1634,9 @@ function syncLevelSelectionUi() {
   const optionState = window.BipassStyleProfile.profileOptionState(savedStyle, completedProfileActive);
   const description = document.getElementById('preset-description');
   if (description) description.textContent = profileSelected
-    ? 'Match the vocabulary and writing habits in your samples.'
-    : mode === 'easy' ? 'Simple everyday words with noticeable, readable imperfections.'
-    : mode === 'medium' ? 'Everyday student vocabulary with lighter imperfections.'
+    ? 'Match the vocabulary and supported sentence habits in your samples.'
+    : mode === 'easy' ? 'Simple words and straightforward sentences, with noticeable imperfections.'
+    : mode === 'medium' ? 'Everyday words and connected sentences, with lighter imperfections.'
     : 'Choose your vocabulary level and writing patterns below.';
 
   pills.forEach((pill) => {
@@ -1730,7 +1742,7 @@ const MY_LEVEL_TOUR_STEPS = [
   {
     els: ['style-name-input', 'sample-scroll-shell'],
     title: 'Add your writing',
-    body: 'Name it and paste 50+ words you wrote.',
+    body: 'Name it and paste 50+ words you wrote. For stronger sentence matching, add 200+ words and multiple samples of the same kind of writing.',
     onEnter: () => showProfileCreator(null, { focus: false }),
   },
   {
@@ -2202,7 +2214,6 @@ function activateMyStyle() {
   selectedLevel = 'customize';
   myStyleActive = !!savedStyle;
   myLevelSelectionPending = !window.BipassStyleProfile.readAnalysis(savedStyle)?.profile;
-  sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', myStyleActive ? 'true' : 'false');
   setSlidersFromStyle(savedStyle);
   syncLevelSelectionUi();
@@ -2214,7 +2225,6 @@ function deactivateMyStyle() {
   clearProfileBorderFeedback();
   myStyleActive = false;
   myLevelSelectionPending = false;
-  sessionStorage.removeItem(APPLIED_PROFILE_KEY);
   sessionStorage.setItem('bipass_my_style', 'false');
 }
 
@@ -2353,6 +2363,31 @@ function showStyleDeleteModal(styleName, onConfirm) {
   requestAnimationFrame(() => cancelButton.focus());
 }
 
+function renderSentenceHabits(patterns) {
+  if (!patterns) return '<p class="profile-patterns">Update this profile to learn its sentence patterns.</p>';
+  const fmt = value => new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
+  const terms = values => values.length ? values.map(v => `${escapeHtml(v.term)} (${fmt(v.count)})`).join(', ') : 'No recurring pattern observed';
+  const types = window.BipassSentencePatterns.TYPES.map(type => {
+    const count = patterns.counts[type];
+    const percentage = patterns.confidence === 'supported' && !['fragment', 'uncertain'].includes(type) && patterns.classified ? ` · ${Math.round(count / patterns.classified * 100)}%` : '';
+    return `<dt>${escapeHtml(type.replace('compound-complex', 'Compound-complex').replace(/^./, c => c.toUpperCase()))}</dt><dd>${fmt(count)}${percentage}</dd>`;
+  }).join('');
+  return `<details class="profile-patterns"><summary>View writing habits</summary>
+    <p>${patterns.confidence === 'limited' ? 'Limited sample — add 200+ words and multiple samples for stronger matching.' : 'Estimated clause types from your sampled writing, not fixed targets.'}</p>
+    ${patterns.mixed ? '<p>Your samples use different sentence habits. Matching keeps that variety.</p>' : ''}
+    <dl><dt>Words / samples</dt><dd>${fmt(patterns.totalWords)} / ${fmt(patterns.sampleCount)}</dd>
+    <dt>Typical sentence</dt><dd>${fmt(patterns.length.median)} words</dd>
+    <dt>Sentence spread</dt><dd>${fmt(patterns.length.p10)}–${fmt(patterns.length.p90)} words (10th–90th percentile)</dd>
+    <dt>Length variation</dt><dd>${fmt(patterns.length.sd)} words (standard deviation)</dd>
+    <dt>Typical paragraph</dt><dd>${fmt(patterns.paragraphLength.median)} words</dd>
+    <dt>Sentences analysed</dt><dd>${fmt(patterns.sampledSentences)} of ${fmt(patterns.sentenceCount)}</dd>${types}
+    <dt>Contractions</dt><dd>${fmt(patterns.contractions)}</dd></dl>
+    <p><strong>Recurring connectors:</strong> ${terms(patterns.connectors)}</p>
+    <p><strong>Common openings:</strong> ${terms(patterns.openings)}</p>
+    ${patterns.observations.map(o => `<p><strong>${escapeHtml(o.label)}</strong> · ${fmt(o.support)} sampled sentence${o.support === 1 ? '' : 's'}</p>`).join('')}
+    </details>`;
+}
+
 function renderProfileDetails(style) {
   const traits = window.BipassStyleProfile.readTraits(style);
   const analysis = window.BipassStyleProfile.readAnalysis(style);
@@ -2405,13 +2440,14 @@ function renderProfileDetails(style) {
       ${insightList('Strengths', profile.strengths)}
       ${insightList('Recurring habits', profile.habits)}
     </div>
+    ${renderSentenceHabits(profile.sentencePatterns)}
     <div class="profile-ai-editor">
       <form class="profile-refine-form" data-id="${escapeHtml(style.id)}">
         <input class="profile-refine-input" type="text" maxlength="280"
                placeholder="Tell AI what to fix or change (optional)" aria-label="Instructions for regenerating this writing profile">
         <button class="profile-refine-btn" type="submit">Regenerate with AI</button>
       </form>
-      <button class="profile-reanalyze-btn" data-id="${escapeHtml(style.id)}" type="button">Reanalyse samples</button>
+      <button class="profile-reanalyze-btn" data-id="${escapeHtml(style.id)}" type="button">${profile.sentencePatterns ? 'Reanalyse samples' : 'Update sentence analysis'}</button>
     </div>
     <div class="profile-score-list">
       <span class="profile-detail-label">Measured traits</span>
@@ -2446,7 +2482,6 @@ function bindProfileDetailEditor(details, style) {
       applyFingerprintValues(details.closest('.writing-profile-card')?.querySelector('.writing-fingerprint-card'), values);
       if (String(activeStyleId) === String(updated.id)) {
         setSlidersFromStyle(updated);
-        sessionStorage.removeItem(APPLIED_PROFILE_KEY);
         saveStyleTraits();
         syncLevelSelectionUi();
       } else {
@@ -2499,14 +2534,13 @@ function bindProfileDetailEditor(details, style) {
         style_summary: window.BipassStyleProfile.serializeSummary(refined.traits, refined.analysis),
         style_analysis: refined.analysis,
         style_prompt: refined.stylePrompt,
-        analysis_version: 3,
+        analysis_version: refined.analysis.version,
       };
       updateSavedStyle(updated);
       style = updated;
       saveStoredStyles();
       if (String(activeStyleId) === String(updated.id)) {
         setSlidersFromStyle(updated);
-        sessionStorage.removeItem(APPLIED_PROFILE_KEY);
         saveStyleTraits();
         syncLevelSelectionUi();
       }
@@ -2885,7 +2919,7 @@ async function analyzeStyle() {
       name: styleName,
       style_summary: serializedSummary,
       style_prompt: profile.stylePrompt,
-      analysis_version: 3,
+      analysis_version: profile.analysis.version,
       style_analysis: profile.analysis,
       writing_samples: samples,
     };
@@ -3582,9 +3616,9 @@ const TOUR_STEPS = [
     body: 'Select your Writing Profile or tap anywhere on a preset card: Beginner, Student, or Custom. The whole card is clickable.',
   },
   {
-    els: ['structure-control'],
-    title: 'Choose your sentence flow',
-    body: 'Keep structure preserves sentence order and paragraph breaks. Improve flow simplifies complex sentences. Review the result to make sure it still says what you mean.',
+    els: ['level-box'],
+    title: 'Sentence flow follows your level',
+    body: 'Beginner and Student include their own sentence style. My Level follows supported habits from your samples. In Custom, turn on Change sentence structure to choose Balanced, Shorter, or More connected.',
   },
   {
     els: ['level-match-btn'],

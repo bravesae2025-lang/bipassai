@@ -30,6 +30,18 @@ test('wording separates preset instructions from descriptive profile data', () =
   assert.doesNotMatch(custom, /BEGINNER:|STUDENT:/);
 });
 
+test('flow instructions defer to each policy instead of prescribing universal splitting', () => {
+  const config = { wordLevel: 5 };
+  for (const style of ['beginner', 'student', 'balanced', 'shorter', 'connected', 'profile']) {
+    const prompt = wordingPrompt({ level: 'customize', config, structureMode: 'flow', appliedStructure: { style } });
+    assert.match(prompt, /not default requirements/);
+    assert.match(prompt, /Do not apply the same sentence-splitting strategy to every policy/);
+    assert.doesNotMatch(prompt, /IMPROVE FLOW: selectively split long complex sentences/);
+    if (['student', 'balanced'].includes(style)) assert.match(prompt, /Preserve useful compound connections already present/);
+  }
+  assert.match(wordingPrompt({ level: 'easy', config, structureMode: 'flow' }), /simplest accurate everyday equivalents/);
+});
+
 test('structure groups use complete sentence spans and cannot cross paragraphs', () => {
   const source = '## Heading\nThe rain continued, so we stayed inside.';
   const group = 'The rain continued, so we stayed inside.';

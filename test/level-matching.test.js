@@ -37,7 +37,10 @@ test('flow instructions defer to each policy instead of prescribing universal sp
     assert.match(prompt, /not default requirements/);
     assert.match(prompt, /Do not apply the same sentence-splitting strategy to every policy/);
     assert.doesNotMatch(prompt, /IMPROVE FLOW: selectively split long complex sentences/);
-    if (['student', 'balanced'].includes(style)) assert.match(prompt, /Preserve useful compound connections already present/);
+    if (['student', 'balanced'].includes(style)) {
+      assert.match(prompt, /Preserve useful compound connections already present/);
+      assert.match(prompt, /Starting a separate sentence with But or And does not create a compound sentence/);
+    } else assert.doesNotMatch(prompt, /prefer "A, but B\." over/);
   }
   assert.match(wordingPrompt({ level: 'easy', config, structureMode: 'flow' }), /simplest accurate everyday equivalents/);
 });

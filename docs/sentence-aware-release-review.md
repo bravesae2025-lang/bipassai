@@ -4,6 +4,12 @@ Status (2026-09-08): **user approved deployment before remaining live verificati
 
 ## Approved capped follow-up
 
+### Live-site check after authorized deployment
+
+`600cb2e` was pushed and Railway deployment `387f546f` became Active. One actual website request used the fixed 73-word timetable draft, Custom vocabulary 5, all mechanical settings 0, and Balanced flow. It completed in 19,582 ms without repair; the mechanical stage was skipped. Provider usage: 1,120 input, 344 output, 3,803 thinking tokens. At the recorded Flash prices and buffered THB 40/USD this is approximately **THB 0.42814**, not an invoice. The UI reported 292 credits used; the displayed balance was not a reliable isolated before/after deduction check.
+
+The output had 74 words and two atomic Structure groups. Rejection restored the whole first source sentence, undo restored the rewrite, and Copy reported success. It simplified “few opportunities” to “few chances” and “consequently” to “Because of this”. However, two source sentences became four, including “A. But B.” rather than coordinated clauses. This does **not** establish the requested Balanced compound emphasis. A narrow follow-up explicitly distinguishes sentence-initial connectors from actual compound clauses, without imposing quotas or joining unrelated ideas. Local prompt assertions cover its policy scope; a single post-deployment retest is planned within the same THB 10 allowance. No standalone profile evaluation was run.
+
 The user approved **at most THB 10 total** for remaining targeted checks and a website check. No paid calls have been sent under this new allowance. Do not resume the bulk matrix or interpret the user's separate THB 1,000 account budget as a testing allowance.
 
 `scripts/verify-capped-profile.mjs` prepares one fixed connected-profile check with a THB 2 ceiling, leaving THB 8 reserved for a website request. It reserves worst-case output plus a conservative UTF-8-byte input bound before sending, uses THB 40/USD including conversion/fee headroom, retains the current 8,192-token thinking setting, and lowers the test-only output ceiling to 16,384. It permits one provider call and stops at validation failure without a paid repair. It refuses to rerun the same output directory. This check has **not executed**; only its syntax was checked.

@@ -1231,6 +1231,7 @@ async function requestValidatedProfile(endpoint, apiKey, request, validate, fetc
       throw error;
     }
     const data = await response.json();
+    if (data.usageMetadata) console.info('[writing-profile] usage', JSON.stringify(data.usageMetadata));
     if (data.candidates?.[0]?.finishReason !== 'STOP') throw new Error('Writing profile response was incomplete. Please try again.');
     const text = data.candidates?.[0]?.content?.parts?.filter(p => !p.thought).map(p => p.text || '').join('');
     try {

@@ -101,6 +101,18 @@ let filterMode  = '';
 let filterQuery = '';
 let searchTimer = null;
 const HISTORY_LIMIT = 20;
+let deleteRequestPending = false;
+
+function confirmResultDeletion(item) {
+  const dialog = document.getElementById('history-delete-dialog');
+  document.getElementById('history-delete-date').textContent = formatDate(item.created_at);
+  document.getElementById('history-delete-preview').textContent = String(item.text ?? '').slice(0, 200);
+  dialog.returnValue = '';
+  return new Promise(resolve => {
+    dialog.addEventListener('close', () => resolve(dialog.returnValue === 'delete'), { once: true });
+    dialog.showModal();
+  });
+}
 
 function normalizeResultMode(mode) {
   return ['level', 'generate', 'own'].includes(mode) ? mode : 'level';
@@ -163,15 +175,28 @@ function bindCardActions(container) {
     }
 
     if (deleteBtn) {
-      if (!window.confirm('Delete this saved result?')) return;
+      if (deleteRequestPending) return;
       const id = deleteBtn.dataset.id;
-      const { error } = await window.bipassAuth.client.from('results').delete().eq('id', id);
-      if (!error) {
+      const item = allResults.find(result => String(result.id) === String(id));
+      if (!item) return;
+      deleteRequestPending = true;
+      try {
+        if (!await confirmResultDeletion(item)) return;
+        deleteBtn.disabled = true;
+        const { error } = await window.bipassAuth.client.from('results').delete().eq('id', id);
+        if (error) throw error;
         if (sessionStorage.getItem('bipass_result_id') === id) {
           sessionStorage.removeItem('bipass_result_id');
         }
         allResults = allResults.filter(r => String(r.id) !== String(id));
         renderFiltered();
+        document.getElementById('history-search').focus();
+        showToast('Saved result deleted');
+      } catch {
+        showToast('Result could not be deleted. Try again.');
+      } finally {
+        deleteRequestPending = false;
+        deleteBtn.disabled = false;
       }
     }
   });

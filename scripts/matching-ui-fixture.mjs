@@ -27,9 +27,10 @@ analysis.version = 4;
 analysis.profile.sentencePatterns = globalThis.BipassSentencePatterns.complete(prepared, { labels: prepared.sentences.map(s => ({ id: s.id, type: 'compound' })), observations: [{ kind: 'vocabulary', label: 'Everyday verbs', evidence: [{ sentenceId: 's0-0', quote: 'read the report' }, { sentenceId: 's0-1', quote: 'talk about the ideas' }] }] });
 const profileStore = globalThis.BipassStyleProfile.serializeProfileStore([{ id: 'fixture-profile', name: 'Sample voice', style_summary: globalThis.BipassStyleProfile.serializeSummary([], analysis), style_prompt: 'Match this descriptive profile.' }], 'fixture-profile');
 const sdk = `const qaSession={access_token:'local-fixture',user:{id:'local-fixture',email:'preview@example.test',user_metadata:{display_name:'Preview'},app_metadata:{credits:100000,tier:'monthly',signup_welcome_shown:true}}};
+let qaHistory=[{id:'fixture-history',mode:'level',level:'medium',created_at:'2026-09-08T07:45:00Z',text:'Synthetic preview only. This local result is not connected to your account.'}];
 window.supabase={createClient:()=>({
  auth:{getSession:async()=>({data:{session:qaSession}}),refreshSession:async()=>({data:{session:qaSession}}),updateUser:async()=>({data:{user:qaSession.user}})},
- from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null})})})})
+ from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null}),order:async()=>({data:qaHistory,error:null})})}),delete:()=>({eq:async(_key,id)=>{qaHistory=qaHistory.filter(row=>row.id!==id);return{error:null};}})})
 })};
 localStorage.setItem('bipass_tour_seen','true');
 if(['/qa-result','/qa-long'].includes(location.pathname)){sessionStorage.removeItem('bipass_applied_profile');sessionStorage.removeItem('bipass_result_mistakes');sessionStorage.setItem('bipass_applied_structure',JSON.stringify({version:1,level:'medium',mode:'flow',style:'student',requestedMode:'auto'}));}
@@ -41,11 +42,11 @@ app.get('/qa-sdk.js', (_req, res) => res.type('js').send(sdk));
 // browser's window override is unavailable. No CSS scaling or screenshot mocks.
 app.get('/qa-frame', (req, res) => {
   const size = req.query.size === 'mobile' ? [390, 844] : req.query.size === 'desktop' ? [1440, 900] : [1366, 768];
-  const view = req.query.view === 'custom' ? '/home' : req.query.view === 'profile' ? '/qa-profile' : '/qa-long';
+  const view = req.query.view === 'history' ? '/history.html' : req.query.view === 'custom' ? '/home' : req.query.view === 'profile' ? '/qa-profile' : '/qa-long';
   res.type('html').send(`<!doctype html><title>Responsive matching fixture</title><style>body{margin:0;background:#ddd}iframe{display:block;border:0;width:${size[0]}px;height:${size[1]}px}</style><iframe title="${size[0]} by ${size[1]} matching preview" allow="clipboard-read; clipboard-write" src="${view}"></iframe>`);
 });
-app.get(['/home', '/app.html', '/editor.html', '/qa-result', '/qa-profile', '/qa-long'], async (req, res) => {
-  const file = req.path.includes('editor') || ['/qa-result', '/qa-long'].includes(req.path) ? 'editor.html' : 'app.html';
+app.get(['/home', '/app.html', '/editor.html', '/history.html', '/qa-result', '/qa-profile', '/qa-long'], async (req, res) => {
+  const file = req.path === '/history.html' ? 'history.html' : req.path.includes('editor') || ['/qa-result', '/qa-long'].includes(req.path) ? 'editor.html' : 'app.html';
   const html = (await readFile(resolve(root, file), 'utf8')).replace(/<script src="https:\/\/cdn.jsdelivr.net\/npm\/@supabase[^>]+><\/script>/, '<script src="/qa-sdk.js"></script>');
   res.type('html').send(html);
 });

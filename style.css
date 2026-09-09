@@ -14615,3 +14615,24 @@ body.my-level-invite-locked { overflow: hidden; }
       0 0 0 6px #22c55e;
   }
 }
+.history-delete-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: auto;
+  border: 1px solid #d5d5d5;
+  border-radius: 14px;
+  background: #fff;
+  color: #161616;
+  box-shadow: none;
+  font-family: 'DM Mono', monospace;
+}
+.history-delete-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.history-delete-dialog h2 { margin: 0 0 12px; font-size: 18px; line-height: 1.4; }
+.history-delete-dialog p { margin: 12px 0; font-size: 12px; line-height: 1.6; }
+.history-delete-preview { padding: 12px; background: #f4f4f4; border-radius: 6px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.history-delete-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.history-delete-dialog-actions .history-btn { min-height: 44px; }
+.history-delete-dialog-actions .history-btn:focus-visible { outline: 2px solid #161616; outline-offset: 3px; }

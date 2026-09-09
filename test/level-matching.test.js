@@ -193,8 +193,15 @@ test('supported profile clause measurements override generic vocabulary-driven s
   const prompt = sentencePatterns => wordingPrompt({ level: 'customize', config: { wordLevel: 2 }, structureMode: 'flow', appliedStructure: { style: 'profile' }, profile: { sentencePatterns } });
   assert.match(prompt(patterns), /most frequent confidently classified form in this sample is compound/);
   assert.match(prompt(patterns), /Vocabulary difficulty does not determine clause complexity/);
+  assert.match(prompt(patterns), /Starting a separate sentence with But or And does not create a compound sentence/);
+  assert.match(prompt(patterns), /Measured sentence lengths are descriptive, not a maximum word count/);
+  assert.match(prompt(patterns), /considering evidence is not merely hearing or listening to it/);
   assert.doesNotMatch(prompt({ ...patterns, mixed: true }), /most frequent confidently classified form/);
+  assert.doesNotMatch(prompt({ ...patterns, mixed: true }), /prefer "A, but B\."/);
   assert.doesNotMatch(prompt({ ...patterns, confidence: 'limited' }), /most frequent confidently classified form/);
+  assert.doesNotMatch(prompt({ ...patterns, confidence: 'limited' }), /prefer "A, but B\."/);
+  assert.doesNotMatch(prompt({ ...patterns, counts: { simple: 9, compound: 2, complex: 3, 'compound-complex': 2 } }), /prefer "A, but B\."/);
+  assert.doesNotMatch(prompt({ ...patterns, counts: { simple: 6, compound: 6, complex: 2, 'compound-complex': 2 } }), /most frequent confidently classified form|prefer "A, but B\."/);
 });
 
 test('partial flow and wording edits in the same sentence form one reversible group', () => {

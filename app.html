@@ -29,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="style.css?v=136">
+  <link rel="stylesheet" href="style.css?v=137">
 </head>
 <body class="creation-page">
 
@@ -389,7 +389,15 @@
             <div class="writing-profile-head">
               <div class="control-head">My profiles</div>
               <details class="profile-sample-help">
-                <summary aria-label="Writing sample tips"><span aria-hidden="true">i</span></summary>
+                <summary aria-label="Writing sample tips">
+                  <span class="profile-sample-help-icon" aria-hidden="true">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="11" x2="12" y2="16"/>
+                      <line x1="12" y1="8" x2="12" y2="8.4"/>
+                    </svg>
+                  </span>
+                </summary>
                 <p>Use 200+ words and multiple samples of the writing type you want to match. You can start with 50 words; shorter samples receive limited sentence estimates.</p>
               </details>
             </div>
@@ -397,11 +405,15 @@
             <div class="writing-profile-empty" id="writing-profile-empty">
               <button class="writing-profile-create" id="create-profile-btn" type="button">
                 <span class="create-profile-fingerprint" aria-hidden="true">
-                  <i></i><i></i><i></i><i></i><i></i><i></i>
+                  <span class="create-profile-fingerprint-bars">
+                    <i></i><i></i><i></i><i></i><i></i><i></i>
+                  </span>
                 </span>
                 <strong>Create My Level</strong>
                 <span class="create-profile-arrow" aria-hidden="true">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12.5 6.5l6 5.5-6 5.5"/>
+                  </svg>
                 </span>
               </button>
             </div>
